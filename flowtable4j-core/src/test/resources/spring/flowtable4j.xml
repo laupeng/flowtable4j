@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:jaxws="http://cxf.apache.org/jaxws" xmlns:task="http://www.springframework.org/schema/task"
+       xsi:schemaLocation="
+            http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+            http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+            http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-4.0.xsd
+            http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd" >
+
+    <context:annotation-config />    
+            
+    <!-- GlobalConfig -->
+    <context:property-placeholder ignore-unresolvable="true"
+                                  location="classpath*:/GlobalConfig.properties" />
+    
+    <!-- 单元测试使用的Dev数据库 -->
+    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="com.microsoft.sqlserver.jdbc.SQLServerDriver"/>
+        <property name="url" value="${database.sqlserver.url}"/>
+        <property name="username" value="${database.sqlserver.userName}"/>
+        <property name="password" value="${database.sqlserver.password}"/>
+        <property name="maxIdle" value="5" />        
+        <property name="maxActive" value="50" />
+    </bean>
+    
+</beans>

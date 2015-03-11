@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    
+    <substitutionProperty name="default_pattern" value="%date %-5level %logger{40} - %msg%n" />
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoding>UTF-8</encoding>
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <pattern>${default_pattern}</pattern>
+        </layout>
+    </appender>
+        
+    <logger name="com.ctrip.infosec.flowtable4j">
+        <level value="INFO" />
+    </logger>    
+    <logger name="com.ctrip.infosec.sars.monitor">
+        <level value="WARN" />
+    </logger>
+    
+    <logger name="org.springframework">
+        <level value="ERROR" />
+    </logger>
+
+    <logger name="com.ibatis">
+        <level value="WARN" />
+    </logger>
+    
+    <logger name="org.mybatis">
+        <level value="WARN" />
+    </logger>
+
+    <logger name="java.sql">
+        <level value="WARN" />
+    </logger>
+    
+    <logger name="org.apache.commons">
+        <level value="ERROR" />
+    </logger>
+    
+    <logger name="com.snda.cache">
+        <level value="WARN" />
+    </logger>
+    <logger name="net.rubyeye.xmemcached">
+        <level value="ERROR" />
+    </logger>
+    <logger name="com.google.code.yanf4j">
+        <level value="ERROR" />
+    </logger>
+    
+    <logger name="org.eclipse.jetty">
+        <level value="INFO" />
+    </logger>  
+    
+    <logger name="com.meidusa">
+        <level value="INFO" />
+    </logger>
+
+    <root level="WARN">
+        <appender-ref ref="STDOUT" />
+    </root>
+    
+</configuration>
