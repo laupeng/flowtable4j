@@ -8,20 +8,38 @@
             http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-4.0.xsd
             http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd" >
 
-    <context:annotation-config />    
-            
+    <context:annotation-config />
+
     <!-- GlobalConfig -->
     <context:property-placeholder ignore-unresolvable="true"
                                   location="classpath*:/GlobalConfig.properties" />
-    
+
     <!-- 单元测试使用的Dev数据库 -->
-    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-        <property name="driverClassName" value="com.microsoft.sqlserver.jdbc.SQLServerDriver"/>
-        <property name="url" value="${database.sqlserver.url}"/>
-        <property name="username" value="${database.sqlserver.userName}"/>
-        <property name="password" value="${database.sqlserver.password}"/>
-        <property name="maxIdle" value="5" />        
+    <bean id="dataSourceRule" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="${rule.driverClass}"/>
+        <property name="url" value="${rule.jdbcUrl}"/>
+        <property name="username" value="${rule.userName}"/>
+        <property name="password" value="${rule.password}"/>
+        <property name="maxIdle" value="5" />
         <property name="maxActive" value="50" />
     </bean>
-    
+
+    <!-- 单元测试使用的Dev数据库 -->
+    <bean id="dataSourceFlow" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="${flow.driverClass}"/>
+        <property name="url" value="${flow.jdbcUrl}"/>
+        <property name="username" value="${flow.userName}"/>
+        <property name="password" value="${flow.password}"/>
+        <property name="maxIdle" value="5" />
+        <property name="maxActive" value="50" />
+    </bean>
+        <!-- JDBC模板 -->
+    <bean id="ruleTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+        <property name="dataSource" ref="dataSourceRule"/>
+    </bean>
+
+    <bean id="flowTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+        <property name="dataSource" ref="dataSourceFlow"/>
+    </bean>
+
 </beans>
