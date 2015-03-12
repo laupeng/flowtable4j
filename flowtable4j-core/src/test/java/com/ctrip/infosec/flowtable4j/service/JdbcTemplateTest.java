@@ -8,9 +8,12 @@ package com.ctrip.infosec.flowtable4j.service;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Resource;
+
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -19,7 +22,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  * @author zhengby
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"classpath*:spring/flowtable4j*.xml"})
+@ContextConfiguration(locations = {"classpath:spring/flowtable4j*.xml"})
 public class JdbcTemplateTest {
 
     @Resource(name = "ruleTemplate")
@@ -30,11 +33,12 @@ public class JdbcTemplateTest {
     @Test
     public void testQueryCardRiskDB() {
         System.out.println("CardRiskDB");
-        List<Map> results = CardRiskDB.queryForList("select top 100 * from InfoSecurity_FlowRule", Map.class);
+        List<Integer> results = CardRiskDB.queryForList("select FlowRuleID from dbo.InfoSecurity_FlowRule",Integer.class);
         System.out.println("results: " + results.size());
     }
 
     @Test
+    @Ignore
     public void testQueryRiskCtrlPreProcDB() {
         System.out.println("RiskCtrlPreProcDB");
         List<Map> results = RiskCtrlPreProcDB.queryForList("select top 100 * from InfoSecurity_FlowRule", Map.class);
