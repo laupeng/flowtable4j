@@ -15,7 +15,15 @@
                                   location="classpath*:/GlobalConfig.properties" />
     
     <!-- 单元测试使用的Dev数据库 -->
-    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+    <bean id="dataSource_CardRiskDB" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="com.microsoft.sqlserver.jdbc.SQLServerDriver"/>
+        <property name="url" value="${database.sqlserver.url}"/>
+        <property name="username" value="${database.sqlserver.userName}"/>
+        <property name="password" value="${database.sqlserver.password}"/>
+        <property name="maxIdle" value="5" />        
+        <property name="maxActive" value="50" />
+    </bean>
+    <bean id="dataSource_RiskCtrlPreProcDB" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
         <property name="driverClassName" value="com.microsoft.sqlserver.jdbc.SQLServerDriver"/>
         <property name="url" value="${database.sqlserver.url}"/>
         <property name="username" value="${database.sqlserver.userName}"/>
