@@ -22,9 +22,9 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @ContextConfiguration(locations = {"classpath*:spring/flowtable4j*.xml"})
 public class JdbcTemplateTest {
 
-    @Resource(name = "CardRiskDB")
+    @Resource(name = "ruleTemplate")
     JdbcTemplate CardRiskDB;
-    @Resource(name = "RiskCtrlPreProcDB")
+    @Resource(name = "flowTemplate")
     JdbcTemplate RiskCtrlPreProcDB;
 
     @Test
