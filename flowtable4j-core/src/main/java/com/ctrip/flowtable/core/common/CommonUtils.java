@@ -8,6 +8,8 @@ import java.util.Properties;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.ctrip.infosec.sars.util.GlobalConfig;
+
 /**
  * 
  * @author weiyu
@@ -35,11 +37,11 @@ public class CommonUtils {
 	 * @return
 	 */
 	public String getCRedisServiceUrl() {
-		return appProperties.getProperty("CRedisServiceUrl");
+		return GlobalConfig.getString("CRedis.serviceUrl");
 	}
 	
 	public boolean getCRedisLogging(){
-		if("true".equalsIgnoreCase(appProperties.getProperty("CRedisLogging"))){
+		if("true".equalsIgnoreCase(GlobalConfig.getString("CRedis.logging"))){
 			return true;
 		}
 		else
@@ -51,11 +53,11 @@ public class CommonUtils {
 	 * @return
 	 */
 	public String getLoggingServerIP() {
-		return appProperties.getProperty("LoggingServerIP");
+		return GlobalConfig.getString("LoggingServerIP");
 	}
 
 	public String getLoggingServerPort() {
-		return appProperties.getProperty("LoggingServerPort");
+		return GlobalConfig.getString("LoggingServerPort");
 	}
 
 

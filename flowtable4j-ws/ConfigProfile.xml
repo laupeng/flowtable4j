@@ -25,13 +25,13 @@
 		<ESBUrl>http://soa.fws.qa.nt.ctripcorp.com/SOA.ESB/Ctrip.SOA.ESB.asmx</ESBUrl>
 		
 		<!-- logging -->
-		<LoggingServerIP>collector.logging.fws.qa.nt.ctripcorp.com</LoggingServerIP>
-		<LoggingServerPort>63100</LoggingServerPort>		
+		<CLogging.serverIp>collector.logging.fws.qa.nt.ctripcorp.com</CLogging.serverIp>
+		<CLogging.serverPort>63100</CLogging.serverPort>		
 		
 		<!-- Redis -->
 
-		<CRedisServiceUrl>http://ws.config.framework.fws.qa.nt.ctripcorp.com/configws/</CRedisServiceUrl>
-		<CRedisLogging>true</CRedisLogging>
+		<CRedis.serviceUrl>http://ws.config.framework.fws.qa.nt.ctripcorp.com/configws/</CRedis.serviceUrl>
+		<CRedis.logging>true</CRedis.logging>
 		<RedisProviderName>userprofileinfosec</RedisProviderName>
 
 		
@@ -46,12 +46,12 @@
 		<ESBUrl>http://soa.fws.qa.nt.ctripcorp.com/SOA.ESB/Ctrip.SOA.ESB.asmx</ESBUrl>
 		
 		<!-- logging -->
-		<LoggingServerIP>collector.logging.lpt.qa.nt.ctripcorp.com</LoggingServerIP>
-		<LoggingServerPort>63100</LoggingServerPort>
+		<CLogging.serverIp>collector.logging.lpt.qa.nt.ctripcorp.com</CLogging.serverIp>
+		<CLogging.serverPort>63100</CLogging.serverPort>
 		
 		<!-- redis -->
-		<CRedisServiceUrl>http://ws.config.framework.fws.qa.nt.ctripcorp.com/configws/</CRedisServiceUrl>
-		<CRedisLogging>true</CRedisLogging>
+		<CRedis.serviceUrl>http://ws.config.framework.fws.qa.nt.ctripcorp.com/configws/</CRedis.serviceUrl>
+		<CRedis.logging>true</CRedis.logging>
 		<RedisProviderName>userprofileinfosec</RedisProviderName>
 		
 		
@@ -66,12 +66,12 @@
 		<ESBUrl>http://soa.fws.qa.nt.ctripcorp.com/SOA.ESB/Ctrip.SOA.ESB.asmx</ESBUrl>
 		
 		<!-- logging -->
-		<LoggingServerIP>collector.logging.fws.qa.nt.ctripcorp.com</LoggingServerIP>
-		<LoggingServerPort>63100</LoggingServerPort>
+		<CLogging.serverIp>collector.logging.fws.qa.nt.ctripcorp.com</CLogging.serverIp>
+		<CLogging.serverPort>63100</CLogging.serverPort>
 		
 		<!-- redis -->
-		<CRedisServiceUrl>http://ws.config.framework.fws.qa.nt.ctripcorp.com/configws/</CRedisServiceUrl>
-		<CRedisLogging>true</CRedisLogging>
+		<CRedis.serviceUrl>http://ws.config.framework.fws.qa.nt.ctripcorp.com/configws/</CRedis.serviceUrl>
+		<CRedis.logging>true</CRedis.logging>
 		<RedisProviderName>userprofileinfosec</RedisProviderName>
 		
 		
@@ -86,12 +86,12 @@
 		<ESBUrl>http://soa.fws.qa.nt.ctripcorp.com/SOA.ESB/Ctrip.SOA.ESB.asmx</ESBUrl>
 		
 		<!-- logging -->
-		<LoggingServerIP>collector.logging.fws.qa.nt.ctripcorp.com</LoggingServerIP>
-		<LoggingServerPort>63100</LoggingServerPort>
+		<CLogging.serverIp>collector.logging.fws.qa.nt.ctripcorp.com</CLogging.serverIp>
+		<CLogging.serverPort>63100</CLogging.serverPort>
 		
 		<!-- redis -->
-		<CRedisServiceUrl>http://ws.config.framework.fws.qa.nt.ctripcorp.com/configws/</CRedisServiceUrl>
-		<CRedisLogging>true</CRedisLogging>
+		<CRedis.serviceUrl>http://ws.config.framework.fws.qa.nt.ctripcorp.com/configws/</CRedis.serviceUrl>
+		<CRedis.logging>true</CRedis.logging>
 		<RedisProviderName>userprofileinfosec</RedisProviderName>
 		
 		
@@ -105,12 +105,12 @@
 		<ESBUrl>http://soa.fws.qa.nt.ctripcorp.com/SOA.ESB/Ctrip.SOA.ESB.asmx</ESBUrl>
 
 		<!-- logging -->		
-		<LoggingServerIP>collector.logging.fws.qa.nt.ctripcorp.com</LoggingServerIP>
-		<LoggingServerPort>63100</LoggingServerPort>
+		<CLogging.serverIp>collector.logging.fws.qa.nt.ctripcorp.com</CLogging.serverIp>
+		<CLogging.serverPort>63100</CLogging.serverPort>
 
 		<!-- redis -->
-		<CRedisServiceUrl>http://ws.config.framework.fws.qa.nt.ctripcorp.com/configws/</CRedisServiceUrl>
-		<CRedisLogging>true</CRedisLogging>
+		<CRedis.serviceUrl>http://ws.config.framework.fws.qa.nt.ctripcorp.com/configws/</CRedis.serviceUrl>
+		<CRedis.logging>true</CRedis.logging>
 		<RedisProviderName>userprofileinfosec</RedisProviderName>
 		
 		<!-- 代理访问外网 -->
@@ -123,12 +123,12 @@
 		<ESBUrl>http://soa.uat.qa.nt.ctripcorp.com/SOA.ESB/Ctrip.SOA.ESB.asmx</ESBUrl>
 		
 		<!-- logging -->
-		<LoggingServerIP>collector.logging.uat.qa.nt.ctripcorp.com</LoggingServerIP>
-		<LoggingServerPort>63100</LoggingServerPort>
+		<CLogging.serverIp>collector.logging.uat.qa.nt.ctripcorp.com</CLogging.serverIp>
+		<CLogging.serverPort>63100</CLogging.serverPort>
 		
 		<!-- redis -->
-		<CRedisServiceUrl>http://ws.config.framework.fws.qa.nt.ctripcorp.com/configws/</CRedisServiceUrl>
-		<CRedisLogging>true</CRedisLogging>
+		<CRedis.serviceUrl>http://ws.config.framework.fws.qa.nt.ctripcorp.com/configws/</CRedis.serviceUrl>
+		<CRedis.logging>true</CRedis.logging>
 		<RedisProviderName>userprofileinfosec</RedisProviderName>
 		
 		<!-- 代理访问外网 -->
@@ -141,12 +141,12 @@
 		<ESBUrl>http://soa.uat.qa.nt.ctripcorp.com/SOA.ESB/Ctrip.SOA.ESB.asmx</ESBUrl>
 
 		<!-- logging -->		
-		<LoggingServerIP>collector.logging.uat.qa.nt.ctripcorp.com</LoggingServerIP>
-		<LoggingServerPort>63100</LoggingServerPort>
+		<CLogging.serverIp>collector.logging.uat.qa.nt.ctripcorp.com</CLogging.serverIp>
+		<CLogging.serverPort>63100</CLogging.serverPort>
 		
 		<!-- redis -->
-		<CRedisServiceUrl>http://ws.config.framework.fws.qa.nt.ctripcorp.com/configws/</CRedisServiceUrl>
-		<CRedisLogging>true</CRedisLogging>
+		<CRedis.serviceUrl>http://ws.config.framework.fws.qa.nt.ctripcorp.com/configws/</CRedis.serviceUrl>
+		<CRedis.logging>true</CRedis.logging>
 		<RedisProviderName>userprofileinfosec</RedisProviderName>
 		
 
@@ -160,12 +160,12 @@
 		<ESBUrl>http://soa.sh.ctriptravel.com/SOA.ESB/Ctrip.SOA.ESB.asmx</ESBUrl>
 
 		<!-- logging -->		
-		<LoggingServerIP>collector.logging.sh.ctriptravel.com</LoggingServerIP>
-		<LoggingServerPort>63100</LoggingServerPort>
+		<CLogging.serverIp>collector.logging.sh.ctriptravel.com</CLogging.serverIp>
+		<CLogging.serverPort>63100</CLogging.serverPort>
 		
 		<!-- redis -->
-		<CRedisServiceUrl>http://ws.config.framework.sh.ctripcorp.com/configws/</CRedisServiceUrl>
-		<CRedisLogging>true</CRedisLogging>
+		<CRedis.serviceUrl>http://ws.config.framework.sh.ctripcorp.com/configws/</CRedis.serviceUrl>
+		<CRedis.logging>true</CRedis.logging>
 		<RedisProviderName>userprofileinfosec</RedisProviderName>
 		
 				
