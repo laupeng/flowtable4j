@@ -5,10 +5,12 @@
  */
 package com.ctrip.infosec.flowtable4j.service;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Resource;
-
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,10 +32,39 @@ public class JdbcTemplateTest {
     @Resource(name = "flowTemplate")
     JdbcTemplate RiskCtrlPreProcDB;
 
+    private class Rule {
+        private Integer flowRuleID;
+        private Integer orderType;
+        private Integer riskLevel;
+
+        public Integer getFlowRuleID() {
+            return flowRuleID;
+        }
+
+        public void setFlowRuleID(Integer flowRuleID) {
+            this.flowRuleID = flowRuleID;
+        }
+
+        public Integer getOrderType() {
+            return orderType;
+        }
+
+        public void setOrderType(Integer orderType) {
+            this.orderType = orderType;
+        }
+
+        public Integer getRiskLevel() {
+            return riskLevel;
+        }
+
+        public void setRiskLevel(Integer riskLevel) {
+            this.riskLevel = riskLevel;
+        }
+    }
     @Test
     public void testQueryCardRiskDB() {
         System.out.println("CardRiskDB");
-        List<Integer> results = CardRiskDB.queryForList("select FlowRuleID from dbo.InfoSecurity_FlowRule",Integer.class);
+        List<Map<String,Object>> results = CardRiskDB.queryForList("select top 100* from dbo.InfoSecurity_FlowRule");
         System.out.println("results: " + results.size());
     }
 
