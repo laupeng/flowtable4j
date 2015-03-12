@@ -2,12 +2,12 @@
 sars.monitor.rest.url={$sars.monitor.rest.url}
 
 # CRedis
-CRedis.serviceUrl={$CRedisServiceUrl}
-CRedis.logging={$CRedis.logging}
+CRedisServiceUrl={$CRedisServiceUrl}
+CRedisLogging={$CRedisLogging}
 
 # CLogging
-CLogging.serverIp={$LoggingServerIP}
-CLogging.serverPort={$LoggingServerPort}
+LoggingServerIP={$LoggingServerIP}
+LoggingServerPort={$LoggingServerPort}
 
 # Data Config Server
 Configs.Caches.url={$Configs.Caches.url}

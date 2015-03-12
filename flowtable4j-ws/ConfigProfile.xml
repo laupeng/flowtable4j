@@ -31,7 +31,7 @@
 		<!-- Redis -->
 
 		<CRedisServiceUrl>http://ws.config.framework.fws.qa.nt.ctripcorp.com/configws/</CRedisServiceUrl>
-		<CRedis.logging>true</CRedis.logging>
+		<CRedisLogging>true</CRedisLogging>
 		<RedisProviderName>userprofileinfosec</RedisProviderName>
 
 		
@@ -51,7 +51,7 @@
 		
 		<!-- redis -->
 		<CRedisServiceUrl>http://ws.config.framework.fws.qa.nt.ctripcorp.com/configws/</CRedisServiceUrl>
-		<CRedis.logging>true</CRedis.logging>
+		<CRedisLogging>true</CRedisLogging>
 		<RedisProviderName>userprofileinfosec</RedisProviderName>
 		
 		
@@ -71,7 +71,7 @@
 		
 		<!-- redis -->
 		<CRedisServiceUrl>http://ws.config.framework.fws.qa.nt.ctripcorp.com/configws/</CRedisServiceUrl>
-		<CRedis.logging>true</CRedis.logging>
+		<CRedisLogging>true</CRedisLogging>
 		<RedisProviderName>userprofileinfosec</RedisProviderName>
 		
 		
@@ -91,7 +91,7 @@
 		
 		<!-- redis -->
 		<CRedisServiceUrl>http://ws.config.framework.fws.qa.nt.ctripcorp.com/configws/</CRedisServiceUrl>
-		<CRedis.logging>true</CRedis.logging>
+		<CRedisLogging>true</CRedisLogging>
 		<RedisProviderName>userprofileinfosec</RedisProviderName>
 		
 		
@@ -110,7 +110,7 @@
 
 		<!-- redis -->
 		<CRedisServiceUrl>http://ws.config.framework.fws.qa.nt.ctripcorp.com/configws/</CRedisServiceUrl>
-		<CRedis.logging>true</CRedis.logging>
+		<CRedisLogging>true</CRedisLogging>
 		<RedisProviderName>userprofileinfosec</RedisProviderName>
 		
 		<!-- 代理访问外网 -->
@@ -128,7 +128,7 @@
 		
 		<!-- redis -->
 		<CRedisServiceUrl>http://ws.config.framework.fws.qa.nt.ctripcorp.com/configws/</CRedisServiceUrl>
-		<CRedis.logging>true</CRedis.logging>
+		<CRedisLogging>true</CRedisLogging>
 		<RedisProviderName>userprofileinfosec</RedisProviderName>
 		
 		<!-- 代理访问外网 -->
@@ -146,7 +146,7 @@
 		
 		<!-- redis -->
 		<CRedisServiceUrl>http://ws.config.framework.fws.qa.nt.ctripcorp.com/configws/</CRedisServiceUrl>
-		<CRedis.logging>true</CRedis.logging>
+		<CRedisLogging>true</CRedisLogging>
 		<RedisProviderName>userprofileinfosec</RedisProviderName>
 		
 
@@ -165,7 +165,7 @@
 		
 		<!-- redis -->
 		<CRedisServiceUrl>http://ws.config.framework.sh.ctripcorp.com/configws/</CRedisServiceUrl>
-		<CRedis.logging>true</CRedis.logging>
+		<CRedisLogging>true</CRedisLogging>
 		<RedisProviderName>userprofileinfosec</RedisProviderName>
 		
 				

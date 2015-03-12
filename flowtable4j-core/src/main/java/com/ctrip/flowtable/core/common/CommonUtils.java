@@ -21,33 +21,6 @@ public class CommonUtils {
 		return appProperties.getProperty("APPID");
 	}
 
-	/*
-	 * http://localhost:8080/userprofile-webservice
-	 */
-	public String getUserProfileRestfulWS() {
-		return appProperties.getProperty("USERPROFILERESTFUL");
-	}
-
-	public String getCRedisServiceUrl() {
-		return appProperties.getProperty("CRedisServiceUrl");
-	}
-
-	public String getLoggingServerIP() {
-		return appProperties.getProperty("LoggingServerIP");
-	}
-
-	public String getLoggingServerPort() {
-		return appProperties.getProperty("LoggingServerPort");
-	}
-
-	public String getRabbitmqHost() {
-		return appProperties.getProperty("RabbitmqHost");
-	}
-
-	public String getRabbitmqVirtualHost() {
-		return appProperties.getProperty("RabbitmqVirtualHost");
-	}
-
 	static String eSBUrl = null;
 
 	public String getESBUrl() {
@@ -56,6 +29,38 @@ public class CommonUtils {
 		}
 		return eSBUrl;
 	}
+
+	/**
+	 * redis 
+	 * @return
+	 */
+	public String getCRedisServiceUrl() {
+		return appProperties.getProperty("CRedisServiceUrl");
+	}
+	
+	public boolean getCRedisLogging(){
+		if("true".equalsIgnoreCase(appProperties.getProperty("CRedisLogging"))){
+			return true;
+		}
+		else
+			return false;
+	}
+
+	/**
+	 * clogging
+	 * @return
+	 */
+	public String getLoggingServerIP() {
+		return appProperties.getProperty("LoggingServerIP");
+	}
+
+	public String getLoggingServerPort() {
+		return appProperties.getProperty("LoggingServerPort");
+	}
+
+
+
+
 
 	static String hostIP = null;
 
