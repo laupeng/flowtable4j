@@ -15,7 +15,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -72,7 +71,7 @@ public class JdbcTemplateTest {
     @Ignore
     public void testQueryRiskCtrlPreProcDB() {
         System.out.println("RiskCtrlPreProcDB");
-        List<Map> results = RiskCtrlPreProcDB.queryForList("select top 100 * from InfoSecurity_FlowRule", Map.class);
+        List<Map> results = CardRiskDB.queryForList("select top 100 * from InfoSecurity_FlowRule", Map.class);
         System.out.println("results: " + results.size());
     }
 }
