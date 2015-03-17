@@ -22,7 +22,9 @@ public class StaticCacheJob implements RuleSwitch{
         executor.scheduleWithFixedDelay(new Runnable() {
             @Override
             public void run() {
-                processer.execute();
+                if(!Thread.currentThread().isInterrupted()){
+                    processer.execute();
+                }
             }
         },0L,5L, TimeUnit.MILLISECONDS);
     }

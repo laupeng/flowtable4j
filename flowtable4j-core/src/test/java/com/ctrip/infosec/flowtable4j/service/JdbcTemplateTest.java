@@ -79,6 +79,7 @@ public class JdbcTemplateTest {
     }
 
     @Test
+    @Ignore
     public void testQueryBW(){
         int size = 10;
         System.out.println(">>>print BWList begin...");
