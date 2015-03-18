@@ -13,6 +13,7 @@
     <!-- GlobalConfig -->
     <context:property-placeholder ignore-unresolvable="true"
                                   location="classpath*:/GlobalConfig.properties" />
+    <context:component-scan base-package="com.ctrip.flowtable4j.core.checkPaymentAdapt"/>
 
     <!-- 单元测试使用的Dev数据库 -->
     <bean id="dataSourceRule" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">

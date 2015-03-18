@@ -436,7 +436,21 @@
                 <version>4.11</version>
                 <scope>test</scope>
             </dependency>
-            
+
+            <!--redis client-->
+            <dependency>
+                <groupId>com.ctrip.credis</groupId>
+                <artifactId>credis</artifactId>
+                <version>2.0.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>redis.clients</groupId>
+                <artifactId>jedis</artifactId>
+                <version>2.6.2</version>
+                <scope>test</scope>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
