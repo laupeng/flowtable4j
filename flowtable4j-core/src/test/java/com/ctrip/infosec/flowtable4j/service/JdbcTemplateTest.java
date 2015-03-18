@@ -33,35 +33,6 @@ public class JdbcTemplateTest {
     @Resource(name = "flowTemplate")
     JdbcTemplate RiskCtrlPreProcDB;
 
-    private class Rule {
-        private Integer flowRuleID;
-        private Integer orderType;
-        private Integer riskLevel;
-
-        public Integer getFlowRuleID() {
-            return flowRuleID;
-        }
-
-        public void setFlowRuleID(Integer flowRuleID) {
-            this.flowRuleID = flowRuleID;
-        }
-
-        public Integer getOrderType() {
-            return orderType;
-        }
-
-        public void setOrderType(Integer orderType) {
-            this.orderType = orderType;
-        }
-
-        public Integer getRiskLevel() {
-            return riskLevel;
-        }
-
-        public void setRiskLevel(Integer riskLevel) {
-            this.riskLevel = riskLevel;
-        }
-    }
     @Test
     @Ignore
     public void testQueryCardRiskDB() {
