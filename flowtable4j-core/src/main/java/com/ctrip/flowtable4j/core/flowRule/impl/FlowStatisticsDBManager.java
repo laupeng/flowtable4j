@@ -1,4 +1,4 @@
-package com.ctrip.flowtable4j.core.flowRule;
+package com.ctrip.flowtable4j.core.flowRule.impl;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -13,15 +13,18 @@ import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+
+import com.ctrip.flowtable4j.core.flowRule.RuleManager;
+
 /**
  * 流量统计执行sql
  * 
  * @author weiyu
  * @date 2015年3月18日
  */
-public class CommonRiskCtrlPreProcDB {
+public class FlowStatisticsDBManager {
 
-	Map paramsMap = new HashMap();
+	
 	
 	/**
 	 * 替换sql语句中的命名参数 (select * from table where name=@name and age=@age 转换后为
@@ -30,7 +33,7 @@ public class CommonRiskCtrlPreProcDB {
 	 * @param sql
 	 * @return
 	 */
-	private String parseSql(String sql) {
+	private String parseSql(String sql,Map paramsMap) {
 		
 		String regex = "(:(//w+))";
 		Pattern p = Pattern.compile(regex);
@@ -52,7 +55,7 @@ public class CommonRiskCtrlPreProcDB {
 	 * @param param
 	 * @return
 	 */
-	private boolean fillParameters(PreparedStatement ps, Map param) {
+	private boolean fillParameters(PreparedStatement ps,Map paramsMap, Map sqlParam) {
 		
 		boolean result = true;
 		String paramName = null;
@@ -63,7 +66,7 @@ public class CommonRiskCtrlPreProcDB {
 			paramName = (String) entry.getValue();
 			idx = ((Integer) entry.getKey()).intValue();
 			// 不包含会返回null
-			paramValue = param.get(paramName);
+			paramValue = sqlParam.get(paramName);
 			try {
 				ps.setObject(idx, paramValue);
 			} catch (Exception e) {
@@ -74,17 +77,19 @@ public class CommonRiskCtrlPreProcDB {
 	}
 	
 	public String execSql(long startTimeLimit,long timeLimit,String paramName,String paramValue,String basicSql
-			,String matchColumnName,String matchValue,FlowStatisticType flowStatisticType){
+			,String matchColumnName,String matchValue,RuleManager.FlowStatisticType flowStatisticType){
 		String sql ;
 
-		if(flowStatisticType== FlowStatisticType.COUNT){
+		if(flowStatisticType== RuleManager.FlowStatisticType.COUNT){
 			basicSql = "select " + matchColumnName + " from (" + basicSql + ") t1 " 
 						+ "WHERE "+ matchColumnName +" is NOT NULL GROUP BY "+matchColumnName; 
 		}
-		else if (flowStatisticType == FlowStatisticType.SUM){
+		else if (flowStatisticType == RuleManager.FlowStatisticType.SUM){
 			basicSql = "select sum(" + matchColumnName + ") from (" + basicSql + ") t1 "; 
 		}
-		sql = parseSql(basicSql);
+		
+		Map paramsMap = new HashMap();
+		sql = parseSql(basicSql,paramsMap);
 		Connection conn = null;
 		try {
 			PreparedStatement ps = conn.prepareStatement(sql);
@@ -93,14 +98,11 @@ public class CommonRiskCtrlPreProcDB {
 			sqlParam.put("TimeLimit", new java.sql.Date(timeLimit));
 			sqlParam.put(paramName, paramValue);
 			
-			if(fillParameters(ps,sqlParam))
+			if(fillParameters(ps,paramsMap,sqlParam))
 			{
 				ResultSet rs = ps.executeQuery();
 
-				
-				
-
-				if(flowStatisticType== FlowStatisticType.COUNT){
+				if(flowStatisticType== RuleManager.FlowStatisticType.COUNT){
 					 int currentValue=0;
 					if(org.apache.commons.lang.StringUtils.isNotEmpty(matchValue)){
 						currentValue=1;
@@ -116,7 +118,7 @@ public class CommonRiskCtrlPreProcDB {
 					rs.close();
 					return "" + currentValue;
 				}
-				else if (flowStatisticType == FlowStatisticType.SUM){
+				else if (flowStatisticType == RuleManager.FlowStatisticType.SUM){
 					String v = "0";
 					if(rs.next()){
 						v = rs.getString(0);

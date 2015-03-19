@@ -14,7 +14,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.ctrip.flowtable4j.core.Utils.JsonMapper;
+import com.ctrip.flowtable4j.core.flowRule.RuleManager.FlowStatisticType;
 import com.ctrip.flowtable4j.core.flowRule.entity.*;
+import com.ctrip.flowtable4j.core.flowRule.impl.FlowStatisticsDBManager;
 
 /**
  * 流量验证抽象类
@@ -245,7 +247,7 @@ public abstract class AbstractCheckRiskCtrip {
         //获取 java使用的sql
         String sql = RuleStatistic.getSqlValue();
         
-        CommonRiskCtrlPreProcDB execComm = new CommonRiskCtrlPreProcDB();
+        FlowStatisticsDBManager execComm = new FlowStatisticsDBManager();
         FlowStatisticType flowStatisticType = FlowStatisticType.COUNT;
         if ("COUNT".equalsIgnoreCase(RuleStatistic.getStatisticType())
         		|| "ALL".equalsIgnoreCase(RuleStatistic.getStatisticType())){

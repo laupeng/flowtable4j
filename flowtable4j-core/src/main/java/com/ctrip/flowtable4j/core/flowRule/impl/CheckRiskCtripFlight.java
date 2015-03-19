@@ -1,18 +1,23 @@
-package com.ctrip.flowtable4j.core.flowRule;
+package com.ctrip.flowtable4j.core.flowRule.impl;
 
 import java.util.List;
 import java.util.Map;
 
+import com.ctrip.flowtable4j.core.flowRule.AbstractCheckRiskCtrip;
+
 public class CheckRiskCtripFlight extends AbstractCheckRiskCtrip {
 
 	enum FlightPassengerProperty {
-		PassengerName, PassengerNationality, PassengerCardID,
+		PassengerName, 
+		PassengerNationality, 
+		PassengerCardID,
 
 		// / <summary>
 		// / 赋值 PassengerName + PassengerCardID
 		// / </summary>
 		PassengerNameCardID,
-		// public long OrderId ,
+		
+		
 		// / <summary>
 		// / 乘机人证件号前6位
 		// / </summary>

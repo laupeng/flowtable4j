@@ -100,10 +100,9 @@ public class RuleManager {
         return log;
     }
     
-    
+    public enum FlowStatisticType{
+    	COUNT,
+    	SUM
+    }
 }
 
-enum FlowStatisticType{
-	COUNT,
-	SUM
-}
