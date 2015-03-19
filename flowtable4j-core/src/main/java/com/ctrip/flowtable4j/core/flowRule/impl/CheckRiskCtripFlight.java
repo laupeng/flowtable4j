@@ -63,9 +63,7 @@ public class CheckRiskCtripFlight extends AbstractCheckRiskCtrip {
 		try {
 			FlightPassengerProperty.valueOf(FlightPassengerProperty.class, columnName);
 			return true;
-		} catch (IllegalArgumentException e) {
-			return false;
-		}catch (NullPointerException e){
+		} catch (Throwable e) {
 			return false;
 		}
 	}

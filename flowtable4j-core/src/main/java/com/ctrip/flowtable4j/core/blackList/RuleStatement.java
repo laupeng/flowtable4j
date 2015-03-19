@@ -15,7 +15,6 @@ public class RuleStatement {
     private Date expireDate;
     private List<RuleTerm> ruleTerms;
     private Integer orderType;
-    private boolean hasMoreTerms;
 
     public RuleTerm getEQRuleTerm() {
         if (ruleTerms != null && ruleTerms.size() > 0) {
@@ -83,20 +82,12 @@ public class RuleStatement {
         this.ruleTerms = ruleTerms;
     }
 
-    public boolean isHasMoreTerms() {
-        return hasMoreTerms;
-    }
-
-    public void setHasMoreTerms(boolean hasMoreTerms) {
-        this.hasMoreTerms = hasMoreTerms;
-    }
-
     public boolean check(BWFact fact, List<BWResult> results) {
         Date now = new Date();
         boolean match = false;
         if (now.compareTo(effectDate) >= 0 && now.compareTo(expireDate) < 0) {
             match = true;
-            if (hasMoreTerms) {
+            if (ruleTerms!=null && ruleTerms.size()>0) {
                 for (RuleTerm term : ruleTerms) {
                     if (!term.check(fact)) {
                         match = false;

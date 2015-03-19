@@ -11,7 +11,7 @@ public class BaseLog {
 
     static
     {
-//    	APPID = CommonUtils.getAppId();
+    	APPID = CommonUtils.getAppId();
     }
     
     public BaseLog(String errorcode,String errorCategory)

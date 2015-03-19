@@ -16,18 +16,17 @@ import com.ctrip.infosec.sars.util.GlobalConfig;
  * @date 2015年3月12日
  */
 public class CommonUtils {
-	@Autowired
-	private Properties appProperties;
 
-	public String getAppId() {
-		return appProperties.getProperty("APPID");
+
+	public static String getAppId() {
+		return GlobalConfig.getString("APPID");
 	}
 
 	static String eSBUrl = null;
 
-	public String getESBUrl() {
+	public static String getESBUrl() {
 		if (eSBUrl == null || eSBUrl.isEmpty()) {
-			eSBUrl = appProperties.getProperty("ESBUrl");
+			eSBUrl = GlobalConfig.getString("ESBUrl");
 		}
 		return eSBUrl;
 	}
@@ -36,11 +35,11 @@ public class CommonUtils {
 	 * redis 
 	 * @return
 	 */
-	public String getCRedisServiceUrl() {
+	public static String getCRedisServiceUrl() {
 		return GlobalConfig.getString("CRedis.serviceUrl");
 	}
 	
-	public boolean getCRedisLogging(){
+	public static boolean getCRedisLogging(){
 		if("true".equalsIgnoreCase(GlobalConfig.getString("CRedis.logging"))){
 			return true;
 		}
@@ -52,11 +51,11 @@ public class CommonUtils {
 	 * clogging
 	 * @return
 	 */
-	public String getLoggingServerIP() {
+	public static String getLoggingServerIP() {
 		return GlobalConfig.getString("LoggingServerIP");
 	}
 
-	public String getLoggingServerPort() {
+	public static String getLoggingServerPort() {
 		return GlobalConfig.getString("LoggingServerPort");
 	}
 
@@ -66,17 +65,17 @@ public class CommonUtils {
 
 	static String hostIP = null;
 
-	public String getHostIP() {
+	public static String getHostIP() {
 		if (hostIP == null || hostIP.isEmpty()) {
 			hostIP = getLocalIP();
 		}
 		return hostIP;
 	}
 
-	public String getProxyHost() {
+	public static String getProxyHost() {
 		String proxyHost = "";
 		try {
-			proxyHost = appProperties.getProperty("ProxyHost");
+			proxyHost = GlobalConfig.getString("ProxyHost");
 		} catch (Exception e) {
 
 		}
@@ -84,10 +83,10 @@ public class CommonUtils {
 		return proxyHost;
 	}
 
-	public int getProxyPort() {
+	public static int getProxyPort() {
 		int ProxyPort = 8080;
 		try {
-			String t = appProperties.getProperty("ProxyPort");
+			String t = GlobalConfig.getString("ProxyPort");
 			ProxyPort = org.apache.commons.lang.math.NumberUtils.toInt(t, 8080);
 		} catch (Exception e) {
 
