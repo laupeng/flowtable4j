@@ -81,7 +81,14 @@ public class Main {
 
     static class Inner {
         public static void main(String[] args) {
-
+            Set<Cla> set = new HashSet<Cla>();
+            Cla c0 = new Cla();
+            Cla c1 = c0;
+            set.add(c0);
+            set.add(c1);
         }
+    }
+    static class Cla{
+
     }
 }

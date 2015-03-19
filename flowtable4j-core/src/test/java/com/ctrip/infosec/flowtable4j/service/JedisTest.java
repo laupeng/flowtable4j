@@ -56,6 +56,7 @@ public class JedisTest {
         System.out.println(map.size());
     }
 
+    @Ignore
     @Test
     public void testDateFormat(){
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.sss");
