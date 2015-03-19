@@ -1,5 +1,6 @@
 package com.ctrip.infosec.flowtable4j.service;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -81,14 +82,30 @@ public class Main {
 
     static class Inner {
         public static void main(String[] args) {
-            Set<Cla> set = new HashSet<Cla>();
-            Cla c0 = new Cla();
-            Cla c1 = c0;
-            set.add(c0);
-            set.add(c1);
+            List<Map<String,Cla>> list = new ArrayList<Map<String, Cla>>();
+            for(int i=0;i<2100000;i++){
+                Map map = new HashMap();
+                map.put(String.valueOf(i),new Cla());
+                list.add(map);
+            }
+            System.out.println("over");
+            try {
+                System.in.read();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
     static class Cla{
-
+        private String s0;
+        private String s1;
+        private String s2;
+        private String s3;
+        private String s4;
+        private String s5;
+        private String s6;
+        private String s7;
+        private String s8;
+        private String s9;
     }
 }

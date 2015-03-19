@@ -13,6 +13,7 @@ import java.util.*;
 import javax.annotation.Resource;
 import javax.sql.DataSource;
 
+import com.ctrip.flowtable4j.core.blackList.BWManager;
 import com.ctrip.flowtable4j.core.blackList.RuleStatement;
 import com.ctrip.flowtable4j.core.blackList.RuleTerm;
 import org.apache.commons.dbcp.BasicDataSource;
@@ -89,6 +90,10 @@ public class JdbcTemplateTest {
         dataSource.setUrl("jdbc:sqlserver://devdb.dev.sh.ctriptravel.com:28747;database=CardRiskDB;integratedSecurity=false");
         dataSource.setUsername("uws_AllInOneKey_dev");
         dataSource.setPassword("!QAZ@WSX1qaz2wsx");
+//        dataSource.setUrl("jdbc:sqlserver://172.16.226.71:1433;database=CardRiskDB;integratedSecurity=false");
+//        dataSource.setUsername("tester");
+//        dataSource.setPassword("tester");
+
         dataSource.setMaxIdle(5);
         dataSource.setMaxActive(50);
         JdbcTemplate CardRiskDB = new JdbcTemplate(dataSource);
@@ -137,18 +142,22 @@ public class JdbcTemplateTest {
             }
         }
 
-        for(RuleStatement item : bwfull){
-            System.out.println(">>>");
-            System.out.println("ruleid:"+item.getRuleID()+",effecteddate:"+item.getEffectDate()+",risklevel:"+item.getRiskLevel());
+//        for(RuleStatement item : bwfull){
+//            System.out.println(">>>");
+//            System.out.println("ruleid:"+item.getRuleID()+",effecteddate:"+item.getEffectDate()+",risklevel:"+item.getRiskLevel());
+//
+//            for(RuleTerm term: item.getRuleTerms()){
+//                System.out.println("---term start---");
+//                System.out.println("fieldname:"+term.getFieldName()+",op:"+term.getOperator()+",matchvalue:"+term.getMatchValue());
+//                System.out.println("---term end---");
+//            }
+//
+//            System.out.println("<<<");
 
-            for(RuleTerm term: item.getRuleTerms()){
-                System.out.println("---term start---");
-                System.out.println("fieldname:"+term.getFieldName()+",op:"+term.getOperator()+",matchvalue:"+term.getMatchValue());
-                System.out.println("---term end---");
-            }
+//        }
 
-            System.out.println("<<<");
 
-        }
+
+        BWManager.addRule(bwfull);
     }
 }

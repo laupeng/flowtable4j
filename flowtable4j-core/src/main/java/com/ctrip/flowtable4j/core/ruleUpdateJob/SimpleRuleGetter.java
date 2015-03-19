@@ -37,7 +37,7 @@ public class SimpleRuleGetter implements RuleGetter {
     @Override
     public List<Map<String, Object>> bwFull() {
         return cardRiskDB.queryForList("select r.RuleID,ISNULL(r.OrderType,0) OrderType ,c.CheckName,c.CheckType,cv.CheckValue,ISNULL(r.Sdate,CONVERT(varchar(100), GETDATE(), 121)) Sdate,\n" +
-                "ISNULL(r.Edate,'9999-12-31 23:59:59.997') Edate,r.RiskLevel,r.Remark\n" +
+                "                                ISNULL(r.Edate,'9999-12-31 23:59:59.997') Edate,r.RiskLevel,r.Remark\n" +
                 "                                from dbo.CardRisk_BlackListRule r inner join dbo.CardRisk_BlackListRuleColumnValue cv\n" +
                 "                                on r.RuleID= cv.RuleID\n" +
                 "                                Inner join dbo.CardRisk_BlackListColumn c on cv.ProcessType=c.ProcessType\n" +
