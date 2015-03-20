@@ -1,6 +1,6 @@
 package com.ctrip.flowtable4j.core.checkPaymentAdapt;
 
-import com.ctrip.flowtable4j.core.Utils.JsonMapper;
+import com.ctrip.flowtable4j.core.utils.JsonMapper;
 import credis.java.client.CacheProvider;
 import credis.java.client.setting.RAppSetting;
 import credis.java.client.util.CacheFactory;

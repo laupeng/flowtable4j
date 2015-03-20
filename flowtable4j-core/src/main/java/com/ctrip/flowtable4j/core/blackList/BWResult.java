@@ -31,4 +31,9 @@ public class BWResult {
     public void setRemark(String remark) {
         this.remark = remark;
     }
+
+    public String toString()
+    {
+        return String.format("RuleID:%d, RiskLevel:%d, Remark:%s",ruleID,riskLevel,remark);
+    }
 }
