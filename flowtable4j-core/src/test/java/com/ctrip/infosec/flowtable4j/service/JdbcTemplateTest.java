@@ -13,9 +13,7 @@ import java.util.*;
 import javax.annotation.Resource;
 import javax.sql.DataSource;
 
-import com.ctrip.flowtable4j.core.blackList.BWManager;
-import com.ctrip.flowtable4j.core.blackList.RuleStatement;
-import com.ctrip.flowtable4j.core.blackList.RuleTerm;
+
 import org.apache.commons.dbcp.BasicDataSource;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -29,29 +27,27 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  *
  * @author zhengby
  */
-//@RunWith(SpringJUnit4ClassRunner.class)
-//@ContextConfiguration(locations = {"classpath:spring/flowtable4j*.xml"})
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = {"classpath:spring/flowtable4j-test.xml"})
 public class JdbcTemplateTest {
 
-//    @Resource(name = "ruleTemplate")
-//    JdbcTemplate CardRiskDB;
-//    @Resource(name = "flowTemplate")
-//    JdbcTemplate RiskCtrlPreProcDB;
+    @Resource(name = "cardRiskDBTemplate")
+    JdbcTemplate cardRiskDBTemplate;
+    @Resource(name = "riskCtrlPreProcDBTemplate")
+    JdbcTemplate riskCtrlPreProcDBTemplate;
 
     @Test
-    @Ignore
     public void testQueryCardRiskDB() {
-//        System.out.println("CardRiskDB");
-//        List<Map<String,Object>> results = CardRiskDB.queryForList("select top 100* from dbo.InfoSecurity_FlowRule");
-//        System.out.println("results: " + results.size());
+        System.out.println("CardRiskDB");
+        List<Map<String,Object>> results = cardRiskDBTemplate.queryForList("select top 100* from dbo.InfoSecurity_FlowRule");
+        System.out.println("results: " + results.size());
     }
 
     @Test
-    @Ignore
     public void testQueryRiskCtrlPreProcDB() {
-//        System.out.println("RiskCtrlPreProcDB");
-//        List<Map> results = CardRiskDB.queryForList("select top 100 * from InfoSecurity_FlowRule", Map.class);
-//        System.out.println("results: " + results.size());
+        System.out.println("RiskCtrlPreProcDB");
+        List<Map> results = riskCtrlPreProcDBTemplate.queryForList("select top 100 * from CTRIP_Car_CCardNoCode_Amount", Map.class);
+        System.out.println("results: " + results.size());
     }
 
     @Test
@@ -74,7 +70,7 @@ public class JdbcTemplateTest {
 //        }
 //        System.out.println("<<<print BWList end...");
     }
-
+    @Ignore
     @Test
     public void testBWFull(){
         /**
@@ -84,7 +80,7 @@ public class JdbcTemplateTest {
          <property name="password" value="${rule.password}"/>
          <property name="maxIdle" value="5" />
          <property name="maxActive" value="50" />
-         */
+        
         BasicDataSource dataSource = new BasicDataSource();
         dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
         dataSource.setUrl("jdbc:sqlserver://devdb.dev.sh.ctriptravel.com:28747;database=CardRiskDB;integratedSecurity=false");
@@ -158,6 +154,6 @@ public class JdbcTemplateTest {
 
 
 
-        BWManager.addRule(bwfull);
+        BWManager.addRule(bwfull); */
     }
 }
