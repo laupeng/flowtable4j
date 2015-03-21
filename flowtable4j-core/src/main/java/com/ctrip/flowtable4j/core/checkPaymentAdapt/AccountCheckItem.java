@@ -10,6 +10,9 @@ public class AccountCheckItem {
 
     private String checkValue;
 
+    public AccountCheckItem(String checkType,String sceneType,String checkValue){
+
+    }
     public String getCheckType() {
         return checkType;
     }

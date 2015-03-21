@@ -23,6 +23,8 @@ import java.util.*;
 public class BWRuleTest {
 
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+
+    @Ignore
     @Test
     public void testAddRule()
     {
@@ -81,12 +83,14 @@ public class BWRuleTest {
         BWManager.addRule(bwfull);
     }
 
+    @Ignore
     @Test
     public void  testRemoveRule()
     {
 
     }
 
+    @Ignore
     @Test
     public void  testVerify(){
 

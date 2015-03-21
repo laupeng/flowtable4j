@@ -153,7 +153,7 @@ public class PaymentViaAccount {
 
             for(RedisStoreItem item : redisRules){
                 if(item.getSceneType().equals(val.getSceneType())){
-                    dic_allRules.put(val.getSceneType(),redisRules);
+                    dic_allRules.put(val.getRuleKey(),redisRules);
                 }
             }
         }
