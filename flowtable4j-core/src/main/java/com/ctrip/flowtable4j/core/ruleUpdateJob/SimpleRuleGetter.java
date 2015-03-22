@@ -52,7 +52,7 @@ public class SimpleRuleGetter implements RuleGetter {
                 "select f.FlowRuleID,f.RuleName,f.RiskLevel,f.OrderType,f.PrepayType,f.RuleDesc,d.ColumnName,r.MatchType,r.MatchValue,d.TableName\n" +
                         "   From dbo.InfoSecurity_RuleMatchField r\n" +
                         "   join dbo.Def_RuleMatchField d on r.FieldID= d.FieldID\n" +
-                        "   join dbo.InfoSecurity_FlowRule f on f.FlowRuleID=r.FlowRuleID ORDER BY f.FlowRuleID");
+                        "   join dbo.InfoSecurity_FlowRule f on f.FlowRuleID=r.FlowRuleID WHERE f.Active='T' ORDER BY f.FlowRuleID");
     }
 
     @Override
@@ -63,6 +63,6 @@ public class SimpleRuleGetter implements RuleGetter {
                 "         join dbo.Def_RuleMatchField d on r.KeyFieldID=d.FieldID\n" +
                 "         join dbo.Def_RuleMatchField d1 on r.MatchFieldID=d1.FieldID\n" +
                 "         join dbo.Def_RuleStatisticTable d2 on r.StatisticTableID=d2.StatisticTableID\n" +
-                "         join dbo.InfoSecurity_FlowRule f on r.FlowRuleID=f.FlowRuleID ORDER BY f.FlowRuleID");
+                "         join dbo.InfoSecurity_FlowRule f on r.FlowRuleID=f.FlowRuleID WHERE f.Active='T' ORDER BY f.FlowRuleID");
     }
 }
