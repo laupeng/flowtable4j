@@ -207,14 +207,23 @@ public class JdbcTemplateTest {
         int count = listMatch.size()+listStatistic.size();
         int p_match = 0;
         int p_statistic=0;
-
+        boolean matchIsOver = false;
+        boolean statisticIsOver = false;
         //f.FlowRuleID,f.RuleName,f.RiskLevel,f.OrderType,f.PrepayType,f.RuleDesc,d.ColumnName,r.MatchType,r.MatchValue,d.TableName
 
         for(int i=0;i<count;i++){
+            if(p_match>=listMatch.size()){
+                p_match = listMatch.size()-1;
+                matchIsOver = true;
+            }
+            if(p_statistic>=listStatistic.size()){
+                p_statistic = listStatistic.size()-1;
+                statisticIsOver = true;
+            }
             int matchID = Integer.valueOf(listMatch.get(p_match).get("FlowRuleID").toString());
             int staticID = Integer.valueOf(listStatistic.get(p_statistic).get("FlowRuleID").toString());
 //            FlowRuleEntity flowRuleEntity = ruleList.get(ruleList.size() - 1);
-            if(matchID<=staticID&&p_match<listMatch.size()-1){
+            if(statisticIsOver||matchID<=staticID&&p_match<listMatch.size()&&!matchIsOver){
 
                 if(ruleList.size()==0||matchID!=ruleList.get(ruleList.size() - 1).getFlowRuleID()){
                     FlowRuleEntity flowRuleEntity12Add = new FlowRuleEntity();
@@ -244,15 +253,20 @@ public class JdbcTemplateTest {
                     ruleMatchFieldEntity.setMatchType(listMatch.get(p_match).get("MatchType").toString());
                     ruleMatchFieldEntity.setMatchValue(listMatch.get(p_match).get("MatchValue").toString());
                     ruleMatchFieldEntity.setTableName(listMatch.get(p_match).get("TableName").toString());
-                    List<RuleMatchFieldEntity> list = ruleList.get(ruleList.size() - 1).getMatchFieldListItem();
-                    if(list==null){
-                        list = new ArrayList<RuleMatchFieldEntity>();
+//                    List<RuleMatchFieldEntity> list = ruleList.get(ruleList.size() - 1).getMatchFieldListItem();
+//                    if(list==null){
+//                        list = new ArrayList<RuleMatchFieldEntity>();
+//                    }
+//                    list.add(ruleMatchFieldEntity);
+
+                    if(ruleList.get(ruleList.size() - 1).getMatchFieldListItem()==null){
+                        ruleList.get(ruleList.size() - 1).setMatchFieldListItem(new ArrayList<RuleMatchFieldEntity>());
                     }
-                    list.add(ruleMatchFieldEntity);
+                    ruleList.get(ruleList.size() - 1).getMatchFieldListItem().add(ruleMatchFieldEntity);
                 }
                 p_match++;
             }
-            if(matchID>staticID&&p_statistic<listStatistic.size()-1) {
+            if(matchIsOver||matchID>staticID&&p_statistic<listStatistic.size()&&!statisticIsOver) {
 
                 if(ruleList.size()==0||staticID!=ruleList.get(ruleList.size() - 1).getFlowRuleID()){
 
@@ -266,6 +280,7 @@ public class JdbcTemplateTest {
                     flowRuleEntity12Add.setRuleDesc(listMatch.get(p_match).get("RuleDesc").toString());
 
                     RuleStatisticEntity ruleStatisticEntity = new RuleStatisticEntity();
+
                     List<RuleStatisticEntity> list = flowRuleEntity12Add.getStatisticListItem();
                     if(list==null){
                         list = new ArrayList<RuleStatisticEntity>();
@@ -295,13 +310,17 @@ public class JdbcTemplateTest {
                     ruleStatisticEntity.setStartTimeLimit(Integer.valueOf(listStatistic.get(p_statistic).get("StartTimeLimit").toString()));
                     ruleStatisticEntity.setStatisticType(listStatistic.get(p_statistic).get("StatisticType").toString());
                     ruleStatisticEntity.setTimeLimit(Integer.valueOf(listStatistic.get(p_statistic).get("TimeLimit").toString()));
-                    List<RuleStatisticEntity> list = ruleList.get(ruleList.size() - 1).getStatisticListItem();
-                    if(list==null){
-                        list = new ArrayList<RuleStatisticEntity>();
-//                        ruleList.get(ruleList.size() - 1).setStatisticListItem(new ArrayList<RuleStatisticEntity>());
+//                    List<RuleStatisticEntity> list = ruleList.get(ruleList.size() - 1).getStatisticListItem();
+//                    if(list==null){
+//                        list = new ArrayList<RuleStatisticEntity>();
+////                        ruleList.get(ruleList.size() - 1).setStatisticListItem(new ArrayList<RuleStatisticEntity>());
+//                    }
+//                    list.add(ruleStatisticEntity);
+//
+                    if(ruleList.get(ruleList.size() - 1).getStatisticListItem()==null){
+                        ruleList.get(ruleList.size() - 1).setStatisticListItem(new ArrayList<RuleStatisticEntity>());
                     }
-                    list.add(ruleStatisticEntity);
-                    int ii=0;
+                    ruleList.get(ruleList.size() - 1).getStatisticListItem().add(ruleStatisticEntity);
                 }
                 p_statistic++;
             }
