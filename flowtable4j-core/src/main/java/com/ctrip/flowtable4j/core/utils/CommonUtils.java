@@ -1,4 +1,4 @@
-package com.ctrip.flowtable4j.core.Utils;
+package com.ctrip.flowtable4j.core.utils;
 
 
 import java.net.InetAddress;

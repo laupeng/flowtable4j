@@ -44,7 +44,7 @@ public class BWManager {
     public static boolean checkBlack(BWFact fact, List<BWResult> results) {
         try{
             if (blackRule != null) {
-                return whiteRule.check(fact, results);
+                return blackRule.check(fact, results);
             }
         }
         catch (Throwable ex){
