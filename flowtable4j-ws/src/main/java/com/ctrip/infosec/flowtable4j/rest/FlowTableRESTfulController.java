@@ -6,7 +6,7 @@
 package com.ctrip.infosec.flowtable4j.rest;
 
 import static com.ctrip.infosec.configs.utils.Utils.JSON;
-import com.ctrip.infosec.flowtable4j.model.FlowTableCheckResult;
+//import com.ctrip.infosec.flowtable4j.model.FlowTableCheckResult;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,20 +29,20 @@ public class FlowTableRESTfulController {
 
     private static Logger logger = LoggerFactory.getLogger(FlowTableRESTfulController.class);
 
-    @RequestMapping(value = "/check", method = RequestMethod.POST)
-    @ResponseBody
-    public ResponseEntity<?> check(@RequestBody String checkEntityTxt) {
-        logger.info("REST: checkEntity=" + checkEntityTxt);
-        FlowTableCheckResult result = new FlowTableCheckResult();
-        try {
-            Map<String, ?> checkEntity = JSON.parseObject(checkEntityTxt, Map.class);
-
-            // TODO: 执行规则
-        } catch (Throwable ex) {
-            // TODO: 处理异常
-            logger.error("invoke check exception.", ex);
-        }
-        logger.info("RESULT: " + JSON.toJSONString(result));
-        return new ResponseEntity(result, HttpStatus.OK);
-    }
+//    @RequestMapping(value = "/check", method = RequestMethod.POST)
+//    @ResponseBody
+//    public ResponseEntity<?> check(@RequestBody String checkEntityTxt) {
+//        logger.info("REST: checkEntity=" + checkEntityTxt);
+//       // FlowTableCheckResult result = new FlowTableCheckResult();
+//        try {
+//            Map<String, ?> checkEntity = JSON.parseObject(checkEntityTxt, Map.class);
+//
+//            // TODO: 执行规则
+//        } catch (Throwable ex) {
+//            // TODO: 处理异常
+//            logger.error("invoke check exception.", ex);
+//        }
+//       // logger.info("RESULT: " + JSON.toJSONString(result));
+//       // return new ResponseEntity(result, HttpStatus.OK);
+//    }
 }
