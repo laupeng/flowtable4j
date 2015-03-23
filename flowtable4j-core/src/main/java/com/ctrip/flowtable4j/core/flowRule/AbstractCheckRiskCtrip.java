@@ -6,8 +6,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -16,11 +14,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.ctrip.flowtable4j.core.utils.JsonMapper;
-import com.ctrip.flowtable4j.core.dao.cardriskdb.entity.InfoSecurity_CheckResultLog;
 import com.ctrip.flowtable4j.core.flowRule.RuleManager.FlowStatisticType;
 import com.ctrip.flowtable4j.core.flowRule.entity.*;
 import com.ctrip.flowtable4j.core.flowRule.impl.FlowStatisticsDBManager;
-
 
 /**
  * 流量验证抽象类
@@ -49,7 +45,7 @@ public abstract class AbstractCheckRiskCtrip {
 	 * @param isWhiteCheck
 	 * @return
 	 */
-	public FlowCheckRiskResult CheckFlowRuleList(Map basicCheckRiskData, Map checkEntity, boolean isFlowRuleWhite, boolean isWhiteCheck) {
+	protected FlowCheckRiskResult CheckFlowRuleList(Map basicCheckRiskData, Map checkEntity, boolean isFlowRuleWhite, boolean isWhiteCheck) {
 		FlowCheckRiskResult result = new FlowCheckRiskResult();
 		result.setLogList(new ArrayList<InfoSecurity_CheckResultLog>());
 
@@ -378,11 +374,7 @@ public abstract class AbstractCheckRiskCtrip {
 			if (NumberUtils.toDouble(CurrentValue) >= NumberUtils.toDouble(MatchValue))
 				return false;
 		} else if ("NA".equalsIgnoreCase(matchType)) { // 不存在
-			Pattern p = Pattern.compile(MatchValue, Pattern.CASE_INSENSITIVE);
-			Matcher m = p.matcher(CurrentValue);
-			return !Pattern.matches(MatchValue, CurrentValue);
-			
-			//return !java.util.regex.Pattern.matches(MatchValue, CurrentValue);
+			return !java.util.regex.Pattern.matches(MatchValue, CurrentValue);
 			/*
 			 * r = new Regex(MatchValue, RegexOptions.IgnoreCase); return
 			 * !r.IsMatch(CurrentValue);
@@ -391,13 +383,10 @@ public abstract class AbstractCheckRiskCtrip {
 				|| ("LLIKE".equalsIgnoreCase(matchType) // 右边有%
 				|| "RLIKE".equalsIgnoreCase(matchType)) // 左边有%
 				|| "REGEX".equalsIgnoreCase(matchType)) { // 完整的正则表达式
-			Pattern p = Pattern.compile(MatchValue, Pattern.CASE_INSENSITIVE);
-			Matcher m = p.matcher(CurrentValue);
-			return Pattern.matches(MatchValue, CurrentValue);
-			
-			//return java.util.regex.Pattern.matches(MatchValue, CurrentValue);
+			return java.util.regex.Pattern.matches(MatchValue, CurrentValue);
 		}
 
 		return true;
 	}
 }
+

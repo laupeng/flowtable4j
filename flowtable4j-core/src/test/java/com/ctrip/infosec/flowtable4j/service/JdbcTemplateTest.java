@@ -328,3 +328,4 @@ public class JdbcTemplateTest {
         RuleManager.SetRuleEntities(ruleList);
     }
 }
+

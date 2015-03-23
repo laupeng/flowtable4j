@@ -24,13 +24,13 @@ public interface RuleGetter {
      * 规则校验增量更新
      * @return
      */
-    List<Map<String,Object>> ruleIncrement();
+    List<Map<String,Object>> ruleMatch();
 
     /**
      * 规则校验全量更新
      * @return
      */
-    List<Map<String,Object>> ruleFull();
+    List<Map<String,Object>> ruleStatistic();
 
 
 }

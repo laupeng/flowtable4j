@@ -47,10 +47,7 @@ public class JedisTest {
 //        System.out.println("<<<");
         PaymentViaAccount paymentViaAccount = new PaymentViaAccount();
         List<AccountCheckItem> list = new ArrayList<AccountCheckItem>();
-        AccountCheckItem item = new AccountCheckItem();
-        item.setSceneType("LOGIN-SITE");
-        item.setCheckType("IP");
-        item.setCheckValue("192.168.22.08");
+        AccountCheckItem item = new AccountCheckItem("IP","LOGIN-SITE\"","192.168.22.08");
         list.add(item);
         Map<String, Integer> map = paymentViaAccount.CheckBWGRule(list);
         System.out.println(map.size());
