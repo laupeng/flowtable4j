@@ -33,3 +33,5 @@ proguard/
 *.ipr
 *.iws
 .idea/
+.settings
+.gitignore

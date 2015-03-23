@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.ctrip.flowtable4j.core.utils.JsonMapper;
+import com.ctrip.flowtable4j.core.dao.cardriskdb.entity.InfoSecurity_CheckResultLog;
 import com.ctrip.flowtable4j.core.flowRule.RuleManager.FlowStatisticType;
 import com.ctrip.flowtable4j.core.flowRule.entity.*;
 import com.ctrip.flowtable4j.core.flowRule.impl.FlowStatisticsDBManager;
@@ -115,8 +116,9 @@ public abstract class AbstractCheckRiskCtrip {
 					logger.warn("AM1006:" + checkEntity.get("OrderId").toString(), ExTxt);
 				}
 
+				InfoSecurity_CheckResultLog riskLog = null;
 				if (currentRiskLevel > 0){
-					InfoSecurity_CheckResultLog riskLog = RuleManager.getCheckedFlowRuleInfo(entity);
+					riskLog = RuleManager.getCheckedFlowRuleInfo(entity);
 					if(riskLog !=null)
 						result.getLogList().add(riskLog);
 				}

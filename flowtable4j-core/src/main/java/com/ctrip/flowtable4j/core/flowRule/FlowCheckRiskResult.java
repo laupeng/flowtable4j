@@ -2,7 +2,7 @@ package com.ctrip.flowtable4j.core.flowRule;
 
 import java.util.List;
 
-import com.ctrip.flowtable4j.core.flowRule.entity.InfoSecurity_CheckResultLog;
+import com.ctrip.flowtable4j.core.dao.cardriskdb.entity.InfoSecurity_CheckResultLog;
 
 public class FlowCheckRiskResult {
 	String logMessage;

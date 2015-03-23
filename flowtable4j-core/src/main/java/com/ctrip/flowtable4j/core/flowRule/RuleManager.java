@@ -3,8 +3,8 @@ package com.ctrip.flowtable4j.core.flowRule;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.ctrip.flowtable4j.core.dao.cardriskdb.entity.InfoSecurity_CheckResultLog;
 import com.ctrip.flowtable4j.core.flowRule.entity.FlowRuleEntity;
-import com.ctrip.flowtable4j.core.flowRule.entity.InfoSecurity_CheckResultLog;
 
 public class RuleManager {
 	static List<FlowRuleEntity> lst;
