@@ -1,3 +1,4 @@
+
 package com.ctrip.infosec.flowtable4j.flowrule;
 
 
@@ -106,4 +107,3 @@ public class RuleManager {
     	SUM
     }
 }
-

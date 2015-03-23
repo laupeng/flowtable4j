@@ -1,3 +1,4 @@
+
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -37,12 +38,14 @@ public class JdbcTemplateTest {
     JdbcTemplate riskCtrlPreProcDBTemplate;
 
     @Test
+    @Ignore
     public void testQueryCardRiskDB() {
         System.out.println("CardRiskDB");
-        List<Map<String,Object>> results = cardRiskDBTemplate.queryForList("select top 100* from dbo.InfoSecurity_FlowRule");
+        List<Map<String, Object>> results = cardRiskDBTemplate.queryForList("select top 100* from dbo.InfoSecurity_FlowRule");
         System.out.println("results: " + results.size());
     }
 
+    @Ignore
     @Test
     public void testQueryRiskCtrlPreProcDB() {
         System.out.println("RiskCtrlPreProcDB");
@@ -52,7 +55,7 @@ public class JdbcTemplateTest {
 
     @Test
     @Ignore
-    public void testQueryBW(){
+    public void testQueryBW() {
 //        int size = 10;
 //        System.out.println(">>>print BWList begin...");
 //        List<Map<String,Object>> results = CardRiskDB.queryForList("select r.RuleID,r.OrderType,c.CheckName,c.CheckType,cv.CheckValue \n" +
@@ -76,8 +79,9 @@ public class JdbcTemplateTest {
      * 若listMatch的较小（<=）则将listMatch 的top1 add 进入 结果集（如果有相同FlowRuleID不覆盖）
      * 反之类似
      */
+    @Ignore
     @Test
-    public void ruleFull(){
+    public void ruleFull() {
         BasicDataSource dataSource = new BasicDataSource();
         dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
         dataSource.setUrl("jdbc:sqlserver://devdb.dev.sh.ctriptravel.com:28747;database=CardRiskDB;integratedSecurity=false");
@@ -87,12 +91,12 @@ public class JdbcTemplateTest {
         dataSource.setMaxActive(50);
         JdbcTemplate cardRiskDB = new JdbcTemplate(dataSource);
 
-        List<Map<String,Object>> listMatch = cardRiskDB.queryForList(
+        List<Map<String, Object>> listMatch = cardRiskDB.queryForList(
                 "select f.FlowRuleID,f.RuleName,f.RiskLevel,f.OrderType,f.PrepayType,f.RuleDesc,d.ColumnName,r.MatchType,r.MatchValue,d.TableName\n" +
                         "   From dbo.InfoSecurity_RuleMatchField r\n" +
                         "   join dbo.Def_RuleMatchField d on r.FieldID= d.FieldID\n" +
                         "   join dbo.InfoSecurity_FlowRule f on f.FlowRuleID=r.FlowRuleID WHERE f.Active='T' ORDER BY f.FlowRuleID");
-        List<Map<String,Object>> listStatistic = cardRiskDB.queryForList("select f.FlowRuleID,f.RuleName,f.RiskLevel,f.OrderType,f.PrepayType,f.RuleDesc,d.ColumnName as KeyColumnName,\n" +
+        List<Map<String, Object>> listStatistic = cardRiskDB.queryForList("select f.FlowRuleID,f.RuleName,f.RiskLevel,f.OrderType,f.PrepayType,f.RuleDesc,d.ColumnName as KeyColumnName,\n" +
                 "d1.ColumnName as MatchColumnName,d2.StatisticTableName as KeyTableName,r.MatchType,r.MatchValue,r.StatisticType,r.StartTimeLimit,r.TimeLimit,r.SqlValue\n" +
                 "   From  dbo.InfoSecurity_RuleStatistic r \n" +
                 "         join dbo.Def_RuleMatchField d on r.KeyFieldID=d.FieldID\n" +
@@ -102,41 +106,41 @@ public class JdbcTemplateTest {
 
         List<FlowRuleEntity> ruleList = new ArrayList<FlowRuleEntity>();
 
-        int count = listMatch.size()+listStatistic.size();
+        int count = listMatch.size() + listStatistic.size();
         int p_match = 0;
-        int p_statistic=0;
+        int p_statistic = 0;
         boolean matchIsOver = false;
         boolean statisticIsOver = false;
         //f.FlowRuleID,f.RuleName,f.RiskLevel,f.OrderType,f.PrepayType,f.RuleDesc,d.ColumnName,r.MatchType,r.MatchValue,d.TableName
 
-        for(int i=0;i<count;i++){
-            if(p_match>=listMatch.size()){
-                p_match = listMatch.size()-1;
+        for (int i = 0; i < count; i++) {
+            if (p_match >= listMatch.size()) {
+                p_match = listMatch.size() - 1;
                 matchIsOver = true;
             }
-            if(p_statistic>=listStatistic.size()){
-                p_statistic = listStatistic.size()-1;
+            if (p_statistic >= listStatistic.size()) {
+                p_statistic = listStatistic.size() - 1;
                 statisticIsOver = true;
             }
             int matchID = Integer.valueOf(listMatch.get(p_match).get("FlowRuleID").toString());
             int staticID = Integer.valueOf(listStatistic.get(p_statistic).get("FlowRuleID").toString());
 //            FlowRuleEntity flowRuleEntity = ruleList.get(ruleList.size() - 1);
-            if(statisticIsOver||matchID<=staticID&&p_match<listMatch.size()&&!matchIsOver){
+            if (statisticIsOver || matchID <= staticID && p_match < listMatch.size() && !matchIsOver) {
 
-                if(ruleList.size()==0||matchID!=ruleList.get(ruleList.size() - 1).getFlowRuleID()){
+                if (ruleList.size() == 0 || matchID != ruleList.get(ruleList.size() - 1).getFlowRuleID()) {
                     FlowRuleEntity flowRuleEntity12Add = new FlowRuleEntity();
                     ruleList.add(flowRuleEntity12Add);
-                    flowRuleEntity12Add.setFlowRuleID(Integer.valueOf( listMatch.get(p_match).get("FlowRuleID").toString()));
+                    flowRuleEntity12Add.setFlowRuleID(Integer.valueOf(listMatch.get(p_match).get("FlowRuleID").toString()));
                     flowRuleEntity12Add.setRuleName(listMatch.get(p_match).get("RuleName").toString());
-                    flowRuleEntity12Add.setRiskLevel(Integer.valueOf( listMatch.get(p_match).get("RiskLevel").toString()));
+                    flowRuleEntity12Add.setRiskLevel(Integer.valueOf(listMatch.get(p_match).get("RiskLevel").toString()));
                     flowRuleEntity12Add.setOrderType(Integer.valueOf(listMatch.get(p_match).get("OrderType").toString()));
                     flowRuleEntity12Add.setPrepayType(listMatch.get(p_match).get("PrepayType").toString());
                     flowRuleEntity12Add.setRuleDesc(listMatch.get(p_match).get("RuleDesc").toString());
 
                     RuleMatchFieldEntity ruleMatchFieldEntity = new RuleMatchFieldEntity();
                     List<RuleMatchFieldEntity> list = flowRuleEntity12Add.getMatchFieldListItem();
-                    if(list==null){
-                        list=new ArrayList<RuleMatchFieldEntity>();
+                    if (list == null) {
+                        list = new ArrayList<RuleMatchFieldEntity>();
                     }
                     list.add(ruleMatchFieldEntity);
                     flowRuleEntity12Add.setMatchFieldListItem(list);
@@ -145,7 +149,7 @@ public class JdbcTemplateTest {
                     ruleMatchFieldEntity.setMatchValue(listMatch.get(p_match).get("MatchValue").toString());
                     ruleMatchFieldEntity.setTableName(listMatch.get(p_match).get("TableName").toString());
 
-                }else{
+                } else {
                     RuleMatchFieldEntity ruleMatchFieldEntity = new RuleMatchFieldEntity();
                     ruleMatchFieldEntity.setColumnName(listMatch.get(p_match).get("ColumnName").toString());
                     ruleMatchFieldEntity.setMatchType(listMatch.get(p_match).get("MatchType").toString());
@@ -157,22 +161,22 @@ public class JdbcTemplateTest {
 //                    }
 //                    list.add(ruleMatchFieldEntity);
 
-                    if(ruleList.get(ruleList.size() - 1).getMatchFieldListItem()==null){
+                    if (ruleList.get(ruleList.size() - 1).getMatchFieldListItem() == null) {
                         ruleList.get(ruleList.size() - 1).setMatchFieldListItem(new ArrayList<RuleMatchFieldEntity>());
                     }
                     ruleList.get(ruleList.size() - 1).getMatchFieldListItem().add(ruleMatchFieldEntity);
                 }
                 p_match++;
             }
-            if(matchIsOver||matchID>staticID&&p_statistic<listStatistic.size()&&!statisticIsOver) {
+            if (matchIsOver || matchID > staticID && p_statistic < listStatistic.size() && !statisticIsOver) {
 
-                if(ruleList.size()==0||staticID!=ruleList.get(ruleList.size() - 1).getFlowRuleID()){
+                if (ruleList.size() == 0 || staticID != ruleList.get(ruleList.size() - 1).getFlowRuleID()) {
 
                     FlowRuleEntity flowRuleEntity12Add = new FlowRuleEntity();
                     ruleList.add(flowRuleEntity12Add);
-                    flowRuleEntity12Add.setFlowRuleID(Integer.valueOf( listMatch.get(p_match).get("FlowRuleID").toString()));
+                    flowRuleEntity12Add.setFlowRuleID(Integer.valueOf(listMatch.get(p_match).get("FlowRuleID").toString()));
                     flowRuleEntity12Add.setRuleName(listMatch.get(p_match).get("RuleName").toString());
-                    flowRuleEntity12Add.setRiskLevel(Integer.valueOf( listMatch.get(p_match).get("RiskLevel").toString()));
+                    flowRuleEntity12Add.setRiskLevel(Integer.valueOf(listMatch.get(p_match).get("RiskLevel").toString()));
                     flowRuleEntity12Add.setOrderType(Integer.valueOf(listMatch.get(p_match).get("OrderType").toString()));
                     flowRuleEntity12Add.setPrepayType(listMatch.get(p_match).get("PrepayType").toString());
                     flowRuleEntity12Add.setRuleDesc(listMatch.get(p_match).get("RuleDesc").toString());
@@ -180,7 +184,7 @@ public class JdbcTemplateTest {
                     RuleStatisticEntity ruleStatisticEntity = new RuleStatisticEntity();
 
                     List<RuleStatisticEntity> list = flowRuleEntity12Add.getStatisticListItem();
-                    if(list==null){
+                    if (list == null) {
                         list = new ArrayList<RuleStatisticEntity>();
                     }
                     list.add(ruleStatisticEntity);
@@ -195,7 +199,7 @@ public class JdbcTemplateTest {
                     ruleStatisticEntity.setStartTimeLimit(Integer.valueOf(listStatistic.get(p_statistic).get("StartTimeLimit").toString()));
                     ruleStatisticEntity.setStatisticType(listStatistic.get(p_statistic).get("StatisticType").toString());
                     ruleStatisticEntity.setTimeLimit(Integer.valueOf(listStatistic.get(p_statistic).get("TimeLimit").toString()));
-                }else{
+                } else {
 
                     RuleStatisticEntity ruleStatisticEntity = new RuleStatisticEntity();
                     ruleStatisticEntity.setMatchValue(listStatistic.get(p_statistic).get("MatchValue").toString());
@@ -215,7 +219,7 @@ public class JdbcTemplateTest {
 //                    }
 //                    list.add(ruleStatisticEntity);
 //
-                    if(ruleList.get(ruleList.size() - 1).getStatisticListItem()==null){
+                    if (ruleList.get(ruleList.size() - 1).getStatisticListItem() == null) {
                         ruleList.get(ruleList.size() - 1).setStatisticListItem(new ArrayList<RuleStatisticEntity>());
                     }
                     ruleList.get(ruleList.size() - 1).getStatisticListItem().add(ruleStatisticEntity);

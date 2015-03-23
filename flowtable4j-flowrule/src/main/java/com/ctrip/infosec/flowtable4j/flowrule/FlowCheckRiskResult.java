@@ -1,6 +1,5 @@
 package com.ctrip.infosec.flowtable4j.flowrule;
 
-
 import com.ctrip.infosec.flowtable4j.flowrule.entity.InfoSecurity_CheckResultLog;
 
 import java.util.List;

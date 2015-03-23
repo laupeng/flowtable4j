@@ -1,5 +1,6 @@
 package com.ctrip.infosec.flowtable4j.flowrule;
 
+
 import com.ctrip.flowtable4j.core.utils.JsonMapper;
 import com.ctrip.infosec.flowtable4j.flowrule.entity.*;
 import com.ctrip.infosec.flowtable4j.flowrule.impl.FlowStatisticsDBManager;
@@ -19,7 +20,7 @@ import java.util.Map;
  * @author weiyu
  * @date 2015年3月17日
  */
-public abstract class AbstractCheckRiskCtrip {
+public abstract class AbstractCheckRiskCtrip implements CheckRiskCtrip {
 
 	/*
 	 * InfoSecurity_FlowRule InfoSecurity_RuleMatchField
@@ -40,7 +41,8 @@ public abstract class AbstractCheckRiskCtrip {
 	 * @param isWhiteCheck
 	 * @return
 	 */
-	protected FlowCheckRiskResult CheckFlowRuleList(Map basicCheckRiskData, Map checkEntity, boolean isFlowRuleWhite, boolean isWhiteCheck) {
+	@Override
+	public FlowCheckRiskResult CheckFlowRuleList(Map basicCheckRiskData, Map checkEntity, boolean isFlowRuleWhite, boolean isWhiteCheck) {
 		FlowCheckRiskResult result = new FlowCheckRiskResult();
 		result.setLogList(new ArrayList<InfoSecurity_CheckResultLog>());
 
@@ -110,8 +112,9 @@ public abstract class AbstractCheckRiskCtrip {
 					logger.warn("AM1006:" + checkEntity.get("OrderId").toString(), ExTxt);
 				}
 
+				InfoSecurity_CheckResultLog riskLog = null;
 				if (currentRiskLevel > 0){
-					InfoSecurity_CheckResultLog riskLog = RuleManager.getCheckedFlowRuleInfo(entity);
+					riskLog = RuleManager.getCheckedFlowRuleInfo(entity);
 					if(riskLog !=null)
 						result.getLogList().add(riskLog);
 				}
@@ -384,3 +387,4 @@ public abstract class AbstractCheckRiskCtrip {
 		return true;
 	}
 }
+

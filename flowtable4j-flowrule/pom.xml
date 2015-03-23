@@ -19,6 +19,11 @@
 
     <!-- Data Config Server -->
     <dependency>
+      <groupId>com.ctrip.infosec.flowtable4j</groupId>
+      <artifactId>flowtable4j-core</artifactId>
+    </dependency>
+    <!-- Data Config Server -->
+    <dependency>
       <groupId>com.ctrip.infosec.antifraud</groupId>
       <artifactId>configs-client</artifactId>
     </dependency>
