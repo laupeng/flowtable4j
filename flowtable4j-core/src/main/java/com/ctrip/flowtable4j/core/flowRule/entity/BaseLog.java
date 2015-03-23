@@ -1,6 +1,6 @@
 package com.ctrip.flowtable4j.core.flowRule.entity;
 
-import com.ctrip.flowtable4j.core.Utils.CommonUtils;
+import com.ctrip.flowtable4j.core.utils.CommonUtils;
 
 public class BaseLog {
     private static String PD_LINE = "RCD";
