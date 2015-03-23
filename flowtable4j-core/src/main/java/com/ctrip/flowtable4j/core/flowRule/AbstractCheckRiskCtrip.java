@@ -25,7 +25,7 @@ import com.ctrip.flowtable4j.core.flowRule.impl.FlowStatisticsDBManager;
  * @author weiyu
  * @date 2015年3月17日
  */
-public abstract class AbstractCheckRiskCtrip {
+public abstract class AbstractCheckRiskCtrip implements CheckRiskCtrip {
 
 	/*
 	 * InfoSecurity_FlowRule InfoSecurity_RuleMatchField
@@ -46,7 +46,8 @@ public abstract class AbstractCheckRiskCtrip {
 	 * @param isWhiteCheck
 	 * @return
 	 */
-	protected FlowCheckRiskResult CheckFlowRuleList(Map basicCheckRiskData, Map checkEntity, boolean isFlowRuleWhite, boolean isWhiteCheck) {
+	@Override
+	public FlowCheckRiskResult CheckFlowRuleList(Map basicCheckRiskData, Map checkEntity, boolean isFlowRuleWhite, boolean isWhiteCheck) {
 		FlowCheckRiskResult result = new FlowCheckRiskResult();
 		result.setLogList(new ArrayList<InfoSecurity_CheckResultLog>());
 

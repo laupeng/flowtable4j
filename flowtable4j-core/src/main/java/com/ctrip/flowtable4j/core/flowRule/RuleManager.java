@@ -1,16 +1,28 @@
 package com.ctrip.flowtable4j.core.flowRule;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Timer;
 
 import com.ctrip.flowtable4j.core.dao.cardriskdb.entity.InfoSecurity_CheckResultLog;
 import com.ctrip.flowtable4j.core.flowRule.entity.FlowRuleEntity;
 
+
+
 public class RuleManager {
-	static List<FlowRuleEntity> lst;
+	static List<FlowRuleEntity> flowRuleList;
+	
 	public static void SetRuleEntities(List<FlowRuleEntity> ruleList){
-		lst = ruleList;
+		flowRuleList = ruleList;
 	}
+	
+	
+
+
+	
+	
 	
     public static List<FlowRuleEntity> GetFlowRuleListByOrderType(String strOrderType)
     {
@@ -72,7 +84,7 @@ public class RuleManager {
      * @return
      */
     public static List<FlowRuleEntity> GetFlowRuleList(){
-    	return lst;
+    	return flowRuleList;
     }
     
     
@@ -104,5 +116,27 @@ public class RuleManager {
     	COUNT,
     	SUM
     }
+    
+    
+	public class TimerTaskFreshDefaultTagData extends java.util.TimerTask{
+
+		@Override
+		public void run() {
+			// TODO Auto-generated method stub
+			
+			try {
+				if(flowRuleList == null)
+					flowRuleList = new ArrayList<FlowRuleEntity>();
+
+				//放入最新
+
+
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+	}
 }
 

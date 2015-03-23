@@ -33,9 +33,7 @@ public class RuleManagerTest {
 
 	@Before
 	public void setUp() throws Exception {
-        System.out.println("CardRiskDB");
-        List<Map<String,Object>> results = cardRiskDBTemplate.queryForList("select top 100* from dbo.InfoSecurity_FlowRule");
-        System.out.println("results: " + results.size());
+
 	}
 
 	@Test
