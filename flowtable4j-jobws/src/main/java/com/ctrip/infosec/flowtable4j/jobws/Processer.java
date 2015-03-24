@@ -5,8 +5,4 @@ package com.ctrip.infosec.flowtable4j.jobws;
  */
 public interface Processer {
     void execute();
-    enum Status{
-        FIRST,
-        NOTFIRST;
-    }
 }

@@ -1,5 +1,6 @@
 package com.ctrip.infosec.flowtable4j.accountsecurity;
 
+import com.ctrip.infosec.flowtable4j.model.account.AccountCheckItem;
 import org.junit.Ignore;
 import org.junit.Test;
 import redis.clients.jedis.Jedis;

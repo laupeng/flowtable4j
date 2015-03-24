@@ -1,6 +1,11 @@
 package com.ctrip.infosec.flowtable4j.jobws;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 
 import java.util.concurrent.*;
 
@@ -8,38 +13,29 @@ import java.util.concurrent.*;
  * Created by zhangsx on 2015/3/13.
  * 规则更新实现类
  */
-public class StaticCacheJob implements RuleSwitch{
+@Component
+public class StaticCacheJob {
 
-    /**
-     * 规则更新Timer
-     */
-    private ScheduledExecutorService executor = null;
     @Autowired
-    private Processer processer;
-    @Override
-    public void start() {
-        executor = Executors.newSingleThreadScheduledExecutor();
-        executor.scheduleWithFixedDelay(new Runnable() {
-            @Override
-            public void run() {
-                if(!Thread.currentThread().isInterrupted()){
-                    processer.execute();
-                }
-            }
-        },0L,5L, TimeUnit.MILLISECONDS);
+    @Qualifier("simpleProcessor4BW")
+    private Processer processerBW;
+
+    @Autowired
+    @Qualifier("simpleProcessor4Flow")
+    private Processer processerFlow;
+
+    private static final Logger logger = LoggerFactory.getLogger(StaticCacheJob.class);
+    @Scheduled(fixedDelay = 60000)
+    public void executeBW(){
+        logger.info("start execute update bw rule...");
+        processerBW.execute();
+        logger.info("end execute update bw rule...");
     }
 
-    @Override
-    public void shutdown() {
-        if(executor!=null){
-            executor.shutdown();
-        }
-    }
-
-    @Override
-    public void shutdownNow() {
-        if(executor!=null){
-            executor.shutdownNow();
-        }
+    @Scheduled(fixedDelay = 10000)
+    public void executeFlow(){
+        logger.info("start execute update flow rule...");
+        processerFlow.execute();
+        logger.info("end execute update flow rule...");
     }
 }

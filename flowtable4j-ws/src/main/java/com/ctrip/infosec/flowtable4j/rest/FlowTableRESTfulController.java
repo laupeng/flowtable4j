@@ -5,18 +5,13 @@
  */
 package com.ctrip.infosec.flowtable4j.rest;
 
-import static com.ctrip.infosec.configs.utils.Utils.JSON;
-//import com.ctrip.infosec.flowtable4j.model.FlowTableCheckResult;
-import java.util.Map;
+import com.ctrip.flowtable4j.core.Processor;
+import com.ctrip.infosec.flowtable4j.model.check.CheckEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
  * 配置读取
@@ -24,11 +19,14 @@ import org.springframework.web.bind.annotation.ResponseBody;
  * @author zhengby
  */
 @Controller
-@RequestMapping(value = "/flowtable")
 public class FlowTableRESTfulController {
 
     private static Logger logger = LoggerFactory.getLogger(FlowTableRESTfulController.class);
-
+    @RequestMapping(value = "/checkRisk")
+    public String checkRisk(@RequestBody CheckEntity checkEntity) {
+        Processor.handle(checkEntity);
+        return "secuess";
+    }
 //    @RequestMapping(value = "/check", method = RequestMethod.POST)
 //    @ResponseBody
 //    public ResponseEntity<?> check(@RequestBody String checkEntityTxt) {

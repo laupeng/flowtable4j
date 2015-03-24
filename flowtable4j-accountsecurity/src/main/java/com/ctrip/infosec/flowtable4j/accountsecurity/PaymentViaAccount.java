@@ -1,5 +1,6 @@
 package com.ctrip.infosec.flowtable4j.accountsecurity;
 
+import com.ctrip.infosec.flowtable4j.model.account.AccountCheckItem;
 import com.google.common.base.Strings;
 import org.apache.commons.lang.time.FastDateFormat;
 import org.slf4j.Logger;

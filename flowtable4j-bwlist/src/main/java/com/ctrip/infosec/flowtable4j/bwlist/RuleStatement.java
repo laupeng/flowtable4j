@@ -1,8 +1,10 @@
 package com.ctrip.infosec.flowtable4j.bwlist;
 
+import com.ctrip.infosec.flowtable4j.model.bw.BWFact;
+import com.ctrip.infosec.flowtable4j.model.bw.BWResult;
+
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by thyang on 2015/3/13 0013.
@@ -85,9 +87,10 @@ public class RuleStatement {
     public boolean check(BWFact fact, List<BWResult> results) {
         Date now = new Date();
         boolean match = false;
+
         if (now.compareTo(effectDate) >= 0 && now.compareTo(expireDate) < 0) {
             match = true;
-            if (ruleTerms!=null && ruleTerms.size()>0) {
+            if (ruleTerms != null && ruleTerms.size() > 0) {
                 for (RuleTerm term : ruleTerms) {
                     if (!term.check(fact)) {
                         match = false;
@@ -102,7 +105,6 @@ public class RuleStatement {
                 result.setRemark(remark);
                 results.add(result);
             }
-
         }
         return match;
     }

@@ -1,5 +1,7 @@
 package com.ctrip.infosec.flowtable4j.bwlist;
 
+import com.ctrip.infosec.flowtable4j.model.bw.BWFact;
+
 import java.math.BigDecimal;
 
 /**
@@ -38,7 +40,7 @@ public class RuleTerm {
     }
 
     public boolean check(BWFact fact){
-        return executor.Match(fact.getString(getFieldName()), getMatchValue());
+        return executor.match(fact.getString(getFieldName()), getMatchValue());
     }
 
     public String getOperator() {
@@ -67,12 +69,12 @@ public class RuleTerm {
 }
 
 abstract class ConditionExecutor{
-    public abstract boolean Match(String fieldValue,String matchValue);
+    public abstract boolean match(String fieldValue,String matchValue);
 }
 
 class EQExecutor extends ConditionExecutor {
     @Override
-    public boolean Match(String fieldValue, String matchValue) {
+    public boolean match(String fieldValue, String matchValue) {
         if(fieldValue!=null && matchValue!=null){
             return  fieldValue.equalsIgnoreCase(matchValue);
         }
@@ -82,7 +84,7 @@ class EQExecutor extends ConditionExecutor {
 
 class GEExecutor extends ConditionExecutor{
     @Override
-    public boolean Match(String fieldValue, String matchValue) {
+    public boolean match(String fieldValue, String matchValue) {
         if(fieldValue!=null && matchValue!=null){
             BigDecimal fv = new BigDecimal(fieldValue);
             BigDecimal mv = new BigDecimal(matchValue);
@@ -94,7 +96,7 @@ class GEExecutor extends ConditionExecutor{
 
 class INExecutor extends ConditionExecutor {
     @Override
-    public boolean Match(String fieldValue, String matchValue) {
+    public boolean match(String fieldValue, String matchValue) {
         if(fieldValue!=null && matchValue!=null){
             return  fieldValue.indexOf(matchValue)>=0;
         }
@@ -103,7 +105,7 @@ class INExecutor extends ConditionExecutor {
 }
 class LEExecutor extends ConditionExecutor{
     @Override
-    public boolean Match(String fieldValue, String matchValue) {
+    public boolean match(String fieldValue, String matchValue) {
         if(fieldValue!=null && matchValue!=null){
             BigDecimal fv = new BigDecimal(fieldValue);
             BigDecimal mv = new BigDecimal(matchValue);
@@ -115,7 +117,7 @@ class LEExecutor extends ConditionExecutor{
 
 class LLIKEExecutor extends ConditionExecutor{
     @Override
-    public boolean Match(String fieldValue, String matchValue) {
+    public boolean match(String fieldValue, String matchValue) {
         if(fieldValue!=null && matchValue!=null){
             return  fieldValue.indexOf(matchValue)==0;
         }
