@@ -92,6 +92,12 @@
 
             <dependency>
                 <groupId>com.ctrip.infosec.flowtable4j</groupId>
+                <artifactId>flowtable4j-model</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.ctrip.infosec.flowtable4j</groupId>
                 <artifactId>flowtable4j-flowrule</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -494,7 +500,7 @@
         <module>flowtable4j-bwlist</module>
         <module>flowtable4j-jobws</module>
         <module>flowtable4j-ws</module>
-
+        <module>flowtable4j-model</module>
   </modules>
 
 </project>

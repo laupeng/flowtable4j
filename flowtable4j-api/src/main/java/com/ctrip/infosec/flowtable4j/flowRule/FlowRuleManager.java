@@ -29,7 +29,7 @@ public class FlowRuleManager {
      * @param results
      * @return
      */
-    public static boolean checkWhite(BWFact fact, List<BWResult> results) {
+    public static boolean checkWhite(FlowFact fact, List<BWResult> results) {
         try{
             if (whiteRule != null) {
                 return whiteRule.check(fact, results);
@@ -41,7 +41,7 @@ public class FlowRuleManager {
         return false;
     }
 
-    public static boolean checkBlack(BWFact fact, List<BWResult> results) {
+    public static boolean checkBlack(FlowFact fact, List<BWResult> results) {
         try{
             if (blackRule != null) {
                 return blackRule.check(fact, results);
@@ -53,11 +53,11 @@ public class FlowRuleManager {
         return false;
     }
 
-    public static boolean addRule(List<RuleStatement> ruleStatements) {
+    public static boolean addRule(List<FlowRuleStatement> flowRuleStatements) {
         try {
-            List<RuleStatement> white = new ArrayList<RuleStatement>();
-            List<RuleStatement> black = new ArrayList<RuleStatement>();
-            for (RuleStatement rule : ruleStatements) {
+            List<FlowRuleStatement> white = new ArrayList<FlowRuleStatement>();
+            List<FlowRuleStatement> black = new ArrayList<FlowRuleStatement>();
+            for (FlowRuleStatement rule : flowRuleStatements) {
                 if (rule.getRiskLevel() > WHITE_LVL) {
                     black.add(rule);
                 } else {
@@ -78,11 +78,11 @@ public class FlowRuleManager {
         }
     }
 
-    public static boolean removeRule(List<RuleStatement> ruleStatements) {
+    public static boolean removeRule(List<FlowRuleStatement> flowRuleStatements) {
         try {
-            List<RuleStatement> white = new ArrayList<RuleStatement>();
-            List<RuleStatement> black = new ArrayList<RuleStatement>();
-            for (RuleStatement rule : ruleStatements) {
+            List<FlowRuleStatement> white = new ArrayList<FlowRuleStatement>();
+            List<FlowRuleStatement> black = new ArrayList<FlowRuleStatement>();
+            for (FlowRuleStatement rule : flowRuleStatements) {
                 if (rule.getRiskLevel() > WHITE_LVL) {
                     black.add(rule);
                 } else {

@@ -19,7 +19,7 @@ public abstract class BaseRule {
      * 字段，值，规则
      * 读写锁
      */
-    private final HashMap<String, HashMap<String, List<RuleStatement>>> globalEQ = new HashMap<String, HashMap<String, List<RuleStatement>>>();
+    private final HashMap<String, HashMap<String, List<FlowRuleStatement>>> globalEQ = new HashMap<String, HashMap<String, List<FlowRuleStatement>>>();
     final ReentrantReadWriteLock globalEQ_Lock = new ReentrantReadWriteLock();
     final ReentrantReadWriteLock.ReadLock globalEQ_Read = globalEQ_Lock.readLock();
     final ReentrantReadWriteLock.WriteLock globalEQ_Write = globalEQ_Lock.writeLock();
@@ -28,7 +28,7 @@ public abstract class BaseRule {
      * 字段，规则
      * 读写锁
      */
-    private final HashMap<String, List<RuleStatement>> globalNEQ = new HashMap<String, List<RuleStatement>>();
+    private final HashMap<String, List<FlowRuleStatement>> globalNEQ = new HashMap<String, List<FlowRuleStatement>>();
     final ReentrantReadWriteLock globalNEQ_Lock = new ReentrantReadWriteLock();
     final ReentrantReadWriteLock.ReadLock globalNEQ_Read = globalNEQ_Lock.readLock();
     final ReentrantReadWriteLock.WriteLock globalNEQ_Write = globalNEQ_Lock.writeLock();
@@ -37,7 +37,7 @@ public abstract class BaseRule {
      * OrderType,字段,值,规则
      * 读写锁
      */
-    private final HashMap<Integer, HashMap<String, HashMap<String, List<RuleStatement>>>> orderTypeEQ = new HashMap<Integer, HashMap<String, HashMap<String, List<RuleStatement>>>>();
+    private final HashMap<Integer, HashMap<String, HashMap<String, List<FlowRuleStatement>>>> orderTypeEQ = new HashMap<Integer, HashMap<String, HashMap<String, List<FlowRuleStatement>>>>();
     final ReentrantReadWriteLock orderTypeEQ_Lock = new ReentrantReadWriteLock();
     final ReentrantReadWriteLock.ReadLock orderTypeEQ_Read = orderTypeEQ_Lock.readLock();
     final ReentrantReadWriteLock.WriteLock orderTypeEQ_Write = orderTypeEQ_Lock.writeLock();
@@ -46,7 +46,7 @@ public abstract class BaseRule {
      * OrderType,字段,规则
      * 读写锁
      */
-    private final HashMap<Integer, HashMap<String, List<RuleStatement>>> orderTypeNEQ = new HashMap<Integer, HashMap<String, List<RuleStatement>>>();
+    private final HashMap<Integer, HashMap<String, List<FlowRuleStatement>>> orderTypeNEQ = new HashMap<Integer, HashMap<String, List<FlowRuleStatement>>>();
     final ReentrantReadWriteLock orderTypeNEQ_Lock = new ReentrantReadWriteLock();
     final ReentrantReadWriteLock.ReadLock orderTypeNEQ_Read = orderTypeNEQ_Lock.readLock();
     final ReentrantReadWriteLock.WriteLock orderTypeNEQ_Write = orderTypeNEQ_Lock.writeLock();
@@ -57,7 +57,7 @@ public abstract class BaseRule {
      * @param results
      * @return
      */
-    public abstract boolean check(BWFact fact, List<BWResult> results);
+    public abstract boolean check(FlowFact fact, List<BWResult> results);
 
     /**
      * 校验全局的不等黑白名单
@@ -65,7 +65,7 @@ public abstract class BaseRule {
      * @param results
      * @return
      */
-    protected boolean checkGlobalNEQRule(BWFact fact, List<BWResult> results) {
+    protected boolean checkGlobalNEQRule(FlowFact fact, List<BWResult> results) {
         try {
             globalNEQ_Read.lock();
             return checkNEQRules(fact, globalNEQ, results);
@@ -83,7 +83,7 @@ public abstract class BaseRule {
      * @param results
      * @return
      */
-    protected boolean checkGlobalEQRule(BWFact fact, List<BWResult> results) {
+    protected boolean checkGlobalEQRule(FlowFact fact, List<BWResult> results) {
         try {
             globalEQ_Read.lock();
             return checkEQRules(fact, globalEQ, results);
@@ -101,7 +101,7 @@ public abstract class BaseRule {
      * @param results
      * @return
      */
-    protected boolean checkNEQRuleByOrderType(BWFact fact, List<BWResult> results) {
+    protected boolean checkNEQRuleByOrderType(FlowFact fact, List<BWResult> results) {
         try {
             orderTypeNEQ_Read.lock();
             Integer orderType= fact.getOrderType();
@@ -122,7 +122,7 @@ public abstract class BaseRule {
      * @param results
      * @return
      */
-    protected boolean checkEQRuleByOrderType(BWFact fact, List<BWResult> results) {
+    protected boolean checkEQRuleByOrderType(FlowFact fact, List<BWResult> results) {
         try {
             orderTypeEQ_Read.lock();
             Integer orderType= fact.getOrderType();
@@ -137,9 +137,9 @@ public abstract class BaseRule {
         return false;
     }
 
-    protected abstract boolean checkEQRules(BWFact fact, HashMap<String, HashMap<String, List<RuleStatement>>> matchRules, List<BWResult> results);
+    protected abstract boolean checkEQRules(FlowFact fact, HashMap<String, HashMap<String, List<FlowRuleStatement>>> matchRules, List<BWResult> results);
 
-    protected abstract boolean checkNEQRules(BWFact fact, HashMap<String, List<RuleStatement>> matchRules, List<BWResult> results);
+    protected abstract boolean checkNEQRules(FlowFact fact, HashMap<String, List<FlowRuleStatement>> matchRules, List<BWResult> results);
 
     /**
      * 合并HashMap结果
@@ -152,7 +152,7 @@ public abstract class BaseRule {
                 Object srcV= srcMap.get(key);
                 Object targetV = targetMap.get(key);
                 if(srcV instanceof List){
-                    mergeList((List<RuleStatement>) srcV,(List<RuleStatement>) targetV);
+                    mergeList((List<FlowRuleStatement>) srcV,(List<FlowRuleStatement>) targetV);
                 } else if(srcV instanceof HashMap){
                     mergeMap((HashMap)srcV,(HashMap)targetV);
                 }
@@ -173,7 +173,7 @@ public abstract class BaseRule {
                 Object srcV= srcMap.get(key);
                 Object targetV = targetMap.get(key);
                 if(srcV instanceof List){
-                    ((List<RuleStatement>) targetV).removeAll((List<RuleStatement>) srcV);
+                    ((List<FlowRuleStatement>) targetV).removeAll((List<FlowRuleStatement>) srcV);
                 } else if(srcV instanceof HashMap){
                     removeMap((HashMap)srcV,(HashMap)targetV);
                 }
@@ -187,9 +187,9 @@ public abstract class BaseRule {
      * @param srcList
      * @param targetList
      */
-    private void mergeList(List<RuleStatement> srcList, List<RuleStatement> targetList) {
+    private void mergeList(List<FlowRuleStatement> srcList, List<FlowRuleStatement> targetList) {
         if (srcList != null && srcList.size() > 0) {
-            for (RuleStatement rule : srcList) {
+            for (FlowRuleStatement rule : srcList) {
                 if (!targetList.contains(rule))
                     targetList.add(rule);
             }
@@ -198,18 +198,18 @@ public abstract class BaseRule {
 
     /**
      * 新增规则
-     * @param ruleStatements
+     * @param flowRuleStatements
      * @return
      */
-    public boolean addRule(List<RuleStatement> ruleStatements) {
+    public boolean addRule(List<FlowRuleStatement> flowRuleStatements) {
 
-        if(ruleStatements!=null && ruleStatements.size()>0) {
-            HashMap<String, HashMap<String, List<RuleStatement>>> globalEQTemp = new HashMap<String, HashMap<String, List<RuleStatement>>>();
-            HashMap<String, List<RuleStatement>> globalNEQTemp = new HashMap<String, List<RuleStatement>>();
-            HashMap<Integer, HashMap<String, HashMap<String, List<RuleStatement>>>> orderTypeEQTemp = new HashMap<Integer, HashMap<String, HashMap<String, List<RuleStatement>>>>();
-            HashMap<Integer, HashMap<String, List<RuleStatement>>> orderTypeNEQTemp = new HashMap<Integer, HashMap<String, List<RuleStatement>>>();
+        if(flowRuleStatements !=null && flowRuleStatements.size()>0) {
+            HashMap<String, HashMap<String, List<FlowRuleStatement>>> globalEQTemp = new HashMap<String, HashMap<String, List<FlowRuleStatement>>>();
+            HashMap<String, List<FlowRuleStatement>> globalNEQTemp = new HashMap<String, List<FlowRuleStatement>>();
+            HashMap<Integer, HashMap<String, HashMap<String, List<FlowRuleStatement>>>> orderTypeEQTemp = new HashMap<Integer, HashMap<String, HashMap<String, List<FlowRuleStatement>>>>();
+            HashMap<Integer, HashMap<String, List<FlowRuleStatement>>> orderTypeNEQTemp = new HashMap<Integer, HashMap<String, List<FlowRuleStatement>>>();
 
-            buildRuleTree(ruleStatements, globalEQTemp, globalNEQTemp, orderTypeEQTemp, orderTypeNEQTemp);
+            buildRuleTree(flowRuleStatements, globalEQTemp, globalNEQTemp, orderTypeEQTemp, orderTypeNEQTemp);
 
             if (globalEQTemp.size() > 0) {
                 try {
@@ -260,98 +260,98 @@ public abstract class BaseRule {
 
     /**
      * 构造黑白名单树
-     * @param ruleStatements
+     * @param flowRuleStatements
      * @param globalEQTemp
      * @param globalNEQTemp
      * @param orderTypeEQTemp
      * @param orderTypeNEQTemp
      */
-    private void buildRuleTree(List<RuleStatement> ruleStatements,
-                                HashMap<String, HashMap<String, List<RuleStatement>>> globalEQTemp,
-                                HashMap<String, List<RuleStatement>> globalNEQTemp,
-                                HashMap<Integer, HashMap<String, HashMap<String, List<RuleStatement>>>> orderTypeEQTemp,
-                                HashMap<Integer, HashMap<String, List<RuleStatement>>> orderTypeNEQTemp) {
-        RuleTerm ruleTerm = null;
+    private void buildRuleTree(List<FlowRuleStatement> flowRuleStatements,
+                                HashMap<String, HashMap<String, List<FlowRuleStatement>>> globalEQTemp,
+                                HashMap<String, List<FlowRuleStatement>> globalNEQTemp,
+                                HashMap<Integer, HashMap<String, HashMap<String, List<FlowRuleStatement>>>> orderTypeEQTemp,
+                                HashMap<Integer, HashMap<String, List<FlowRuleStatement>>> orderTypeNEQTemp) {
+        FlowRuleTerm flowRuleTerm = null;
         Integer orderType = 0;
         String fieldName = "";
-        for (RuleStatement rule : ruleStatements) {
+        for (FlowRuleStatement rule : flowRuleStatements) {
             orderType = rule.getOrderType();
-            ruleTerm = rule.getEQRuleTerm();
-            if (ruleTerm == null) { //没有等于条款的规则
-                ruleTerm = rule.getFirstRuleTerm();
-                if (ruleTerm == null) {
+            flowRuleTerm = rule.getEQRuleTerm();
+            if (flowRuleTerm == null) { //没有等于条款的规则
+                flowRuleTerm = rule.getFirstRuleTerm();
+                if (flowRuleTerm == null) {
                     continue;  //没有条款的规则
                 }
-                fieldName = ruleTerm.getFieldName();
+                fieldName = flowRuleTerm.getFieldName();
                 if (orderType == 0) { //Global NEQ
                     AddNEQRule2Map(globalNEQTemp, fieldName, rule);
                 } else {  //OrderType NEQ
-                    HashMap<String, List<RuleStatement>> orderTypeRuleNEQ;
+                    HashMap<String, List<FlowRuleStatement>> orderTypeRuleNEQ;
                     if (orderTypeNEQTemp.containsKey(orderType)) {
                         orderTypeRuleNEQ = orderTypeNEQTemp.get(orderType);
                     } else {
-                        orderTypeRuleNEQ = new HashMap<String, List<RuleStatement>>();
+                        orderTypeRuleNEQ = new HashMap<String, List<FlowRuleStatement>>();
                     }
                     AddNEQRule2Map(orderTypeRuleNEQ, fieldName, rule);
                     orderTypeNEQTemp.put(orderType, orderTypeRuleNEQ);
                 }
             } else {  //有相等的条款
                 if (orderType == 0) { //Global EQ
-                    AddEQRule2Map(globalEQTemp, ruleTerm,rule);
+                    AddEQRule2Map(globalEQTemp, flowRuleTerm,rule);
                 } else {  //OrderType EQ
-                    HashMap<String, HashMap<String, List<RuleStatement>>> orderTypeRuleEQ;
+                    HashMap<String, HashMap<String, List<FlowRuleStatement>>> orderTypeRuleEQ;
                     if (orderTypeEQTemp.containsKey(orderType)) {
                         orderTypeRuleEQ = orderTypeEQTemp.get(orderType);
                     } else {
-                        orderTypeRuleEQ = new HashMap<String, HashMap<String, List<RuleStatement>>>();
+                        orderTypeRuleEQ = new HashMap<String, HashMap<String, List<FlowRuleStatement>>>();
                     }
-                    AddEQRule2Map(orderTypeRuleEQ, ruleTerm,rule);
+                    AddEQRule2Map(orderTypeRuleEQ, flowRuleTerm,rule);
                     orderTypeEQTemp.put(orderType, orderTypeRuleEQ);
                 }
             }
         }
     }
 
-    private void AddEQRule2Map(HashMap<String, HashMap<String, List<RuleStatement>>> parent, RuleTerm term, RuleStatement rule) {
-        HashMap<String, List<RuleStatement>> fieldRules;
+    private void AddEQRule2Map(HashMap<String, HashMap<String, List<FlowRuleStatement>>> parent, FlowRuleTerm term, FlowRuleStatement rule) {
+        HashMap<String, List<FlowRuleStatement>> fieldRules;
         String matchValue;
-        List<RuleStatement> valueRules;
+        List<FlowRuleStatement> valueRules;
         String fieldName= term.getFieldName();
         if (parent.containsKey(fieldName)) {
             fieldRules = parent.get(fieldName);
         } else {
-            fieldRules = new HashMap<String, List<RuleStatement>>();
+            fieldRules = new HashMap<String, List<FlowRuleStatement>>();
         }
         matchValue = term.getMatchValue();
         if (fieldRules.containsKey(matchValue)) {
             valueRules = fieldRules.get(matchValue);
         } else {
-            valueRules = new ArrayList<RuleStatement>();
+            valueRules = new ArrayList<FlowRuleStatement>();
         }
         valueRules.add(rule);
         fieldRules.put(matchValue, valueRules);
         parent.put(fieldName, fieldRules);
     }
 
-    private void AddNEQRule2Map(HashMap<String, List<RuleStatement>> parent, String fieldName, RuleStatement rule) {
-        List<RuleStatement> fieldRules;
+    private void AddNEQRule2Map(HashMap<String, List<FlowRuleStatement>> parent, String fieldName, FlowRuleStatement rule) {
+        List<FlowRuleStatement> fieldRules;
         if (parent.containsKey(fieldName)) {
             fieldRules = parent.get(fieldName);
         } else {
-            fieldRules = new ArrayList<RuleStatement>();
+            fieldRules = new ArrayList<FlowRuleStatement>();
         }
         fieldRules.add(rule);
         parent.put(fieldName, fieldRules);
     }
 
-    public boolean removeRule(List<RuleStatement> ruleStatements) {
-        if(ruleStatements!=null && ruleStatements.size()>0) {
-            HashMap<String, HashMap<String, List<RuleStatement>>> globalEQTemp = new HashMap<String, HashMap<String, List<RuleStatement>>>();
-            HashMap<String, List<RuleStatement>> globalNEQTemp = new HashMap<String, List<RuleStatement>>();
-            HashMap<Integer, HashMap<String, HashMap<String, List<RuleStatement>>>> orderTypeEQTemp = new HashMap<Integer, HashMap<String, HashMap<String, List<RuleStatement>>>>();
-            HashMap<Integer, HashMap<String, List<RuleStatement>>> orderTypeNEQTemp = new HashMap<Integer, HashMap<String, List<RuleStatement>>>();
+    public boolean removeRule(List<FlowRuleStatement> flowRuleStatements) {
+        if(flowRuleStatements !=null && flowRuleStatements.size()>0) {
+            HashMap<String, HashMap<String, List<FlowRuleStatement>>> globalEQTemp = new HashMap<String, HashMap<String, List<FlowRuleStatement>>>();
+            HashMap<String, List<FlowRuleStatement>> globalNEQTemp = new HashMap<String, List<FlowRuleStatement>>();
+            HashMap<Integer, HashMap<String, HashMap<String, List<FlowRuleStatement>>>> orderTypeEQTemp = new HashMap<Integer, HashMap<String, HashMap<String, List<FlowRuleStatement>>>>();
+            HashMap<Integer, HashMap<String, List<FlowRuleStatement>>> orderTypeNEQTemp = new HashMap<Integer, HashMap<String, List<FlowRuleStatement>>>();
 
-            buildRuleTree(ruleStatements, globalEQTemp, globalNEQTemp, orderTypeEQTemp, orderTypeNEQTemp);
+            buildRuleTree(flowRuleStatements, globalEQTemp, globalNEQTemp, orderTypeEQTemp, orderTypeNEQTemp);
 
             if (globalEQTemp.size() > 0) {
                 try {

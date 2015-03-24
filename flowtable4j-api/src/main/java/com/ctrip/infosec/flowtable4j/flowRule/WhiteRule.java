@@ -1,32 +1,27 @@
 package com.ctrip.infosec.flowtable4j.flowRule;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.*;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Created by thyang on 2015/3/13 0013.
  */
 public class WhiteRule extends BaseRule {
      @Override
-    public boolean check(BWFact fact,List<BWResult> results) {
+    public boolean check(FlowFact fact,List<BWResult> results) {
        return  (checkEQRuleByOrderType(fact, results)||checkGlobalEQRule(fact, results)||checkNEQRuleByOrderType(fact, results)||checkGlobalNEQRule(fact, results));
     }
 
     @Override
-    protected boolean checkEQRules(BWFact fact, HashMap<String, HashMap<String, List<RuleStatement>>> matchRules,List<BWResult> results) {
+    protected boolean checkEQRules(FlowFact fact, HashMap<String, HashMap<String, List<FlowRuleStatement>>> matchRules,List<BWResult> results) {
         for (String key : matchRules.keySet()) {
             String val = fact.getString(key);
             if (val != null && val != "") {
-                HashMap<String, List<RuleStatement>> fieldRules = matchRules.get(key);
+                HashMap<String, List<FlowRuleStatement>> fieldRules = matchRules.get(key);
                 if (fieldRules.containsKey(val)) {
-                    List<RuleStatement> valRules= fieldRules.get(val);
-                    for (RuleStatement ruleStatement : valRules) {
-                        if (ruleStatement.check(fact, results)) {
+                    List<FlowRuleStatement> valRules= fieldRules.get(val);
+                    for (FlowRuleStatement flowRuleStatement : valRules) {
+                        if (flowRuleStatement.check(fact, results)) {
                             return true;
                         }
                     }
@@ -37,13 +32,13 @@ public class WhiteRule extends BaseRule {
     }
 
     @Override
-    protected boolean checkNEQRules(BWFact fact, HashMap<String, List<RuleStatement>> matchRules, List<BWResult> results) {
+    protected boolean checkNEQRules(FlowFact fact, HashMap<String, List<FlowRuleStatement>> matchRules, List<BWResult> results) {
         for (String key : matchRules.keySet()) {
             String val = fact.getString(key);
             if (val != null && val != "") {
-                List<RuleStatement> keyRules= matchRules.get(key);
-                for (RuleStatement ruleStatement : keyRules) {
-                    if (ruleStatement.check(fact, results)) {
+                List<FlowRuleStatement> keyRules= matchRules.get(key);
+                for (FlowRuleStatement flowRuleStatement : keyRules) {
+                    if (flowRuleStatement.check(fact, results)) {
                         return true;
                     }
                 }

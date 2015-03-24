@@ -5,7 +5,7 @@ import java.math.BigDecimal;
 /**
  * Created by thyang on 2015/3/13 0013.
  */
-public class RuleTerm {
+public class FlowRuleTerm {
     private final static EQExecutor eqOper = new EQExecutor();
     private final static GEExecutor geOper = new GEExecutor();
     private final static INExecutor inOper = new INExecutor();
@@ -18,7 +18,7 @@ public class RuleTerm {
 
     private ConditionExecutor executor;
 
-    public RuleTerm(String fieldName,String operator,String matchValue){
+    public FlowRuleTerm(String fieldName, String operator, String matchValue){
         this.setFieldName(fieldName);
         this.setMatchValue(matchValue);
         this.operator = operator;
@@ -37,7 +37,7 @@ public class RuleTerm {
         }
     }
 
-    public boolean check(BWFact fact){
+    public boolean check(FlowFact fact){
         return executor.match(fact.getString(getFieldName()), getMatchValue());
     }
 

@@ -6,12 +6,14 @@ import java.util.Map;
  * Created by thyang on 2015/3/13 0013.
  * 黑白名单校验实体
  */
-public class BWFact {
+public class FlowFact {
 
     /**
      * 订单类型
      */
     private Integer orderType;
+
+    private String  prepayType;
 
     /**
      * 校验内容，字典类型
@@ -90,4 +92,11 @@ public class BWFact {
         return null;
     }
 
+    public String getPrepayType() {
+        return prepayType;
+    }
+
+    public void setPrepayType(String prepayType) {
+        this.prepayType = prepayType;
+    }
 }

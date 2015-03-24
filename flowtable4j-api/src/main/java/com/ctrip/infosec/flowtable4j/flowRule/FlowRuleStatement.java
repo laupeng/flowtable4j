@@ -2,23 +2,24 @@ package com.ctrip.infosec.flowtable4j.flowRule;
 
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by thyang on 2015/3/13 0013.
  */
-public class RuleStatement {
+public class FlowRuleStatement {
     private Integer ruleID;
+    private String ruleName;
+    private String prepayType;
     private Integer riskLevel;
     private String remark;
     private Date effectDate;
     private Date expireDate;
-    private List<RuleTerm> ruleTerms;
+    private List<FlowRuleTerm> flowRuleTerms;
     private Integer orderType;
 
-    public RuleTerm getEQRuleTerm() {
-        if (ruleTerms != null && ruleTerms.size() > 0) {
-            for (RuleTerm term : ruleTerms) {
+    public FlowRuleTerm getEQRuleTerm() {
+        if (flowRuleTerms != null && flowRuleTerms.size() > 0) {
+            for (FlowRuleTerm term : flowRuleTerms) {
                 if ("EQ".equals(term.getOperator())) {
                     return term;
                 }
@@ -27,9 +28,9 @@ public class RuleStatement {
         return null;
     }
 
-    public RuleTerm getFirstRuleTerm() {
-        if (ruleTerms != null && ruleTerms.size() > 0) {
-            return ruleTerms.get(0);
+    public FlowRuleTerm getFirstRuleTerm() {
+        if (flowRuleTerms != null && flowRuleTerms.size() > 0) {
+            return flowRuleTerms.get(0);
         }
         return null;
     }
@@ -74,21 +75,21 @@ public class RuleStatement {
         this.expireDate = expireDate;
     }
 
-    public List<RuleTerm> getRuleTerms() {
-        return ruleTerms;
+    public List<FlowRuleTerm> getFlowRuleTerms() {
+        return flowRuleTerms;
     }
 
-    public void setRuleTerms(List<RuleTerm> ruleTerms) {
-        this.ruleTerms = ruleTerms;
+    public void setFlowRuleTerms(List<FlowRuleTerm> flowRuleTerms) {
+        this.flowRuleTerms = flowRuleTerms;
     }
 
-    public boolean check(BWFact fact, List<BWResult> results) {
+    public boolean check(FlowFact fact, List<BWResult> results) {
         Date now = new Date();
         boolean match = false;
         if (now.compareTo(effectDate) >= 0 && now.compareTo(expireDate) < 0) {
             match = true;
-            if (ruleTerms!=null && ruleTerms.size()>0) {
-                for (RuleTerm term : ruleTerms) {
+            if (flowRuleTerms !=null && flowRuleTerms.size()>0) {
+                for (FlowRuleTerm term : flowRuleTerms) {
                     if (!term.check(fact)) {
                         match = false;
                         break;
@@ -122,12 +123,27 @@ public class RuleStatement {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof RuleStatement) {
-            RuleStatement rs = (RuleStatement) obj;
+        if (obj instanceof FlowRuleStatement) {
+            FlowRuleStatement rs = (FlowRuleStatement) obj;
             return this.ruleID.equals(rs.getRuleID());
         }
         return super.equals(obj);
     }
 
 
+    public String getRuleName() {
+        return ruleName;
+    }
+
+    public void setRuleName(String ruleName) {
+        this.ruleName = ruleName;
+    }
+
+    public String getPrepayType() {
+        return prepayType;
+    }
+
+    public void setPrepayType(String prepayType) {
+        this.prepayType = prepayType;
+    }
 }
