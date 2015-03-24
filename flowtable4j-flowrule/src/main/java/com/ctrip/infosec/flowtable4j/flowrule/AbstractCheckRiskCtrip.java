@@ -35,8 +35,8 @@ public abstract class AbstractCheckRiskCtrip implements CheckRiskCtrip {
 	/**
 	 * 执行流量验证
 	 * 
-	 * @param basicCheckRiskData
-	 * @param CheckEntity
+	 * @param basicCheckRiskData 订单实体
+	 * @param CheckEntity 规则KPI实体
 	 * @param isFlowRuleWhite
 	 * @param isWhiteCheck
 	 * @return
