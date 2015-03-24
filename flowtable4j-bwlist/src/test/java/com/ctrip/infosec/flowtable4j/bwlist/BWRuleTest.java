@@ -1,5 +1,7 @@
 package com.ctrip.infosec.flowtable4j.bwlist;
 
+import com.ctrip.infosec.flowtable4j.model.bw.BWFact;
+import com.ctrip.infosec.flowtable4j.model.bw.BWResult;
 import com.google.common.base.Stopwatch;
 
 import org.apache.commons.dbcp.BasicDataSource;
@@ -20,6 +22,7 @@ public class BWRuleTest {
 
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
+    @Ignore
     @Test
     public void testAddRule()
     {

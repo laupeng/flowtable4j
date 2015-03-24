@@ -1,5 +1,8 @@
 package com.ctrip.infosec.flowtable4j.bwlist;
 
+import com.ctrip.infosec.flowtable4j.model.bw.BWFact;
+import com.ctrip.infosec.flowtable4j.model.bw.BWResult;
+
 import java.util.Date;
 import java.util.List;
 

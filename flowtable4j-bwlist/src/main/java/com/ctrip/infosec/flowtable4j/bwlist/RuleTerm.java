@@ -1,5 +1,7 @@
 package com.ctrip.infosec.flowtable4j.bwlist;
 
+import com.ctrip.infosec.flowtable4j.model.bw.BWFact;
+
 import java.math.BigDecimal;
 
 /**

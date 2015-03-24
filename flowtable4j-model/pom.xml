@@ -7,10 +7,11 @@
     <artifactId>flowtable4j-parent</artifactId>
     <version>1.0.0-SNAPSHOT</version>
   </parent>
+
   <artifactId>flowtable4j-model</artifactId>
-  <version>1.0-SNAPSHOT</version>
-  <name>flowtable4j-model</name>
-  <url>http://maven.apache.org</url>
+  <packaging>jar</packaging>
+  <name>${project.artifactId} v${project.version}</name>
+
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>

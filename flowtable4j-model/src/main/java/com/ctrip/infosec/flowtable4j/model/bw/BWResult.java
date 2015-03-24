@@ -1,4 +1,4 @@
-package com.ctrip.infosec.flowtable4j.bwlist;
+package com.ctrip.infosec.flowtable4j.model.bw;
 
 /**
  * Created by thyang on 2015/3/13 0013.

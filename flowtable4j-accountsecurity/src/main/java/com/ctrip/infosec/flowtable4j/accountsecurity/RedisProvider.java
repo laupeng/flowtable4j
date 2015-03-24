@@ -1,6 +1,6 @@
 package com.ctrip.infosec.flowtable4j.accountsecurity;
 
-import com.ctrip.flowtable4j.core.utils.JsonMapper;
+import com.ctrip.infosec.sars.util.mapper.JsonMapper;
 import credis.java.client.CacheProvider;
 import credis.java.client.setting.RAppSetting;
 import credis.java.client.util.CacheFactory;
@@ -18,7 +18,6 @@ public class RedisProvider {
     private final String redisCluster = "AccountRiskControl";
     private CacheProvider cache;
     JsonMapper mapper = new JsonMapper();
-
     public RedisProvider() {
         //TODO 设置变量
 

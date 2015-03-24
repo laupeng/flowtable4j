@@ -1,4 +1,4 @@
-package com.ctrip.infosec.flowtable4j.bwlist;
+package com.ctrip.flowtable4j.core.model.bw;
 
 import java.util.Map;
 
