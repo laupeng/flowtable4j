@@ -486,7 +486,7 @@
     </distributionManagement>
 
     <modules>
-       <!-- <module>flowtable4j-api</module> -->
+        <module>flowtable4j-api</module>
         <module>flowtable4j-core</module>
         <module>flowtable4j-async</module>		
 		<module>flowtable4j-flowrule</module>

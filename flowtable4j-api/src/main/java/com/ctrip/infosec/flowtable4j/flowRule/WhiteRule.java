@@ -1,8 +1,12 @@
-package com.ctrip.infosec.flowtable4j.bwlist;
+package com.ctrip.infosec.flowtable4j.flowRule;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.List;
-
+import java.util.concurrent.*;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Created by thyang on 2015/3/13 0013.
@@ -21,16 +25,10 @@ public class WhiteRule extends BaseRule {
                 HashMap<String, List<RuleStatement>> fieldRules = matchRules.get(key);
                 if (fieldRules.containsKey(val)) {
                     List<RuleStatement> valRules= fieldRules.get(val);
-                    try {
-                        for (RuleStatement ruleStatement : valRules) {
-                            if (ruleStatement.check(fact, results)) {
-                                return true;
-                            }
+                    for (RuleStatement ruleStatement : valRules) {
+                        if (ruleStatement.check(fact, results)) {
+                            return true;
                         }
-                    }
-                    catch (Throwable ex)
-                    {
-                        logger.warn(ex.getMessage());
                     }
                 }
             }
@@ -44,16 +42,10 @@ public class WhiteRule extends BaseRule {
             String val = fact.getString(key);
             if (val != null && val != "") {
                 List<RuleStatement> keyRules= matchRules.get(key);
-                try {
-                    for (RuleStatement ruleStatement : keyRules) {
-                        if (ruleStatement.check(fact, results)) {
-                            return true;
-                        }
+                for (RuleStatement ruleStatement : keyRules) {
+                    if (ruleStatement.check(fact, results)) {
+                        return true;
                     }
-                }
-                catch (Throwable ex)
-                {
-                    logger.warn(ex.getMessage());
                 }
             }
         }

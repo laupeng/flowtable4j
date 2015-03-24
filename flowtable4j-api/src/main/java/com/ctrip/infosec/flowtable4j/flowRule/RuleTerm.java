@@ -1,4 +1,4 @@
-package com.ctrip.infosec.flowtable4j.bwlist;
+package com.ctrip.infosec.flowtable4j.flowRule;
 
 import java.math.BigDecimal;
 
