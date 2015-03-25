@@ -15,7 +15,7 @@ import java.util.Map;
  * Created by zhangsx on 2015/3/24.
  */
 @Component("simpleProcessor4Flow")
-public class SimpleProcessor4Flow implements Processer {
+public class SimpleProcessor4Flow implements Processor {
     @Autowired
     private RuleGetter ruleGetter;
     @Override

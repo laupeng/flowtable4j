@@ -7,8 +7,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.util.concurrent.*;
-
 /**
  * Created by zhangsx on 2015/3/13.
  * 规则更新实现类
@@ -18,24 +16,24 @@ public class StaticCacheJob {
 
     @Autowired
     @Qualifier("simpleProcessor4BW")
-    private Processer processerBW;
+    private Processor processorBW;
 
     @Autowired
     @Qualifier("simpleProcessor4Flow")
-    private Processer processerFlow;
+    private Processor processorFlow;
 
     private static final Logger logger = LoggerFactory.getLogger(StaticCacheJob.class);
     @Scheduled(fixedDelay = 60000)
     public void executeBW(){
         logger.info("start execute update bw rule...");
-        processerBW.execute();
+        processorBW.execute();
         logger.info("end execute update bw rule...");
     }
 
     @Scheduled(fixedDelay = 10000)
     public void executeFlow(){
         logger.info("start execute update flow rule...");
-        processerFlow.execute();
+        processorFlow.execute();
         logger.info("end execute update flow rule...");
     }
 }

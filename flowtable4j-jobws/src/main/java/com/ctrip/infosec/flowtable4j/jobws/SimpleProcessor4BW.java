@@ -16,7 +16,7 @@ import java.util.*;
  * Created by zhangsx on 2015/3/24.
  */
 @Component("simpleProcessor4BW")
-public class SimpleProcessor4BW implements Processer {
+public class SimpleProcessor4BW implements Processor {
     @Autowired
     private RuleGetter ruleGetter;
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
