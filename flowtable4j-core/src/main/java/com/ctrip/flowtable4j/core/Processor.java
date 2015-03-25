@@ -1,18 +1,21 @@
 package com.ctrip.flowtable4j.core;
+
 import com.ctrip.infosec.flowtable4j.accountsecurity.PaymentViaAccount;
 import com.ctrip.infosec.flowtable4j.bwlist.BWManager;
 import com.ctrip.infosec.flowtable4j.model.account.AccountCheckItem;
-import com.ctrip.infosec.flowtable4j.model.bw.BWResult;
 import com.ctrip.infosec.flowtable4j.model.check.CheckEntity;
 import com.ctrip.infosec.flowtable4j.model.check.CheckType;
 import com.ctrip.infosec.flowtable4j.model.check.RiskResult;
+import com.google.common.base.Stopwatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by zhangsx on 2015/3/24.
@@ -24,8 +27,8 @@ public class Processor {
     private PaymentViaAccount paymentViaAccount;
     private static final long TIMEOUT = 100;
     public List<RiskResult> handle(final CheckEntity checkEntity) {
-        final List<BWResult> listResult_w = new ArrayList<BWResult>();
-        final List<BWResult> listResult_b = new ArrayList<BWResult>();
+        final List<RiskResult> listResult_w = new ArrayList<RiskResult>();
+        final List<RiskResult> listResult_b = new ArrayList<RiskResult>();
         final Map<String, Integer> mapAccount = new HashMap<String, Integer>();
         List<RiskResult> listResult = new ArrayList<RiskResult>();
         ExecutorService executorService = Executors.newCachedThreadPool();
@@ -35,8 +38,7 @@ public class Processor {
         for(CheckType type : checkEntity.getCheckTypes()){
             if(type==CheckType.BW){
                 if(BWManager.checkWhite(checkEntity.getBwFact(), listResult_w)){
-
-                    return listResult;
+                    return listResult_w;
                 }
                 executorService.execute(new Runnable() {
                     @Override
@@ -46,6 +48,8 @@ public class Processor {
                 });
             }
         }
+
+
 
         for(CheckType type : checkEntity.getCheckTypes()){
             if(type==CheckType.ACCOUNT){
@@ -68,54 +72,31 @@ public class Processor {
                 });
             }
         }
-
+        executorService.shutdown();
         try {
-            executorService.awaitTermination(TIMEOUT,TimeUnit.MILLISECONDS);
+            if(executorService.awaitTermination(TIMEOUT,TimeUnit.MILLISECONDS)){
+                logger.info("***awaitTermination return true***");
+                for(Iterator<String> it=mapAccount.keySet().iterator();it.hasNext();){
+                    String sceneType = it.next();
+                    RiskResult riskResult = new RiskResult();
+                    listResult.add(riskResult);
+                    riskResult.setRuleType(CheckType.ACCOUNT.toString());
+                    riskResult.setRuleName(sceneType);
+                    riskResult.setRiskLevel(mapAccount.get(sceneType));
+                }
+                listResult.addAll(listResult_b);
+            }else {
+                executorService.shutdownNow();
+                logger.info("在100ms内没有完成任务,强制关闭");
+            }
         } catch (InterruptedException e) {
             logger.error(Thread.currentThread().getName()+"is interrupted",e);
         }
+        /**
+         * Account 整合
+         */
 
         return listResult;
     }
 
-    private void handle4Account(final CheckEntity checkEntity, ExecutorService executorService) {
-        for(CheckType type : checkEntity.getCheckTypes()){
-            if(type==CheckType.ACCOUNT){
-                List<AccountCheckItem> list = new ArrayList<AccountCheckItem>();
-                Map<String, Integer> result = new HashMap<String, Integer>();
-                AccountCheckItem item = checkEntity.getAccountCheckItem();
-                list.add(item);
-                paymentViaAccount.CheckBWGRule(list,result);
-                logger.info(">>> account");
-                for(Iterator<String> it = result.keySet().iterator();it.hasNext();){
-                    String key = it.next();
-                    logger.info(key+":"+result.get(key));
-                }
-                logger.info("<<<");
-            }
-        }
-    }
-
-    private void handle4BW(final CheckEntity checkEntity, ExecutorService executorService) {
-        final List<BWResult> listResult_w = new ArrayList<BWResult>();
-        final List<BWResult> listResult_b = new ArrayList<BWResult>();
-//        Future<Boolean> futureWhite = null;
-        for (CheckType type : checkEntity.getCheckTypes()) {
-            if (type == CheckType.BW) {
-                if(BWManager.checkWhite(checkEntity.getBwFact(), listResult_w)){
-                    return ;
-                }
-                executorService.submit(new Runnable() {
-                    @Override
-                    public void run() {
-                        BWManager.checkBlack(checkEntity.getBwFact(), listResult_b);
-                    }
-                });
-            }
-        }
-    }
-
-    private void handle4Payment(CheckEntity checkEntity, ExecutorService executorService) {
-
-    }
 }

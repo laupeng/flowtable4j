@@ -1,7 +1,7 @@
 package com.ctrip.infosec.flowtable4j.bwlist;
 
 import com.ctrip.infosec.flowtable4j.model.bw.BWFact;
-import com.ctrip.infosec.flowtable4j.model.bw.BWResult;
+import com.ctrip.infosec.flowtable4j.model.check.RiskResult;
 import com.google.common.base.Stopwatch;
 
 import org.apache.commons.dbcp.BasicDataSource;
@@ -99,13 +99,13 @@ public class BWRuleTest {
         content.put("UserIP","61.4.125.84");
         content.put("Uid","2880000000");
         content.put("CCardNoCode","6539E4337D56E2AA3A8F460BE54341F6");
-        List<BWResult>  results= new ArrayList<BWResult>();
+        List<RiskResult>  results= new ArrayList<RiskResult>();
         fact.setContent(content);
         System.out.println("Start to check white rules.....");
         sw.reset();
         sw.start();
         if(BWManager.checkWhite(fact, results)){
-            for (BWResult r:results) {
+            for (RiskResult r:results) {
                 System.out.println(r.toString());
             }
         }
@@ -118,7 +118,7 @@ public class BWRuleTest {
         sw.start();
         System.out.println("Check black rules finished");
         if(BWManager.checkBlack(fact, results)){
-            for (BWResult r:results) {
+            for (RiskResult r:results) {
                 System.out.println(r.toString());
             }
         }

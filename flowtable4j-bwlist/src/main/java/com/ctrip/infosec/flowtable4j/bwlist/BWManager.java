@@ -1,7 +1,7 @@
 package com.ctrip.infosec.flowtable4j.bwlist;
 
 import com.ctrip.infosec.flowtable4j.model.bw.BWFact;
-import com.ctrip.infosec.flowtable4j.model.bw.BWResult;
+import com.ctrip.infosec.flowtable4j.model.check.RiskResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +31,7 @@ public class BWManager {
      * @param results
      * @return
      */
-    public static boolean checkWhite(BWFact fact, List<BWResult> results) {
+    public static boolean checkWhite(BWFact fact, List<RiskResult> results) {
         try{
             if (whiteRule != null) {
                 return whiteRule.check(fact, results);
@@ -43,7 +43,7 @@ public class BWManager {
         return false;
     }
 
-    public static boolean checkBlack(BWFact fact, List<BWResult> results) {
+    public static boolean checkBlack(BWFact fact, List<RiskResult> results) {
         try{
             if (blackRule != null) {
                 return blackRule.check(fact, results);

@@ -1,7 +1,8 @@
 package com.ctrip.infosec.flowtable4j.bwlist;
 
 import com.ctrip.infosec.flowtable4j.model.bw.BWFact;
-import com.ctrip.infosec.flowtable4j.model.bw.BWResult;
+import com.ctrip.infosec.flowtable4j.model.check.CheckType;
+import com.ctrip.infosec.flowtable4j.model.check.RiskResult;
 
 import java.util.Date;
 import java.util.List;
@@ -17,6 +18,15 @@ public class RuleStatement {
     private Date expireDate;
     private List<RuleTerm> ruleTerms;
     private Integer orderType;
+    private String ruleIDName;
+
+    public String getRuleIDName() {
+        return ruleIDName;
+    }
+
+    public void setRuleIDName(String ruleIDName) {
+        this.ruleIDName = ruleIDName;
+    }
 
     public RuleTerm getEQRuleTerm() {
         if (ruleTerms != null && ruleTerms.size() > 0) {
@@ -84,7 +94,7 @@ public class RuleStatement {
         this.ruleTerms = ruleTerms;
     }
 
-    public boolean check(BWFact fact, List<BWResult> results) {
+    public boolean check(BWFact fact, List<RiskResult> results) {
         Date now = new Date();
         boolean match = false;
 
@@ -99,10 +109,12 @@ public class RuleStatement {
                 }
             }
             if (match) {
-                BWResult result = new BWResult();
+                RiskResult result = new RiskResult();
                 result.setRuleID(ruleID);
                 result.setRiskLevel(riskLevel);
-                result.setRemark(remark);
+                result.setRuleRemark(remark);
+                result.setRuleName(ruleIDName);
+                result.setRuleType(CheckType.BW.toString());
                 results.add(result);
             }
         }

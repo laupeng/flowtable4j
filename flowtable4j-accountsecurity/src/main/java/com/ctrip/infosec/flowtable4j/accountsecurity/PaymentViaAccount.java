@@ -69,16 +69,18 @@ public class PaymentViaAccount {
                 });
             }
         }
-
+        executorService.shutdown();
         try {
-            executorService.awaitTermination(ACCOUNT_EXPIRE, TimeUnit.MILLISECONDS);
+            if(!executorService.awaitTermination(ACCOUNT_EXPIRE, TimeUnit.MILLISECONDS)){
+                executorService.shutdownNow();
+                logger.error("在50ms内没有完成任务,强制关闭");
+            }
         } catch (InterruptedException e) {
-            logger.error("",e);
+            executorService.shutdownNow();
+            logger.error("i am interrupted",e);
         }
 
         MergeRedisRules(dic_allRules, result);
-
-//        return result;
         return;
     }
 

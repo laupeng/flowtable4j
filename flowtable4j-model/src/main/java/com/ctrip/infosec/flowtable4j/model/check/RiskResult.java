@@ -49,4 +49,9 @@ public class RiskResult {
     public void setRuleRemark(String ruleRemark) {
         this.ruleRemark = ruleRemark;
     }
+
+    public String toString()
+    {
+        return String.format("RuleID:%d, RiskLevel:%d, Remark:%s",ruleID,riskLevel,ruleRemark);
+    }
 }

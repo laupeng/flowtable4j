@@ -1,7 +1,7 @@
 package com.ctrip.infosec.flowtable4j.bwlist;
 
 import com.ctrip.infosec.flowtable4j.model.bw.BWFact;
-import com.ctrip.infosec.flowtable4j.model.bw.BWResult;
+import com.ctrip.infosec.flowtable4j.model.check.RiskResult;
 
 import java.util.HashMap;
 import java.util.List;
@@ -12,12 +12,12 @@ import java.util.List;
  */
 public class WhiteRule extends BaseRule {
      @Override
-    public boolean check(BWFact fact,List<BWResult> results) {
+    public boolean check(BWFact fact,List<RiskResult> results) {
        return  (checkEQRuleByOrderType(fact, results)||checkGlobalEQRule(fact, results)||checkNEQRuleByOrderType(fact, results)||checkGlobalNEQRule(fact, results));
     }
 
     @Override
-    protected boolean checkEQRules(BWFact fact, HashMap<String, HashMap<String, List<RuleStatement>>> matchRules,List<BWResult> results) {
+    protected boolean checkEQRules(BWFact fact, HashMap<String, HashMap<String, List<RuleStatement>>> matchRules,List<RiskResult> results) {
         for (String key : matchRules.keySet()) {
             String val = fact.getString(key);
             if (val != null && val != "") {
@@ -42,7 +42,7 @@ public class WhiteRule extends BaseRule {
     }
 
     @Override
-    protected boolean checkNEQRules(BWFact fact, HashMap<String, List<RuleStatement>> matchRules, List<BWResult> results) {
+    protected boolean checkNEQRules(BWFact fact, HashMap<String, List<RuleStatement>> matchRules, List<RiskResult> results) {
         for (String key : matchRules.keySet()) {
             String val = fact.getString(key);
             if (val != null && val != "") {

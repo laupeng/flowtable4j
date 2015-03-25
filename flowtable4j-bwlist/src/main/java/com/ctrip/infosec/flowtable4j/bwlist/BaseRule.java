@@ -1,7 +1,7 @@
 package com.ctrip.infosec.flowtable4j.bwlist;
 
 import com.ctrip.infosec.flowtable4j.model.bw.BWFact;
-import com.ctrip.infosec.flowtable4j.model.bw.BWResult;
+import com.ctrip.infosec.flowtable4j.model.check.RiskResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,7 +59,7 @@ public abstract class BaseRule {
      * @param results
      * @return
      */
-    public abstract boolean check(BWFact fact, List<BWResult> results);
+    public abstract boolean check(BWFact fact, List<RiskResult> results);
 
     /**
      * 校验全局的不等黑白名单
@@ -67,7 +67,7 @@ public abstract class BaseRule {
      * @param results
      * @return
      */
-    protected boolean checkGlobalNEQRule(BWFact fact, List<BWResult> results) {
+    protected boolean checkGlobalNEQRule(BWFact fact, List<RiskResult> results) {
         try {
             globalNEQ_Read.lock();
             return checkNEQRules(fact, globalNEQ, results);
@@ -85,7 +85,7 @@ public abstract class BaseRule {
      * @param results
      * @return
      */
-    protected boolean checkGlobalEQRule(BWFact fact, List<BWResult> results) {
+    protected boolean checkGlobalEQRule(BWFact fact, List<RiskResult> results) {
         try {
             globalEQ_Read.lock();
             return checkEQRules(fact, globalEQ, results);
@@ -103,7 +103,7 @@ public abstract class BaseRule {
      * @param results
      * @return
      */
-    protected boolean checkNEQRuleByOrderType(BWFact fact, List<BWResult> results) {
+    protected boolean checkNEQRuleByOrderType(BWFact fact, List<RiskResult> results) {
         try {
             orderTypeNEQ_Read.lock();
             Integer orderType= fact.getOrderType();
@@ -124,7 +124,7 @@ public abstract class BaseRule {
      * @param results
      * @return
      */
-    protected boolean checkEQRuleByOrderType(BWFact fact, List<BWResult> results) {
+    protected boolean checkEQRuleByOrderType(BWFact fact, List<RiskResult> results) {
         try {
             orderTypeEQ_Read.lock();
             Integer orderType= fact.getOrderType();
@@ -139,9 +139,9 @@ public abstract class BaseRule {
         return false;
     }
 
-    protected abstract boolean checkEQRules(BWFact fact, HashMap<String, HashMap<String, List<RuleStatement>>> matchRules, List<BWResult> results);
+    protected abstract boolean checkEQRules(BWFact fact, HashMap<String, HashMap<String, List<RuleStatement>>> matchRules, List<RiskResult> results);
 
-    protected abstract boolean checkNEQRules(BWFact fact, HashMap<String, List<RuleStatement>> matchRules, List<BWResult> results);
+    protected abstract boolean checkNEQRules(BWFact fact, HashMap<String, List<RuleStatement>> matchRules, List<RiskResult> results);
 
     /**
      * 合并HashMap结果

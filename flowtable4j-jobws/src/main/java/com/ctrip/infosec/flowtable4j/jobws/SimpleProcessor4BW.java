@@ -38,7 +38,7 @@ public class SimpleProcessor4BW implements Processor {
         Map<Integer,List<Map<String,Object>>> map = new HashMap<Integer, List<Map<String, Object>>>();
         List<RuleStatement> bwfull = new ArrayList<RuleStatement>();
         for(Map item : bwList){
-            Integer map_key = Integer.valueOf(item.get("RuleID").toString());
+            Integer map_key = Integer.valueOf(Objects.toString(item.get("RuleID"),"") );
             if(map.containsKey(map_key)){
                 map.get(map_key).add(item);
             }else{
@@ -56,16 +56,16 @@ public class SimpleProcessor4BW implements Processor {
             ruleStatement.setRuleTerms(list);
             for(Map<String,Object> item : map.get(ruleID)){
                 try {
-                    ruleStatement.setEffectDate(sdf.parse(item.get("Sdate").toString()));
-                    ruleStatement.setExpireDate(sdf.parse(item.get("Edate").toString()));
+                    ruleStatement.setEffectDate(sdf.parse(Objects.toString(item.get("Sdate"))));
+                    ruleStatement.setExpireDate(sdf.parse(Objects.toString(item.get("Edate"))));
                 } catch (ParseException e) {
                     logger.error("",e);
                 }
-                ruleStatement.setOrderType(Integer.valueOf(item.get("OrderType").toString()));
-                ruleStatement.setRemark(item.get("Remark").toString());
-                ruleStatement.setRiskLevel(Integer.valueOf(item.get("RiskLevel").toString()));
-
-                RuleTerm term = new RuleTerm(item.get("CheckName").toString(),item.get("CheckType").toString(),item.get("CheckValue").toString());
+                ruleStatement.setOrderType(Integer.valueOf(Objects.toString(item.get("OrderType"))));
+                ruleStatement.setRemark(Objects.toString(item.get("Remark")));
+                ruleStatement.setRiskLevel(Integer.valueOf(Objects.toString(item.get("RiskLevel"))));
+                ruleStatement.setRuleIDName(Objects.toString(item.get("RuleIDName"),"") );
+                RuleTerm term = new RuleTerm(Objects.toString(item.get("CheckName"),""), Objects.toString(item.get("CheckType"),""), Objects.toString(item.get("CheckValue"),""));
                 list.add(term);
             }
         }
@@ -78,7 +78,7 @@ public class SimpleProcessor4BW implements Processor {
         Set<RuleStatement> bwAdd = new HashSet<RuleStatement>();
         Set<RuleStatement> bwSub = new HashSet<RuleStatement>();
         for(Map item : bwList){
-            Integer map_key = Integer.valueOf(item.get("RuleID").toString());
+            Integer map_key = Integer.valueOf(Objects.toString(item.get("RuleID"),""));
             if(map.containsKey(map_key)){
                 map.get(map_key).add(item);
             }else{
@@ -95,19 +95,19 @@ public class SimpleProcessor4BW implements Processor {
             ruleStatement.setRuleTerms(list);
             for(Map<String,Object> item : map.get(ruleID)){
                 try {
-                    ruleStatement.setEffectDate(sdf.parse(item.get("Sdate").toString()));
-                    ruleStatement.setExpireDate(sdf.parse(item.get("Edate").toString()));
+                    ruleStatement.setEffectDate(sdf.parse(Objects.toString(item.get("Sdate"),"")));
+                    ruleStatement.setExpireDate(sdf.parse(Objects.toString(item.get("Edate"),"")));
                 } catch (ParseException e) {
                     logger.error("",e);
                 }
-                ruleStatement.setOrderType(Integer.valueOf(item.get("OrderType").toString()));
-                ruleStatement.setRemark(item.get("Remark").toString());
-                ruleStatement.setRiskLevel(Integer.valueOf(item.get("RiskLevel").toString()));
-
-                RuleTerm term = new RuleTerm(item.get("CheckName").toString(),item.get("CheckType").toString(),item.get("CheckValue").toString());
+                ruleStatement.setOrderType(Integer.valueOf(Objects.toString(item.get("OrderType"),"")));
+                ruleStatement.setRemark(Objects.toString(item.get("Remark"),""));
+                ruleStatement.setRiskLevel(Integer.valueOf(Objects.toString(item.get("RiskLevel"),"")));
+                ruleStatement.setRuleIDName(Objects.toString(item.get("RuleIDName"),"") );
+                RuleTerm term = new RuleTerm(Objects.toString(item.get("CheckName"), ""), Objects.toString(item.get("CheckType"), ""), Objects.toString(item.get("CheckValue"), ""));
                 list.add(term);
 
-                if("T".equals(item.get("Active").toString())){
+                if("T".equals(Objects.toString(item.get("Active"),""))){
                     bwAdd.add(ruleStatement);
                 }else{
                     bwSub.add(ruleStatement);
