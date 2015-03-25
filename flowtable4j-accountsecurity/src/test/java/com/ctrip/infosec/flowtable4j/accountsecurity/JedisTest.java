@@ -8,6 +8,7 @@ import redis.clients.jedis.Jedis;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -43,17 +44,18 @@ public class JedisTest {
         List<AccountCheckItem> list = new ArrayList<AccountCheckItem>();
         AccountCheckItem item = new AccountCheckItem("IP","LOGIN-SITE\"","192.168.22.08");
         list.add(item);
-        Map<String, Integer> map = paymentViaAccount.CheckBWGRule(list);
+        Map<String, Integer> map = new HashMap<String, Integer>();
+        paymentViaAccount.CheckBWGRule(list,map);
         System.out.println(map.size());
     }
 
     @Ignore
     @Test
     public void testDateFormat(){
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.sss");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.sss");
         try {
             System.out.println(">>>");
-            System.out.println(sdf.parse("1990-12-11 06:11:22.000"));
+            System.out.println(sdf.parse("1990-12-11T06:11:22.000"));
             System.out.println(">>>");
         } catch (ParseException e) {
             e.printStackTrace();

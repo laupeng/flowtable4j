@@ -6,6 +6,7 @@ import org.apache.commons.lang.time.FastDateFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -25,12 +26,8 @@ public class PaymentViaAccount {
     private ParameterDeamon parameterDeamon;
     @Autowired
     private RedisProvider redisProvider;
-    private FastDateFormat format = FastDateFormat.getInstance("yyyy-MM-ddTHH:mm:ss");
+    private FastDateFormat format = FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ss");
     private Logger logger = LoggerFactory.getLogger(PaymentViaAccount.class);
-
-    public PaymentViaAccount() {
-        parameterDeamon.startWatch();
-    }
 
     /**
      * 验证黑白灰名单
@@ -38,9 +35,9 @@ public class PaymentViaAccount {
      * @param checkItems
      * @return
      */
-    public Map<String, Integer> CheckBWGRule(List<AccountCheckItem> checkItems) {
-        Map<String, Integer> result = new HashMap<String, Integer>();
-        ExecutorService executorService = Executors.newCachedThreadPool();;
+    public void CheckBWGRule(List<AccountCheckItem> checkItems,Map<String, Integer> result) {
+//        Map<String, Integer> result = new HashMap<String, Integer>();
+        ExecutorService executorService = Executors.newCachedThreadPool();
         if (checkItems == null || checkItems.size() == 0) {
             throw new RuntimeException("数据格式错误，请求内容为空");
         }
@@ -81,8 +78,8 @@ public class PaymentViaAccount {
 
         MergeRedisRules(dic_allRules, result);
 
-        return result;
-
+//        return result;
+        return;
     }
 
     /**

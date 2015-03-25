@@ -9,7 +9,8 @@
        <!--任务扫描-->
        <task:annotation-driven/>
        <context:component-scan base-package="com.ctrip.infosec.flowtable4j.jobws"/>
-
+       <context:component-scan base-package="com.ctrip.infosec.flowtable4j.accountsecurity"/>
+       <context:component-scan base-package="com.ctrip.flowtable4j.core"/>
        <!-- GlobalConfig -->
        <context:property-placeholder ignore-unresolvable="true"
                                      location="classpath*:/GlobalConfig.properties" />
@@ -33,6 +34,17 @@
               <property name="maxIdle" value="5" />
               <property name="maxActive" value="50" />
        </bean>
+
+       <!-- 单元测试使用的Dev数据库 -->
+       <bean id="pciAccountRiskDetailDBDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+              <property name="driverClassName" value="${pci.driverClass}"/>
+              <property name="url" value="${pci.jdbcUrl}"/>
+              <property name="username" value="${pci.userName}"/>
+              <property name="password" value="${pci.password}"/>
+              <property name="maxIdle" value="5" />
+              <property name="maxActive" value="50" />
+       </bean>
+
        <!-- JDBC模板 -->
        <bean id="cardRiskDBTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
               <property name="dataSource" ref="cardRiskDBDataSource"/>
@@ -40,5 +52,9 @@
 
        <bean id="riskCtrlPreProcDBTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
               <property name="dataSource" ref="riskCtrlPreProcDBDataSource"/>
+       </bean>
+
+       <bean id="pciAccountRiskDetailDBTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+              <property name="dataSource" ref="pciAccountRiskDetailDBDataSource"/>
        </bean>
 </beans>
