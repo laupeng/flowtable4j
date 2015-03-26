@@ -106,12 +106,6 @@ public abstract class AbstractCheckRiskCtrip implements CheckRiskCtrip {
 					logger.error("风控规则校验异常：【" + ruleName + "】", e, FlowCheckLog.CheckFlowRuleItemError);
 				}
 
-				if ("AM1006".equalsIgnoreCase(ruleName) && currentRiskLevel > 0) {
-					String ExTxt = jsonMapper.toJson(checkEntity);
-
-					logger.warn("AM1006:" + checkEntity.get("OrderId").toString(), ExTxt);
-				}
-
 				InfoSecurity_CheckResultLog riskLog = null;
 				if (currentRiskLevel > 0){
 					riskLog = RuleManager.getCheckedFlowRuleInfo(entity);

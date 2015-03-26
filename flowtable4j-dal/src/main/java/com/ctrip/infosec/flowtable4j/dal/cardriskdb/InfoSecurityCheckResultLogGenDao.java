@@ -1,5 +1,6 @@
 package com.ctrip.infosec.flowtable4j.dal.cardriskdb;
 
+import com.ctrip.infosec.flowtable4j.dal.baseDAO;
 import com.ctrip.infosec.flowtable4j.dal.cardriskdb.entity.InfoSecurityCheckResultLogGen;
 import com.ctrip.platform.dal.common.enums.DatabaseCategory;
 import com.ctrip.platform.dal.common.enums.ParameterDirection;
@@ -7,22 +8,36 @@ import com.ctrip.platform.dal.dao.*;
 import com.ctrip.platform.dal.dao.helper.*;
 import com.ctrip.platform.dal.dao.sqlbuilder.*;
 
+import java.sql.CallableStatement;
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class InfoSecurityCheckResultLogGenDao {
-	private static final String DATA_BASE = "CardRiskDB_INSERT_1";
-	private static DatabaseCategory dbCategory = null;
+import javax.annotation.Resource;
+import javax.sql.DataSource;
+
+import org.springframework.jdbc.core.CallableStatementCreator;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+
+public class InfoSecurityCheckResultLogGenDao implements baseDAO<InfoSecurityCheckResultLogGen,Number> {
+	
+    @Resource(name = "cardRiskDBTemplate")
+    JdbcTemplate cardRiskDBTemplate;
+	
 	private static final String COUNT_SQL_PATTERN = "SELECT count(1) from InfoSecurity_CheckResultLog WITH (NOLOCK)";
 	private static final String ALL_SQL_PATTERN = "SELECT * FROM InfoSecurity_CheckResultLog WITH (NOLOCK)";
 	private static final String PAGE_SQL_PATTERN = "WITH CTE AS (select *, row_number() over(order by LogID desc ) as rownum" 
 			+" from InfoSecurity_CheckResultLog (nolock)) select * from CTE where rownum between %s and %s";
 
+	
+	
 	private static final String BASIC_INSERT_SP_NAME = "spA_InfoSecurity_CheckResultLog_i";
 	private static final String BATCH_INSERT_SP_NAME = "sp3_InfoSecurity_CheckResultLog_i";
 	private static final String BASIC_DELETE_SP_NAME = "spA_InfoSecurity_CheckResultLog_d";
@@ -31,109 +46,88 @@ public class InfoSecurityCheckResultLogGenDao {
 	private static final String BATCH_UPDATE_SP_NAME = "sp3_InfoSecurity_CheckResultLog_u";
 	private static final String RET_CODE = "retcode";
 	
-	private DalParser<InfoSecurityCheckResultLogGen> parser = new InfoSecurityCheckResultLogGenParser();
-	private DalScalarExtractor extractor = new DalScalarExtractor();
-	private DalRowMapperExtractor<InfoSecurityCheckResultLogGen> rowextractor = null;
-	private DalTableDao<InfoSecurityCheckResultLogGen> client;
-	private DalClient baseClient;
 	
-	public InfoSecurityCheckResultLogGenDao() {
-		this.client = new DalTableDao<InfoSecurityCheckResultLogGen>(parser);
-		dbCategory = this.client.getDatabaseCategory();
-
-		this.rowextractor = new DalRowMapperExtractor<InfoSecurityCheckResultLogGen>(parser); 
-		this.baseClient = DalClientFactory.getClient(DATA_BASE);
-	}
 	/**
 	 * Query InfoSecurityCheckResultLogGen by the specified ID
 	 * The ID must be a number
 	**/
-	public InfoSecurityCheckResultLogGen queryByPk(Number id, DalHints hints)
-			throws SQLException {
-		hints = DalHints.createIfAbsent(hints);
-		return client.queryByPk(id, hints);
+	public InfoSecurityCheckResultLogGen queryByPk(Number id) throws SQLException {
+		String sql = ALL_SQL_PATTERN +" where LogID = ?";
+		InfoSecurityCheckResultLogGen gen = this.cardRiskDBTemplate.queryForObject(
+				sql,
+		        new Object[]{id},new InfoSecurityCheckResultLogGenRowMapper());
+		return gen;
 	}
+	
 	/**
 	 * Get all records in the whole table
 	**/
-	public List<InfoSecurityCheckResultLogGen> getAll(DalHints hints) throws SQLException {
-		StatementParameters parameters = new StatementParameters();
-		hints = DalHints.createIfAbsent(hints);
-		List<InfoSecurityCheckResultLogGen> result = null;
-		result = this.baseClient.query(ALL_SQL_PATTERN, parameters, hints, rowextractor);
-		return result;
-	}
-	/**
-	 * SP Insert
-	**/
-	public int insert(DalHints hints, InfoSecurityCheckResultLogGen daoPojo) throws SQLException {
-		if(null == daoPojo)
-			return 0;
-		StatementParameters parameters = new StatementParameters();
-		hints = DalHints.createIfAbsent(hints);
-		String callSql = prepareSpCall(BASIC_INSERT_SP_NAME, parameters, parser.getFields(daoPojo));
-		Map<String, ?> results = baseClient.call(callSql, parameters, hints);
-		return (Integer)results.get(RET_CODE);
-	}
-	/**
-	 * SP Insert
-	**/
-	public int insert(DalHints hints, KeyHolder holder, InfoSecurityCheckResultLogGen daoPojo) throws SQLException {
-		if(null == daoPojo)
-			return 0;
-		StatementParameters parameters = new StatementParameters();
-		hints = DalHints.createIfAbsent(hints);
-		String callSql = prepareSpCall(BASIC_INSERT_SP_NAME, parameters, parser.getFields(daoPojo));
-		parameters.registerInOut("LogID", Types.BIGINT, daoPojo.getLogID());
-		Map<String, ?> results = baseClient.call(callSql, parameters, hints);
+	public List<InfoSecurityCheckResultLogGen> getAll() throws SQLException {
+		List<InfoSecurityCheckResultLogGen> gens = cardRiskDBTemplate.query(
+				ALL_SQL_PATTERN, new InfoSecurityCheckResultLogGenRowMapper()
+		        );		
 		
-		if(holder != null){
-			Map<String, Object> map = new LinkedHashMap<String, Object>();
-		    map.put("LogID", parameters.get("LogID", ParameterDirection.InputOutput).getValue());
-	        holder.getKeyList().add(map);
-		}
-		return (Integer)results.get(RET_CODE);
+		return gens;
 	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	/**
-	 * Batch insert without out parameters
-	 * Return how many rows been affected for each of parameters
+	 * SP Insert
 	**/
-	public int[] insert(DalHints hints, InfoSecurityCheckResultLogGen...daoPojos) throws SQLException {
-		if(null == daoPojos || daoPojos.length == 0)
-			return new int[0];
-		hints = DalHints.createIfAbsent(hints);
-		String callSql = client.buildCallSql(BATCH_INSERT_SP_NAME, parser.getFields(daoPojos[0]).size());
-		StatementParameters[] parametersList = new StatementParameters[daoPojos.length];
-		for(int i = 0; i< daoPojos.length; i++){
-			StatementParameters parameters = new StatementParameters();
-			client.addParametersByName(parameters, parser.getFields(daoPojos[i]));
-			parametersList[i] = parameters;
-		}
-		return baseClient.batchCall(callSql, parametersList, hints);
+	public int insert(InfoSecurityCheckResultLogGen entity) throws SQLException {
+		if(null == entity)
+			return 0;
+		DataSource dataSource = cardRiskDBTemplate.getDataSource();  
+		Connection conn=null;  
+		Map ddMap=new HashMap();  
+		conn=dataSource.getConnection();  
+		CallableStatement cs = conn.prepareCall("{call spA_InfoSecurity_CheckResultLog_i (?,?,?,?,?,?,?,?,?)}");   
+		cs.registerOutParameter(1,  java.sql.Types.BIGINT );
+		cs.setLong(2, entity.getReqID());
+		cs.setString(3,entity.getRuleType());
+		cs.setInt(4,entity.getRuleID());
+		cs.setString(5, entity.getRuleName());
+		cs.setInt(6, entity.getRiskLevel());
+		cs.setString(7, entity.getRuleRemark());
+		cs.setTimestamp(8, entity.getCreateDate());
+		cs.setTimestamp(9, entity.getDataChange_LastTime());
+		cs.execute();  
+		ResultSet rs = cs.getResultSet();
+		if(rs.next())
+			return rs.getInt(1);
+		else
+			return -1;
 	}
-	/**
-	 * Batch insert without out parameters
-	 * Return how many rows been affected for each of parameters
-	**/
-	public int[] insert(DalHints hints, List<InfoSecurityCheckResultLogGen> daoPojos) throws SQLException {
-		if(null == daoPojos || daoPojos.size() == 0)
-			return new int[0];
-		hints = DalHints.createIfAbsent(hints);
-		String callSql = client.buildCallSql(BATCH_INSERT_SP_NAME, parser.getFields(daoPojos.get(0)).size());
-		StatementParameters[] parametersList = new StatementParameters[daoPojos.size()];
-		for(int i = 0; i< daoPojos.size(); i++){
-			StatementParameters parameters = new StatementParameters();
-			client.addParametersByName(parameters, parser.getFields(daoPojos.get(i)));
-			parametersList[i] = parameters;
-		}
-		return baseClient.batchCall(callSql, parametersList, hints);
-	}
-	private String prepareSpCall(String SpName, StatementParameters parameters, Map<String, ?> fields) {
-		client.addParametersByName(parameters, fields);
-		String callSql = client.buildCallSql(SpName, fields.size());
-		parameters.setResultsParameter(RET_CODE, extractor);
-		return callSql;
-	}
+
+
+	
+	
+	public class InfoSecurityCheckResultLogGenRowMapper implements RowMapper<InfoSecurityCheckResultLogGen>
+	{
+        public InfoSecurityCheckResultLogGen mapRow(ResultSet rs, int rowNum) throws SQLException {
+        	InfoSecurityCheckResultLogGen gen = new InfoSecurityCheckResultLogGen();
+        	gen.setLogID(rs.getLong("LogID"));
+        	gen.setReqID(rs.getLong("ReqID"));
+        	gen.setRuleType(rs.getString("RuleType"));
+        	gen.setRuleID(rs.getInt("RuleID"));
+        	gen.setRuleName(rs.getString("RuleName"));
+        	gen.setRiskLevel(rs.getInt("RiskLevel"));
+        	gen.setRuleRemark(rs.getString("RuleRemark"));
+        	gen.setCreateDate(rs.getTimestamp("CreateDate"));
+        	gen.setDataChange_LastTime(rs.getTimestamp("DataChange_LastTime"));
+            return gen;
+        }
+    }
+	
+	
 	public static class InfoSecurityCheckResultLogGenParser extends AbstractDalParser<InfoSecurityCheckResultLogGen> {
 		public static final String DATABASE_NAME = "CardRiskDB_INSERT_1";
 		public static final String TABLE_NAME = "InfoSecurity_CheckResultLog";
@@ -221,5 +215,18 @@ public class InfoSecurityCheckResultLogGenDao {
 	
 			return map;
 		}
+	}
+
+
+	@Override
+	public int update(InfoSecurityCheckResultLogGen entity) throws SQLException {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public int delete(InfoSecurityCheckResultLogGen entity) throws SQLException {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 }
