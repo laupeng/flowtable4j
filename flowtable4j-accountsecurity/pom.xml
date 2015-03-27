@@ -21,6 +21,17 @@
       <artifactId>flowtable4j-model</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>com.ctrip.infosec.flowtable4j</groupId>
+      <artifactId>flowtable4j-core</artifactId>
+      <version>1.0.0-SNAPSHOT</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.ctrip.infosec.flowtable4j</groupId>
+      <artifactId>flowtable4j-api</artifactId>
+      <version>1.0.0-SNAPSHOT</version>
+    </dependency>
     <!-- Data Config Server -->
     <dependency>
       <groupId>com.ctrip.infosec.antifraud</groupId>

@@ -55,7 +55,7 @@ public class FlowRuleManager {
         return false;
     }
 
-    private static boolean check(FlowFact fact, List<RiskResult> results) {
+    public static boolean check(FlowFact fact, List<RiskResult> results) {
         if (checkWhite(fact, results)) {
             return true;
         } else {

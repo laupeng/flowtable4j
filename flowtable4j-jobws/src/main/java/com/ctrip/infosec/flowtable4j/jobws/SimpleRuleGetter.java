@@ -66,4 +66,36 @@ public class SimpleRuleGetter implements RuleGetter {
                 "         join dbo.Def_RuleStatisticTable d2 on r.StatisticTableID=d2.StatisticTableID\n" +
                 "         join dbo.InfoSecurity_FlowRule f on r.FlowRuleID=f.FlowRuleID WHERE f.Active='T' ORDER BY f.FlowRuleID");
     }
+
+    @Override
+    public List<Map<String,Object>> getRuleValue(){
+        return cardRiskDB.queryForList("select r.FlowRuleID,d.ColumnName,r.MatchType,r.MatchValue\n" +
+                "From dbo.InfoSecurity_RuleMatchField r (NOLOCK)\n" +
+                "join dbo.Def_RuleMatchField d (NOLOCK) on r.FieldID= d.FieldID\n" +
+                "where CHARINDEX('F',r.MatchType)<>1 ORDER BY r.FlowRuleID ,r.MatchIndex");
+    }
+
+    @Override
+    public List<Map<String,Object>> getRuleField(){
+        return cardRiskDB.queryForList("select r.FlowRuleID,d.ColumnName,r.MatchType,r.MatchValue\n" +
+                "From dbo.InfoSecurity_RuleMatchField r (NOLOCK)\n" +
+                "join dbo.Def_RuleMatchField d (NOLOCK) on r.FieldID= d.FieldID\n" +
+                "where CHARINDEX('F',r.MatchType)=1 ORDER BY r.FlowRuleID ,r.MatchIndex");
+    }
+
+    @Override
+    public List<Map<String,Object>> getCountSql(){
+        return cardRiskDB.queryForList("select r.FlowRuleID,d.ColumnName as KeyColumnName,\n" +
+                "d1.ColumnName as MatchColumnName,r.MatchType,r.MatchValue,r.StatisticType,r.StartTimeLimit,r.TimeLimit,r.SqlValue\n" +
+                "From  dbo.InfoSecurity_RuleStatistic (NOLOCK) r\n" +
+                "join dbo.Def_RuleMatchField d (NOLOCK) on r.KeyFieldID=d.FieldID\n" +
+                "join dbo.Def_RuleMatchField d1 (NOLOCK) on r.MatchFieldID=d1.FieldID\n" +
+                "ORDER BY r.FlowRuleID,r.MatchIndex");
+    }
+
+    @Override
+    public List<Map<String,Object>> getFlowRuleMaster(){
+        return cardRiskDB.queryForList("SELECT FlowRuleID,RuleName,RiskLevel,OrderType,PrepayType,RuleDesc \n" +
+                "FROM InfoSecurity_FlowRule (NOLOCK) where Active='T' ORDER BY FlowRuleID , MatchIndex ");
+    }
 }

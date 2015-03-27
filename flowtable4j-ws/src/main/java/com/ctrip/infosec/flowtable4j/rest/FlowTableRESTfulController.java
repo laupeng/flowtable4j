@@ -5,7 +5,6 @@
  */
 package com.ctrip.infosec.flowtable4j.rest;
 
-import com.ctrip.flowtable4j.core.Processor;
 import com.ctrip.infosec.flowtable4j.model.CheckFact;
 import com.ctrip.infosec.flowtable4j.model.RiskResult;
 import org.slf4j.Logger;
@@ -34,20 +33,4 @@ public class FlowTableRESTfulController {
     List<RiskResult> checkRisk(@RequestBody CheckFact checkEntity) {
         return processor.handle(checkEntity);
     }
-//    @RequestMapping(value = "/check", method = RequestMethod.POST)
-//    @ResponseBody
-//    public ResponseEntity<?> check(@RequestBody String checkEntityTxt) {
-//        logger.info("REST: checkEntity=" + checkEntityTxt);
-//       // FlowTableCheckResult result = new FlowTableCheckResult();
-//        try {
-//            Map<String, ?> checkEntity = JSON.parseObject(checkEntityTxt, Map.class);
-//
-//            // TODO: 执行规则
-//        } catch (Throwable ex) {
-//            // TODO: 处理异常
-//            logger.error("invoke check exception.", ex);
-//        }
-//       // logger.info("RESULT: " + JSON.toJSONString(result));
-//       // return new ResponseEntity(result, HttpStatus.OK);
-//    }
 }
