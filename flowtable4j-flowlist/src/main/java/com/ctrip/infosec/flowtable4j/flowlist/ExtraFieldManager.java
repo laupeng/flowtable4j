@@ -1,7 +1,5 @@
 package com.ctrip.infosec.flowtable4j.flowlist;
 
-import com.google.common.collect.ImmutableMap;
-
 import java.util.HashMap;
 import java.util.Map;
 

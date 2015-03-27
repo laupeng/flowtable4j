@@ -62,7 +62,7 @@ public class FlowRuleManager {
      * @param results
      * @return
      */
-    private static boolean check(FlowFact fact, List<RiskResult> results) {
+    public static boolean check(FlowFact fact, List<RiskResult> results) {
         return checkWhite(fact,results) || checkBlack(fact,results);
     }
 
