@@ -1,4 +1,5 @@
 package com.ctrip.infosec.flowtable4j.flowlist;
+
 import com.ctrip.infosec.flowtable4j.model.FlowFact;
 import com.ctrip.infosec.flowtable4j.model.RiskResult;
 import org.slf4j.Logger;
@@ -27,33 +28,41 @@ public class FlowRuleManager {
 
     /**
      * 检查白名单
+     *
      * @param fact
      * @param results
      * @return
      */
-    public static boolean checkWhite(FlowFact fact, List<RiskResult> results) {
-        try{
+    private static boolean checkWhite(FlowFact fact, List<RiskResult> results) {
+        try {
             if (whiteRule != null) {
                 return whiteRule.check(fact, results);
             }
-        }
-        catch (Throwable ex){
+        } catch (Throwable ex) {
             logger.warn(ex.getMessage());
         }
         return false;
     }
 
-    public static boolean checkBlack(FlowFact fact, List<RiskResult> results) {
-        try{
+    private static boolean checkBlack(FlowFact fact, List<RiskResult> results) {
+        try {
             if (blackRule != null) {
                 return blackRule.check(fact, results);
             }
-        }
-        catch (Throwable ex){
+        } catch (Throwable ex) {
             logger.warn(ex.getMessage());
         }
         return false;
     }
+
+    private static boolean check(FlowFact fact, List<RiskResult> results) {
+        if (checkWhite(fact, results)) {
+            return true;
+        } else {
+            return checkBlack(fact, results);
+        }
+    }
+
 
     public static boolean addRule(List<FlowRuleStatement> flowRuleStatements) {
         try {
@@ -77,8 +86,7 @@ public class FlowRuleManager {
                 blackRule.addRule(black);
             }
             return true;
-        }
-        catch (Throwable ex){
+        } catch (Throwable ex) {
             logger.warn(ex.getMessage());
             return false;
         }

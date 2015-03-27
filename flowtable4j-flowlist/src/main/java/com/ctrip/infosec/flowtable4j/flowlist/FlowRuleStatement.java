@@ -17,8 +17,6 @@ public class FlowRuleStatement {
     private String prepayType;
     private Integer riskLevel;
     private String remark;
-    private Date effectDate;
-    private Date expireDate;
     private List<FlowRuleTerm> flowRuleTerms;
     private Integer orderType;
 
@@ -51,22 +49,6 @@ public class FlowRuleStatement {
 
     public void setRemark(String remark) {
         this.remark = remark;
-    }
-
-    public Date getEffectDate() {
-        return effectDate;
-    }
-
-    public void setEffectDate(Date effectDate) {
-        this.effectDate = effectDate;
-    }
-
-    public Date getExpireDate() {
-        return expireDate;
-    }
-
-    public void setExpireDate(Date expireDate) {
-        this.expireDate = expireDate;
     }
 
     public List<FlowRuleTerm> getFlowRuleTerms() {

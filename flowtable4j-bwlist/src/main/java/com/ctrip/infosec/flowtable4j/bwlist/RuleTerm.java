@@ -8,17 +8,17 @@ import java.math.BigDecimal;
  * Created by thyang on 2015/3/13 0013.
  */
 public class RuleTerm {
-    private final static EQExecutor eqOper = new EQExecutor();
-    private final static GEExecutor geOper = new GEExecutor();
-    private final static INExecutor inOper = new INExecutor();
-    private final static LEExecutor leOper = new LEExecutor();
-    private final static LLIKEExecutor llOper = new LLIKEExecutor();
+    private final static EQComparer eqOper = new EQComparer();
+    private final static GEComparer geOper = new GEComparer();
+    private final static INComparer inOper = new INComparer();
+    private final static LEComparer leOper = new LEComparer();
+    private final static LLIKEComparer llOper = new LLIKEComparer();
 
     private String fieldName;
     private String matchValue;
     private String operator;
 
-    private ConditionExecutor executor;
+    private ConditionComparer executor;
 
     public RuleTerm(String fieldName,String operator,String matchValue){
         this.setFieldName(fieldName);
@@ -68,11 +68,11 @@ public class RuleTerm {
     }
 }
 
-abstract class ConditionExecutor{
+abstract class ConditionComparer {
     public abstract boolean match(String fieldValue,String matchValue);
 }
 
-class EQExecutor extends ConditionExecutor {
+class EQComparer extends ConditionComparer {
     @Override
     public boolean match(String fieldValue, String matchValue) {
         if(fieldValue!=null && matchValue!=null){
@@ -82,7 +82,7 @@ class EQExecutor extends ConditionExecutor {
     }
 }
 
-class GEExecutor extends ConditionExecutor{
+class GEComparer extends ConditionComparer {
     @Override
     public boolean match(String fieldValue, String matchValue) {
         if(fieldValue!=null && matchValue!=null){
@@ -94,7 +94,7 @@ class GEExecutor extends ConditionExecutor{
     }
 }
 
-class INExecutor extends ConditionExecutor {
+class INComparer extends ConditionComparer {
     @Override
     public boolean match(String fieldValue, String matchValue) {
         if(fieldValue!=null && matchValue!=null){
@@ -103,7 +103,7 @@ class INExecutor extends ConditionExecutor {
         return false;
     }
 }
-class LEExecutor extends ConditionExecutor{
+class LEComparer extends ConditionComparer {
     @Override
     public boolean match(String fieldValue, String matchValue) {
         if(fieldValue!=null && matchValue!=null){
@@ -115,7 +115,7 @@ class LEExecutor extends ConditionExecutor{
     }
 }
 
-class LLIKEExecutor extends ConditionExecutor{
+class LLIKEComparer extends ConditionComparer {
     @Override
     public boolean match(String fieldValue, String matchValue) {
         if(fieldValue!=null && matchValue!=null){
