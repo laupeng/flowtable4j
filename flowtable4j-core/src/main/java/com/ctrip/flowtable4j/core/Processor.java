@@ -2,11 +2,10 @@ package com.ctrip.flowtable4j.core;
 
 import com.ctrip.infosec.flowtable4j.accountsecurity.PaymentViaAccount;
 import com.ctrip.infosec.flowtable4j.bwlist.BWManager;
-import com.ctrip.infosec.flowtable4j.model.account.AccountCheckItem;
-import com.ctrip.infosec.flowtable4j.model.check.CheckEntity;
-import com.ctrip.infosec.flowtable4j.model.check.CheckType;
-import com.ctrip.infosec.flowtable4j.model.check.RiskResult;
-import com.google.common.base.Stopwatch;
+import com.ctrip.infosec.flowtable4j.model.AccountFact;
+import com.ctrip.infosec.flowtable4j.model.CheckFact;
+import com.ctrip.infosec.flowtable4j.model.CheckType;
+import com.ctrip.infosec.flowtable4j.model.RiskResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +25,7 @@ public class Processor {
     @Autowired
     private PaymentViaAccount paymentViaAccount;
     private static final long TIMEOUT = 100;
-    public List<RiskResult> handle(final CheckEntity checkEntity) {
+    public List<RiskResult> handle(final CheckFact checkEntity) {
         final List<RiskResult> listResult_w = new ArrayList<RiskResult>();
         final List<RiskResult> listResult_b = new ArrayList<RiskResult>();
         final Map<String, Integer> mapAccount = new HashMap<String, Integer>();
@@ -56,10 +55,8 @@ public class Processor {
                 executorService.execute(new Runnable() {
                     @Override
                     public void run() {
-                        List<AccountCheckItem> list = new ArrayList<AccountCheckItem>();
-                        AccountCheckItem item = checkEntity.getAccountCheckItem();
-                        list.add(item);
-                        paymentViaAccount.CheckBWGRule(list,mapAccount);
+                        AccountFact item = checkEntity.getAccountFact();
+                        paymentViaAccount.CheckBWGRule(item,mapAccount);
                     }
                 });
             }

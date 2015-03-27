@@ -1,6 +1,6 @@
 package com.ctrip.infosec.flowtable4j.accountsecurity;
-
-import com.ctrip.infosec.flowtable4j.model.account.AccountCheckItem;
+import com.ctrip.infosec.flowtable4j.model.AccountFact;
+import com.ctrip.infosec.flowtable4j.model.AccountItem;
 import com.google.common.base.Strings;
 import org.apache.commons.lang.time.FastDateFormat;
 import org.slf4j.Logger;
@@ -35,10 +35,10 @@ public class PaymentViaAccount {
      * @param checkItems
      * @return
      */
-    public void CheckBWGRule(List<AccountCheckItem> checkItems,Map<String, Integer> result) {
+    public void CheckBWGRule(AccountFact fact,Map<String, Integer> result) {
 //        Map<String, Integer> result = new HashMap<String, Integer>();
         ExecutorService executorService = Executors.newCachedThreadPool();
-        if (checkItems == null || checkItems.size() == 0) {
+        if (fact==null ||fact.getCheckItems() == null || fact.getCheckItems().size() == 0) {
             throw new RuntimeException("数据格式错误，请求内容为空");
         }
 
@@ -47,7 +47,7 @@ public class PaymentViaAccount {
         //多线程取Redis规则
         final ConcurrentHashMap<String,List<RedisStoreItem>> dic_allRules = new ConcurrentHashMap<String, List<RedisStoreItem>>();
         //按Key取SortedSet Rules并发取规则
-        for (final AccountCheckItem item : checkItems) {
+        for (final AccountItem item : fact.getCheckItems()) {
 
             if (Strings.isNullOrEmpty(item.getCheckType().trim()) || Strings.isNullOrEmpty(item.getSceneType().trim()) ||
                     Strings.isNullOrEmpty(item.getCheckValue().trim())) {

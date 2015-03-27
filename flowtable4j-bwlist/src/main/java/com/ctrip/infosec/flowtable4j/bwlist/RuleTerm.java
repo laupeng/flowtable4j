@@ -1,6 +1,6 @@
 package com.ctrip.infosec.flowtable4j.bwlist;
 
-import com.ctrip.infosec.flowtable4j.model.bw.BWFact;
+import com.ctrip.infosec.flowtable4j.model.BWFact;
 
 import java.math.BigDecimal;
 
@@ -98,7 +98,7 @@ class INExecutor extends ConditionExecutor {
     @Override
     public boolean match(String fieldValue, String matchValue) {
         if(fieldValue!=null && matchValue!=null){
-            return  fieldValue.indexOf(matchValue)>=0;
+            return  fieldValue.contains(matchValue);
         }
         return false;
     }
@@ -119,13 +119,8 @@ class LLIKEExecutor extends ConditionExecutor{
     @Override
     public boolean match(String fieldValue, String matchValue) {
         if(fieldValue!=null && matchValue!=null){
-            return  fieldValue.indexOf(matchValue)==0;
+            return  fieldValue.startsWith(matchValue);
         }
         return false;
     }
 }
-
-
-
-
-
