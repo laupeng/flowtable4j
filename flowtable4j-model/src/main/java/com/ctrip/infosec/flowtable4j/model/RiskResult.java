@@ -1,13 +1,13 @@
-package com.ctrip.infosec.flowtable4j.model.check;
+package com.ctrip.infosec.flowtable4j.model;
 
 /**
  * Created by zhangsx on 2015/3/25.
  */
 public class RiskResult {
     private String ruleType;
-    private int ruleID ;
+    private Integer ruleID ;
     private String ruleName;
-    private int riskLevel;
+    private Integer riskLevel;
     private String ruleRemark;
 
     public String getRuleType() {
@@ -18,11 +18,11 @@ public class RiskResult {
         this.ruleType = ruleType;
     }
 
-    public int getRuleID() {
+    public Integer getRuleID() {
         return ruleID;
     }
 
-    public void setRuleID(int ruleID) {
+    public void setRuleID(Integer ruleID) {
         this.ruleID = ruleID;
     }
 
@@ -34,11 +34,11 @@ public class RiskResult {
         this.ruleName = ruleName;
     }
 
-    public int getRiskLevel() {
+    public Integer getRiskLevel() {
         return riskLevel;
     }
 
-    public void setRiskLevel(int riskLevel) {
+    public void setRiskLevel(Integer riskLevel) {
         this.riskLevel = riskLevel;
     }
 

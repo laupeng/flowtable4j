@@ -1,19 +1,16 @@
 package com.ctrip.infosec.flowtable4j.accountsecurity;
-
-import com.ctrip.infosec.flowtable4j.model.account.AccountCheckItem;
+import com.ctrip.flowtable4j.core.utils.SimpleStaticThreadPool;
+import com.ctrip.infosec.flowtable4j.model.AccountFact;
+import com.ctrip.infosec.flowtable4j.model.AccountItem;
 import com.google.common.base.Strings;
 import org.apache.commons.lang.time.FastDateFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * Created by zhangsx on 2015/3/17.
@@ -26,28 +23,28 @@ public class PaymentViaAccount {
     private ParameterDeamon parameterDeamon;
     @Autowired
     private RedisProvider redisProvider;
+    @Autowired
+    private SimpleStaticThreadPool simpleStaticThreadPool;
     private FastDateFormat format = FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ss");
     private Logger logger = LoggerFactory.getLogger(PaymentViaAccount.class);
 
     /**
      * 验证黑白灰名单
      *
-     * @param checkItems
+     * @param fact
      * @return
      */
-    public void CheckBWGRule(List<AccountCheckItem> checkItems,Map<String, Integer> result) {
-//        Map<String, Integer> result = new HashMap<String, Integer>();
-        ExecutorService executorService = Executors.newCachedThreadPool();
-        if (checkItems == null || checkItems.size() == 0) {
+    public void CheckBWGRule(AccountFact fact,Map<String, Integer> result) {
+        if (fact==null ||fact.getCheckItems() == null || fact.getCheckItems().size() == 0) {
             throw new RuntimeException("数据格式错误，请求内容为空");
         }
-
+        List<Callable<Object>> tasks = new ArrayList<Callable<Object>>();
         final String currentDate = format.format(System.currentTimeMillis());
 
         //多线程取Redis规则
         final ConcurrentHashMap<String,List<RedisStoreItem>> dic_allRules = new ConcurrentHashMap<String, List<RedisStoreItem>>();
         //按Key取SortedSet Rules并发取规则
-        for (final AccountCheckItem item : checkItems) {
+        for (final AccountItem item : fact.getCheckItems()) {
 
             if (Strings.isNullOrEmpty(item.getCheckType().trim()) || Strings.isNullOrEmpty(item.getSceneType().trim()) ||
                     Strings.isNullOrEmpty(item.getCheckValue().trim())) {
@@ -57,29 +54,25 @@ public class PaymentViaAccount {
             final int chkType = parameterDeamon.getCheckType(item.getCheckType());
             final int scntype = parameterDeamon.getSceneType(item.getSceneType());
             if (chkType > 0 && scntype > 0) {
-                executorService.execute(new Runnable() {
+                tasks.add(new Callable<Object>() {
                     @Override
-                    public void run() {
+                    public Object call() throws Exception {
                         KeyValue keyValue = new KeyValue();
                         keyValue.setSceneType(item.getSceneType().toUpperCase());
                         keyValue.setRuleKey(String.format("CheckType:{%s}|SceneType:{%s}|CheckValue:{%s}", chkType, scntype, item.getCheckValue()).toUpperCase());
 
                         getRuleByKey(dic_allRules,currentDate,keyValue);
+                        return null;
                     }
                 });
             }
         }
-        executorService.shutdown();
-        try {
-            if(!executorService.awaitTermination(ACCOUNT_EXPIRE, TimeUnit.MILLISECONDS)){
-                executorService.shutdownNow();
-                logger.error("在50ms内没有完成任务,强制关闭");
+        List<Future<Object>> results = simpleStaticThreadPool.invokeAll(tasks, ACCOUNT_EXPIRE, TimeUnit.MILLISECONDS);
+        for(Future future:results){
+            if(!future.isDone()){
+                future.cancel(true);
             }
-        } catch (InterruptedException e) {
-            executorService.shutdownNow();
-            logger.error("i am interrupted",e);
         }
-
         MergeRedisRules(dic_allRules, result);
         return;
     }

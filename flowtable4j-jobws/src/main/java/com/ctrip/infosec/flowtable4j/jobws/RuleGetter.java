@@ -32,5 +32,11 @@ public interface RuleGetter {
      */
     List<Map<String,Object>> ruleStatistic();
 
+    List<Map<String,Object>> getRuleValue();
 
+    List<Map<String,Object>> getRuleField();
+
+    List<Map<String,Object>> getCountSql();
+
+    List<Map<String,Object>> getFlowRuleMaster();
 }

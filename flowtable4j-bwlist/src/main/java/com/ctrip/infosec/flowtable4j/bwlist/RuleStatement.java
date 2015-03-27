@@ -1,8 +1,7 @@
 package com.ctrip.infosec.flowtable4j.bwlist;
-
-import com.ctrip.infosec.flowtable4j.model.bw.BWFact;
-import com.ctrip.infosec.flowtable4j.model.check.CheckType;
-import com.ctrip.infosec.flowtable4j.model.check.RiskResult;
+import com.ctrip.infosec.flowtable4j.model.BWFact;
+import com.ctrip.infosec.flowtable4j.model.CheckType;
+import com.ctrip.infosec.flowtable4j.model.RiskResult;
 
 import java.util.Date;
 import java.util.List;
@@ -143,5 +142,5 @@ public class RuleStatement {
         return super.equals(obj);
     }
 
-
 }
+
