@@ -19,13 +19,13 @@ public abstract class FlowRuleTerm {
     private final static LTComparer ltOper = new LTComparer();
     private final static LLIKEComparer llOper = new LLIKEComparer();
     private final static RLIKEComparer rlOper = new RLIKEComparer();
-    private final static RegComparer rgOper = new RegComparer();
+    private final static RegXComparer rgOper = new RegXComparer();
     protected ConditionComparer executor;
     protected String fieldName;
     private   String operator;
     protected String prefix=null;
     /**
-     * 两个字段一样的值，只是之类中不会那么别扭
+     * 两个字段一样的值，只是子类中不会那么别扭
      */
     protected String matchValue;
     protected String matchField;
@@ -215,7 +215,7 @@ class NAComparer extends ConditionComparer {
     }
 }
 
-class RegComparer extends ConditionComparer {
+class RegXComparer extends ConditionComparer {
     @Override
     public boolean match(String fieldValue, String matchValue) {
         if(fieldValue!=null && matchValue!=null){

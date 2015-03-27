@@ -10,28 +10,26 @@ import java.util.Map;
  */
 public class FieldMatchRuleTerm extends FlowRuleTerm {
 
-    public FieldMatchRuleTerm(String fieldName,String operator,String matchField){
-       super(fieldName,operator,matchField);
+    public FieldMatchRuleTerm(String fieldName, String operator, String matchField) {
+        super(fieldName, operator, matchField);
     }
 
     @Override
     public boolean check(FlowFact fact) {
-        if(prefix==null) {
-            return executor.match(fact.getString(fieldName), fact.getString(matchField));
-        }
-        else
-        {
-            boolean matched=false;
-            List<Map<String,Object>> subs = (List<Map<String,Object>>) fact.getList(prefix);
-            if(subs!=null){
-                for (Map<String,Object> row:subs){
-                    if(executor.match(getString(row,fieldName),getString(row,matchField))){
-                        matched=true;
+        boolean matched = false;
+        if (prefix == null) {
+            matched = executor.match(fact.getString(fieldName), fact.getString(matchField));
+        } else {
+            List<Map<String, Object>> rows = (List<Map<String, Object>>) fact.getList(prefix);
+            if (rows != null) {
+                for (Map<String, Object> row : rows) {
+                    if (executor.match(getString(row, fieldName), getString(row, matchField))) {
+                        matched = true;
                         break;
                     }
                 }
             }
-            return  matched;
         }
+        return matched;
     }
 }

@@ -15,22 +15,22 @@ public class ValueMatchRuleTerm extends FlowRuleTerm {
     }
     @Override
     public boolean check(FlowFact fact) {
+          boolean matched=false;
           if(prefix==null) {
-              return executor.match(fact.getString(fieldName), matchValue);
+              matched = executor.match(fact.getString(fieldName), matchValue);
           }
           else
           {
-              boolean matched=false;
-              List<Map<String,Object>> subs = (List<Map<String,Object>>) fact.getList(prefix);
-              if(subs!=null){
-                  for (Map<String,Object> row:subs){
+              List<Map<String,Object>> rows = (List<Map<String,Object>>) fact.getList(prefix);
+              if(rows!=null){
+                  for (Map<String,Object> row:rows){
                      if(executor.match(getString(row,fieldName),matchValue)){
                          matched=true;
                          break;
                      }
                   }
               }
-              return  matched;
           }
+        return  matched;
     }
 }

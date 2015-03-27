@@ -32,7 +32,7 @@ public class PaymentViaAccount {
     /**
      * 验证黑白灰名单
      *
-     * @param checkItems
+     * @param fact
      * @return
      */
     public void CheckBWGRule(AccountFact fact,Map<String, Integer> result) {

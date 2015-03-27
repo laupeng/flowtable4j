@@ -1,4 +1,5 @@
 package com.ctrip.infosec.flowtable4j.flowlist;
+import com.ctrip.infosec.flowtable4j.model.CheckType;
 import com.ctrip.infosec.flowtable4j.model.FlowFact;
 import com.ctrip.infosec.flowtable4j.model.RiskResult;
 import org.slf4j.Logger;
@@ -20,6 +21,9 @@ public class FlowRuleStatement {
     private List<FlowRuleTerm> flowRuleTerms;
     private Integer orderType;
 
+    /**
+     * 有些流量规则需要遍历List，比如用passengerList的每位乘客姓名进行比较
+     */
     void setParentNode()
     {
         for(FlowRuleTerm term:flowRuleTerms ){
@@ -76,6 +80,7 @@ public class FlowRuleStatement {
                 result.setRuleID(ruleID);
                 result.setRiskLevel(riskLevel);
                 result.setRuleRemark(remark);
+                result.setRuleType(CheckType.FLOWRULE.toString());
                 results.add(result);
             }
         }
@@ -102,7 +107,7 @@ public class FlowRuleStatement {
     public boolean equals(Object obj) {
         if (obj instanceof FlowRuleStatement) {
             FlowRuleStatement rs = (FlowRuleStatement) obj;
-            return this.ruleID.equals(rs.getRuleID());
+            return this.ruleID.equals(rs.ruleID);
         }
         return super.equals(obj);
     }

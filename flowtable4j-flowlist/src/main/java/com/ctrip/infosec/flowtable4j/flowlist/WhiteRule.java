@@ -11,7 +11,7 @@ public class WhiteRule extends BaseRule {
 
     @Override
     public boolean check(FlowFact fact, List<RiskResult> results) {
-        if (checkOrderTypeMap(fact, results) || checkGlobalMap(fact, results)) {
+        if (checkByOrderTypeMap(fact, results) || checkAllOrderTypeMap(fact, results)) {
             return true;
         }
         return false;
