@@ -12,8 +12,8 @@ import java.util.List;
 public class BlackRule extends BaseRule  {
     @Override
     public boolean check(FlowFact fact, List<RiskResult> results) {
-        checkOrderTypeMap(fact,results);
-        checkGlobalMap(fact,results);
+        checkByOrderTypeMap(fact, results);
+        checkAllOrderTypeMap(fact, results);
         return  true;
     }
 

@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 黑白名单调配器
+ * 流量规则管理器
  * Created by thyang on 2015/3/13 0013. *
  */
 public class FlowRuleManager {
@@ -55,15 +55,23 @@ public class FlowRuleManager {
         return false;
     }
 
-    public static boolean check(FlowFact fact, List<RiskResult> results) {
-        if (checkWhite(fact, results)) {
-            return true;
-        } else {
-            return checkBlack(fact, results);
-        }
+    /**
+     * 检查流量规则
+     * 白名单命中任意一条即退出
+     * @param fact
+     * @param results
+     * @return
+     */
+    private static boolean check(FlowFact fact, List<RiskResult> results) {
+        return checkWhite(fact,results) || checkBlack(fact,results);
     }
 
-
+    /**
+     * 增加流量规则
+     * 全量
+     * @param flowRuleStatements
+     * @return
+     */
     public static boolean addRule(List<FlowRuleStatement> flowRuleStatements) {
         try {
             List<FlowRuleStatement> white = new ArrayList<FlowRuleStatement>();
