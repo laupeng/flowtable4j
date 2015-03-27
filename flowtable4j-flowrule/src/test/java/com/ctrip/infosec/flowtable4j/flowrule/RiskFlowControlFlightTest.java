@@ -8,13 +8,19 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.ctrip.infosec.flowtable4j.flowrule.impl.CheckRiskCtripFlight;
+import com.ctrip.infosec.flowtable4j.flowrule.impl.RiskFlowControlFlight;
 
-public class CheckRiskCtripFlightTest {
 
-	CheckRiskCtripFlight checkRiskCtripFlight;
-	Map orderEntity, basicCheckRiskData;// 订单实体,规则KPI实体
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = {"classpath:spring/jdbcTemplate.test.xml"})
+public class RiskFlowControlFlightTest {
+
+	RiskFlowControlFlight checkRiskCtripFlight;
+	Map orderEntity, ruleKPIEntity;// 订单实体,规则KPI实体
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
@@ -22,7 +28,7 @@ public class CheckRiskCtripFlightTest {
 
 	@Before
 	public void setUp() throws Exception {
-		checkRiskCtripFlight = new CheckRiskCtripFlight();
+		checkRiskCtripFlight = new RiskFlowControlFlight();
 
 		orderEntity = new HashMap();// 订单实体
 		Map InfoSecurity_DealInfo = new HashMap();// 主信息
@@ -83,13 +89,13 @@ public class CheckRiskCtripFlightTest {
 		
 		Map InfoSecurity_DeviceIDInfo = new HashMap();
 		
-		basicCheckRiskData = new HashMap();
+		ruleKPIEntity = new HashMap();
 
 	}
 
 	@Test
 	public void testCheckFlowRuleList() {
-		checkRiskCtripFlight.CheckFlowRuleList(orderEntity, basicCheckRiskData, true, true);
+		checkRiskCtripFlight.CheckFlowRuleList(orderEntity, ruleKPIEntity, true, true);
 	}
 
 }

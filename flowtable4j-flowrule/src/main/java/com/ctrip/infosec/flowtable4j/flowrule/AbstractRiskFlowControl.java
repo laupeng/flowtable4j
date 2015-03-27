@@ -1,9 +1,11 @@
 package com.ctrip.infosec.flowtable4j.flowrule;
 
 
-import com.ctrip.flowtable4j.core.utils.JsonMapper;
+
 import com.ctrip.infosec.flowtable4j.flowrule.entity.*;
 import com.ctrip.infosec.flowtable4j.flowrule.impl.FlowStatisticsDBManager;
+import com.ctrip.infosec.flowtable4j.flowrule.impl.RuleManagerImpl;
+
 import org.apache.commons.lang.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,29 +22,31 @@ import java.util.Map;
  * @author weiyu
  * @date 2015年3月17日
  */
-public abstract class AbstractCheckRiskCtrip implements CheckRiskCtrip {
+public abstract class AbstractRiskFlowControl implements RiskFlowControl {
 
 	/*
 	 * InfoSecurity_FlowRule InfoSecurity_RuleMatchField
 	 * InfoSecurity_RuleStatistic 字段定义Def_RuleMatchField
 	 */
 
-	@Autowired
-	JsonMapper jsonMapper;
+
 	
-	private static Logger logger = LoggerFactory.getLogger(AbstractCheckRiskCtrip.class);
+	@Autowired
+	RuleManager ruleManager;
+	
+	private static Logger logger = LoggerFactory.getLogger(AbstractRiskFlowControl.class);
 
 	/**
 	 * 执行流量验证
 	 * 
-	 * @param basicCheckRiskData 订单实体
-	 * @param CheckEntity 规则KPI实体
+	 * @param basicOrderData 订单实体
+	 * @param ruleKPIEntity 规则KPI实体
 	 * @param isFlowRuleWhite
 	 * @param isWhiteCheck
 	 * @return
 	 */
 	@Override
-	public FlowCheckRiskResult CheckFlowRuleList(Map basicCheckRiskData, Map checkEntity, boolean isFlowRuleWhite, boolean isWhiteCheck) {
+	public FlowCheckRiskResult CheckFlowRuleList(Map basicOrderData, Map ruleKPIEntity, boolean isFlowRuleWhite, boolean isWhiteCheck) {
 		FlowCheckRiskResult result = new FlowCheckRiskResult();
 		result.setLogList(new ArrayList<InfoSecurity_CheckResultLog>());
 
@@ -63,18 +67,18 @@ public abstract class AbstractCheckRiskCtrip implements CheckRiskCtrip {
 			Map<Integer, FlowRuleEntity> ruleMaps = new HashMap<Integer, FlowRuleEntity>();
 
 			// && ctripFlightsOrderEntity.PaymentInfo.Count > 0
-			Map mainInfo = (Map) basicCheckRiskData.get("MainInfo");
-			List paymentInfos = (List) basicCheckRiskData.get("PaymentInfos");
+			Map mainInfo = (Map) basicOrderData.get("MainInfo");
+			List paymentInfos = (List) basicOrderData.get("PaymentInfos");
 			List<FlowRuleEntity> ruleList = null;
 			if (mainInfo != null && paymentInfos != null) {
-				ruleList = RuleManager.GetFlowRuleListByOrderType(mainInfo.get("OrderType").toString(), isWhiteCheck);
+				ruleList = ruleManager.GetFlowRuleListByOrderType(mainInfo.get("OrderType").toString(), isWhiteCheck);
 				for (FlowRuleEntity entity : ruleList) {
 					ruleMaps.put(entity.getFlowRuleID(), entity);
 				}
 
 				for (Map paymentInfo : (List<Map>) paymentInfos) {
 
-					ruleList = (RuleManager.GetFlowRuleListByOrderType(mainInfo.get("OrderType").toString(), paymentInfo.get("PrepayType").toString(), isWhiteCheck));
+					ruleList = (ruleManager.GetFlowRuleListByOrderType(mainInfo.get("OrderType").toString(), paymentInfo.get("PrepayType").toString(), isWhiteCheck));
 					for (FlowRuleEntity entity : ruleList) {
 						if (!ruleMaps.containsKey(entity.getFlowRuleID())) {
 							ruleMaps.put(entity.getFlowRuleID(), entity);
@@ -91,7 +95,7 @@ public abstract class AbstractCheckRiskCtrip implements CheckRiskCtrip {
 				try {
 					long flowRuleTime = System.currentTimeMillis();
 					// 返回值=-1:表示没有匹配到规则 =0：白名单规则 >0：正常流量规则
-					currentRiskLevel = CheckFlowRuleItem(entity, checkEntity);
+					currentRiskLevel = CheckFlowRuleItem(entity, ruleKPIEntity);
 
 					long tempTime = System.currentTimeMillis() - flowRuleTime;
 					if (tempTime > 50) {
@@ -108,7 +112,7 @@ public abstract class AbstractCheckRiskCtrip implements CheckRiskCtrip {
 
 				InfoSecurity_CheckResultLog riskLog = null;
 				if (currentRiskLevel > 0){
-					riskLog = RuleManager.getCheckedFlowRuleInfo(entity);
+					riskLog = ruleManager.getCheckedFlowRuleInfo(entity);
 					if(riskLog !=null)
 						result.getLogList().add(riskLog);
 				}
@@ -240,13 +244,13 @@ public abstract class AbstractCheckRiskCtrip implements CheckRiskCtrip {
         String sql = RuleStatistic.getSqlValue();
         
         FlowStatisticsDBManager execComm = new FlowStatisticsDBManager();
-        RuleManager.FlowStatisticType flowStatisticType = RuleManager.FlowStatisticType.COUNT;
+        FlowStatisticType flowStatisticType = FlowStatisticType.COUNT;
         if ("COUNT".equalsIgnoreCase(RuleStatistic.getStatisticType())
         		|| "ALL".equalsIgnoreCase(RuleStatistic.getStatisticType())){
-        	flowStatisticType = RuleManager.FlowStatisticType.COUNT;
+        	flowStatisticType = FlowStatisticType.COUNT;
         }
         else if("SUM".equalsIgnoreCase(RuleStatistic.getStatisticType())){
-        	flowStatisticType = RuleManager.FlowStatisticType.SUM;
+        	flowStatisticType = FlowStatisticType.SUM;
         }
         
         
@@ -380,5 +384,10 @@ public abstract class AbstractCheckRiskCtrip implements CheckRiskCtrip {
 
 		return true;
 	}
+	
+    public enum FlowStatisticType{
+    	COUNT,
+    	SUM
+    }
 }
 

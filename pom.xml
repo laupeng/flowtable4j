@@ -116,7 +116,12 @@
 				<artifactId>flowtable4j-jobws</artifactId>
 				<version>${project.version}</version>
 			</dependency>
-
+			<dependency>
+				<groupId>com.ctrip.infosec.flowtable4j</groupId>
+				<artifactId>flowtable4j-dal</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			
 			<!-- All In One -->
 			<dependency>
 				<groupId>com.ctrip.platform</groupId>

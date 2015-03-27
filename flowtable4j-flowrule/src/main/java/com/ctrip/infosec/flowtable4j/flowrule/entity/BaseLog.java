@@ -1,6 +1,5 @@
 package com.ctrip.infosec.flowtable4j.flowrule.entity;
 
-import com.ctrip.flowtable4j.core.utils.CommonUtils;
 
 public class BaseLog {
     private static String PD_LINE = "RCD";
@@ -11,7 +10,7 @@ public class BaseLog {
 
     static
     {
-    	APPID = CommonUtils.getAppId();
+    	APPID = "100000017";
     }
     
     public BaseLog(String errorcode,String errorCategory)

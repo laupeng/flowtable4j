@@ -1,4 +1,4 @@
-package org.flowtable4j.dal;
+package com.ctrip.infosec.flowtable4j.dal.cardriskdb.impl;
 
 import junit.framework.Test;
 import junit.framework.TestCase;

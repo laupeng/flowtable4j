@@ -6,10 +6,9 @@ import java.util.List;
 
 
 
-public interface baseDAO<T,TKey> {
+public interface BaseDAO<T,TKey> {
 	int insert(T entity) throws SQLException;
 	int update(T entity) throws SQLException;
 	int delete(T entity) throws SQLException;
-	List<T> getAll() throws SQLException;
 	public T queryByPk(TKey id) throws SQLException;
 }

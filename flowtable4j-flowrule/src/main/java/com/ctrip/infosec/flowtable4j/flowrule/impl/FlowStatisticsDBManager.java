@@ -1,7 +1,5 @@
 package com.ctrip.infosec.flowtable4j.flowrule.impl;
 
-import com.ctrip.infosec.flowtable4j.flowrule.RuleManager;
-
 import java.sql.*;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -9,6 +7,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import com.ctrip.infosec.flowtable4j.flowrule.AbstractRiskFlowControl.FlowStatisticType;
 
 /**
  * 流量统计执行sql
@@ -71,14 +71,14 @@ public class FlowStatisticsDBManager {
 	}
 	
 	public String execSql(long startTimeLimit,long timeLimit,String paramName,String paramValue,String basicSql
-			,String matchColumnName,String matchValue,RuleManager.FlowStatisticType flowStatisticType){
+			,String matchColumnName,String matchValue,FlowStatisticType flowStatisticType){
 		String sql ;
 
-		if(flowStatisticType== RuleManager.FlowStatisticType.COUNT){
+		if(flowStatisticType== FlowStatisticType.COUNT){
 			basicSql = "select " + matchColumnName + " from (" + basicSql + ") t1 " 
 						+ "WHERE "+ matchColumnName +" is NOT NULL GROUP BY "+matchColumnName; 
 		}
-		else if (flowStatisticType == RuleManager.FlowStatisticType.SUM){
+		else if (flowStatisticType == FlowStatisticType.SUM){
 			basicSql = "select sum(" + matchColumnName + ") from (" + basicSql + ") t1 "; 
 		}
 		
@@ -96,7 +96,7 @@ public class FlowStatisticsDBManager {
 			{
 				ResultSet rs = ps.executeQuery();
 
-				if(flowStatisticType== RuleManager.FlowStatisticType.COUNT){
+				if(flowStatisticType== FlowStatisticType.COUNT){
 					 int currentValue=0;
 					if(org.apache.commons.lang.StringUtils.isNotEmpty(matchValue)){
 						currentValue=1;
@@ -112,7 +112,7 @@ public class FlowStatisticsDBManager {
 					rs.close();
 					return "" + currentValue;
 				}
-				else if (flowStatisticType == RuleManager.FlowStatisticType.SUM){
+				else if (flowStatisticType == FlowStatisticType.SUM){
 					String v = "0";
 					if(rs.next()){
 						v = rs.getString(0);

@@ -1,11 +1,11 @@
 package com.ctrip.infosec.flowtable4j.flowrule.impl;
 
-import com.ctrip.infosec.flowtable4j.flowrule.AbstractCheckRiskCtrip;
+import com.ctrip.infosec.flowtable4j.flowrule.AbstractRiskFlowControl;
 
 import java.util.List;
 import java.util.Map;
 
-public class CheckRiskCtripFlight extends AbstractCheckRiskCtrip {
+public class RiskFlowControlFlight extends AbstractRiskFlowControl {
 
 	enum FlightPassengerProperty {
 		PassengerName, 

@@ -3,9 +3,10 @@ package com.ctrip.infosec.flowtable4j.dal.cardriskdb.entity;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 
-import com.ctrip.platform.dal.dao.DalPojo;
+import com.ctrip.infosec.flowtable4j.dal.BaseGen;
 
-public class InfoSecurityRuleByScoreGen implements DalPojo {
+
+public class InfoSecurityRuleByScoreGen  implements BaseGen {
 	private Long scoreId;
 	private Integer keyId;
 	private String keyType;

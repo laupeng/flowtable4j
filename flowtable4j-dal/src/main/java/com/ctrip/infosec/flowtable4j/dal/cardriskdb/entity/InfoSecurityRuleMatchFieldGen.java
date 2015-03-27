@@ -2,16 +2,21 @@ package com.ctrip.infosec.flowtable4j.dal.cardriskdb.entity;
 
 import java.sql.Timestamp;
 
-import com.ctrip.platform.dal.dao.DalPojo;
+import com.ctrip.infosec.flowtable4j.dal.BaseGen;
 
-public class InfoSecurityRuleMatchFieldGen implements DalPojo {
+
+public class InfoSecurityRuleMatchFieldGen  implements BaseGen {
 	private Integer fieldMatchID;
 	private Integer flowRuleID;
-	private Integer fieldID;
+
 	private String matchType;
 	private String matchValue;
-	private Integer matchIndex;
-	private Timestamp dataChange_LastTime;
+
+	
+	
+	private String keyColumnName;
+	private String keyTableName;
+	
 	public Integer getFieldMatchID() {
 		return fieldMatchID;
 	}
@@ -28,13 +33,6 @@ public class InfoSecurityRuleMatchFieldGen implements DalPojo {
 		this.flowRuleID = flowRuleID;
 	}
 
-	public Integer getFieldID() {
-		return fieldID;
-	}
-
-	public void setFieldID(Integer fieldID) {
-		this.fieldID = fieldID;
-	}
 
 	public String getMatchType() {
 		return matchType;
@@ -52,20 +50,20 @@ public class InfoSecurityRuleMatchFieldGen implements DalPojo {
 		this.matchValue = matchValue;
 	}
 
-	public Integer getMatchIndex() {
-		return matchIndex;
+	public String getKeyColumnName() {
+		return keyColumnName;
 	}
 
-	public void setMatchIndex(Integer matchIndex) {
-		this.matchIndex = matchIndex;
+	public void setKeyColumnName(String keyColumnName) {
+		this.keyColumnName = keyColumnName;
 	}
 
-	public Timestamp getDataChange_LastTime() {
-		return dataChange_LastTime;
+	public String getKeyTableName() {
+		return keyTableName;
 	}
 
-	public void setDataChange_LastTime(Timestamp dataChange_LastTime) {
-		this.dataChange_LastTime = dataChange_LastTime;
+	public void setKeyTableName(String keyTableName) {
+		this.keyTableName = keyTableName;
 	}
 
 }

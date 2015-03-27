@@ -2,9 +2,11 @@ package com.ctrip.infosec.flowtable4j.dal.cardriskdb.entity;
 
 import java.sql.Timestamp;
 
-import com.ctrip.platform.dal.dao.DalPojo;
+import com.ctrip.infosec.flowtable4j.dal.BaseGen;
 
-public class InfoSecurityRuleByScoreItemGen implements DalPojo {
+
+
+public class InfoSecurityRuleByScoreItemGen  implements BaseGen {
 	private Long itemId;
 	private Long scoreId;
 	private String matchType;

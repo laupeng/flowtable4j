@@ -11,12 +11,15 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+
 import javax.annotation.Resource;
 import javax.sql.DataSource;
 
 import com.ctrip.infosec.flowtable4j.flowrule.entity.FlowRuleEntity;
 import com.ctrip.infosec.flowtable4j.flowrule.entity.RuleMatchFieldEntity;
 import com.ctrip.infosec.flowtable4j.flowrule.entity.RuleStatisticEntity;
+import com.ctrip.infosec.flowtable4j.flowrule.impl.RuleManagerImpl;
+
 import org.apache.commons.dbcp.BasicDataSource;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -27,9 +30,12 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**
- *
- * @author zhengby
+ * 
+ * @author weiyu
+ * @date 2015年3月26日
  */
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = {"classpath:spring/FlowRule.test.xml"})
 public class JdbcTemplateTest {
 
     @Resource(name = "cardRiskDBTemplate")
@@ -38,14 +44,12 @@ public class JdbcTemplateTest {
     JdbcTemplate riskCtrlPreProcDBTemplate;
 
     @Test
-    @Ignore
     public void testQueryCardRiskDB() {
         System.out.println("CardRiskDB");
         List<Map<String, Object>> results = cardRiskDBTemplate.queryForList("select top 100* from dbo.InfoSecurity_FlowRule");
         System.out.println("results: " + results.size());
     }
 
-    @Ignore
     @Test
     public void testQueryRiskCtrlPreProcDB() {
         System.out.println("RiskCtrlPreProcDB");
@@ -229,6 +233,6 @@ public class JdbcTemplateTest {
 
         }
 
-        RuleManager.SetRuleEntities(ruleList);
+        RuleManagerImpl.SetRuleEntities(ruleList);
     }
 }

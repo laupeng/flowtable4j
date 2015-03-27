@@ -2,9 +2,10 @@ package com.ctrip.infosec.flowtable4j.dal.cardriskdb.entity;
 
 import java.sql.Timestamp;
 
-import com.ctrip.platform.dal.dao.DalPojo;
+import com.ctrip.infosec.flowtable4j.dal.BaseGen;
 
-public class InfoSecurityFlowRuleGen implements DalPojo {
+
+public class InfoSecurityFlowRuleGen  implements BaseGen{
 	private Integer flowRuleID;
 	private String ruleName;
 	private Integer riskLevel;
