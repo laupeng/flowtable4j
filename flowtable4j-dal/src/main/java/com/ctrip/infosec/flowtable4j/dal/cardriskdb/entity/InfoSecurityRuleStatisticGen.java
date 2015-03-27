@@ -17,6 +17,10 @@ public class InfoSecurityRuleStatisticGen  implements BaseGen {
 	private String keyTableName;
 	private String matchColumnName;
 	private String matchTableName;
+	
+	private String matchType;
+	private Integer matchValue;
+	
 	public Integer getRuleStatisticID() {
 		return ruleStatisticID;
 	}
@@ -76,6 +80,18 @@ public class InfoSecurityRuleStatisticGen  implements BaseGen {
 	}
 	public void setMatchTableName(String matchTableName) {
 		this.matchTableName = matchTableName;
+	}
+	public String getMatchType() {
+		return matchType;
+	}
+	public void setMatchType(String matchType) {
+		this.matchType = matchType;
+	}
+	public Integer getMatchValue() {
+		return matchValue;
+	}
+	public void setMatchValue(Integer matchValue) {
+		this.matchValue = matchValue;
 	}
 	
 	

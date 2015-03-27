@@ -18,7 +18,7 @@ import javax.sql.DataSource;
 import com.ctrip.infosec.flowtable4j.flowrule.entity.FlowRuleEntity;
 import com.ctrip.infosec.flowtable4j.flowrule.entity.RuleMatchFieldEntity;
 import com.ctrip.infosec.flowtable4j.flowrule.entity.RuleStatisticEntity;
-import com.ctrip.infosec.flowtable4j.flowrule.impl.RuleManagerImpl;
+import com.ctrip.infosec.flowtable4j.flowrule.impl.FlowRuleManagerImpl;
 
 import org.apache.commons.dbcp.BasicDataSource;
 import org.junit.Ignore;
@@ -193,7 +193,7 @@ public class JdbcTemplateTest {
                     }
                     list.add(ruleStatisticEntity);
                     flowRuleEntity12Add.setStatisticListItem(list);
-                    ruleStatisticEntity.setMatchValue(listStatistic.get(p_statistic).get("MatchValue").toString());
+                    //ruleStatisticEntity.setMatchValue(listStatistic.get(p_statistic).get("MatchValue").toString());
                     ruleStatisticEntity.setMatchType(listStatistic.get(p_statistic).get("MatchType").toString());
                     ruleStatisticEntity.setKeyColumnName(listStatistic.get(p_statistic).get("KeyColumnName").toString());
                     ruleStatisticEntity.setKeyTableName(listStatistic.get(p_statistic).get("KeyTableName").toString());
@@ -206,7 +206,7 @@ public class JdbcTemplateTest {
                 } else {
 
                     RuleStatisticEntity ruleStatisticEntity = new RuleStatisticEntity();
-                    ruleStatisticEntity.setMatchValue(listStatistic.get(p_statistic).get("MatchValue").toString());
+                    //ruleStatisticEntity.setMatchValue(listStatistic.get(p_statistic).get("MatchValue").toString());
                     ruleStatisticEntity.setMatchType(listStatistic.get(p_statistic).get("MatchType").toString());
                     ruleStatisticEntity.setKeyColumnName(listStatistic.get(p_statistic).get("KeyColumnName").toString());
                     ruleStatisticEntity.setKeyTableName(listStatistic.get(p_statistic).get("KeyTableName").toString());
@@ -233,6 +233,6 @@ public class JdbcTemplateTest {
 
         }
 
-        RuleManagerImpl.SetRuleEntities(ruleList);
+        FlowRuleManagerImpl.SetRuleEntities(ruleList);
     }
 }

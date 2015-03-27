@@ -1,5 +1,6 @@
 package com.ctrip.infosec.flowtable4j.dal.cardriskdb.impl;
 
+import java.sql.SQLException;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -14,6 +15,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.ctrip.infosec.flowtable4j.dal.cardriskdb.InfoSecurityFlowRuleGenDao;
 import com.ctrip.infosec.flowtable4j.dal.cardriskdb.entity.InfoSecurityFlowRuleGen;
+import com.ctrip.infosec.flowtable4j.dal.dalmanager.CardRiskDBDalManager;
 
 import junit.framework.TestCase;
 
@@ -24,8 +26,8 @@ public class InfoSecurityFlowRuleGenDaoImplTest extends TestCase {
 
 
 	
-	@Resource(name = "infoSecurityFlowRuleGenDao")
-	InfoSecurityFlowRuleGenDao infoSecurityFlowRuleGenDao;
+	@Resource(name = "cardRiskDBDalManager")
+	CardRiskDBDalManager cardRiskDBDalManager;
 	
 	protected static void setUpBeforeClass() throws Exception {
 	}
@@ -37,8 +39,15 @@ public class InfoSecurityFlowRuleGenDaoImplTest extends TestCase {
 	@Test
 	public void testGetListByActive(){
 		//infoSecurityFlowRuleGenDao = new com.ctrip.infosec.flowtable4j.dal.cardriskdb.impl.InfoSecurityFlowRuleGenDaoImpl();
-		List<InfoSecurityFlowRuleGen> gens = infoSecurityFlowRuleGenDao.getListByActive("T");
-		assertNotNull(gens);
+		List<InfoSecurityFlowRuleGen> gens;
+		try {
+			gens = cardRiskDBDalManager.getInfoSecurityFlowRuleGenDao().getListByActive("T");
+			assertNotNull(gens);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 	}
 
 }

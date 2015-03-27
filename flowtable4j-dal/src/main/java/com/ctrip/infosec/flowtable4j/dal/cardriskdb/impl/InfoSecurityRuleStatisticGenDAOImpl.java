@@ -31,7 +31,8 @@ public class InfoSecurityRuleStatisticGenDAOImpl extends AbstractCardRiskDBDAO  
 			pojo.setTimeLimit((Integer) rs.getObject("TimeLimit"));
 			pojo.setSqlValue((String) rs.getObject("SqlValue"));
 			pojo.setRuleStatisticID((Integer) rs.getObject("RuleStatisticID"));
-			
+			pojo.setMatchType((String) rs.getObject("MatchType"));
+			pojo.setMatchValue((Integer) rs.getObject("MatchValue"));
 			return pojo;
 		}
 

@@ -4,7 +4,7 @@ package com.ctrip.infosec.flowtable4j.flowrule;
 
 import com.ctrip.infosec.flowtable4j.flowrule.entity.*;
 import com.ctrip.infosec.flowtable4j.flowrule.impl.FlowStatisticsDBManager;
-import com.ctrip.infosec.flowtable4j.flowrule.impl.RuleManagerImpl;
+import com.ctrip.infosec.flowtable4j.flowrule.impl.FlowRuleManagerImpl;
 
 import org.apache.commons.lang.math.NumberUtils;
 import org.slf4j.Logger;
@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.annotation.Resource;
 
 /**
  * 流量验证抽象类
@@ -31,8 +33,8 @@ public abstract class AbstractRiskFlowControl implements RiskFlowControl {
 
 
 	
-	@Autowired
-	RuleManager ruleManager;
+	@Resource(name = "flowRuleManager")
+	FlowRuleManager flowRuleManager;
 	
 	private static Logger logger = LoggerFactory.getLogger(AbstractRiskFlowControl.class);
 
@@ -71,14 +73,14 @@ public abstract class AbstractRiskFlowControl implements RiskFlowControl {
 			List paymentInfos = (List) basicOrderData.get("PaymentInfos");
 			List<FlowRuleEntity> ruleList = null;
 			if (mainInfo != null && paymentInfos != null) {
-				ruleList = ruleManager.GetFlowRuleListByOrderType(mainInfo.get("OrderType").toString(), isWhiteCheck);
+				ruleList = flowRuleManager.GetFlowRuleListByOrderType(mainInfo.get("OrderType").toString(), isWhiteCheck);
 				for (FlowRuleEntity entity : ruleList) {
 					ruleMaps.put(entity.getFlowRuleID(), entity);
 				}
 
 				for (Map paymentInfo : (List<Map>) paymentInfos) {
 
-					ruleList = (ruleManager.GetFlowRuleListByOrderType(mainInfo.get("OrderType").toString(), paymentInfo.get("PrepayType").toString(), isWhiteCheck));
+					ruleList = (flowRuleManager.GetFlowRuleListByOrderType(mainInfo.get("OrderType").toString(), paymentInfo.get("PrepayType").toString(), isWhiteCheck));
 					for (FlowRuleEntity entity : ruleList) {
 						if (!ruleMaps.containsKey(entity.getFlowRuleID())) {
 							ruleMaps.put(entity.getFlowRuleID(), entity);
@@ -112,7 +114,7 @@ public abstract class AbstractRiskFlowControl implements RiskFlowControl {
 
 				InfoSecurity_CheckResultLog riskLog = null;
 				if (currentRiskLevel > 0){
-					riskLog = ruleManager.getCheckedFlowRuleInfo(entity);
+					riskLog = flowRuleManager.getCheckedFlowRuleInfo(entity);
 					if(riskLog !=null)
 						result.getLogList().add(riskLog);
 				}
@@ -257,7 +259,8 @@ public abstract class AbstractRiskFlowControl implements RiskFlowControl {
         String v = execComm.execSql(startTimeLimit, timeLimit,RuleStatistic.getKeyColumnName(), paramValue, sql,RuleStatistic.getMatchColumnName(),matchValue,flowStatisticType);
 
 
-        if (!matchResult(RuleStatistic.getMatchType(), CurrentValue, RuleStatistic.getMatchValue()))
+        String strMatchValue = RuleStatistic.getMatchValue()==null?"":RuleStatistic.getMatchValue().toString();
+        if (!matchResult(RuleStatistic.getMatchType(), CurrentValue, strMatchValue))
         {
             return 0;
         }

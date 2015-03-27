@@ -47,7 +47,7 @@ public class InfoSecurityRuleStatisticGenDAOImplTest {
 	}
 
 	@Test
-	public void testGetListByRuleId() {
+	public void testGetListByRuleId() throws SQLException {
 		int flowRuleID;
 		flowRuleID = 4;
 		List<InfoSecurityRuleStatisticGen> lst = infoSecurityRuleStatisticGenDAO.getListByRuleId(flowRuleID);

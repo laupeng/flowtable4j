@@ -2,8 +2,12 @@ package com.ctrip.infosec.flowtable4j.flowrule;
 
 import static org.junit.Assert.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import javax.annotation.Resource;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -16,10 +20,12 @@ import com.ctrip.infosec.flowtable4j.flowrule.impl.RiskFlowControlFlight;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"classpath:spring/jdbcTemplate.test.xml"})
+@ContextConfiguration(locations = {"classpath:spring/FlowRule.test.xml"})
 public class RiskFlowControlFlightTest {
 
+	@Resource(name ="checkRiskCtripFlight")
 	RiskFlowControlFlight checkRiskCtripFlight;
+	
 	Map orderEntity, ruleKPIEntity;// 订单实体,规则KPI实体
 
 	@BeforeClass
@@ -87,6 +93,52 @@ public class RiskFlowControlFlightTest {
 		InfoSecurity_ContactInfo.put("Remark", 1);
 		orderEntity.put("InfoSecurity_ContactInfo", InfoSecurity_ContactInfo);
 		
+		List<Map> paymentInfos = new ArrayList<Map>();
+		
+		for(int i=0;i<2;i++){
+			Map paymentInfo = new HashMap();
+			Map InfoSecurity_PaymentInfo = new HashMap();
+			InfoSecurity_PaymentInfo.put("PaymentInfoID", 1);
+			InfoSecurity_PaymentInfo.put("ReqID", 1);
+			InfoSecurity_PaymentInfo.put("PrepayType", 1);
+			InfoSecurity_PaymentInfo.put("IsGuarantee", 1);
+			InfoSecurity_PaymentInfo.put("Amount", 1);
+			InfoSecurity_PaymentInfo.put("BillNo", 1);
+			paymentInfo.put("InfoSecurity_PaymentInfo", InfoSecurity_PaymentInfo);
+			
+			List<Map> cardInfoList = new ArrayList<Map>();
+			for(int j=0;j<1;j++){
+				Map InfoSecurity_CardInfo = new HashMap();
+				
+				InfoSecurity_CardInfo.put("PaymentInfoID",1);
+				InfoSecurity_CardInfo.put("CardInfoID",1);
+				InfoSecurity_CardInfo.put("CreditCardType",1);
+				InfoSecurity_CardInfo.put("InfoID",1);
+				InfoSecurity_CardInfo.put("CValidityCode",1);
+				InfoSecurity_CardInfo.put("CCardNoCode",1);
+				InfoSecurity_CardInfo.put("CardHolder",1);
+				InfoSecurity_CardInfo.put("CardBin",1);
+				InfoSecurity_CardInfo.put("CCardLastNoCode",1);
+				InfoSecurity_CardInfo.put("CCardPreNoCode",1);
+				InfoSecurity_CardInfo.put("StateName",1);
+				InfoSecurity_CardInfo.put("BillingAddress",1);
+				InfoSecurity_CardInfo.put("Nationality",1);
+				InfoSecurity_CardInfo.put("Nationalityofisuue",1);
+				InfoSecurity_CardInfo.put("BankOfCardIssue",1);
+				InfoSecurity_CardInfo.put("CardBinIssue",1);
+				InfoSecurity_CardInfo.put("CardBinBankOfCardIssue",1);
+				InfoSecurity_CardInfo.put("IsForigenCard",1);
+				InfoSecurity_CardInfo.put("DataChange_LastTime",1);
+				InfoSecurity_CardInfo.put("ReqID",1);
+				
+				cardInfoList.add(InfoSecurity_CardInfo);
+			}
+			paymentInfos.add(paymentInfo);
+		}
+		
+		orderEntity.put("PaymentInfos", paymentInfos);
+		
+		
 		Map InfoSecurity_DeviceIDInfo = new HashMap();
 		
 		ruleKPIEntity = new HashMap();
@@ -95,7 +147,15 @@ public class RiskFlowControlFlightTest {
 
 	@Test
 	public void testCheckFlowRuleList() {
-		checkRiskCtripFlight.CheckFlowRuleList(orderEntity, ruleKPIEntity, true, true);
+		boolean isFlowRuleWhite = true;
+		boolean isWhiteCheck = true;
+		FlowCheckRiskResult result = checkRiskCtripFlight.CheckFlowRuleList(orderEntity, ruleKPIEntity, isFlowRuleWhite, isWhiteCheck);
+		assertTrue(result.getRiskLevel()==0);
+		
+		isFlowRuleWhite = false;
+		isWhiteCheck = true;
+		result = checkRiskCtripFlight.CheckFlowRuleList(orderEntity, ruleKPIEntity, isFlowRuleWhite, isWhiteCheck);
+		
 	}
 
 }

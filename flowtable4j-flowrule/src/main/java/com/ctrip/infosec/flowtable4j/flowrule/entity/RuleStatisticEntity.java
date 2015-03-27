@@ -14,7 +14,7 @@ public class RuleStatisticEntity {
 	 String keyTableName;
 	 String matchTableName;
 	 String matchType;
-	 String matchValue;
+	 Integer matchValue;
 	 String statisticType;
 	 int startTimeLimit; // 单位：分钟
 	 int timeLimit; // 单位：分钟
@@ -62,11 +62,11 @@ public class RuleStatisticEntity {
 		this.matchType = matchType;
 	}
 
-	public String getMatchValue() {
+	public Integer getMatchValue() {
 		return matchValue;
 	}
 
-	public void setMatchValue(String matchValue) {
+	public void setMatchValue(Integer matchValue) {
 		this.matchValue = matchValue;
 	}
 

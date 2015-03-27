@@ -34,7 +34,7 @@
 
 
 
-       <!-- JDBC Template -->
+       <!-- JDBC模板 -->
        <bean id="cardRiskDBTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
               <property name="dataSource" ref="cardRiskDBDataSource"/>
        </bean>
@@ -44,14 +44,10 @@
        </bean>
 
 
-		<!--cardriskdb dal -->
+		<!-- dal -->
 		<bean id="infoSecurityFlowRuleGenDao" 		class="com.ctrip.infosec.flowtable4j.dal.cardriskdb.impl.InfoSecurityFlowRuleGenDaoImpl">
 		</bean>
 		<bean id="infoSecurityRuleMatchFieldGenDao" class="com.ctrip.infosec.flowtable4j.dal.cardriskdb.impl.InfoSecurityRuleMatchFieldGenDaoImpl">
 		</bean>
 		<bean id="infoSecurityRuleStatisticGenDAO" class="com.ctrip.infosec.flowtable4j.dal.cardriskdb.impl.InfoSecurityRuleStatisticGenDAOImpl"></bean>
-		
-		
-		<!-- dal manager -->
-		<bean id="cardRiskDBDalManager" class="com.ctrip.infosec.flowtable4j.dal.dalmanager.CardRiskDBDalManager"></bean>
 </beans>

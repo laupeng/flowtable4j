@@ -47,7 +47,7 @@ public class InfoSecurityRuleMatchFieldGenDaoImplTest {
 	}
 
 	@Test
-	public void testGetListByRuleId() {
+	public void testGetListByRuleId() throws SQLException {
 
 			int flowRuleID = 4;
 			List<InfoSecurityRuleMatchFieldGen> gens = infoSecurityRuleMatchFieldGenDao.getListByRuleId(flowRuleID);

@@ -1,10 +1,10 @@
 package com.ctrip.infosec.flowtable4j.jobws;
 
-import com.ctrip.infosec.flowtable4j.flowrule.RuleManager;
+import com.ctrip.infosec.flowtable4j.flowrule.FlowRuleManager;
 import com.ctrip.infosec.flowtable4j.flowrule.entity.FlowRuleEntity;
 import com.ctrip.infosec.flowtable4j.flowrule.entity.RuleMatchFieldEntity;
 import com.ctrip.infosec.flowtable4j.flowrule.entity.RuleStatisticEntity;
-import com.ctrip.infosec.flowtable4j.flowrule.impl.RuleManagerImpl;
+import com.ctrip.infosec.flowtable4j.flowrule.impl.FlowRuleManagerImpl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -159,7 +159,7 @@ public class SimpleProcessor4Flow implements Processor {
 
         }
 
-        RuleManagerImpl.SetRuleEntities(ruleList);
+        FlowRuleManagerImpl.SetRuleEntities(ruleList);
     }
 }
 
