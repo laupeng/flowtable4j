@@ -19,11 +19,13 @@ public class WhiteRule extends BaseRule {
 
     @Override
     public boolean checkByOrderType(OrderTypeRule rules, FlowFact fact, List<RiskResult> results) {
-        String prepayType = fact.getPrepayType();
-        if (rules.byPrepay.containsKey(prepayType)) {
-            for (FlowRuleStatement rule : rules.byPrepay.get(prepayType)) {
-                if (rule.check(fact, results)) {
-                    return true;
+        List<String> prepayType = fact.getPrepayType();
+        for(String s:prepayType) {
+            if (rules.byPrepay.containsKey(s)) {
+                for (FlowRuleStatement rule : rules.byPrepay.get(s)) {
+                    if (rule.check(fact, results)) {
+                        return true;
+                    }
                 }
             }
         }

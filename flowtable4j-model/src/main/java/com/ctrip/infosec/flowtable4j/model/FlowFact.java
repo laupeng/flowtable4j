@@ -15,7 +15,7 @@ public class FlowFact {
      */
     private Integer orderType;
 
-    private String  prepayType;
+    private List<String>  prepayType;
 
     public Map<String,String> requestCache = new HashMap<String, String>();
 
@@ -130,11 +130,11 @@ public class FlowFact {
         return null;
     }
 
-    public String getPrepayType() {
+    public List<String> getPrepayType() {
         return prepayType;
     }
 
-    public void setPrepayType(String prepayType) {
+    public void setPrepayType(List<String> prepayType) {
         this.prepayType = prepayType;
     }
 }
