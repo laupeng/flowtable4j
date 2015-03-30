@@ -80,6 +80,7 @@ public class FlowRuleStatement {
                 result.setRuleID(ruleID);
                 result.setRiskLevel(riskLevel);
                 result.setRuleRemark(remark);
+                result.setRuleName(ruleName);
                 result.setRuleType(CheckType.FLOWRULE.toString());
                 results.add(result);
             }
