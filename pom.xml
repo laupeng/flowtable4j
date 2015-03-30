@@ -106,7 +106,7 @@
 
 			<dependency>
 				<groupId>com.ctrip.infosec.flowtable4j</groupId>
-				<artifactId>flowtable4j-accountsecurity</artifactId>
+				<artifactId>flowtable4j-accountlist</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 

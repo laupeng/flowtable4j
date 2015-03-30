@@ -16,10 +16,9 @@
     <name>${project.artifactId} v${project.version}</name>
     
     <dependencies>
-
         <dependency>
             <groupId>com.ctrip.infosec.flowtable4j</groupId>
-            <artifactId>flowtable4j-accountsecurity</artifactId>
+            <artifactId>flowtable4j-accountlist</artifactId>
         </dependency>
         <dependency>
             <groupId>com.ctrip.infosec.flowtable4j</groupId>

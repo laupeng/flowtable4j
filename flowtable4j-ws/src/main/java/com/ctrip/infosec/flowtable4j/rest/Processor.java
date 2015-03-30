@@ -47,15 +47,19 @@ public class Processor {
         tasks.add(new Callable() {
             @Override
             public Object call() throws Exception {
+                long now = System.currentTimeMillis();
                 BWManager.checkBlack(checkEntity.getBwFact(), listResult_b);
+                logger.info("***1:"+(System.currentTimeMillis()-now));
                 return null;
             }
         });
         tasks.add(new Callable() {
             @Override
             public Object call() throws Exception {
+                long now = System.currentTimeMillis();
                 AccountFact item = checkEntity.getAccountFact();
                 paymentViaAccount.CheckBWGRule(item,mapAccount);
+                logger.info("***2:"+(System.currentTimeMillis()-now));
                 return null;
             }
         });
@@ -63,15 +67,18 @@ public class Processor {
         tasks.add(new Callable<Object>() {
             @Override
             public Object call() throws Exception {
+                long now = System.currentTimeMillis();
                 FlowFact flowFact = checkEntity.getFlowFact();
                 FlowRuleManager.check(flowFact,listFlow);
+                logger.info("***3:"+(System.currentTimeMillis()-now));
                 return null;
             }
         });
-        List<Future<Object>> futures = simpleStaticThreadPool.invokeAll(tasks, 2, TimeUnit.SECONDS);
+        List<Future<Object>> futures = simpleStaticThreadPool.invokeAll(tasks, 80, TimeUnit.MILLISECONDS);
         for(Future future:futures){
             if(!future.isDone()){
                 future.cancel(true);
+                logger.info("task cancel");
             }
         }
 

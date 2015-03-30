@@ -1,5 +1,6 @@
 package com.ctrip.infosec.flowtable4j.flowlist;
 
+import com.ctrip.infosec.flowtable4j.dal.Counter;
 import com.ctrip.infosec.flowtable4j.model.FlowFact;
 
 import java.util.List;
