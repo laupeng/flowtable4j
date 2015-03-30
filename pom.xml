@@ -511,11 +511,8 @@
 	</distributionManagement>
 
 	<modules>
-		<!--<module>flowtable4j-api</module>-->
 		<module>flowtable4j-core</module>
-		<module>flowtable4j-async</module>
-		<!--<module>flowtable4j-flowrule</module>-->
-		<module>flowtable4j-accountsecurity</module>
+		<module>flowtable4j-accountlist</module>
 		<module>flowtable4j-bwlist</module>
 		<module>flowtable4j-jobws</module>
 		<module>flowtable4j-ws</module>
