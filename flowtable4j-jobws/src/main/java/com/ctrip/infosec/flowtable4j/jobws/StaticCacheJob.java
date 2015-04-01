@@ -23,17 +23,26 @@ public class StaticCacheJob {
     private Processor processorFlow;
 
     private static final Logger logger = LoggerFactory.getLogger(StaticCacheJob.class);
-    @Scheduled(fixedDelay = 60000)
-    public void executeBW(){
+
+    @Scheduled(fixedDelay = 300000)
+    public void executeBW() {
         logger.info("start execute update bw rule...");
-        processorBW.execute();
+        try {
+            processorBW.execute();
+        } catch (Throwable ex) {
+            logger.error(ex.getMessage());
+        }
         logger.info("end execute update bw rule...");
     }
 
-    @Scheduled(fixedDelay = 10000)
-    public void executeFlow(){
+    @Scheduled(fixedDelay = 300000)
+    public void executeFlow() {
         logger.info("start execute update flow rule...");
-        processorFlow.execute();
+        try {
+            processorFlow.execute();
+        } catch (Throwable ex) {
+            logger.error(ex.getMessage());
+        }
         logger.info("end execute update flow rule...");
     }
 }

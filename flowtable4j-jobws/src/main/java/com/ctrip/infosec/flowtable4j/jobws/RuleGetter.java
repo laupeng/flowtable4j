@@ -1,6 +1,5 @@
 package com.ctrip.infosec.flowtable4j.jobws;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -21,17 +20,9 @@ public interface RuleGetter {
     List<Map<String,Object>> bwFull();
 
     /**
-     * 规则校验增量更新
+     * 流量规则相关取数（全量）
      * @return
      */
-    List<Map<String,Object>> ruleMatch();
-
-    /**
-     * 规则校验全量更新
-     * @return
-     */
-    List<Map<String,Object>> ruleStatistic();
-
     List<Map<String,Object>> getRuleValue();
 
     List<Map<String,Object>> getRuleField();
