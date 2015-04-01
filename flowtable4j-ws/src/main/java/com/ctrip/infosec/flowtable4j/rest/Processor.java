@@ -1,6 +1,6 @@
 package com.ctrip.infosec.flowtable4j.rest;
 
-import com.ctrip.flowtable4j.core.utils.SimpleStaticThreadPool;
+import com.ctrip.infosec.flowtable4j.core.utils.SimpleStaticThreadPool;
 import com.ctrip.infosec.flowtable4j.accountsecurity.PaymentViaAccount;
 import com.ctrip.infosec.flowtable4j.bwlist.BWManager;
 import com.ctrip.infosec.flowtable4j.flowlist.FlowRuleManager;
@@ -23,8 +23,6 @@ public class Processor {
     private static Logger logger = LoggerFactory.getLogger(Processor.class);
     @Autowired
     private PaymentViaAccount paymentViaAccount;
-    @Autowired
-    private SimpleStaticThreadPool simpleStaticThreadPool;
     private static final long TIMEOUT = 100;
     public List<RiskResult> handle(final CheckFact checkEntity) {
         final List<RiskResult> listResult_w = new ArrayList<RiskResult>();
@@ -66,22 +64,15 @@ public class Processor {
 
         tasks.add(new Callable() {
             @Override
-            public Object call() throws Exception {
+            public Object call() {
                 long now = System.currentTimeMillis();
                 FlowFact flowFact = checkEntity.getFlowFact();
                 FlowRuleManager.check(flowFact,listFlow);
-                Thread.sleep(1000);
-                logger.info("***3:"+(System.currentTimeMillis()-now));
+                logger.info("***3:" + (System.currentTimeMillis() - now));
                 return null;
             }
         });
-        List<Future<Object>> futures = simpleStaticThreadPool.invokeAll(tasks, 80, TimeUnit.MILLISECONDS);
-        for(Future future:futures){
-            if(!future.isDone()){
-                future.cancel(true);
-                logger.info("task cancel");
-            }
-        }
+        List<Future<Object>> futures = SimpleStaticThreadPool.invokeAll(tasks, 80, TimeUnit.MILLISECONDS);
 
         for(Iterator<String> it=mapAccount.keySet().iterator();it.hasNext();){
             String sceneType = it.next();
