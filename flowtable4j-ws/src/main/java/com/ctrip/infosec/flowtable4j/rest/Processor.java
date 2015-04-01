@@ -64,12 +64,13 @@ public class Processor {
             }
         });
 
-        tasks.add(new Callable<Object>() {
+        tasks.add(new Callable() {
             @Override
             public Object call() throws Exception {
                 long now = System.currentTimeMillis();
                 FlowFact flowFact = checkEntity.getFlowFact();
                 FlowRuleManager.check(flowFact,listFlow);
+                Thread.sleep(1000);
                 logger.info("***3:"+(System.currentTimeMillis()-now));
                 return null;
             }

@@ -1,5 +1,6 @@
 package com.ctrip.infosec.flowtable4j.accountsecurity;
 
+import com.ctrip.infosec.sars.util.GlobalConfig;
 import com.ctrip.infosec.sars.util.mapper.JsonMapper;
 import credis.java.client.CacheProvider;
 import credis.java.client.setting.RAppSetting;
@@ -19,13 +20,11 @@ public class RedisProvider {
     private CacheProvider cache;
     JsonMapper mapper = new JsonMapper();
     public RedisProvider() {
-        //TODO 设置变量
-
-        RAppSetting.setAppID("100000807");
-        RAppSetting.setLoggingServerIP("collector.logging.uat.qa.nt.ctripcorp.com");//"collector.logging.uat.qa.nt.ctripcorp.com"
-        RAppSetting.setLoggingServerPort("63100");
+        RAppSetting.setAppID(GlobalConfig.getString("APPID"));
+        RAppSetting.setLoggingServerIP(GlobalConfig.getString("CLogging.serverIp"));//"collector.logging.uat.qa.nt.ctripcorp.com"
+        RAppSetting.setLoggingServerPort(GlobalConfig.getString("CLogging.serverPort"));
         RAppSetting.setLogging(true);
-        RAppSetting.setCRedisServiceUrl("http://ws.config.framework.fws.qa.nt.ctripcorp.com/configws/");//"http://ws.config.framework.fws.qa.nt.ctripcorp.com/configws/"
+        RAppSetting.setCRedisServiceUrl(GlobalConfig.getString("CRedis.serviceUrl"));//"http://ws.config.framework.fws.qa.nt.ctripcorp.com/configws/"
         cache = CacheFactory.GetProvider(redisCluster);
     }
 

@@ -31,6 +31,7 @@
 		<CLogging.serverIp>collector.logging.uat.qa.nt.ctripcorp.com</CLogging.serverIp>
 		<CLogging.serverPort>63100</CLogging.serverPort>
 		<Configs.Caches.url>http://10.2.10.76:8080/configsws/rest/loadconfig</Configs.Caches.url>
+
 	</fat>
 	<lpt></lpt>
 	<uat>
