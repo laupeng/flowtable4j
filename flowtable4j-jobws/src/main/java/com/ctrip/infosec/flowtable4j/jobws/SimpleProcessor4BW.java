@@ -27,18 +27,18 @@ public class SimpleProcessor4BW implements Processor {
     public void execute() {
         if (status == Status.FIRST) {
             //全量更新bw 规则
-            this.bwFull();
+            this.getAllBWRule();
             status = Status.NOTFIRST;
         } else {
-            this.bwIncrement();
+            this.getUpdateBWRule();
         }
     }
 
     /**
      * 全量黑白名单，Active=’T‘
      */
-    private void bwFull(){
-        List<Map<String,Object>> bwList = ruleGetter.bwFull();
+    private void getAllBWRule(){
+        List<Map<String,Object>> bwList = ruleGetter.getAllBWRule();
         List<RuleStatement> bwAll = new ArrayList<RuleStatement>();
         RuleStatement currentRule=null;
         Integer  prevId=-1;
@@ -71,14 +71,15 @@ public class SimpleProcessor4BW implements Processor {
                  }
              }
         }
+        logger.info("total load active blackWhite rules:"+bwAll.size());
         BWManager.addRule(bwAll);
     }
 
     /**
      * 增量更新黑白名单， T Add， F remove
      */
-    private void bwIncrement(){
-        List<Map<String,Object>> bwList = ruleGetter.bwIncrement();
+    private void getUpdateBWRule(){
+        List<Map<String,Object>> bwList = ruleGetter.getUpdateBWRule();
         Map<Integer,List<Map<String,Object>>> map = new HashMap<Integer, List<Map<String, Object>>>();
         List<RuleStatement> bwAdd = new ArrayList<RuleStatement>();
         List<RuleStatement> bwSub = new ArrayList<RuleStatement>();
@@ -120,17 +121,13 @@ public class SimpleProcessor4BW implements Processor {
 
         if(bwAdd.size()>0){
             logger.info(">>> add rules");
-            for(RuleStatement ruleStatement : bwAdd){
-                logger.info("rule id:"+ruleStatement.getRuleID().toString());
-            }
+            logger.info("total update blackWhite rules:"+bwAdd.size());
             logger.info("<<<");
             BWManager.addRule(bwAdd);
         }
         if(bwSub.size()>0){
             logger.info(">>> remove rules");
-            for(RuleStatement ruleStatement : bwSub){
-                logger.info("rule id:"+ruleStatement.getRuleID().toString());
-            }
+            logger.info("total remove blackWhite rules:"+bwSub.size());
             logger.info("<<<");
             BWManager.removeRule(bwSub);
         }

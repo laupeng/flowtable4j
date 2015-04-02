@@ -523,6 +523,6 @@
 		<module>flowtable4j-dal</module>
 		<module>flowtable4j-model</module>
         <module>flowtable4j-flowlist</module>
-    <module>flowtable4j-translate</module>
+        <module>flowtable4j-translate</module>
   </modules>
 </project>

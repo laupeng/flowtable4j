@@ -26,13 +26,13 @@ public class StaticCacheJob {
 
     @Scheduled(fixedDelay = 300000)
     public void executeBW() {
-        logger.info("start execute update bw rule...");
+        logger.info("start execute update blackWhite rule...");
         try {
             processorBW.execute();
         } catch (Throwable ex) {
             logger.error(ex.getMessage());
         }
-        logger.info("end execute update bw rule...");
+        logger.info("end execute update blackWhite rule...");
     }
 
     @Scheduled(fixedDelay = 300000)

@@ -26,7 +26,7 @@ public class SimpleRuleGetter implements RuleGetter {
      * @return
      */
     @Override
-    public List<Map<String, Object>> bwIncrement() {
+    public List<Map<String, Object>> getUpdateBWRule() {
         Date date = new Date(System.currentTimeMillis() - INTERVAL * 60 * 1000- 1000);
         return cardRiskDB.queryForList(
                 " Select r.RuleID,ISNULL(r.OrderType,0) OrderType,c.CheckName,c.CheckType," +
@@ -44,7 +44,7 @@ public class SimpleRuleGetter implements RuleGetter {
      * @return
      */
     @Override
-    public List<Map<String, Object>> bwFull() {
+    public List<Map<String, Object>> getAllBWRule() {
         return cardRiskDB.queryForList(
                 " Select r.RuleID,ISNULL(r.OrderType,0) OrderType,c.CheckName,c.CheckType," +
                         " cv.CheckValue,ISNULL(r.Sdate,'1900-01-01 00:00:00.000') Sdate," +
@@ -61,7 +61,7 @@ public class SimpleRuleGetter implements RuleGetter {
      * @return
      */
     @Override
-    public List<Map<String, Object>> getRuleValue() {
+    public List<Map<String, Object>> getValueMatchTerms() {
         return cardRiskDB.queryForList(
                 " Select r.FlowRuleID,d.ColumnName,r.MatchType,r.MatchValue\n" +
                         " From InfoSecurity_RuleMatchField r (NOLOCK)\n" +
@@ -76,7 +76,7 @@ public class SimpleRuleGetter implements RuleGetter {
      * @return
      */
     @Override
-    public List<Map<String, Object>> getRuleField() {
+    public List<Map<String, Object>> getFieldMatchTerms() {
         return cardRiskDB.queryForList(
                 " Select r.FlowRuleID,d.ColumnName,r.MatchType,r.MatchValue\n" +
                         " From InfoSecurity_RuleMatchField r (NOLOCK)\n" +
@@ -91,7 +91,7 @@ public class SimpleRuleGetter implements RuleGetter {
      * @return
      */
     @Override
-    public List<Map<String, Object>> getCountSql() {
+    public List<Map<String, Object>> getCounterMatchTerms() {
         return cardRiskDB.queryForList(
                 " Select r.FlowRuleID,d.ColumnName as KeyColumnName, \n" +
                         " d1.ColumnName as MatchColumnName,r.MatchType,r.MatchValue,r.StatisticType,r.StartTimeLimit,r.TimeLimit,r.SqlValue\n" +

@@ -24,6 +24,7 @@ public class Processor {
     @Autowired
     private PaymentViaAccount paymentViaAccount;
     private static final long TIMEOUT = 100;
+
     public List<RiskResult> handle(final CheckFact checkEntity) {
         final List<RiskResult> listResult_w = new ArrayList<RiskResult>();
         final List<RiskResult> listResult_b = new ArrayList<RiskResult>();
@@ -33,9 +34,9 @@ public class Processor {
         /**
          * 1. 检测是否是白名单，是就直接返回，否则继续check黑名单，账户和flowrule
          */
-        for(CheckType type : checkEntity.getCheckTypes()){
-            if(type==CheckType.BW){
-                if(BWManager.checkWhite(checkEntity.getBwFact(), listResult_w)){
+        for (CheckType type : checkEntity.getCheckTypes()) {
+            if (type == CheckType.BW) {
+                if (BWManager.checkWhite(checkEntity.getBwFact(), listResult_w)) {
                     return listResult_w;
                 }
             }
@@ -47,7 +48,7 @@ public class Processor {
             public Object call() throws Exception {
                 long now = System.currentTimeMillis();
                 BWManager.checkBlack(checkEntity.getBwFact(), listResult_b);
-                logger.info("***1:"+(System.currentTimeMillis()-now));
+                logger.info("***1:" + (System.currentTimeMillis() - now));
                 return null;
             }
         });
@@ -56,8 +57,8 @@ public class Processor {
             public Object call() throws Exception {
                 long now = System.currentTimeMillis();
                 AccountFact item = checkEntity.getAccountFact();
-                paymentViaAccount.CheckBWGRule(item,mapAccount);
-                logger.info("***2:"+(System.currentTimeMillis()-now));
+                paymentViaAccount.CheckBWGRule(item, mapAccount);
+                logger.info("***2:" + (System.currentTimeMillis() - now));
                 return null;
             }
         });
@@ -67,14 +68,14 @@ public class Processor {
             public Object call() {
                 long now = System.currentTimeMillis();
                 FlowFact flowFact = checkEntity.getFlowFact();
-                FlowRuleManager.check(flowFact,listFlow);
+                FlowRuleManager.check(flowFact, listFlow);
                 logger.info("***3:" + (System.currentTimeMillis() - now));
                 return null;
             }
         });
         List<Future<Object>> futures = SimpleStaticThreadPool.invokeAll(tasks, 80, TimeUnit.MILLISECONDS);
 
-        for(Iterator<String> it=mapAccount.keySet().iterator();it.hasNext();){
+        for (Iterator<String> it = mapAccount.keySet().iterator(); it.hasNext(); ) {
             String sceneType = it.next();
             RiskResult riskResult = new RiskResult();
             listResult.add(riskResult);

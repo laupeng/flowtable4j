@@ -11,23 +11,23 @@ public interface RuleGetter {
      * 黑白名单增量更新
      * @return
      */
-    List<Map<String,Object>> bwIncrement();
+    List<Map<String,Object>> getUpdateBWRule();
 
     /**
      * 黑白名单全量更新
      * @return
      */
-    List<Map<String,Object>> bwFull();
+    List<Map<String,Object>> getAllBWRule();
 
     /**
      * 流量规则相关取数（全量）
      * @return
      */
-    List<Map<String,Object>> getRuleValue();
+    List<Map<String,Object>> getValueMatchTerms();
 
-    List<Map<String,Object>> getRuleField();
+    List<Map<String,Object>> getFieldMatchTerms();
 
-    List<Map<String,Object>> getCountSql();
+    List<Map<String,Object>> getCounterMatchTerms();
 
     List<Map<String,Object>> getFlowRuleMaster();
 }

@@ -19,19 +19,19 @@ public class SimpleProcessor4Flow implements Processor {
 
     @Override
     public void execute() {
-        getRuleFull();
+        getFullFlowRules();
     }
 
-    private void getRuleFull() {
+    private void getFullFlowRules() {
         List<Map<String, Object>> flowRuleMasters = ruleGetter.getFlowRuleMaster();
-        List<Map<String, Object>> ruleValues = ruleGetter.getRuleValue();
-        List<Map<String, Object>> ruleFields = ruleGetter.getRuleField();
-        List<Map<String, Object>> counterSqls = ruleGetter.getCountSql();
+        List<Map<String, Object>> valueTerms = ruleGetter.getValueMatchTerms();
+        List<Map<String, Object>> fieldTerms = ruleGetter.getFieldMatchTerms();
+        List<Map<String, Object>> countTerms = ruleGetter.getCounterMatchTerms();
         List<FlowRuleStatement> results = new ArrayList<FlowRuleStatement>();
 
         int p_values = -1, p_fields = -1, p_counter = -1;
         int currentRuleId = 0;
-
+        int id=0;
         for (Map<String, Object> flowRuleMaster : flowRuleMasters) {
             //FlowRuleID,RuleName,RiskLevel,OrderType,PrepayType,RuleDesc
             currentRuleId = Integer.valueOf(Objects.toString(flowRuleMaster.get("FlowRuleID"), "0"));
@@ -45,10 +45,10 @@ public class SimpleProcessor4Flow implements Processor {
             flowRuleStatement.setRuleID(currentRuleId);
             results.add(flowRuleStatement);
 
-            for (int i=p_values;i<ruleValues.size();i++) {
+            for (int i=p_values;i<valueTerms.size();i++) {
                 p_values++;
-                Map<String, Object> value = ruleValues.get(p_values);
-                int id = Integer.valueOf(Objects.toString(value.get("FlowRuleID"), "-1"));
+                Map<String, Object> value = valueTerms.get(p_values);
+                id = Integer.valueOf(Objects.toString(value.get("FlowRuleID"), "-1"));
                 if (currentRuleId == id) {      //属于当前规则的条款
                     String fieldName = Objects.toString(value.get("ColumnName"), "");
                     String op = Objects.toString(value.get("MatchType"), "");
@@ -61,10 +61,10 @@ public class SimpleProcessor4Flow implements Processor {
                 }  //比当前规则小，略过
             }
 
-            for (int i=p_fields;i<ruleFields.size();i++) {
+            for (int i=p_fields;i<fieldTerms.size();i++) {
                 p_fields++;
-                Map<String, Object> field = ruleFields.get(p_fields);
-                int id = Integer.valueOf(Objects.toString(field.get("FlowRuleID"), "-1"));
+                Map<String, Object> field = fieldTerms.get(p_fields);
+                id = Integer.valueOf(Objects.toString(field.get("FlowRuleID"), "-1"));
                 if (currentRuleId == id) {
                     String fieldName = Objects.toString(field.get("ColumnName"), "");
                     String op = Objects.toString(field.get("MatchType"), "");
@@ -77,10 +77,10 @@ public class SimpleProcessor4Flow implements Processor {
                 }
             }
 
-            for (int i=p_counter;i<counterSqls.size();i++) {
+            for (int i=p_counter;i<countTerms.size();i++) {
                 p_counter++;
-                Map<String, Object> counter = counterSqls.get(p_counter);
-                int id = Integer.valueOf(Objects.toString(counter.get("FlowRuleID"), "-1"));
+                Map<String, Object> counter = countTerms.get(p_counter);
+                id = Integer.valueOf(Objects.toString(counter.get("FlowRuleID"), "-1"));
                 if (currentRuleId == id) {
                     String fieldName = Objects.toString(counter.get("KeyColumnName"), "");
                     String op = Objects.toString(counter.get("MatchType"), "");
