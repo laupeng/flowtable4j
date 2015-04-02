@@ -102,6 +102,11 @@
             <groupId>com.ctrip.framework.clogging</groupId>
             <artifactId>clogging-domain-thrift</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.ctrip.infosec</groupId>
+            <artifactId>infosec-monitor-client</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
