@@ -86,7 +86,7 @@ public class Processor {
                 return null;
             }
         });
-        List<Future<Object>> futures = SimpleStaticThreadPool.invokeAll(tasks, 80, TimeUnit.MILLISECONDS);
+        List<Future<Object>> futures = SimpleStaticThreadPool.invokeAll(tasks, 1000, TimeUnit.MILLISECONDS);
         for (Iterator<String> it = mapAccount.keySet().iterator(); it.hasNext(); ) {
             String sceneType = it.next();
             CheckResultLog riskResult = new CheckResultLog();
