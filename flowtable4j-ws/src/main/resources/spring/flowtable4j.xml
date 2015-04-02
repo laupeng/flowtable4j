@@ -17,7 +17,8 @@
     <!-- GlobalConfig -->
     <context:property-placeholder ignore-unresolvable="true"
                                   location="classpath*:/GlobalConfig.properties" />
-	
+
+    <bean class="com.ctrip.infosec.sars.util.SpringContextHolder"></bean>
     <!-- SarsMonitor -->    
     <bean class="com.ctrip.infosec.sars.monitor.scheduler.SarsMonitorScheduler" init-method="start">
         <property name="appId" value="100000278"/>

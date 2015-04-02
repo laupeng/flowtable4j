@@ -1,6 +1,8 @@
 package com.ctrip.infosec.flowtable4j.jobws;
 
 import com.ctrip.infosec.flowtable4j.flowlist.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -16,7 +18,7 @@ import java.util.Objects;
 public class SimpleProcessor4Flow implements Processor {
     @Autowired
     private RuleGetter ruleGetter;
-
+    private Logger logger = LoggerFactory.getLogger(SimpleProcessor4Flow.class);
     @Override
     public void execute() {
         getFullFlowRules();
@@ -101,6 +103,7 @@ public class SimpleProcessor4Flow implements Processor {
             }
         }
         FlowRuleManager.addRule(results);
+        logger.info("total load active flow rules:" + results.size());
     }
 
 }
