@@ -159,6 +159,18 @@
 				<version>3.3.1</version>
 			</dependency>
 
+			<dependency>
+				<groupId>com.ctrip.framework.clogging</groupId>
+				<artifactId>clogging-domain</artifactId>
+				<version>3.0.0</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.ctrip.framework.clogging</groupId>
+				<artifactId>clogging-domain-thrift</artifactId>
+				<version>3.3.0</version>
+			</dependency>
+
 			<!-- RabbitMQ -->
 			<dependency>
 				<groupId>org.springframework.amqp</groupId>
