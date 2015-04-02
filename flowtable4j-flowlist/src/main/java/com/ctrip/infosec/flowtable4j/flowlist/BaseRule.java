@@ -34,7 +34,7 @@ public abstract class BaseRule {
      * @param results
      * @return
      */
-    public abstract boolean check(FlowFact fact, List<RiskResult> results);
+    public abstract boolean check(FlowFact fact, RiskResult results);
 
     /**
      * 按订单类型校验
@@ -44,7 +44,7 @@ public abstract class BaseRule {
      * @param results
      * @return
      */
-    public abstract boolean checkByOrderType(OrderTypeRule rules, FlowFact fact, List<RiskResult> results);
+    public abstract boolean checkByOrderType(OrderTypeRule rules, FlowFact fact, RiskResult results);
 
     /**
      * 校验适用所有订单类型的规则
@@ -53,7 +53,7 @@ public abstract class BaseRule {
      * @param results
      * @return
      */
-    protected boolean checkAllOrderTypeMap(FlowFact fact, List<RiskResult> results) {
+    protected boolean checkAllOrderTypeMap(FlowFact fact, RiskResult results) {
         try {
             return checkByOrderType(allOrderType, fact, results);
         } catch (Throwable ex) {
@@ -69,7 +69,7 @@ public abstract class BaseRule {
      * @param results
      * @return
      */
-    protected boolean checkByOrderTypeMap(FlowFact fact, List<RiskResult> results) {
+    protected boolean checkByOrderTypeMap(FlowFact fact, RiskResult results) {
         try {
             Integer orderType = fact.getOrderType();
             if (byOrderType.containsKey(orderType)) {

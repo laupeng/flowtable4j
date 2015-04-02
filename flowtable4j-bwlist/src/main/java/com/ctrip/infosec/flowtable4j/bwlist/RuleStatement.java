@@ -1,6 +1,7 @@
 package com.ctrip.infosec.flowtable4j.bwlist;
 import com.ctrip.infosec.flowtable4j.model.BWFact;
 import com.ctrip.infosec.flowtable4j.model.CheckType;
+import com.ctrip.infosec.flowtable4j.model.CheckResultLog;
 import com.ctrip.infosec.flowtable4j.model.RiskResult;
 
 import java.util.Date;
@@ -93,7 +94,7 @@ public class RuleStatement {
         this.ruleTerms = ruleTerms;
     }
 
-    public boolean check(BWFact fact, List<RiskResult> results) {
+    public boolean check(BWFact fact, RiskResult results) {
         Date now = new Date();
         boolean match = false;
 
@@ -108,7 +109,7 @@ public class RuleStatement {
                 }
             }
             if (match) {
-                RiskResult result = new RiskResult();
+                CheckResultLog result = new CheckResultLog();
                 result.setRuleID(ruleID);
                 result.setRiskLevel(riskLevel);
                 result.setRuleRemark(remark);

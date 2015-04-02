@@ -1,7 +1,7 @@
 package com.ctrip.infosec.flowtable4j.flowlist;
 import com.ctrip.infosec.flowtable4j.model.FlowFact;
+import com.ctrip.infosec.flowtable4j.model.CheckResultLog;
 import com.ctrip.infosec.flowtable4j.model.RiskResult;
-
 import java.util.List;
 
 /**
@@ -10,7 +10,7 @@ import java.util.List;
 public class WhiteRule extends BaseRule {
 
     @Override
-    public boolean check(FlowFact fact, List<RiskResult> results) {
+    public boolean check(FlowFact fact, RiskResult results) {
         if (checkByOrderTypeMap(fact, results) || checkAllOrderTypeMap(fact, results)) {
             return true;
         }
@@ -18,7 +18,7 @@ public class WhiteRule extends BaseRule {
     }
 
     @Override
-    public boolean checkByOrderType(OrderTypeRule rules, FlowFact fact, List<RiskResult> results) {
+    public boolean checkByOrderType(OrderTypeRule rules, FlowFact fact, RiskResult results) {
         List<String> prepayType = fact.getPrepayType();
         for(String s:prepayType) {
             if (rules.byPrepay.containsKey(s)) {

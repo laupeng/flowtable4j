@@ -25,23 +25,36 @@ public class Processor {
     private PaymentViaAccount paymentViaAccount;
     private static final long TIMEOUT = 100;
 
-    public List<RiskResult> handle(final CheckFact checkEntity) {
-        final List<RiskResult> listResult_w = new ArrayList<RiskResult>();
-        final List<RiskResult> listResult_b = new ArrayList<RiskResult>();
-        final List<RiskResult> listFlow = new ArrayList<RiskResult>();
-        final Map<String, Integer> mapAccount = new HashMap<String, Integer>();
-        List<RiskResult> listResult = new ArrayList<RiskResult>();
-        /**
-         * 1. 检测是否是白名单，是就直接返回，否则继续check黑名单，账户和flowrule
-         */
-        for (CheckType type : checkEntity.getCheckTypes()) {
-            if (type == CheckType.BW) {
-                if (BWManager.checkWhite(checkEntity.getBwFact(), listResult_w)) {
-                    return listResult_w;
+    public RiskResult handle(final CheckFact checkEntity) {
+        final RiskResult listResult_w = new RiskResult();
+        RiskResult listResult = new RiskResult();
+        try {
+            boolean isWhite = false;
+            /**
+             * 1. 检测是否是白名单，是就直接返回，否则继续check黑名单，账户和flowrule
+             */
+            for (CheckType type : checkEntity.getCheckTypes()) {
+                if (type == CheckType.BW) {
+                    if (BWManager.checkWhite(checkEntity.getBwFact(), listResult_w)) {
+                        listResult.merge(listResult_w);
+                        isWhite = true;
+                    }
                 }
             }
+            if (!isWhite) {
+                parallelCheck(checkEntity, listResult);
+            }
+        } catch (Throwable ex) {
+            listResult.setStatus("FAIL");
+            logger.error(ex.getMessage());
         }
+        return listResult;
+    }
 
+    private void parallelCheck(final CheckFact checkEntity, RiskResult listResult) {
+        final RiskResult listResult_b = new RiskResult();
+        final RiskResult listFlow = new RiskResult();
+        final Map<String, Integer> mapAccount = new HashMap<String, Integer>();
         List<Callable<Object>> tasks = new ArrayList<Callable<Object>>();
         tasks.add(new Callable() {
             @Override
@@ -74,18 +87,16 @@ public class Processor {
             }
         });
         List<Future<Object>> futures = SimpleStaticThreadPool.invokeAll(tasks, 80, TimeUnit.MILLISECONDS);
-
         for (Iterator<String> it = mapAccount.keySet().iterator(); it.hasNext(); ) {
             String sceneType = it.next();
-            RiskResult riskResult = new RiskResult();
-            listResult.add(riskResult);
+            CheckResultLog riskResult = new CheckResultLog();
             riskResult.setRuleType(CheckType.ACCOUNT.toString());
             riskResult.setRuleName(sceneType);
             riskResult.setRiskLevel(mapAccount.get(sceneType));
+            listResult.add(riskResult);
         }
-        listResult.addAll(listResult_b);
-        listResult.addAll(listFlow);
-        return listResult;
+        listResult.merge(listResult_b);
+        listResult.merge(listFlow);
     }
 
 }

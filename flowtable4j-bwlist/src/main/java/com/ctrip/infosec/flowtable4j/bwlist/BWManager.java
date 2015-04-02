@@ -31,7 +31,7 @@ public class BWManager {
      * @param results
      * @return
      */
-    public static boolean checkWhite(BWFact fact, List<RiskResult> results) {
+    public static boolean checkWhite(BWFact fact, RiskResult results) {
         try{
             if (whiteRule != null) {
                 return whiteRule.check(fact, results);
@@ -43,7 +43,7 @@ public class BWManager {
         return false;
     }
 
-    public static boolean checkBlack(BWFact fact, List<RiskResult> results) {
+    public static boolean checkBlack(BWFact fact, RiskResult results) {
         try{
             if (blackRule != null) {
                 return blackRule.check(fact, results);

@@ -1,12 +1,12 @@
 package com.ctrip.infosec.flowtable4j.flowlist;
 import com.ctrip.infosec.flowtable4j.model.CheckType;
 import com.ctrip.infosec.flowtable4j.model.FlowFact;
-import com.ctrip.infosec.flowtable4j.model.RiskResult;
+import com.ctrip.infosec.flowtable4j.model.CheckResultLog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Date;
 import java.util.List;
+import com.ctrip.infosec.flowtable4j.model.RiskResult;
 
 /**
  * Created by thyang on 2015/3/13 0013.
@@ -63,7 +63,7 @@ public class FlowRuleStatement {
         this.flowRuleTerms = flowRuleTerms;
     }
 
-    public boolean check(FlowFact fact, List<RiskResult> results) {
+    public boolean check(FlowFact fact, RiskResult results) {
         boolean match = false;
         try {
             if (flowRuleTerms != null && flowRuleTerms.size() > 0) {
@@ -76,7 +76,7 @@ public class FlowRuleStatement {
                 }
             }
             if (match) {
-                RiskResult result = new RiskResult();
+                CheckResultLog result = new CheckResultLog();
                 result.setRuleID(ruleID);
                 result.setRiskLevel(riskLevel);
                 result.setRuleRemark(remark);

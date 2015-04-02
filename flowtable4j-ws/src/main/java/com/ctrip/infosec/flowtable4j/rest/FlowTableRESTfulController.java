@@ -6,6 +6,7 @@
 package com.ctrip.infosec.flowtable4j.rest;
 
 import com.ctrip.infosec.flowtable4j.model.CheckFact;
+import com.ctrip.infosec.flowtable4j.model.CheckResultLog;
 import com.ctrip.infosec.flowtable4j.model.RiskResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +31,7 @@ public class FlowTableRESTfulController {
     private static Logger logger = LoggerFactory.getLogger(FlowTableRESTfulController.class);
     @RequestMapping(value = "/checkRisk")
     public @ResponseBody
-    List<RiskResult> checkRisk(@RequestBody CheckFact checkEntity) {
+    RiskResult checkRisk(@RequestBody CheckFact checkEntity) {
         return processor.handle(checkEntity);
     }
 }
