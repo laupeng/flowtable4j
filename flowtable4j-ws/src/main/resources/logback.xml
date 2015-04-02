@@ -24,8 +24,8 @@
     
     <!-- Output to central logging -->
     <appender name="CLoggingAppender" class="com.ctrip.framework.clogging.agent.appender.CLoggingAppender">
-        <appId>100000278</appId>
-        <serverIp>collector.logging.fws.qa.nt.ctripcorp.com</serverIp>
+        <appId>100000807</appId>
+        <serverIp>collector.logging.uat.qa.nt.ctripcorp.com</serverIp>
         <serverPort>63100</serverPort>
     </appender>
     

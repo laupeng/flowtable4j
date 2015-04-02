@@ -33,7 +33,7 @@ public class ParameterDeamon {
     @Qualifier("pciAccountRiskDetailDBTemplate")
     private JdbcTemplate template;
 
-    @Scheduled(fixedDelay = 10000)
+    @Scheduled(fixedDelay = 5*60*1000)
     public void startWatch() {
         String sql = "Select ParamType,CheckType,SceneType,ResultLevel,ParamValue From AccountSecurity_Param with (nolock) Where ParamType <= 2";
         List<Map<String, Object>> ips = template.queryForList(sql);

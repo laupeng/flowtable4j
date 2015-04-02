@@ -24,13 +24,14 @@
     
     <!-- Output to central logging -->
     <appender name="CLoggingAppender" class="com.ctrip.framework.clogging.agent.appender.CLoggingAppender">
-        <appId>100000278</appId>
+        <appId>100000807</appId>
         <serverIp>{$CLogging.serverIp}</serverIp>
         <serverPort>{$CLogging.serverPort}</serverPort>
     </appender>
     
     <logger name="com.ctrip.infosec.flowtable4j" additivity="false">
         <level value="INFO" />
+        <appender-ref ref="STDOUT" />
         <appender-ref ref="fileAppender" />
         <appender-ref ref="CLoggingAppender" />
     </logger>
