@@ -5,7 +5,7 @@
 
        <bean id="pciAccountRiskDetailDBDataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
               <property name="jndiName">
-                     <value>java:comp/env/jdbc/PciAccountRiskDetailDB_SELECT_1</value>
+                     <value>java:comp/env/jdbc/PciAccountRiskDetailDB_S0_R</value>
               </property>
        </bean>
 
