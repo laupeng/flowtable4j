@@ -47,8 +47,8 @@ public class SimpleProcessor4BW implements Processor {
         Iterator<Map<String,Object>> it = bwList.iterator();
         while (it.hasNext()){
              Map<String,Object> rule = it.next();
-             Integer ruleId = Integer.valueOf(rule.get("RuleID").toString());
-             term =new RuleTerm(rule.get("CheckName").toString(),rule.get("CheckType").toString(),rule.get("CheckValue").toString());
+             Integer ruleId = Integer.valueOf(Objects.toString(rule.get("RuleID"), "0"));
+             term =new RuleTerm(Objects.toString(rule.get("CheckName"), ""),Objects.toString(rule.get("CheckType"), ""),Objects.toString(rule.get("CheckValue"),""));
              if(prevId.equals(ruleId)){
                  currentRule.getRuleTerms().add(term);
              } else{
@@ -58,9 +58,9 @@ public class SimpleProcessor4BW implements Processor {
                      currentRule.setRuleID(ruleId);
                      currentRule.setEffectDate(sdf.parse(rule.get("SDate").toString()));
                      currentRule.setExpireDate(sdf.parse(rule.get("EDate").toString()));
-                     currentRule.setOrderType(Integer.valueOf(rule.get("OrderType").toString()));
-                     currentRule.setRemark(rule.get("Remark").toString());
-                     currentRule.setRiskLevel(Integer.valueOf(rule.get("RiskLevel").toString()));
+                     currentRule.setOrderType(Integer.valueOf(Objects.toString(rule.get("OrderType"), "0")));
+                     currentRule.setRemark(Objects.toString(rule.get("Remark"),""));
+                     currentRule.setRiskLevel(Integer.valueOf(Objects.toString(rule.get("RiskLevel"),"0")));
                      currentRule.getRuleTerms().add(term);
                      bwAll.add(currentRule);
                      prevId = ruleId;
@@ -90,8 +90,8 @@ public class SimpleProcessor4BW implements Processor {
         Iterator<Map<String,Object>> it = bwList.iterator();
         while (it.hasNext()){
             Map<String,Object> rule = it.next();
-            Integer ruleId = Integer.valueOf(rule.get("RuleID").toString());
-            term =new RuleTerm(rule.get("CheckName").toString(),rule.get("CheckType").toString(),rule.get("CheckValue").toString());
+            Integer ruleId = Integer.valueOf(Objects.toString(rule.get("RuleID"), "0"));
+            term =new RuleTerm(Objects.toString(rule.get("CheckName"), ""),Objects.toString(rule.get("CheckType"), ""),Objects.toString(rule.get("CheckValue"), ""));
             if(prevId.equals(ruleId)){
                 currentRule.getRuleTerms().add(term);
             } else{
@@ -101,9 +101,9 @@ public class SimpleProcessor4BW implements Processor {
                     currentRule.setRuleID(ruleId);
                     currentRule.setEffectDate(sdf.parse(rule.get("SDate").toString()));
                     currentRule.setExpireDate(sdf.parse(rule.get("EDate").toString()));
-                    currentRule.setOrderType(Integer.valueOf(rule.get("OrderType").toString()));
-                    currentRule.setRemark(rule.get("Remark").toString());
-                    currentRule.setRiskLevel(Integer.valueOf(rule.get("RiskLevel").toString()));
+                    currentRule.setOrderType(Integer.valueOf(Objects.toString(rule.get("OrderType"), "0")));
+                    currentRule.setRemark(Objects.toString(rule.get("Remark"), ""));
+                    currentRule.setRiskLevel(Integer.valueOf(Objects.toString(rule.get("RiskLevel"), "0")));
                     currentRule.getRuleTerms().add(term);
                     if("T".equals(Objects.toString(rule.get("Active"),""))){
                         bwAdd.add(currentRule);

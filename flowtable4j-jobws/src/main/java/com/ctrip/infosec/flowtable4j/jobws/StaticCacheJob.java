@@ -30,7 +30,7 @@ public class StaticCacheJob {
         try {
             processorBW.execute();
         } catch (Throwable ex) {
-            logger.error(ex.getMessage());
+            logger.error("processorBW error.",ex);
         }
         logger.info("end execute update blackWhite rule...");
     }
@@ -41,7 +41,7 @@ public class StaticCacheJob {
         try {
             processorFlow.execute();
         } catch (Throwable ex) {
-            logger.error(ex.getMessage());
+            logger.error("processorFlow error",ex);
         }
         logger.info("end execute update flow rule...");
     }

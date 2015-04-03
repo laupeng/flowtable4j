@@ -47,8 +47,7 @@ public class SimpleProcessor4Flow implements Processor {
             flowRuleStatement.setRuleID(currentRuleId);
             results.add(flowRuleStatement);
 
-            for (int i=p_values;i<valueTerms.size();i++) {
-                p_values++;
+            for (p_values++;p_values<valueTerms.size();p_values++) {
                 Map<String, Object> value = valueTerms.get(p_values);
                 id = Integer.valueOf(Objects.toString(value.get("FlowRuleID"), "-1"));
                 if (currentRuleId == id) {      //属于当前规则的条款
@@ -63,8 +62,8 @@ public class SimpleProcessor4Flow implements Processor {
                 }  //比当前规则小，略过
             }
 
-            for (int i=p_fields;i<fieldTerms.size();i++) {
-                p_fields++;
+//            for (int i=(p_fields++);i<fieldTerms.size();i++) {
+            for (p_fields++;p_fields<fieldTerms.size();p_fields++) {
                 Map<String, Object> field = fieldTerms.get(p_fields);
                 id = Integer.valueOf(Objects.toString(field.get("FlowRuleID"), "-1"));
                 if (currentRuleId == id) {
@@ -79,8 +78,8 @@ public class SimpleProcessor4Flow implements Processor {
                 }
             }
 
-            for (int i=p_counter;i<countTerms.size();i++) {
-                p_counter++;
+//            for (int i=(p_counter++);i<countTerms.size();i++) {
+            for (p_counter++;p_counter<countTerms.size();p_counter++) {
                 Map<String, Object> counter = countTerms.get(p_counter);
                 id = Integer.valueOf(Objects.toString(counter.get("FlowRuleID"), "-1"));
                 if (currentRuleId == id) {
