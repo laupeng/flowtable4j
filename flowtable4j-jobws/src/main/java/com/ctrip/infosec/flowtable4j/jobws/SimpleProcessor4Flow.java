@@ -52,7 +52,7 @@ public class SimpleProcessor4Flow implements Processor {
                 id = Integer.valueOf(Objects.toString(value.get("FlowRuleID"), "-1"));
                 if (currentRuleId == id) {      //属于当前规则的条款
                     String fieldName = Objects.toString(value.get("ColumnName"), "");
-                    String op = Objects.toString(value.get("MatchType"), "");
+                    String op = Objects.toString(value.get("MatchType"), "").toUpperCase();
                     String matchValue = Objects.toString(value.get("MatchValue"), "");
                     FlowRuleTerm valueTerm = new ValueMatchRuleTerm(fieldName, op, matchValue);
                     flowRuleStatement.getFlowRuleTerms().add(valueTerm);
@@ -68,7 +68,7 @@ public class SimpleProcessor4Flow implements Processor {
                 id = Integer.valueOf(Objects.toString(field.get("FlowRuleID"), "-1"));
                 if (currentRuleId == id) {
                     String fieldName = Objects.toString(field.get("ColumnName"), "");
-                    String op = Objects.toString(field.get("MatchType"), "");
+                    String op = Objects.toString(field.get("MatchType"), "").toUpperCase();
                     String matchValue = Objects.toString(field.get("MatchValue"), "");
                     FlowRuleTerm fieldTerm = new FieldMatchRuleTerm(fieldName, op, matchValue);
                     flowRuleStatement.getFlowRuleTerms().add(fieldTerm);
@@ -84,7 +84,7 @@ public class SimpleProcessor4Flow implements Processor {
                 id = Integer.valueOf(Objects.toString(counter.get("FlowRuleID"), "-1"));
                 if (currentRuleId == id) {
                     String fieldName = Objects.toString(counter.get("KeyColumnName"), "");
-                    String op = Objects.toString(counter.get("MatchType"), "");
+                    String op = Objects.toString(counter.get("MatchType"), "").toUpperCase();
                     String matchValue = Objects.toString(counter.get("MatchValue"), "");
                     String countType = Objects.toString(counter.get("StatisticType"), "");
                     String countField = Objects.toString(counter.get("MatchColumnName"), "");

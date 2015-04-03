@@ -86,7 +86,7 @@ public class FlowRuleStatement {
             }
         }
         catch (Throwable ex){
-            logger.warn(ex.getMessage());
+            logger.error("error",ex);
         }
         return match;
     }

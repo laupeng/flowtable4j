@@ -1,6 +1,8 @@
 package com.ctrip.infosec.flowtable4j.flowlist;
 
 import com.ctrip.infosec.flowtable4j.model.FlowFact;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.util.Map;
@@ -20,6 +22,7 @@ public abstract class FlowRuleTerm {
     private final static LLIKEComparer llOper = new LLIKEComparer();
     private final static RLIKEComparer rlOper = new RLIKEComparer();
     private final static RegXComparer rgOper = new RegXComparer();
+    private final static Logger logger = LoggerFactory.getLogger(FlowRuleTerm.class);
     protected ConditionComparer executor;
     protected String fieldName;
     private   String operator;
@@ -41,6 +44,7 @@ public abstract class FlowRuleTerm {
 
     public abstract boolean check(FlowFact fact);
 
+    //缺少FLESS,SCORE
     private void setComparer(){
         if("EQ".equals(operator) || "FEQ".equals(operator)){
             executor = eqOper;
@@ -63,7 +67,7 @@ public abstract class FlowRuleTerm {
         else if("NA".equals(operator)|| "FNA".equals(operator)){
             executor = naOper;
         }
-        else if("LT".equals(operator)||"LESS".equals(operator)||"FLT".equals(operator)){
+        else if("LT".equals(operator)||"LESS".equals(operator)||"FLT".equals(operator)||"FLESS".equals(operator)){
             executor = ltOper;
         }
         else if("LLIKE".equals(operator)){
@@ -74,6 +78,8 @@ public abstract class FlowRuleTerm {
         }
         else if("REGEX".equals(operator)){
             executor = rgOper;
+        }else{
+            logger.error("has unbind op:"+operator);
         }
     }
 

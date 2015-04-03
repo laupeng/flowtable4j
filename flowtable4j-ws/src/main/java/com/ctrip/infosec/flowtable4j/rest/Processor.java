@@ -46,7 +46,7 @@ public class Processor {
             }
         } catch (Throwable ex) {
             listResult.setStatus("FAIL");
-            logger.error(ex.getMessage());
+            logger.error("error.",ex);
         }
         return listResult;
     }
@@ -56,36 +56,42 @@ public class Processor {
         final RiskResult listFlow = new RiskResult();
         final Map<String, Integer> mapAccount = new HashMap<String, Integer>();
         List<Callable<Object>> tasks = new ArrayList<Callable<Object>>();
-        tasks.add(new Callable() {
-            @Override
-            public Object call() throws Exception {
-                long now = System.currentTimeMillis();
-                BWManager.checkBlack(checkEntity.getBwFact(), listResult_b);
-                logger.info("***1:" + (System.currentTimeMillis() - now));
-                return null;
+        CheckType[] checkTypes = checkEntity.getCheckTypes();
+        for(CheckType type : checkTypes){
+            if(CheckType.BW==type){
+                tasks.add(new Callable() {
+                    @Override
+                    public Object call() throws Exception {
+                        long now = System.currentTimeMillis();
+                        BWManager.checkBlack(checkEntity.getBwFact(), listResult_b);
+                        logger.info("***1:" + (System.currentTimeMillis() - now));
+                        return null;
+                    }
+                });
+            }else if(CheckType.ACCOUNT==type){
+                tasks.add(new Callable() {
+                    @Override
+                    public Object call() throws Exception {
+                        long now = System.currentTimeMillis();
+                        AccountFact item = checkEntity.getAccountFact();
+                        paymentViaAccount.CheckBWGRule(item, mapAccount);
+                        logger.info("***2:" + (System.currentTimeMillis() - now));
+                        return null;
+                    }
+                });
+            }else if(CheckType.FLOWRULE==type) {
+                tasks.add(new Callable() {
+                    @Override
+                    public Object call() {
+                        long now = System.currentTimeMillis();
+                        FlowFact flowFact = checkEntity.getFlowFact();
+                        FlowRuleManager.check(flowFact, listFlow);
+                        logger.info("***3:" + (System.currentTimeMillis() - now));
+                        return null;
+                    }
+                });
             }
-        });
-        tasks.add(new Callable() {
-            @Override
-            public Object call() throws Exception {
-                long now = System.currentTimeMillis();
-                AccountFact item = checkEntity.getAccountFact();
-                paymentViaAccount.CheckBWGRule(item, mapAccount);
-                logger.info("***2:" + (System.currentTimeMillis() - now));
-                return null;
-            }
-        });
-
-        tasks.add(new Callable() {
-            @Override
-            public Object call() {
-                long now = System.currentTimeMillis();
-                FlowFact flowFact = checkEntity.getFlowFact();
-                FlowRuleManager.check(flowFact, listFlow);
-                logger.info("***3:" + (System.currentTimeMillis() - now));
-                return null;
-            }
-        });
+        }
         List<Future<Object>> futures = SimpleStaticThreadPool.invokeAll(tasks, 1000, TimeUnit.MILLISECONDS);
         for (Iterator<String> it = mapAccount.keySet().iterator(); it.hasNext(); ) {
             String sceneType = it.next();
