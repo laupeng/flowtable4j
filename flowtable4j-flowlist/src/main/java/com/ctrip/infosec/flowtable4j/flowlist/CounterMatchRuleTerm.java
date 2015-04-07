@@ -2,9 +2,13 @@ package com.ctrip.infosec.flowtable4j.flowlist;
 
 import com.ctrip.infosec.flowtable4j.dal.Counter;
 import com.ctrip.infosec.flowtable4j.model.FlowFact;
+import com.google.common.base.Stopwatch;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by thyang on 2015/3/24 0024.
@@ -16,7 +20,7 @@ public class CounterMatchRuleTerm extends FlowRuleTerm {
     private Integer startOffset;
     private Integer endOffset;
     private String sqlStatement;
-
+    private static Logger logger = LoggerFactory.getLogger(CounterMatchRuleTerm.class);
     public CounterMatchRuleTerm(String fieldName, String operator, String matchValue) {
         super(fieldName, operator, matchValue);
     }
@@ -34,6 +38,7 @@ public class CounterMatchRuleTerm extends FlowRuleTerm {
 
     @Override
     public boolean check(FlowFact fact) {
+        Stopwatch stopwatch = Stopwatch.createStarted();
         boolean matched = false;
         if (prefix == null) {
             Object obj = fact.getObject(fieldName);
@@ -74,6 +79,8 @@ public class CounterMatchRuleTerm extends FlowRuleTerm {
                 }
             }
         }
+        stopwatch.stop();
+        logger.info("CounterMatch costs:"+stopwatch.elapsed(TimeUnit.MILLISECONDS)+"ms");
         return matched;
     }
 }
