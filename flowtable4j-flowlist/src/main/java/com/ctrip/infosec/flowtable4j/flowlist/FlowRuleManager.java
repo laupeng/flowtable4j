@@ -1,6 +1,7 @@
 package com.ctrip.infosec.flowtable4j.flowlist;
 
 import com.ctrip.infosec.flowtable4j.model.FlowFact;
+import com.ctrip.infosec.flowtable4j.model.CheckResultLog;
 import com.ctrip.infosec.flowtable4j.model.RiskResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +34,7 @@ public class FlowRuleManager {
      * @param results
      * @return
      */
-    private static boolean checkWhite(FlowFact fact, List<RiskResult> results) {
+    private static boolean checkWhite(FlowFact fact, RiskResult results) {
         try {
             if (whiteRule != null) {
                 return whiteRule.check(fact, results);
@@ -44,7 +45,7 @@ public class FlowRuleManager {
         return false;
     }
 
-    private static boolean checkBlack(FlowFact fact, List<RiskResult> results) {
+    private static boolean checkBlack(FlowFact fact, RiskResult results) {
         try {
             if (blackRule != null) {
                 return blackRule.check(fact, results);
@@ -62,7 +63,7 @@ public class FlowRuleManager {
      * @param results
      * @return
      */
-    public static boolean check(FlowFact fact, List<RiskResult> results) {
+    public static boolean check(FlowFact fact, RiskResult results) {
         return checkWhite(fact,results) || checkBlack(fact,results);
     }
 

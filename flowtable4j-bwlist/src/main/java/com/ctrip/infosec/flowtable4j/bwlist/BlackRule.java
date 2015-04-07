@@ -13,7 +13,7 @@ import java.util.List;
 public class BlackRule extends BaseRule {
 
     @Override
-    public boolean check(BWFact fact, List<RiskResult> results) {
+    public boolean check(BWFact fact,RiskResult results) {
         checkEQRuleByOrderType(fact, results);
         checkGlobalEQRule(fact, results);
         checkNEQRuleByOrderType(fact, results);
@@ -22,7 +22,7 @@ public class BlackRule extends BaseRule {
     }
 
     @Override
-    protected boolean checkEQRules(BWFact fact, HashMap<String, HashMap<String, List<RuleStatement>>> matchRules, List<RiskResult> results) {
+    protected boolean checkEQRules(BWFact fact, HashMap<String, HashMap<String, List<RuleStatement>>> matchRules, RiskResult results) {
         boolean matched = false;
         for (String key : matchRules.keySet()) {
             String val = fact.getString(key);
@@ -46,7 +46,7 @@ public class BlackRule extends BaseRule {
     }
 
     @Override
-    protected boolean checkNEQRules(BWFact fact, HashMap<String, List<RuleStatement>> matchRules, List<RiskResult> results) {
+    protected boolean checkNEQRules(BWFact fact, HashMap<String, List<RuleStatement>> matchRules, RiskResult results) {
         boolean matched = false;
         for (String key : matchRules.keySet()) {
             String val = fact.getString(key);

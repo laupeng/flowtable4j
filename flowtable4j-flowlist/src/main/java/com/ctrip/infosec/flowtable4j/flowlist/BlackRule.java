@@ -11,14 +11,14 @@ import java.util.List;
  */
 public class BlackRule extends BaseRule  {
     @Override
-    public boolean check(FlowFact fact, List<RiskResult> results) {
+    public boolean check(FlowFact fact, RiskResult results) {
         checkByOrderTypeMap(fact, results);
         checkAllOrderTypeMap(fact, results);
         return  true;
     }
 
     @Override
-    public boolean checkByOrderType(OrderTypeRule rules, FlowFact fact, List<RiskResult> results) {
+    public boolean checkByOrderType(OrderTypeRule rules, FlowFact fact,RiskResult results) {
         List<String> prepayType = fact.getPrepayType();
         for(String s:prepayType) {
             if (rules.byPrepay.containsKey(s)) {

@@ -87,6 +87,26 @@
             <groupId>com.fasterxml.jackson.jaxrs</groupId>
             <artifactId>jackson-jaxrs-json-provider</artifactId>
         </dependency>
+        <!-- Clogging -->
+        <dependency>
+            <groupId>com.ctrip.framework.clogging</groupId>
+            <artifactId>clogging-agent</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.ctrip.framework.clogging</groupId>
+            <artifactId>clogging-domain</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.ctrip.framework.clogging</groupId>
+            <artifactId>clogging-domain-thrift</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.ctrip.infosec</groupId>
+            <artifactId>infosec-monitor-client</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

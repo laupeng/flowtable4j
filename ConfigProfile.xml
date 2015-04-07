@@ -19,10 +19,10 @@
 		<add name="prd" target="prd" iis="ALL" net="ALL" dataCenter="ALL" />
 	</environments>
 	<!--environments节点有多少个子节点，则下文中必须出现同样数量的节点，且名称必须与上文中的name属性一致 -->
-	<dev></dev>
-	<test></test>
-	<fws></fws>
-	<fat>
+	<dev>
+		<DBDataCenter></DBDataCenter>
+		<AppID>100000807</AppID>
+		<ESBUrl>http://soa.fws.qa.nt.ctripcorp.com/SOA.ESB/Ctrip.SOA.ESB.asmx</ESBUrl>
 		<sars.monitor.rest.url>http://10.2.10.75:8080/monitorws/rest/monitor</sars.monitor.rest.url>
 		<!-- CRedis -->
 		<CRedis.serviceUrl>http://ws.config.framework.fws.qa.nt.ctripcorp.com/configws/</CRedis.serviceUrl>
@@ -31,9 +31,63 @@
 		<CLogging.serverIp>collector.logging.uat.qa.nt.ctripcorp.com</CLogging.serverIp>
 		<CLogging.serverPort>63100</CLogging.serverPort>
 		<Configs.Caches.url>http://10.2.10.76:8080/configsws/rest/loadconfig</Configs.Caches.url>
+
+	</dev>
+	<test>
+		<DBDataCenter></DBDataCenter>
+		<AppID>100000807</AppID>
+		<ESBUrl>http://soa.fws.qa.nt.ctripcorp.com/SOA.ESB/Ctrip.SOA.ESB.asmx</ESBUrl>
+		<sars.monitor.rest.url>http://10.2.10.75:8080/monitorws/rest/monitor</sars.monitor.rest.url>
+		<!-- CRedis -->
+		<CRedis.serviceUrl>http://ws.config.framework.fws.qa.nt.ctripcorp.com/configws/</CRedis.serviceUrl>
+		<CRedis.logging>true</CRedis.logging>
+		<!-- CLogging -->
+		<CLogging.serverIp>collector.logging.uat.qa.nt.ctripcorp.com</CLogging.serverIp>
+		<CLogging.serverPort>63100</CLogging.serverPort>
+		<Configs.Caches.url>http://10.2.10.76:8080/configsws/rest/loadconfig</Configs.Caches.url></test>
+	<fws>
+		<DBDataCenter></DBDataCenter>
+		<AppID>100000807</AppID>
+		<ESBUrl>http://soa.fws.qa.nt.ctripcorp.com/SOA.ESB/Ctrip.SOA.ESB.asmx</ESBUrl>
+		<sars.monitor.rest.url>http://10.2.10.75:8080/monitorws/rest/monitor</sars.monitor.rest.url>
+		<!-- CRedis -->
+		<CRedis.serviceUrl>http://ws.config.framework.fws.qa.nt.ctripcorp.com/configws/</CRedis.serviceUrl>
+		<CRedis.logging>true</CRedis.logging>
+		<!-- CLogging -->
+		<CLogging.serverIp>collector.logging.uat.qa.nt.ctripcorp.com</CLogging.serverIp>
+		<CLogging.serverPort>63100</CLogging.serverPort>
+		<Configs.Caches.url>http://10.2.10.76:8080/configsws/rest/loadconfig</Configs.Caches.url></fws>
+	<fat>
+		<DBDataCenter></DBDataCenter>
+		<AppID>100000807</AppID>
+		<ESBUrl>http://soa.fws.qa.nt.ctripcorp.com/SOA.ESB/Ctrip.SOA.ESB.asmx</ESBUrl>
+		<sars.monitor.rest.url>http://10.2.10.75:8080/monitorws/rest/monitor</sars.monitor.rest.url>
+		<!-- CRedis -->
+		<CRedis.serviceUrl>http://ws.config.framework.fws.qa.nt.ctripcorp.com/configws/</CRedis.serviceUrl>
+		<CRedis.logging>true</CRedis.logging>
+		<!-- CLogging -->
+		<CLogging.serverIp>collector.logging.uat.qa.nt.ctripcorp.com</CLogging.serverIp>
+		<CLogging.serverPort>63100</CLogging.serverPort>
+		<Configs.Caches.url>http://10.2.10.76:8080/configsws/rest/loadconfig</Configs.Caches.url>
+
 	</fat>
-	<lpt></lpt>
+	<lpt>
+		<DBDataCenter></DBDataCenter>
+		<AppID>100000807</AppID>
+		<ESBUrl>http://soa.fws.qa.nt.ctripcorp.com/SOA.ESB/Ctrip.SOA.ESB.asmx</ESBUrl>
+		<sars.monitor.rest.url>http://10.2.10.75:8080/monitorws/rest/monitor</sars.monitor.rest.url>
+		<!-- CRedis -->
+		<CRedis.serviceUrl>http://ws.config.framework.uat.qa.nt.ctripcorp.com/configws/</CRedis.serviceUrl>
+		<CRedis.logging>true</CRedis.logging>
+		<!-- CLogging -->
+		<CLogging.serverIp>collector.logging.uat.qa.nt.ctripcorp.com</CLogging.serverIp>
+		<CLogging.serverPort>63100</CLogging.serverPort>
+		<Configs.Caches.url>http://10.2.25.54:8080/configsws/rest/loadconfig</Configs.Caches.url>
+	</lpt>
 	<uat>
+		<DBDataCenter></DBDataCenter>
+		<AppID>100000807</AppID>
+		<ESBUrl>http://soa.fws.qa.nt.ctripcorp.com/SOA.ESB/Ctrip.SOA.ESB.asmx</ESBUrl>
 		<sars.monitor.rest.url>http://10.2.10.75:8080/monitorws/rest/monitor</sars.monitor.rest.url>
 		<!-- CRedis -->
 		<CRedis.serviceUrl>http://ws.config.framework.uat.qa.nt.ctripcorp.com/configws/</CRedis.serviceUrl>
@@ -43,8 +97,22 @@
 		<CLogging.serverPort>63100</CLogging.serverPort>
 		<Configs.Caches.url>http://10.2.25.54:8080/configsws/rest/loadconfig</Configs.Caches.url>
 	</uat>
-	<uat_nt></uat_nt>
+	<uat_nt>
+		<DBDataCenter></DBDataCenter>
+		<AppID>100000807</AppID>
+		<ESBUrl>http://soa.fws.qa.nt.ctripcorp.com/SOA.ESB/Ctrip.SOA.ESB.asmx</ESBUrl>
+		<sars.monitor.rest.url>http://10.2.10.75:8080/monitorws/rest/monitor</sars.monitor.rest.url>
+		<!-- CRedis -->
+		<CRedis.serviceUrl>http://ws.config.framework.uat.qa.nt.ctripcorp.com/configws/</CRedis.serviceUrl>
+		<CRedis.logging>true</CRedis.logging>
+		<!-- CLogging -->
+		<CLogging.serverIp>collector.logging.uat.qa.nt.ctripcorp.com</CLogging.serverIp>
+		<CLogging.serverPort>63100</CLogging.serverPort>
+		<Configs.Caches.url>http://10.2.25.54:8080/configsws/rest/loadconfig</Configs.Caches.url></uat_nt>
 	<prd>
+		<DBDataCenter></DBDataCenter>
+		<AppID>100000807</AppID>
+		<ESBUrl>http://soa.fws.qa.nt.ctripcorp.com/SOA.ESB/Ctrip.SOA.ESB.asmx</ESBUrl>
 		<sars.monitor.rest.url>http://10.8.85.45:8080/infosec-monitor-ws/rest/monitor</sars.monitor.rest.url>
 		<!-- CRedis -->
 		<CRedis.serviceUrl>http://ws.config.framework.ctripcorp.com/configws/</CRedis.serviceUrl>

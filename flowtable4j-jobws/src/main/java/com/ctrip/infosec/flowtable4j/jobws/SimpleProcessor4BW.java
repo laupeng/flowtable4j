@@ -22,117 +22,114 @@ public class SimpleProcessor4BW implements Processor {
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
     private Logger logger = LoggerFactory.getLogger(SimpleProcessor4BW.class);
     private Status status = Status.FIRST;
+
     @Override
     public void execute() {
         if (status == Status.FIRST) {
             //全量更新bw 规则
-            this.bwFull();
+            this.getAllBWRule();
             status = Status.NOTFIRST;
         } else {
-            this.bwIncrement();
+            this.getUpdateBWRule();
         }
     }
 
-    private void bwFull(){
-        List<Map<String,Object>> bwList = ruleGetter.bwFull();
-        Map<Integer,List<Map<String,Object>>> map = new HashMap<Integer, List<Map<String, Object>>>();
-        List<RuleStatement> bwfull = new ArrayList<RuleStatement>();
-        for(Map item : bwList){
-            Integer map_key = Integer.valueOf(Objects.toString(item.get("RuleID"),"") );
-            if(map.containsKey(map_key)){
-                map.get(map_key).add(item);
-            }else{
-                List<Map<String,Object>> map_value = new ArrayList<Map<String, Object>>();
-                map_value.add(item);
-                map.put(map_key,map_value);
-            }
+    /**
+     * 全量黑白名单，Active=’T‘
+     */
+    private void getAllBWRule(){
+        List<Map<String,Object>> bwList = ruleGetter.getAllBWRule();
+        List<RuleStatement> bwAll = new ArrayList<RuleStatement>();
+        RuleStatement currentRule=null;
+        Integer  prevId=-1;
+        RuleTerm term;
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+        Iterator<Map<String,Object>> it = bwList.iterator();
+        while (it.hasNext()){
+             Map<String,Object> rule = it.next();
+             Integer ruleId = Integer.valueOf(Objects.toString(rule.get("RuleID"), "0"));
+             term =new RuleTerm(Objects.toString(rule.get("CheckName"), ""),Objects.toString(rule.get("CheckType"), ""),Objects.toString(rule.get("CheckValue"),""));
+             if(prevId.equals(ruleId)){
+                 currentRule.getRuleTerms().add(term);
+             } else{
+                 currentRule = new RuleStatement();
+                 currentRule.setRuleTerms(new ArrayList<RuleTerm>());
+                 try {
+                     currentRule.setRuleID(ruleId);
+                     currentRule.setEffectDate(sdf.parse(rule.get("SDate").toString()));
+                     currentRule.setExpireDate(sdf.parse(rule.get("EDate").toString()));
+                     currentRule.setOrderType(Integer.valueOf(Objects.toString(rule.get("OrderType"), "0")));
+                     currentRule.setRemark(Objects.toString(rule.get("Remark"),""));
+                     currentRule.setRiskLevel(Integer.valueOf(Objects.toString(rule.get("RiskLevel"),"0")));
+                     currentRule.getRuleTerms().add(term);
+                     bwAll.add(currentRule);
+                     prevId = ruleId;
+                 }
+                 catch (ParseException ex)
+                 {
+                     logger.warn(ex.getMessage());
+                 }
+             }
         }
-        for(Iterator<Integer> it = map.keySet().iterator();it.hasNext();){
-            Integer ruleID = it.next();
-            RuleStatement ruleStatement = new RuleStatement();
-            bwfull.add(ruleStatement);
-            ruleStatement.setRuleID(ruleID);
-            List<RuleTerm> list = new ArrayList<RuleTerm>();
-            ruleStatement.setRuleTerms(list);
-            for(Map<String,Object> item : map.get(ruleID)){
-                try {
-                    ruleStatement.setEffectDate(sdf.parse(Objects.toString(item.get("Sdate"))));
-                    ruleStatement.setExpireDate(sdf.parse(Objects.toString(item.get("Edate"))));
-                } catch (ParseException e) {
-                    logger.error("",e);
-                }
-                ruleStatement.setOrderType(Integer.valueOf(Objects.toString(item.get("OrderType"))));
-                ruleStatement.setRemark(Objects.toString(item.get("Remark")));
-                ruleStatement.setRiskLevel(Integer.valueOf(Objects.toString(item.get("RiskLevel"))));
-                ruleStatement.setRuleIDName(Objects.toString(item.get("RuleIDName"),"") );
-                RuleTerm term = new RuleTerm(Objects.toString(item.get("CheckName"),""), Objects.toString(item.get("CheckType"),""), Objects.toString(item.get("CheckValue"),""));
-                list.add(term);
-            }
-        }
-        BWManager.addRule(bwfull);
+        logger.info("total load active blackWhite rules:"+bwAll.size());
+        BWManager.addRule(bwAll);
     }
 
-    private void bwIncrement(){
-        List<Map<String,Object>> bwList = ruleGetter.bwIncrement();
+    /**
+     * 增量更新黑白名单， T Add， F remove
+     */
+    private void getUpdateBWRule(){
+        List<Map<String,Object>> bwList = ruleGetter.getUpdateBWRule();
         Map<Integer,List<Map<String,Object>>> map = new HashMap<Integer, List<Map<String, Object>>>();
-        Set<RuleStatement> bwAdd = new HashSet<RuleStatement>();
-        Set<RuleStatement> bwSub = new HashSet<RuleStatement>();
-        for(Map item : bwList){
-            Integer map_key = Integer.valueOf(Objects.toString(item.get("RuleID"),""));
-            if(map.containsKey(map_key)){
-                map.get(map_key).add(item);
-            }else{
-                List<Map<String,Object>> map_value = new ArrayList<Map<String, Object>>();
-                map_value.add(item);
-                map.put(map_key,map_value);
-            }
-        }
-        for(Iterator<Integer> it = map.keySet().iterator();it.hasNext();){
-            Integer ruleID = it.next();
-            RuleStatement ruleStatement = new RuleStatement();
-            ruleStatement.setRuleID(ruleID);
-            List<RuleTerm> list = new ArrayList<RuleTerm>();
-            ruleStatement.setRuleTerms(list);
-            for(Map<String,Object> item : map.get(ruleID)){
+        List<RuleStatement> bwAdd = new ArrayList<RuleStatement>();
+        List<RuleStatement> bwSub = new ArrayList<RuleStatement>();
+        RuleStatement currentRule=null;
+        Integer  prevId=-1;
+        RuleTerm term;
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+        Iterator<Map<String,Object>> it = bwList.iterator();
+        while (it.hasNext()){
+            Map<String,Object> rule = it.next();
+            Integer ruleId = Integer.valueOf(Objects.toString(rule.get("RuleID"), "0"));
+            term =new RuleTerm(Objects.toString(rule.get("CheckName"), ""),Objects.toString(rule.get("CheckType"), ""),Objects.toString(rule.get("CheckValue"), ""));
+            if(prevId.equals(ruleId)){
+                currentRule.getRuleTerms().add(term);
+            } else{
+                currentRule = new RuleStatement();
+                currentRule.setRuleTerms(new ArrayList<RuleTerm>());
                 try {
-                    ruleStatement.setEffectDate(sdf.parse(Objects.toString(item.get("Sdate"),"")));
-                    ruleStatement.setExpireDate(sdf.parse(Objects.toString(item.get("Edate"),"")));
-                } catch (ParseException e) {
-                    logger.error("",e);
+                    currentRule.setRuleID(ruleId);
+                    currentRule.setEffectDate(sdf.parse(rule.get("SDate").toString()));
+                    currentRule.setExpireDate(sdf.parse(rule.get("EDate").toString()));
+                    currentRule.setOrderType(Integer.valueOf(Objects.toString(rule.get("OrderType"), "0")));
+                    currentRule.setRemark(Objects.toString(rule.get("Remark"), ""));
+                    currentRule.setRiskLevel(Integer.valueOf(Objects.toString(rule.get("RiskLevel"), "0")));
+                    currentRule.getRuleTerms().add(term);
+                    if("T".equals(Objects.toString(rule.get("Active"),""))){
+                        bwAdd.add(currentRule);
+                    }else{
+                        bwSub.add(currentRule);
+                    }
+                    prevId = ruleId;
                 }
-                ruleStatement.setOrderType(Integer.valueOf(Objects.toString(item.get("OrderType"),"")));
-                ruleStatement.setRemark(Objects.toString(item.get("Remark"),""));
-                ruleStatement.setRiskLevel(Integer.valueOf(Objects.toString(item.get("RiskLevel"),"")));
-                ruleStatement.setRuleIDName(Objects.toString(item.get("RuleIDName"),"") );
-                RuleTerm term = new RuleTerm(Objects.toString(item.get("CheckName"), ""), Objects.toString(item.get("CheckType"), ""), Objects.toString(item.get("CheckValue"), ""));
-                list.add(term);
-
-                if("T".equals(Objects.toString(item.get("Active"),""))){
-                    bwAdd.add(ruleStatement);
-                }else{
-                    bwSub.add(ruleStatement);
+                catch (ParseException ex)
+                {
+                    logger.warn(ex.getMessage());
                 }
             }
         }
+
         if(bwAdd.size()>0){
-            List<RuleStatement> listAdd = new ArrayList<RuleStatement>();
-            listAdd.addAll(bwAdd);
-            logger.info(">>> bwadd");
-            for(RuleStatement ruleStatement : listAdd){
-                logger.info("ruleid"+ruleStatement.getRuleID().toString());
-            }
+            logger.info(">>> add rules");
+            logger.info("total update blackWhite rules:"+bwAdd.size());
             logger.info("<<<");
-            BWManager.addRule(listAdd);
+            BWManager.addRule(bwAdd);
         }
         if(bwSub.size()>0){
-            List<RuleStatement> listSub = new ArrayList<RuleStatement>();
-            listSub.addAll(bwSub);
-            logger.info(">>> bwsub");
-            for(RuleStatement ruleStatement : listSub){
-                logger.info("ruleid"+ruleStatement.getRuleID().toString());
-            }
+            logger.info(">>> remove rules");
+            logger.info("total remove blackWhite rules:"+bwSub.size());
             logger.info("<<<");
-            BWManager.removeRule(listSub);
+            BWManager.removeRule(bwSub);
         }
     }
 

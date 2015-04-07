@@ -1,5 +1,5 @@
 package com.ctrip.infosec.flowtable4j.accountsecurity;
-import com.ctrip.flowtable4j.core.utils.SimpleStaticThreadPool;
+import com.ctrip.infosec.flowtable4j.core.utils.SimpleStaticThreadPool;
 import com.ctrip.infosec.flowtable4j.model.AccountFact;
 import com.ctrip.infosec.flowtable4j.model.AccountItem;
 import com.google.common.base.Strings;
@@ -23,8 +23,6 @@ public class PaymentViaAccount {
     private ParameterDeamon parameterDeamon;
     @Autowired
     private RedisProvider redisProvider;
-    @Autowired
-    private SimpleStaticThreadPool simpleStaticThreadPool;
     private FastDateFormat format = FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ss");
     private Logger logger = LoggerFactory.getLogger(PaymentViaAccount.class);
 
@@ -61,18 +59,13 @@ public class PaymentViaAccount {
                         keyValue.setSceneType(item.getSceneType().toUpperCase());
                         keyValue.setRuleKey(String.format("CheckType:{%s}|SceneType:{%s}|CheckValue:{%s}", chkType, scntype, item.getCheckValue()).toUpperCase());
 
-                        getRuleByKey(dic_allRules,currentDate,keyValue);
+                        getRuleByKey(dic_allRules, currentDate, keyValue);
                         return null;
                     }
                 });
             }
         }
-        List<Future<Object>> results = simpleStaticThreadPool.invokeAll(tasks, ACCOUNT_EXPIRE, TimeUnit.MILLISECONDS);
-        for(Future future:results){
-            if(!future.isDone()){
-                future.cancel(true);
-            }
-        }
+        List<Future<Object>> results = SimpleStaticThreadPool.invokeAll(tasks, ACCOUNT_EXPIRE, TimeUnit.MILLISECONDS);
         MergeRedisRules(dic_allRules, result);
         return;
     }

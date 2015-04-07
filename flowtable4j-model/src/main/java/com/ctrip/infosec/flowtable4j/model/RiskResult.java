@@ -1,57 +1,35 @@
 package com.ctrip.infosec.flowtable4j.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * Created by zhangsx on 2015/3/25.
+ * Created by thyang on 2015/4/2 0002.
  */
 public class RiskResult {
-    private String ruleType;
-    private Integer ruleID ;
-    private String ruleName;
-    private Integer riskLevel;
-    private String ruleRemark;
+    private String status="OK";
+    private List<CheckResultLog> results=new ArrayList<CheckResultLog>();
 
-    public String getRuleType() {
-        return ruleType;
+    public void add(CheckResultLog log){
+        results.add(log);
     }
 
-    public void setRuleType(String ruleType) {
-        this.ruleType = ruleType;
+    public void merge(RiskResult result){
+        if(result!=null && result.results!=null && result.results.size()>0){
+            results.addAll(result.getResults());
+        }
     }
 
-    public Integer getRuleID() {
-        return ruleID;
+    public String getStatus() {
+        return status;
     }
 
-    public void setRuleID(Integer ruleID) {
-        this.ruleID = ruleID;
+    public void setStatus(String status) {
+        this.status = status;
     }
 
-    public String getRuleName() {
-        return ruleName;
+    public List<CheckResultLog> getResults() {
+        return results;
     }
 
-    public void setRuleName(String ruleName) {
-        this.ruleName = ruleName;
-    }
-
-    public Integer getRiskLevel() {
-        return riskLevel;
-    }
-
-    public void setRiskLevel(Integer riskLevel) {
-        this.riskLevel = riskLevel;
-    }
-
-    public String getRuleRemark() {
-        return ruleRemark;
-    }
-
-    public void setRuleRemark(String ruleRemark) {
-        this.ruleRemark = ruleRemark;
-    }
-
-    public String toString()
-    {
-        return String.format("RuleID:%d, RiskLevel:%d, Remark:%s",ruleID,riskLevel,ruleRemark);
-    }
 }
