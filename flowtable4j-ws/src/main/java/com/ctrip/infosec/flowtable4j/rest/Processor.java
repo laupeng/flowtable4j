@@ -114,7 +114,7 @@ public class Processor {
     }
 
     private void saveResult(RiskResult result){
-        final String sql = "INSERT INTO dbo.InfoSecurity_CheckResult4J (ReqID, RuleType, RuleID, RuleName, RiskLevel,RuleRemark, CreateDate)" +
+        final String sql = "INSERT INTO dbo.InfoSecurity_CheckResult4j (ReqID, RuleType, RuleID, RuleName, RiskLevel,RuleRemark, CreateDate)" +
                     "VALUES (?,?,?,?,?,?,?)";
         final long reqId = result.getReqId();
         List<Callable<Object>> tasks = new ArrayList<Callable<Object>>();
@@ -127,6 +127,7 @@ public class Processor {
                 }
             });
         }
+
         SimpleStaticThreadPool.invokeAll(tasks, 1000, TimeUnit.MILLISECONDS);
     }
 }
