@@ -8,6 +8,8 @@ import com.ctrip.infosec.flowtable4j.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -23,6 +25,10 @@ public class Processor {
     private static Logger logger = LoggerFactory.getLogger(Processor.class);
     @Autowired
     private PaymentViaAccount paymentViaAccount;
+    @Autowired
+    @Qualifier("cardRiskDBTemplate")
+    private JdbcTemplate cardRiskDBTemplate;
+
     private static final long TIMEOUT = 100;
 
     public RiskResult handle(final CheckFact checkEntity) {
@@ -48,6 +54,8 @@ public class Processor {
             listResult.setStatus("FAIL");
             logger.error("error.",ex);
         }
+        //保存结果
+        saveResult(listResult);
         return listResult;
     }
 
@@ -105,4 +113,20 @@ public class Processor {
         listResult.merge(listFlow);
     }
 
+    private void saveResult(RiskResult result){
+        final String sql = "INSERT INTO dbo.InfoSecurity_CheckResult4J (ReqID, RuleType, RuleID, RuleName, RiskLevel,RuleRemark, CreateDate)" +
+                    "VALUES (?,?,?,?,?,?,?)";
+        final long reqId = result.getReqId();
+        List<Callable<Object>> tasks = new ArrayList<Callable<Object>>();
+        for(final CheckResultLog item :  result.getResults()){
+            tasks.add(new Callable() {
+                @Override
+                public Object call() throws Exception {
+                    cardRiskDBTemplate.update(sql, reqId, item.getRuleType(), item.getRuleID(), item.getRuleName(), item.getRiskLevel(), item.getRuleRemark(), new Date());
+                    return null;
+                }
+            });
+        }
+        SimpleStaticThreadPool.invokeAll(tasks, 1000, TimeUnit.MILLISECONDS);
+    }
 }
