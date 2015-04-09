@@ -121,8 +121,8 @@ public class Processor {
         for(final CheckResultLog item :  result.getResults()){
             tasks.add(new Callable() {
                 @Override
-                public Object call() throws Exception {
-                    cardRiskDBTemplate.update(sql, reqId, item.getRuleType(), item.getRuleID(), item.getRuleName(), item.getRiskLevel(), item.getRuleRemark(), new Date());
+                public Object call() {
+                    cardRiskDBTemplate.update(sql, reqId, item.getRuleType(), item.getRuleID(), Objects.toString(item.getRuleName(),""), item.getRiskLevel(), Objects.toString(item.getRuleRemark(),""), new Date());
                     return null;
                 }
             });
