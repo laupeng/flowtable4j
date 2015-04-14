@@ -65,7 +65,11 @@ public class PaymentViaAccount {
                 });
             }
         }
-        List<Future<Object>> results = SimpleStaticThreadPool.invokeAll(tasks, ACCOUNT_EXPIRE, TimeUnit.MILLISECONDS);
+        try {
+            SimpleStaticThreadPool.getInstance().invokeAll(tasks, ACCOUNT_EXPIRE, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            logger.error("InterruptedException.",e);
+        }
         MergeRedisRules(dic_allRules, result);
         return;
     }
