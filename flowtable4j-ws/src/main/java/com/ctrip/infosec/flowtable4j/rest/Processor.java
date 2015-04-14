@@ -26,7 +26,7 @@ public class Processor {
     @Autowired
     private PaymentViaAccount paymentViaAccount;
     @Autowired
-    @Qualifier("cardRiskDBTemplate")
+    @Qualifier("cardRiskDBInsertTemplate")
     private JdbcTemplate cardRiskDBTemplate;
 
     private static final long DBTIMEOUT = 1000;
