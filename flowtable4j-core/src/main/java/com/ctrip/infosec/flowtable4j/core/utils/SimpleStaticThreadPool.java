@@ -58,7 +58,7 @@ public class SimpleStaticThreadPool {
             try {
                 f.get();
             } catch (InterruptedException e) {
-                logger.error("线程池中发现异常，被中断", e);
+                logger.error("线程池中发现异常，被中断 ,InterruptedException");
             } catch (ExecutionException e) {
                 logger.error("线程池中发现异常，被中断", e);
             }

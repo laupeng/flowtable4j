@@ -151,7 +151,7 @@ public class Processor {
                     return null;
                 }
             });
-            SimpleStaticThreadPool.invokeAll(tasks, DBTIMEOUT, TimeUnit.MILLISECONDS);
+//            SimpleStaticThreadPool.invokeAll(tasks, DBTIMEOUT, TimeUnit.MILLISECONDS);
         }
     }
 }
