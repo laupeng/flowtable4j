@@ -111,15 +111,22 @@ public abstract class FlowRuleTerm {
  */
 abstract class ConditionComparer {
     public abstract boolean match(String fieldValue,String matchValue);
+
 }
 
 class EQComparer extends ConditionComparer {
     @Override
     public boolean match(String fieldValue, String matchValue) {
+
         if(fieldValue!=null && matchValue!=null){
             return  fieldValue.equalsIgnoreCase(matchValue);
         }
         return false;
+    }
+
+    @Override
+    public String toString() {
+        return "EQComparer{}";
     }
 }
 
@@ -130,6 +137,11 @@ class NEComparer extends ConditionComparer {
             return  !fieldValue.equalsIgnoreCase(matchValue);
         }
         return false;
+    }
+
+    @Override
+    public String toString() {
+        return "NEComparer{}";
     }
 }
 
@@ -143,6 +155,11 @@ class GEComparer extends ConditionComparer {
         }
         return false;
     }
+
+    @Override
+    public String toString() {
+        return "GEComparer{}";
+    }
 }
 
 class INComparer extends ConditionComparer {
@@ -152,6 +169,11 @@ class INComparer extends ConditionComparer {
             return  fieldValue.contains(matchValue);
         }
         return false;
+    }
+
+    @Override
+    public String toString() {
+        return "INComparer{}";
     }
 }
 
@@ -165,6 +187,11 @@ class LEComparer extends ConditionComparer {
         }
         return false;
     }
+
+    @Override
+    public String toString() {
+        return "LEComparer{}";
+    }
 }
 
 class LLIKEComparer extends ConditionComparer {
@@ -175,6 +202,11 @@ class LLIKEComparer extends ConditionComparer {
         }
         return false;
     }
+
+    @Override
+    public String toString() {
+        return "LLIKEComparer{}";
+    }
 }
 
 class RLIKEComparer extends ConditionComparer {
@@ -184,6 +216,11 @@ class RLIKEComparer extends ConditionComparer {
             return  fieldValue.endsWith(matchValue);
         }
         return false;
+    }
+
+    @Override
+    public String toString() {
+        return "RLIKEComparer{}";
     }
 }
 
@@ -197,6 +234,11 @@ class GTComparer extends ConditionComparer {
         }
         return false;
     }
+
+    @Override
+    public String toString() {
+        return "GTComparer{}";
+    }
 }
 
 class LTComparer extends ConditionComparer {
@@ -209,6 +251,11 @@ class LTComparer extends ConditionComparer {
         }
         return false;
     }
+
+    @Override
+    public String toString() {
+        return "LTComparer{}";
+    }
 }
 
 class NAComparer extends ConditionComparer {
@@ -219,6 +266,11 @@ class NAComparer extends ConditionComparer {
         }
         return false;
     }
+
+    @Override
+    public String toString() {
+        return "NAComparer{}";
+    }
 }
 
 class RegXComparer extends ConditionComparer {
@@ -228,5 +280,10 @@ class RegXComparer extends ConditionComparer {
             return  fieldValue.matches(matchValue);
         }
         return false;
+    }
+
+    @Override
+    public String toString() {
+        return "RegXComparer{}";
     }
 }

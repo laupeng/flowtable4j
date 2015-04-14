@@ -124,6 +124,7 @@ public class Processor {
                 @Override
                 public Object call() {
                     cardRiskDBTemplate.update(sql, reqId, item.getRuleType(), item.getRuleID(), Objects.toString(item.getRuleName(), ""), item.getRiskLevel(), Objects.toString(item.getRuleRemark(), ""), new Date());
+                    cardRiskDBTemplate.execute("spA_InfoSecurity_CheckResult4j_i");
                     return null;
                 }
             });

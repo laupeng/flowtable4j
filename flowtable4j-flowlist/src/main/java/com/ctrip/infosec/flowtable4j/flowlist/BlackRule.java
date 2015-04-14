@@ -23,7 +23,9 @@ public class BlackRule extends BaseRule  {
         for(String s:prepayType) {
             if (rules.byPrepay.containsKey(s)) {
                 for (FlowRuleStatement rule : rules.byPrepay.get(s)) {
+                    logger.debug("#######ruleId:"+rule.getRuleID()+" start check#######");
                     rule.check(fact, results);
+                    logger.debug("#######ruleId:"+rule.getRuleID()+" end check#######");
                 }
             }
         }

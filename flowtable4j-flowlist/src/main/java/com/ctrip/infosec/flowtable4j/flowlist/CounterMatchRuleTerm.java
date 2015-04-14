@@ -45,11 +45,14 @@ public class CounterMatchRuleTerm extends FlowRuleTerm {
             if (obj != null) {
                 String key = String.format("%s|(%d,%d)|%s", sqlStatement, startOffset, endOffset, obj);
                 if (fact.requestCache.containsKey(key)) {
+                    logger.debug("[whereField:"+fieldName+",sqlStatement:"+sqlStatement+"][op:"+executor.toString()+"][matchValue:"+matchValue+"]");
                     matched = executor.match(fact.requestCache.get(key), matchValue);
                 } else {
                     String count = Counter.getCounter(countType, sqlStatement, fieldName, startOffset,
                             endOffset, fact.getObject(countField), obj);
                     fact.requestCache.put(key, count);
+                    logger.debug( "[whereField:" + fieldName + ",sqlStatement:" + sqlStatement + "][op:" + executor.toString() + "][matchFieldValue:" +
+                            fact.getObject(countField)+"][whereFieldValue:"+obj+"]");
                     matched = executor.match(count, matchValue);
                 }
             }
