@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 
 import java.sql.*;
 import java.sql.Date;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
@@ -123,9 +124,37 @@ public class Processor {
         final long reqId = result.getReqId();
         List<Callable<Object>> tasks = new ArrayList<Callable<Object>>();
         for (final CheckResultLog item : result.getResults()) {
-            tasks.add(new Callable() {
+//            tasks.add(new Callable() {
+//                @Override
+//                public Object call() {
+//                    cardRiskDBTemplate.execute(
+//                            new CallableStatementCreator() {
+//                                public CallableStatement createCallableStatement(Connection con) throws SQLException {
+//                                    String storedProc = "{call spA_InfoSecurity_CheckResult4j_i ( ?,?,?,?,?,?,?,?)}";// 调用的sql
+//                                    CallableStatement cs = con.prepareCall(storedProc);
+//                                    cs.setLong(2, reqId);
+//                                    cs.setString(3, item.getRuleType());
+//                                    cs.setInt(4, item.getRuleID());
+//                                    cs.setString(5, Objects.toString(item.getRuleName(), ""));
+//                                    cs.setInt(6, item.getRiskLevel());
+//                                    cs.setString(7, Objects.toString(item.getRuleRemark(), ""));
+//                                    cs.setDate(8, new Date(System.currentTimeMillis()));
+//
+//                                    cs.registerOutParameter(1, Types.BIGINT);// 注册输出参数的类型
+//                                    return cs;
+//                                }
+//                            }, new CallableStatementCallback() {
+//                                public Object doInCallableStatement(CallableStatement cs) throws SQLException, DataAccessException {
+//                                    cs.execute();
+//                                    return null;
+//                                }
+//                            });
+//                    return null;
+//                }
+//            });
+            SimpleStaticThreadPool.submit(new Runnable() {
                 @Override
-                public Object call() {
+                public void run() {
                     cardRiskDBTemplate.execute(
                             new CallableStatementCreator() {
                                 public CallableStatement createCallableStatement(Connection con) throws SQLException {
@@ -148,10 +177,9 @@ public class Processor {
                                     return null;
                                 }
                             });
-                    return null;
                 }
             });
-//            SimpleStaticThreadPool.invokeAll(tasks, DBTIMEOUT, TimeUnit.MILLISECONDS);
         }
+//        SimpleStaticThreadPool.invokeAll(tasks, DBTIMEOUT, TimeUnit.MILLISECONDS);
     }
 }

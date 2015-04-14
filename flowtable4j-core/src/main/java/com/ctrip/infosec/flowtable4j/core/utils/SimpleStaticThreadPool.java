@@ -26,6 +26,19 @@ public class SimpleStaticThreadPool {
     }
 
 
+    public static <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks) {
+        try {
+            return excutor.invokeAll(tasks);
+        } catch (InterruptedException e) {
+            logger.error("i am interrupted", e);
+            return new ArrayList<Future<T>>();
+        }
+    }
+
+    public static Future<?> submit(Runnable r){
+        return excutor.submit(r);
+    }
+
     public static void shutdown() {
         excutor.shutdown();
     }
