@@ -29,30 +29,26 @@ public class Processor {
     @Qualifier("cardRiskDBTemplate")
     private JdbcTemplate cardRiskDBTemplate;
 
-    private static final long TIMEOUT = 100;
+    private static final long DBTIMEOUT = 1000;
+    private static final long FLOWTIMEOUT = 1000;
 
     public RiskResult handle(final CheckFact checkEntity) {
         final RiskResult listResult_w = new RiskResult();
-        RiskResult listResult = new RiskResult();
-        try {
-            boolean isWhite = false;
-            /**
-             * 1. 检测是否是白名单，是就直接返回，否则继续check黑名单，账户和flowrule
-             */
-            for (CheckType type : checkEntity.getCheckTypes()) {
-                if (type == CheckType.BW) {
-                    if (BWManager.checkWhite(checkEntity.getBwFact(), listResult_w)) {
-                        listResult.merge(listResult_w);
-                        isWhite = true;
-                    }
+        final RiskResult listResult = new RiskResult();
+        boolean isWhite = false;
+        /**
+         * 1. 检测是否是白名单，是就直接返回，否则继续check黑名单，账户和flowrule
+         */
+        for (CheckType type : checkEntity.getCheckTypes()) {
+            if (type == CheckType.BW) {
+                if (BWManager.checkWhite(checkEntity.getBwFact(), listResult_w)) {
+                    listResult.merge(listResult_w);
+                    isWhite = true;
                 }
             }
-            if (!isWhite) {
-                parallelCheck(checkEntity, listResult);
-            }
-        } catch (Throwable ex) {
-            listResult.setStatus("FAIL");
-            logger.error("error.",ex);
+        }
+        if (!isWhite) {
+            parallelCheck(checkEntity, listResult);
         }
         //保存结果
         saveResult(listResult);
@@ -65,8 +61,8 @@ public class Processor {
         final Map<String, Integer> mapAccount = new HashMap<String, Integer>();
         List<Callable<Object>> tasks = new ArrayList<Callable<Object>>();
         CheckType[] checkTypes = checkEntity.getCheckTypes();
-        for(CheckType type : checkTypes){
-            if(CheckType.BW==type){
+        for (CheckType type : checkTypes) {
+            if (CheckType.BW == type) {
                 tasks.add(new Callable() {
                     @Override
                     public Object call() throws Exception {
@@ -76,7 +72,7 @@ public class Processor {
                         return null;
                     }
                 });
-            }else if(CheckType.ACCOUNT==type){
+            } else if (CheckType.ACCOUNT == type) {
                 tasks.add(new Callable() {
                     @Override
                     public Object call() throws Exception {
@@ -87,7 +83,7 @@ public class Processor {
                         return null;
                     }
                 });
-            }else if(CheckType.FLOWRULE==type) {
+            } else if (CheckType.FLOWRULE == type) {
                 tasks.add(new Callable() {
                     @Override
                     public Object call() {
@@ -100,7 +96,12 @@ public class Processor {
                 });
             }
         }
-        List<Future<Object>> futures = SimpleStaticThreadPool.invokeAll(tasks, 1000, TimeUnit.MILLISECONDS);
+        for (Future future : SimpleStaticThreadPool.invokeAll(tasks, FLOWTIMEOUT, TimeUnit.MILLISECONDS)) {
+            if (future.isCancelled()) {
+                listResult.setStatus("TIMEOUT");
+                logger.warn("rule execute timeout [" + FLOWTIMEOUT + "ms]");
+            }
+        }
         for (Iterator<String> it = mapAccount.keySet().iterator(); it.hasNext(); ) {
             String sceneType = it.next();
             CheckResultLog riskResult = new CheckResultLog();
@@ -113,21 +114,25 @@ public class Processor {
         listResult.merge(listFlow);
     }
 
-    private void saveResult(RiskResult result){
+    private void saveResult(RiskResult result) {
         final String sql = "INSERT INTO dbo.InfoSecurity_CheckResult4j (ReqID, RuleType, RuleID, RuleName, RiskLevel,RuleRemark, CreateDate)" +
-                    "VALUES (?,?,?,?,?,?,?)";
+                "VALUES (?,?,?,?,?,?,?)";
         final long reqId = result.getReqId();
         List<Callable<Object>> tasks = new ArrayList<Callable<Object>>();
-        for(final CheckResultLog item :  result.getResults()){
+        for (final CheckResultLog item : result.getResults()) {
             tasks.add(new Callable() {
                 @Override
                 public Object call() {
-                    cardRiskDBTemplate.update(sql, reqId, item.getRuleType(), item.getRuleID(), Objects.toString(item.getRuleName(),""), item.getRiskLevel(), Objects.toString(item.getRuleRemark(),""), new Date());
+                    cardRiskDBTemplate.update(sql, reqId, item.getRuleType(), item.getRuleID(), Objects.toString(item.getRuleName(), ""), item.getRiskLevel(), Objects.toString(item.getRuleRemark(), ""), new Date());
                     return null;
                 }
             });
         }
 
-        SimpleStaticThreadPool.invokeAll(tasks, 1000, TimeUnit.MILLISECONDS);
+        for (Future future : SimpleStaticThreadPool.invokeAll(tasks, DBTIMEOUT, TimeUnit.MILLISECONDS)) {
+            if (future.isCancelled()) {
+                logger.warn("dbsave timeout [" + DBTIMEOUT + "ms]");
+            }
+        }
     }
 }
