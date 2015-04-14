@@ -151,11 +151,7 @@ public class Processor {
                     return null;
                 }
             });
-            for (Future future : SimpleStaticThreadPool.invokeAll(tasks, DBTIMEOUT, TimeUnit.MILLISECONDS)) {
-                if (future.isCancelled()) {
-                    logger.warn("dbsave timeout [" + DBTIMEOUT + "ms]");
-                }
-            }
+            SimpleStaticThreadPool.invokeAll(tasks, DBTIMEOUT, TimeUnit.MILLISECONDS);
         }
     }
 }
