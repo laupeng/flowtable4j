@@ -9,9 +9,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.*;
 import org.springframework.stereotype.Component;
 
+import java.sql.*;
+import java.sql.Date;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
@@ -123,16 +126,35 @@ public class Processor {
             tasks.add(new Callable() {
                 @Override
                 public Object call() {
-                    cardRiskDBTemplate.update(sql, reqId, item.getRuleType(), item.getRuleID(), Objects.toString(item.getRuleName(), ""), item.getRiskLevel(), Objects.toString(item.getRuleRemark(), ""), new Date());
-                    cardRiskDBTemplate.execute("spA_InfoSecurity_CheckResult4j_i");
+                    cardRiskDBTemplate.execute(
+                            new CallableStatementCreator() {
+                                public CallableStatement createCallableStatement(Connection con) throws SQLException {
+                                    String storedProc = "{call spA_InfoSecurity_CheckResult4j_i ( ?,?,?,?,?,?,?,?)}";// 调用的sql
+                                    CallableStatement cs = con.prepareCall(storedProc);
+                                    cs.setLong(2, reqId);
+                                    cs.setString(3, item.getRuleType());
+                                    cs.setInt(4, item.getRuleID());
+                                    cs.setString(5, Objects.toString(item.getRuleName(), ""));
+                                    cs.setInt(6, item.getRiskLevel());
+                                    cs.setString(7, Objects.toString(item.getRuleRemark(), ""));
+                                    cs.setDate(8, new Date(System.currentTimeMillis()));
+
+                                    cs.registerOutParameter(1, Types.BIGINT);// 注册输出参数的类型
+                                    return cs;
+                                }
+                            }, new CallableStatementCallback() {
+                                public Object doInCallableStatement(CallableStatement cs) throws SQLException, DataAccessException {
+                                    cs.execute();
+                                    return null;
+                                }
+                            });
                     return null;
                 }
             });
-        }
-
-        for (Future future : SimpleStaticThreadPool.invokeAll(tasks, DBTIMEOUT, TimeUnit.MILLISECONDS)) {
-            if (future.isCancelled()) {
-                logger.warn("dbsave timeout [" + DBTIMEOUT + "ms]");
+            for (Future future : SimpleStaticThreadPool.invokeAll(tasks, DBTIMEOUT, TimeUnit.MILLISECONDS)) {
+                if (future.isCancelled()) {
+                    logger.warn("dbsave timeout [" + DBTIMEOUT + "ms]");
+                }
             }
         }
     }
