@@ -98,8 +98,7 @@ class INComparer extends ConditionComparer {
     @Override
     public boolean match(String fieldValue, String matchValue) {
         if(fieldValue!=null && matchValue!=null){
-//            return  fieldValue.contains(matchValue);
-            return  matchValue.contains(fieldValue);
+            return  matchValue.contains(fieldValue) || fieldValue.contains(matchValue);
         }
         return false;
     }
