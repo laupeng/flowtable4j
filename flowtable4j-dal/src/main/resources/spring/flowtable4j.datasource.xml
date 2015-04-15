@@ -5,9 +5,12 @@
        xmlns:task="http://www.springframework.org/schema/task"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
 
+       <!-- GlobalConfig -->
+       <context:property-placeholder ignore-unresolvable="true"
+                                     location="classpath*:/GlobalConfig.properties" />
        <bean id="riskCtrlPreProcDBDataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
               <property name="jndiName">
-                     <value>java:comp/env/jdbc/RiskCtrlPreProcDB_SELECT_1</value>
+                     <value>java:comp/env/jdbc/RiskCtrlPreProcDB_SELECT_1${DBDataCenter}</value>
               </property>
        </bean>
 
