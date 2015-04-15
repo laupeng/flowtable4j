@@ -11,7 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by zhangsx on 2015/3/17.
@@ -42,9 +44,10 @@ public class PaymentViaAccount {
 
         //多线程取Redis规则
         final ConcurrentHashMap<String, List<RedisStoreItem>> dic_allRules = new ConcurrentHashMap<String, List<RedisStoreItem>>();
+
         //按Key取SortedSet Rules并发取规则
         for (final AccountItem item : fact.getCheckItems()) {
-
+            //参数为空，略过
             if (Strings.isNullOrEmpty(item.getCheckType().trim()) || Strings.isNullOrEmpty(item.getSceneType().trim()) ||
                     Strings.isNullOrEmpty(item.getCheckValue().trim())) {
                 continue;
@@ -53,16 +56,15 @@ public class PaymentViaAccount {
             result.put(item.getSceneType().toUpperCase(), 0);
 
             final int chkType = parameterDeamon.getCheckType(item.getCheckType());
-            final int scntype = parameterDeamon.getSceneType(item.getSceneType());
+            final int sceneType = parameterDeamon.getSceneType(item.getSceneType());
 
-            if (chkType > 0 && scntype > 0) {
+            if (chkType > 0 && sceneType > 0) {
                 tasks.add(new Callable<Object>() {
                     @Override
                     public Object call() throws Exception {
                         KeyValue keyValue = new KeyValue();
                         keyValue.setSceneType(item.getSceneType().toUpperCase());
-                        keyValue.setRuleKey(String.format("CheckType:{%s}|SceneType:{%s}|CheckValue:{%s}", chkType, scntype, item.getCheckValue()).toUpperCase());
-
+                        keyValue.setRuleKey(String.format("CheckType:{%s}|SceneType:{%s}|CheckValue:{%s}", chkType, sceneType, item.getCheckValue()).toUpperCase());
                         getRuleByKey(dic_allRules, currentDate, keyValue);
                         return null;
                     }
@@ -72,10 +74,9 @@ public class PaymentViaAccount {
         try {
             SimpleStaticThreadPool.getInstance().invokeAll(tasks, ACCOUNT_EXPIRE, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
-            logger.error("InterruptedException.",e);
+            logger.error("InterruptedException.", e);
         }
         MergeRedisRules(dic_allRules, result);
-        return;
     }
 
     /**
@@ -84,7 +85,7 @@ public class PaymentViaAccount {
      * @param dic_allRules
      * @param response
      */
-    private void MergeRedisRules(Map<String, List<RedisStoreItem>> dic_allRules, Map<String, Integer> response) {
+    public void MergeRedisRules(Map<String, List<RedisStoreItem>> dic_allRules, Map<String, Integer> response) {
         /**
          * 所有有效黑白名单
          */
@@ -142,14 +143,16 @@ public class PaymentViaAccount {
         if (ruleInfo instanceof KeyValue) {
             KeyValue val = (KeyValue) ruleInfo;
             List<RedisStoreItem> redisStoreItems = redisProvider.GetBWGFromRedis(val.getRuleKey());
-            if (redisStoreItems != null && redisStoreItems.size()>0) {
+            if (redisStoreItems != null && redisStoreItems.size() > 0) {
                 for (int i = redisStoreItems.size() - 1; i >= 0; i--) {
                     RedisStoreItem item = redisStoreItems.get(i);
                     if (item.getEffectDate().compareTo(currentDate) > 0 || currentDate.compareTo(item.getExpiryDate()) > 0) {
                         redisStoreItems.remove(i);
                     }
                 }
-                dic_allRules.put(val.getRuleKey(), redisStoreItems);
+                if (redisStoreItems.size() > 0){
+                    dic_allRules.put(val.getRuleKey(), redisStoreItems);
+                }
             }
         }
     }

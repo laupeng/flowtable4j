@@ -5,8 +5,13 @@ package com.ctrip.infosec.flowtable4j.accountsecurity;
  */
 public class RedisStoreItem {
     private String SourceID;
-
     private int ResultLevel;
+    private String EffectDate;
+    private String ExpiryDate;
+    private String RuleRemark;
+    private String CreateDate;
+    private String LastDate;
+    private String SceneType;
 
     public String getSourceID() {
         return SourceID;
@@ -72,15 +77,5 @@ public class RedisStoreItem {
         SceneType = sceneType;
     }
 
-    private String EffectDate;
 
-    private String ExpiryDate;
-
-    private String RuleRemark;
-
-    private String CreateDate;
-
-    private String LastDate;
-
-    private String SceneType;
 }

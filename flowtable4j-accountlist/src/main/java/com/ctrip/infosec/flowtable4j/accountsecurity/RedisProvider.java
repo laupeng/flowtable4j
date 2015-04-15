@@ -31,9 +31,9 @@ public class RedisProvider {
     public List<RedisStoreItem> GetBWGFromRedis(String key) {
         List<RedisStoreItem> listOfResult = new ArrayList<RedisStoreItem>();
         if (cache != null) {
-            Set<String> set = cache.zrange(key, 0, -1);
-            if (set != null) {
-                for (String str : set) {
+            Set<String> rules = cache.zrange(key, 0, -1);
+            if (rules != null) {
+                for (String str : rules) {
                     RedisStoreItem item = mapper.fromJson(str, RedisStoreItem.class);
                     listOfResult.add(item);
                 }
