@@ -32,9 +32,9 @@ public class Counter {
         paramMap.put("TimeLimit", new Date(nowMillis + toOffset * 60 * 1000));
         Stopwatch stopwatch = Stopwatch.createStarted();
 
-        if ("COUNT".equals(countType)) {
-            sqlStatement = "select top 1000 " + sqlStatement.substring(7);
-        }
+//        if ("COUNT".equals(countType)) {
+//            sqlStatement = "select top 1000 " + sqlStatement.substring(7);
+//        }
 
         List<Map<String, Object>> results = namedParameterJdbcTemplate.queryForList(sqlStatement, paramMap);
         stopwatch.stop();
