@@ -54,6 +54,7 @@ public class Processor {
         if (!isWhite) {
             parallelCheck(checkEntity, listResult);
         }
+        listResult.setReqId(checkEntity.getReqId());
         //保存结果
         saveResult(listResult);
         return listResult;
