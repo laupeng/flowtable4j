@@ -38,6 +38,9 @@ public class CounterMatchRuleTerm extends FlowRuleTerm {
 
     @Override
     public boolean check(FlowFact fact) {
+        if(executor == null){
+            return false;
+        }
         Stopwatch stopwatch = Stopwatch.createStarted();
         boolean matched = false;
         if (prefix == null) {

@@ -20,6 +20,9 @@ public class FieldMatchRuleTerm extends FlowRuleTerm {
 
     @Override
     public boolean check(FlowFact fact) {
+        if(executor == null){
+            return false;
+        }
         boolean matched = false;
         if (prefix == null) {
 //            matched = executor.match(fact.getString(fieldName), fact.getString(matchField));

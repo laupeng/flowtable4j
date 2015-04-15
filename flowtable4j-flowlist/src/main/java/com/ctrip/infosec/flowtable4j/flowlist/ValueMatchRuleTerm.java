@@ -21,6 +21,9 @@ public class ValueMatchRuleTerm extends FlowRuleTerm {
 
     @Override
     public boolean check(FlowFact fact) {
+        if(executor == null){
+            return false;
+        }
         boolean matched = false;
         if (prefix == null) {
             String fn = fact.getString(fieldName);

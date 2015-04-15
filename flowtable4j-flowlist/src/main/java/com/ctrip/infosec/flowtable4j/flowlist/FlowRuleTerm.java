@@ -78,8 +78,6 @@ public abstract class FlowRuleTerm {
         }
         else if("REGEX".equals(operator)){
             executor = rgOper;
-        }else{
-            logger.error("has unbind op:"+operator);
         }
     }
 
@@ -111,7 +109,6 @@ public abstract class FlowRuleTerm {
  */
 abstract class ConditionComparer {
     public abstract boolean match(String fieldValue,String matchValue);
-
 }
 
 class EQComparer extends ConditionComparer {
