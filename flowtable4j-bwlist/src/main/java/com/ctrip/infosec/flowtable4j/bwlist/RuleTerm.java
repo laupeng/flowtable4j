@@ -40,6 +40,9 @@ public class RuleTerm {
     }
 
     public boolean check(BWFact fact){
+        if(executor==null){
+            return false;
+        }
         return executor.match(fact.getString(getFieldName()), getMatchValue());
     }
 
