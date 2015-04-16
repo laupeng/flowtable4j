@@ -6,6 +6,8 @@ import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by thyang on 2015/3/13 0013.
@@ -274,7 +276,8 @@ class RegXComparer extends ConditionComparer {
     @Override
     public boolean match(String fieldValue, String matchValue) {
         if(fieldValue!=null && matchValue!=null){
-            return  fieldValue.matches(matchValue);
+            Pattern p = Pattern.compile(matchValue,Pattern.CASE_INSENSITIVE);
+            return  p.matcher(fieldValue).find();
         }
         return false;
     }
