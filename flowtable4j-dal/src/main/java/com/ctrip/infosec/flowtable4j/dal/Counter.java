@@ -28,8 +28,8 @@ public class Counter {
         sqlStatement = sqlStatement.replace('@', ':');
         long nowMillis = System.currentTimeMillis();
         paramMap.put(whereField, whereFieldValue);
-        paramMap.put("StartTimeLimit", new Date(nowMillis + fromOffset * 60 * 1000));
-        paramMap.put("TimeLimit", new Date(nowMillis + toOffset * 60 * 1000));
+        paramMap.put("StartTimeLimit", new Date(nowMillis + (long)fromOffset * 60 * 1000));
+        paramMap.put("TimeLimit", new Date(nowMillis + (long)toOffset * 60 * 1000));
         Stopwatch stopwatch = Stopwatch.createStarted();
 
 //        if ("COUNT".equals(countType)) {
