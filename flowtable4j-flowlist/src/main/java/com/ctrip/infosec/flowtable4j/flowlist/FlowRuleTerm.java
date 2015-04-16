@@ -165,6 +165,8 @@ class INComparer extends ConditionComparer {
     @Override
     public boolean match(String fieldValue, String matchValue) {
         if(fieldValue!=null && matchValue!=null){
+            fieldValue= fieldValue.toLowerCase();
+            matchValue = matchValue.toLowerCase();
             return  matchValue.contains(fieldValue) || fieldValue.contains(matchValue);
         }
         return false;
@@ -197,6 +199,8 @@ class LLIKEComparer extends ConditionComparer {
     @Override
     public boolean match(String fieldValue, String matchValue) {
         if(fieldValue!=null && matchValue!=null){
+            fieldValue= fieldValue.toLowerCase();
+            matchValue = matchValue.toLowerCase();
             return  fieldValue.startsWith(matchValue);
         }
         return false;
@@ -212,6 +216,8 @@ class RLIKEComparer extends ConditionComparer {
     @Override
     public boolean match(String fieldValue, String matchValue) {
         if(fieldValue!=null && matchValue!=null){
+            fieldValue= fieldValue.toLowerCase();
+            matchValue = matchValue.toLowerCase();
             return  fieldValue.endsWith(matchValue);
         }
         return false;
@@ -261,7 +267,9 @@ class NAComparer extends ConditionComparer {
     @Override
     public boolean match(String fieldValue, String matchValue) {
         if(fieldValue!=null && matchValue!=null){
-            return  !fieldValue.contains(matchValue);
+            fieldValue= fieldValue.toLowerCase();
+            matchValue = matchValue.toLowerCase();
+            return  !(matchValue.contains(fieldValue) || fieldValue.contains(matchValue));
         }
         return false;
     }
@@ -275,7 +283,7 @@ class NAComparer extends ConditionComparer {
 class RegXComparer extends ConditionComparer {
     @Override
     public boolean match(String fieldValue, String matchValue) {
-        if(fieldValue!=null && matchValue!=null){
+        if (fieldValue != null && matchValue!=null){
             Pattern p = Pattern.compile(matchValue,Pattern.CASE_INSENSITIVE);
             return  p.matcher(fieldValue).find();
         }

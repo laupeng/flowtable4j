@@ -101,6 +101,8 @@ class INComparer extends ConditionComparer {
     @Override
     public boolean match(String fieldValue, String matchValue) {
         if(fieldValue!=null && matchValue!=null){
+            fieldValue= fieldValue.toLowerCase();
+            matchValue = matchValue.toLowerCase();
             return  matchValue.contains(fieldValue) || fieldValue.contains(matchValue);
         }
         return false;
@@ -122,6 +124,8 @@ class LLIKEComparer extends ConditionComparer {
     @Override
     public boolean match(String fieldValue, String matchValue) {
         if(fieldValue!=null && matchValue!=null){
+            fieldValue= fieldValue.toLowerCase();
+            matchValue = matchValue.toLowerCase();
             return  fieldValue.startsWith(matchValue);
         }
         return false;
