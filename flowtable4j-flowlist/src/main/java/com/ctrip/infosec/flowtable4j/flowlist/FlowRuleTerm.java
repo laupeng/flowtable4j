@@ -283,7 +283,10 @@ class NAComparer extends ConditionComparer {
 class RegXComparer extends ConditionComparer {
     @Override
     public boolean match(String fieldValue, String matchValue) {
-        if (fieldValue != null && matchValue!=null){
+        if (matchValue!=null){
+            if(fieldValue==null) {
+                fieldValue="";
+            }
             Pattern p = Pattern.compile(matchValue,Pattern.CASE_INSENSITIVE);
             return  p.matcher(fieldValue).find();
         }
