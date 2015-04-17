@@ -101,7 +101,7 @@ public class FlowRuleStatement {
 
     @Override
     public int hashCode() {
-        return super.hashCode();
+        return ruleID;
     }
 
     @Override

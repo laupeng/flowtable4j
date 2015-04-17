@@ -131,7 +131,7 @@ public class RuleStatement {
 
     @Override
     public int hashCode() {
-        return super.hashCode();
+        return ruleID;
     }
 
     @Override
