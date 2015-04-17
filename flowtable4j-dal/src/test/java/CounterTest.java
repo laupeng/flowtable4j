@@ -1,5 +1,5 @@
 import com.google.common.base.Strings;
-import org.junit.Test;
+//import org.junit.Test;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
  * Created by zhangsx on 2015/4/14.
  */
 public class CounterTest {
-    @Test
+//    @Test
     public void testReplace(){
         Pattern p = Pattern.compile("(^WWW.CTR.)|(^WWW.FLIGHT)", Pattern.CASE_INSENSITIVE);
         Matcher m = p.matcher("WWW.CTRP");

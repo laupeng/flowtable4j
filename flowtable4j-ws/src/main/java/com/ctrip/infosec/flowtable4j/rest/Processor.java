@@ -33,8 +33,7 @@ public class Processor {
     @Qualifier("cardRiskDBInsertTemplate")
     private JdbcTemplate cardRiskDBTemplate;
 
-    private static final long DBTIMEOUT = 1000;
-    private static final long FLOWTIMEOUT = 1000;
+    private static final long FLOWTIMEOUT = 10000;
 
     public RiskResult handle(final CheckFact checkEntity) {
         final RiskResult listResult_w = new RiskResult();

@@ -55,7 +55,7 @@ public class CounterMatchRuleTerm extends FlowRuleTerm {
                             endOffset, fact.getObject(countField), obj);
                     fact.requestCache.put(key, count);
                     logger.debug( "[whereField:" + fieldName + ",sqlStatement:" + sqlStatement + "][op:" + executor.toString() + "][matchFieldValue:" +
-                            fact.getObject(countField)+"][whereFieldValue:"+obj+"]");
+                            fact.getObject(countField)+"][whereFieldValue:"+obj+"]"+"[count:"+count+"]");
                     matched = executor.match(count, matchValue);
                 }
             }

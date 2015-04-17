@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -16,7 +17,7 @@ public class Counter {
     // @Resource(name = "riskCtrlPreProcDBNamedTemplate")
     private static NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     private static Logger logger = LoggerFactory.getLogger(Counter.class);
-
+    private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd\'T\'HH:mm:ss.SSS");
     static {
         namedParameterJdbcTemplate = SpringContextHolder.getBean("riskCtrlPreProcDBNamedTemplate");
     }
@@ -27,9 +28,14 @@ public class Counter {
         Set countSet = new HashSet();
         sqlStatement = sqlStatement.replace('@', ':');
         long nowMillis = System.currentTimeMillis();
+        long startMills = nowMillis + (long)fromOffset * 60 * 1000;
+        long timeLimit = nowMillis + (long)toOffset * 60 * 1000;
+
+        Date start = new Date(startMills);
+        Date limit = new Date(timeLimit);
         paramMap.put(whereField, whereFieldValue);
-        paramMap.put("StartTimeLimit", new Date(nowMillis + (long)fromOffset * 60 * 1000));
-        paramMap.put("TimeLimit", new Date(nowMillis + (long)toOffset * 60 * 1000));
+        paramMap.put("StartTimeLimit", start);
+        paramMap.put("TimeLimit", limit);
         Stopwatch stopwatch = Stopwatch.createStarted();
 
 //        if ("COUNT".equals(countType)) {
@@ -37,6 +43,7 @@ public class Counter {
 //        }
 
         List<Map<String, Object>> results = namedParameterJdbcTemplate.queryForList(sqlStatement, paramMap);
+        logger.debug("sql:"+sqlStatement+",whereField:"+whereFieldValue+",StartTimeLimit:"+sdf.format(start)+"TimeLimit"+sdf.format(limit));
         stopwatch.stop();
         logger.info("get data from db costs : " + stopwatch.elapsed(TimeUnit.MILLISECONDS) + "ms");
         if ("SUM".equals(countType)) {
@@ -67,7 +74,7 @@ public class Counter {
                     }
                 }
                 if (matchFieldValue != null) {
-                    countSet.add(matchFieldValue);
+                    countSet.add(matchFieldValue.toString());
                 }
                 return String.valueOf(countSet.size());
             }
