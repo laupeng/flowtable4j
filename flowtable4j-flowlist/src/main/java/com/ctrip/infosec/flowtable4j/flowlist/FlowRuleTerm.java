@@ -55,10 +55,10 @@ public abstract class FlowRuleTerm {
             executor = neOper;
         }
         else if("GE".equals(operator)||"FGE".equals(operator)){
-            executor =geOper;
+            executor = geOper;
         }
         else if("IN".equals(operator)||"FIN".equals(operator)){
-            executor =inOper;
+            executor = inOper;
         }
         else if("LE".equals(operator)||"FLE".equals(operator)){
             executor = leOper;
@@ -165,9 +165,11 @@ class INComparer extends ConditionComparer {
     @Override
     public boolean match(String fieldValue, String matchValue) {
         if(fieldValue!=null && matchValue!=null){
-            fieldValue= fieldValue.toLowerCase();
-            matchValue = matchValue.toLowerCase();
-            return  matchValue.contains(fieldValue) || fieldValue.contains(matchValue);
+//            fieldValue= fieldValue.toLowerCase();
+//            matchValue = matchValue.toLowerCase();
+//            return  matchValue.contains(fieldValue) || fieldValue.contains(matchValue);
+            Pattern p = Pattern.compile(matchValue,Pattern.CASE_INSENSITIVE);
+            return  p.matcher(fieldValue).find();
         }
         return false;
     }
