@@ -1,6 +1,7 @@
 package com.ctrip.infosec.flowtable4j.flowlist;
 
 import com.ctrip.infosec.flowtable4j.model.FlowFact;
+import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -86,13 +87,10 @@ public abstract class FlowRuleTerm {
     protected String getString(Map<String,Object> row,String fieldName){
         if(row.containsKey(fieldName)){
           Object obj=row.get(fieldName);
-            if(obj instanceof String){
-                return (String)obj;
-            }
-            else
-            {
-                return obj.toString();
-            }
+          if(obj != null)
+          {
+               return obj.toString();
+          }
         }
         return null;
     }
@@ -116,8 +114,7 @@ abstract class ConditionComparer {
 class EQComparer extends ConditionComparer {
     @Override
     public boolean match(String fieldValue, String matchValue) {
-
-        if(fieldValue!=null && matchValue!=null){
+        if(!Strings.isNullOrEmpty(fieldValue)){
             return  fieldValue.equalsIgnoreCase(matchValue);
         }
         return false;
@@ -132,7 +129,7 @@ class EQComparer extends ConditionComparer {
 class NEComparer extends ConditionComparer {
     @Override
     public boolean match(String fieldValue, String matchValue) {
-        if(fieldValue!=null && matchValue!=null){
+        if(!Strings.isNullOrEmpty(fieldValue)){
             return  !fieldValue.equalsIgnoreCase(matchValue);
         }
         return false;
@@ -147,7 +144,7 @@ class NEComparer extends ConditionComparer {
 class GEComparer extends ConditionComparer {
     @Override
     public boolean match(String fieldValue, String matchValue) {
-        if(fieldValue!=null && matchValue!=null){
+        if(!Strings.isNullOrEmpty(fieldValue)  && !Strings.isNullOrEmpty(matchValue)){
             BigDecimal fv = new BigDecimal(fieldValue);
             BigDecimal mv = new BigDecimal(matchValue);
             return fv.compareTo(mv) >= 0;
@@ -164,7 +161,7 @@ class GEComparer extends ConditionComparer {
 class INComparer extends ConditionComparer {
     @Override
     public boolean match(String fieldValue, String matchValue) {
-        if(fieldValue!=null && matchValue!=null){
+        if(!Strings.isNullOrEmpty(fieldValue) && !Strings.isNullOrEmpty(matchValue)){
 //            fieldValue= fieldValue.toLowerCase();
 //            matchValue = matchValue.toLowerCase();
 //            return  matchValue.contains(fieldValue) || fieldValue.contains(matchValue);
@@ -183,7 +180,7 @@ class INComparer extends ConditionComparer {
 class LEComparer extends ConditionComparer {
     @Override
     public boolean match(String fieldValue, String matchValue) {
-        if(fieldValue!=null && matchValue!=null){
+        if(!Strings.isNullOrEmpty(fieldValue) && !Strings.isNullOrEmpty(matchValue)){
             BigDecimal fv = new BigDecimal(fieldValue);
             BigDecimal mv = new BigDecimal(matchValue);
             return fv.compareTo(mv) <= 0;
@@ -200,7 +197,7 @@ class LEComparer extends ConditionComparer {
 class LLIKEComparer extends ConditionComparer {
     @Override
     public boolean match(String fieldValue, String matchValue) {
-        if(fieldValue!=null && matchValue!=null){
+        if(!Strings.isNullOrEmpty(fieldValue) && !Strings.isNullOrEmpty(matchValue)){
             fieldValue= fieldValue.toLowerCase();
             matchValue = matchValue.toLowerCase();
             return  fieldValue.startsWith(matchValue);
@@ -217,7 +214,7 @@ class LLIKEComparer extends ConditionComparer {
 class RLIKEComparer extends ConditionComparer {
     @Override
     public boolean match(String fieldValue, String matchValue) {
-        if(fieldValue!=null && matchValue!=null){
+        if(!Strings.isNullOrEmpty(fieldValue) && !Strings.isNullOrEmpty(matchValue)){
             fieldValue= fieldValue.toLowerCase();
             matchValue = matchValue.toLowerCase();
             return  fieldValue.endsWith(matchValue);
@@ -234,7 +231,7 @@ class RLIKEComparer extends ConditionComparer {
 class GTComparer extends ConditionComparer {
     @Override
     public boolean match(String fieldValue, String matchValue) {
-        if(fieldValue!=null && matchValue!=null){
+        if(!Strings.isNullOrEmpty(fieldValue) && !Strings.isNullOrEmpty(matchValue)){
             BigDecimal fv = new BigDecimal(fieldValue);
             BigDecimal mv = new BigDecimal(matchValue);
             return fv.compareTo(mv) > 0;
@@ -251,7 +248,7 @@ class GTComparer extends ConditionComparer {
 class LTComparer extends ConditionComparer {
     @Override
     public boolean match(String fieldValue, String matchValue) {
-        if(fieldValue!=null && matchValue!=null){
+        if(!Strings.isNullOrEmpty(fieldValue) && !Strings.isNullOrEmpty(matchValue)){
             BigDecimal fv = new BigDecimal(fieldValue);
             BigDecimal mv = new BigDecimal(matchValue);
             return fv.compareTo(mv) < 0;
@@ -268,10 +265,15 @@ class LTComparer extends ConditionComparer {
 class NAComparer extends ConditionComparer {
     @Override
     public boolean match(String fieldValue, String matchValue) {
-        if(fieldValue!=null && matchValue!=null){
-            fieldValue= fieldValue.toLowerCase();
-            matchValue = matchValue.toLowerCase();
-            return  !(matchValue.contains(fieldValue) || fieldValue.contains(matchValue));
+//        if(!Strings.isNullOrEmpty(fieldValue) && !Strings.isNullOrEmpty(matchValue)){
+//            fieldValue= fieldValue.toLowerCase();
+//            matchValue = matchValue.toLowerCase();
+//            return  !matchValue.contains(fieldValue);
+//        }
+
+        if(!Strings.isNullOrEmpty(fieldValue) && !Strings.isNullOrEmpty(matchValue)){
+            Pattern p = Pattern.compile(matchValue,Pattern.CASE_INSENSITIVE);
+            return !p.matcher(fieldValue).find();
         }
         return false;
     }
@@ -286,9 +288,7 @@ class RegXComparer extends ConditionComparer {
     @Override
     public boolean match(String fieldValue, String matchValue) {
         if (matchValue!=null){
-            if(fieldValue==null) {
-                fieldValue="";
-            }
+            fieldValue=Strings.nullToEmpty(fieldValue);
             Pattern p = Pattern.compile(matchValue,Pattern.CASE_INSENSITIVE);
             return  p.matcher(fieldValue).find();
         }
