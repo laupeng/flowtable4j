@@ -24,6 +24,11 @@ public class Counter {
 
     public static String getCounter(String countType, String sqlStatement, String whereField,
                                     Integer fromOffset, Integer toOffset, Object matchFieldValue, Object whereFieldValue) {
+
+        if( whereFieldValue == null|| String.valueOf(whereField)=="") {
+            return  "0";
+        }
+
         Map<String,Object> paramMap = new HashMap<String, Object>();
         Set countSet = new HashSet();
         sqlStatement = sqlStatement.replace('@', ':');
