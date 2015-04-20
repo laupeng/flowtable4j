@@ -5,6 +5,7 @@ import com.ctrip.infosec.flowtable4j.accountsecurity.PaymentViaAccount;
 import com.ctrip.infosec.flowtable4j.bwlist.BWManager;
 import com.ctrip.infosec.flowtable4j.flowlist.FlowRuleManager;
 import com.ctrip.infosec.flowtable4j.model.*;
+import com.ctrip.infosec.sars.monitor.util.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,14 @@ public class Processor {
     private static final long FLOWTIMEOUT = 10000;
 
     public RiskResult handle(final CheckFact checkEntity) {
+
+        /**
+         * debug use
+         */
+        logger.debug("----json body start-----");
+        logger.debug(Utils.JSON.toJSONString(checkEntity));
+        logger.debug("----json body end-----");
+
         final RiskResult listResult_w = new RiskResult();
         final RiskResult listResult = new RiskResult();
         boolean isWhite = false;
