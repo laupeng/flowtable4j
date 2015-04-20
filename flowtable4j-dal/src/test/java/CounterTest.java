@@ -14,10 +14,9 @@ import java.util.regex.Pattern;
 public class CounterTest {
     @Test
     public void testReplace(){
-        Pattern p = Pattern.compile("(WWW.CTR.)|(WWW.FLIGHT)|", Pattern.CASE_INSENSITIVE);
-        Matcher m = p.matcher("");
-        System.out.println(m.find());
-        System.out.println(m.matches());
+        System.out.println("|A00906791|a00906792|".contains("a00906792"));
+        //System.out.println(m.find());
+        //System.out.println(m.matches());
 
   }
 }

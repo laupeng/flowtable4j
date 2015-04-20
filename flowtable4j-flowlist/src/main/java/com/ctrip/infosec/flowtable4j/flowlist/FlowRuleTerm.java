@@ -161,10 +161,8 @@ class GEComparer extends ConditionComparer {
 class INComparer extends ConditionComparer {
     @Override
     public boolean match(String fieldValue, String matchValue) {
+        //等同正则表达式
         if(!Strings.isNullOrEmpty(fieldValue) && !Strings.isNullOrEmpty(matchValue)){
-//            fieldValue= fieldValue.toLowerCase();
-//            matchValue = matchValue.toLowerCase();
-//            return  matchValue.contains(fieldValue) || fieldValue.contains(matchValue);
             Pattern p = Pattern.compile(matchValue,Pattern.CASE_INSENSITIVE);
             return  p.matcher(fieldValue).find();
         }
@@ -198,9 +196,8 @@ class LLIKEComparer extends ConditionComparer {
     @Override
     public boolean match(String fieldValue, String matchValue) {
         if(!Strings.isNullOrEmpty(fieldValue) && !Strings.isNullOrEmpty(matchValue)){
-            fieldValue= fieldValue.toLowerCase();
-            matchValue = matchValue.toLowerCase();
-            return  fieldValue.startsWith(matchValue);
+            Pattern p = Pattern.compile(matchValue,Pattern.CASE_INSENSITIVE);
+            return  p.matcher(fieldValue).find();
         }
         return false;
     }
@@ -215,9 +212,8 @@ class RLIKEComparer extends ConditionComparer {
     @Override
     public boolean match(String fieldValue, String matchValue) {
         if(!Strings.isNullOrEmpty(fieldValue) && !Strings.isNullOrEmpty(matchValue)){
-            fieldValue= fieldValue.toLowerCase();
-            matchValue = matchValue.toLowerCase();
-            return  fieldValue.endsWith(matchValue);
+            Pattern p = Pattern.compile(matchValue,Pattern.CASE_INSENSITIVE);
+            return  p.matcher(fieldValue).find();
         }
         return false;
     }
@@ -265,12 +261,6 @@ class LTComparer extends ConditionComparer {
 class NAComparer extends ConditionComparer {
     @Override
     public boolean match(String fieldValue, String matchValue) {
-//        if(!Strings.isNullOrEmpty(fieldValue) && !Strings.isNullOrEmpty(matchValue)){
-//            fieldValue= fieldValue.toLowerCase();
-//            matchValue = matchValue.toLowerCase();
-//            return  !matchValue.contains(fieldValue);
-//        }
-
         if(!Strings.isNullOrEmpty(fieldValue) && !Strings.isNullOrEmpty(matchValue)){
             Pattern p = Pattern.compile(matchValue,Pattern.CASE_INSENSITIVE);
             return !p.matcher(fieldValue).find();
