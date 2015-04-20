@@ -115,7 +115,7 @@ class EQComparer extends ConditionComparer {
     @Override
     public boolean match(String fieldValue, String matchValue) {
         if(!Strings.isNullOrEmpty(fieldValue)){
-            return  fieldValue.equalsIgnoreCase(matchValue);
+            return  fieldValue.trim().equalsIgnoreCase(matchValue.trim());
         }
         return false;
     }
