@@ -115,7 +115,9 @@ class EQComparer extends ConditionComparer {
     @Override
     public boolean match(String fieldValue, String matchValue) {
         if(!Strings.isNullOrEmpty(fieldValue)){
-            return  fieldValue.trim().equalsIgnoreCase(matchValue.trim());
+            fieldValue = fieldValue.trim();
+            matchValue=Strings.nullToEmpty(matchValue).trim();
+            return  fieldValue.equalsIgnoreCase(matchValue);
         }
         return false;
     }
@@ -130,6 +132,8 @@ class NEComparer extends ConditionComparer {
     @Override
     public boolean match(String fieldValue, String matchValue) {
         if(!Strings.isNullOrEmpty(fieldValue)){
+            fieldValue = fieldValue.trim();
+            matchValue=Strings.nullToEmpty(matchValue).trim();
             return  !fieldValue.equalsIgnoreCase(matchValue);
         }
         return false;
@@ -163,6 +167,8 @@ class INComparer extends ConditionComparer {
     public boolean match(String fieldValue, String matchValue) {
         //等同正则表达式
         if(!Strings.isNullOrEmpty(fieldValue) && !Strings.isNullOrEmpty(matchValue)){
+            fieldValue = fieldValue.trim();
+            matchValue = matchValue.trim();
             Pattern p = Pattern.compile(matchValue,Pattern.CASE_INSENSITIVE);
             return  p.matcher(fieldValue).find();
         }
@@ -196,6 +202,8 @@ class LLIKEComparer extends ConditionComparer {
     @Override
     public boolean match(String fieldValue, String matchValue) {
         if(!Strings.isNullOrEmpty(fieldValue) && !Strings.isNullOrEmpty(matchValue)){
+            fieldValue = fieldValue.trim();
+            matchValue = matchValue.trim();
             Pattern p = Pattern.compile(matchValue,Pattern.CASE_INSENSITIVE);
             return  p.matcher(fieldValue).find();
         }
@@ -212,6 +220,8 @@ class RLIKEComparer extends ConditionComparer {
     @Override
     public boolean match(String fieldValue, String matchValue) {
         if(!Strings.isNullOrEmpty(fieldValue) && !Strings.isNullOrEmpty(matchValue)){
+            fieldValue = fieldValue.trim();
+            matchValue = matchValue.trim();
             Pattern p = Pattern.compile(matchValue,Pattern.CASE_INSENSITIVE);
             return  p.matcher(fieldValue).find();
         }
@@ -262,6 +272,8 @@ class NAComparer extends ConditionComparer {
     @Override
     public boolean match(String fieldValue, String matchValue) {
         if(!Strings.isNullOrEmpty(fieldValue) && !Strings.isNullOrEmpty(matchValue)){
+            fieldValue = fieldValue.trim();
+            matchValue = matchValue.trim();
             Pattern p = Pattern.compile(matchValue,Pattern.CASE_INSENSITIVE);
             return !p.matcher(fieldValue).find();
         }
@@ -278,7 +290,8 @@ class RegXComparer extends ConditionComparer {
     @Override
     public boolean match(String fieldValue, String matchValue) {
         if (matchValue!=null){
-            fieldValue=Strings.nullToEmpty(fieldValue);
+            fieldValue = Strings.nullToEmpty(fieldValue).trim();
+            matchValue = matchValue.trim();
             Pattern p = Pattern.compile(matchValue,Pattern.CASE_INSENSITIVE);
             return  p.matcher(fieldValue).find();
         }

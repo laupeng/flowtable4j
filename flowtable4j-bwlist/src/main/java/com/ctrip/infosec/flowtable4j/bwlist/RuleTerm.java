@@ -80,6 +80,8 @@ class EQComparer extends ConditionComparer {
     @Override
     public boolean match(String fieldValue, String matchValue) {
         if (!Strings.isNullOrEmpty(fieldValue)) {
+            fieldValue = fieldValue.trim();
+            matchValue = Strings.nullToEmpty(matchValue).trim();
             return fieldValue.equalsIgnoreCase(matchValue);
         }
         return false;
@@ -102,8 +104,8 @@ class INComparer extends ConditionComparer {
     @Override
     public boolean match(String fieldValue, String matchValue) {
         if (!Strings.isNullOrEmpty(fieldValue) && !Strings.isNullOrEmpty(matchValue)) {
-              fieldValue= fieldValue.toLowerCase();
-              matchValue = matchValue.toLowerCase();
+              fieldValue= fieldValue.toLowerCase().trim();
+              matchValue = matchValue.toLowerCase().trim();
               return fieldValue.contains(matchValue);
               //黑白名单中，Match Value小
         }
@@ -127,8 +129,8 @@ class LLIKEComparer extends ConditionComparer {
     @Override
     public boolean match(String fieldValue, String matchValue) {
         if (!Strings.isNullOrEmpty(fieldValue)) {
-            fieldValue = fieldValue.toLowerCase();
-            matchValue = matchValue.toLowerCase();
+            fieldValue = fieldValue.toLowerCase().trim();
+            matchValue = matchValue.toLowerCase().trim();
             return fieldValue.startsWith(matchValue);
         }
         return false;
