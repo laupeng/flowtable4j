@@ -40,7 +40,7 @@ public class FlowRuleManager {
                 return whiteRule.check(fact, results);
             }
         } catch (Throwable ex) {
-            logger.warn(ex.getMessage());
+            logger.warn(ex.getMessage(),ex);
         }
         return false;
     }
@@ -51,7 +51,7 @@ public class FlowRuleManager {
                 return blackRule.check(fact, results);
             }
         } catch (Throwable ex) {
-            logger.warn(ex.getMessage());
+            logger.warn(ex.getMessage(),ex);
         }
         return false;
     }
@@ -96,7 +96,7 @@ public class FlowRuleManager {
             }
             return true;
         } catch (Throwable ex) {
-            logger.warn(ex.getMessage());
+            logger.warn(ex.getMessage(),ex);
             return false;
         }
     }

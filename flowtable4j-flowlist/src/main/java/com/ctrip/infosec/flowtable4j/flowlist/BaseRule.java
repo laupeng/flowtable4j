@@ -57,7 +57,7 @@ public abstract class BaseRule {
         try {
             return checkByOrderType(allOrderType, fact, results);
         } catch (Throwable ex) {
-            logger.warn(ex.getMessage());
+            logger.warn(ex.getMessage(),ex);
         }
         return false;
     }
@@ -76,7 +76,7 @@ public abstract class BaseRule {
                 return checkByOrderType(byOrderType.get(orderType), fact, results);
             }
         } catch (Throwable ex) {
-            logger.warn(ex.getMessage());
+            logger.warn(ex.getMessage(),ex);
         }
         return false;
     }

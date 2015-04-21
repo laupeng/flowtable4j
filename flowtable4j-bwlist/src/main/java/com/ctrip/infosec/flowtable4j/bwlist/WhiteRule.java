@@ -32,7 +32,7 @@ public class WhiteRule extends BaseRule {
                     }
                     catch (Throwable ex)
                     {
-                        logger.warn(ex.getMessage());
+                        logger.warn(ex.getMessage(),ex);
                     }
                 }
             }
@@ -55,7 +55,7 @@ public class WhiteRule extends BaseRule {
                 }
                 catch (Throwable ex)
                 {
-                    logger.warn(ex.getMessage());
+                    logger.warn(ex.getMessage(),ex);
                 }
             }
         }

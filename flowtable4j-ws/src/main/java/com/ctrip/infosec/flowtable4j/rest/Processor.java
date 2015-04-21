@@ -91,8 +91,10 @@ public class Processor {
                     public Object call() throws Exception {
                         long now = System.currentTimeMillis();
                         AccountFact item = checkEntity.getAccountFact();
-                        paymentViaAccount.CheckBWGRule(item, mapAccount);
-                        logger.info("***2:" + (System.currentTimeMillis() - now));
+                        if(item!=null&&item.getCheckItems()!=null&&item.getCheckItems().size()>0){
+                            paymentViaAccount.CheckBWGRule(item, mapAccount);
+                            logger.info("***2:" + (System.currentTimeMillis() - now));
+                        }
                         return null;
                     }
                 });

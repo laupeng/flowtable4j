@@ -31,16 +31,18 @@ public class Counter {
 
         Map<String,Object> paramMap = new HashMap<String, Object>();
         Set countSet = new HashSet();
-        sqlStatement = sqlStatement.replace('@', ':');
+        sqlStatement = sqlStatement.replace('@', ':').toUpperCase();
         long nowMillis = System.currentTimeMillis();
         long startMills = nowMillis + (long)fromOffset * 60 * 1000;
         long timeLimit = nowMillis + (long)toOffset * 60 * 1000;
 
         Date start = new Date(startMills);
         Date limit = new Date(timeLimit);
-        paramMap.put(whereField, whereFieldValue);
-        paramMap.put("StartTimeLimit", start);
-        paramMap.put("TimeLimit", limit);
+        paramMap.put(whereField.toUpperCase(), whereFieldValue);
+//        paramMap.put("StartTimeLimit", start);
+        paramMap.put("STARTTIMELIMIT", start);
+//        paramMap.put("TimeLimit", limit);
+        paramMap.put("TIMELIMIT", limit);
         Stopwatch stopwatch = Stopwatch.createStarted();
 
 //        if ("COUNT".equals(countType)) {
