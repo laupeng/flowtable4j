@@ -134,8 +134,6 @@ public class Processor {
     }
 
     private void saveResult(RiskResult result) {
-        final String sql = "INSERT INTO dbo.InfoSecurity_CheckResult4j (ReqID, RuleType, RuleID, RuleName, RiskLevel,RuleRemark, CreateDate)" +
-                "VALUES (?,?,?,?,?,?,?)";
         final long reqId = result.getReqId();
         List<Callable<Object>> tasks = new ArrayList<Callable<Object>>();
         for (final CheckResultLog item : result.getResults()) {
