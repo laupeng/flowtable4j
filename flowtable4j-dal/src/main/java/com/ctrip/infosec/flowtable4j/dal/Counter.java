@@ -31,7 +31,6 @@ public class Counter {
 
         Map<String,Object> paramMap = new HashMap<String, Object>();
         Set countSet = new HashSet();
-        sqlStatement = sqlStatement.replace('@', ':').toUpperCase();
         long nowMillis = System.currentTimeMillis();
         long startMills = nowMillis + (long)fromOffset * 60 * 1000;
         long timeLimit = nowMillis + (long)toOffset * 60 * 1000;
@@ -39,15 +38,9 @@ public class Counter {
         Date start = new Date(startMills);
         Date limit = new Date(timeLimit);
         paramMap.put(whereField.toUpperCase(), whereFieldValue);
-//        paramMap.put("StartTimeLimit", start);
         paramMap.put("STARTTIMELIMIT", start);
-//        paramMap.put("TimeLimit", limit);
         paramMap.put("TIMELIMIT", limit);
         Stopwatch stopwatch = Stopwatch.createStarted();
-
-//        if ("COUNT".equals(countType)) {
-//            sqlStatement = "select top 1000 " + sqlStatement.substring(7);
-//        }
 
         List<Map<String, Object>> results = namedParameterJdbcTemplate.queryForList(sqlStatement, paramMap);
         logger.debug("sql:"+sqlStatement+",whereField:"+whereFieldValue+",StartTimeLimit:"+sdf.format(start)+"TimeLimit"+sdf.format(limit));

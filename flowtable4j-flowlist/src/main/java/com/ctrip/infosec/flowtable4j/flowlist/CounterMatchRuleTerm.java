@@ -28,7 +28,7 @@ public class CounterMatchRuleTerm extends FlowRuleTerm {
     public void setCountType(String countType, String countField, String sqlStatement) {
         this.countType = countType;
         this.countField = countField;
-        this.sqlStatement = sqlStatement;
+        this.sqlStatement = sqlStatement.replace('@', ':').toUpperCase();
     }
 
     public void setTimeOffset(Integer startOffset, Integer endOffset) {
@@ -54,8 +54,6 @@ public class CounterMatchRuleTerm extends FlowRuleTerm {
                     String count = Counter.getCounter(countType, sqlStatement, fieldName, startOffset,
                             endOffset, fact.getObject(countField), obj);
                     fact.requestCache.put(key, count);
-//                    logger.debug( "[whereField:" + fieldName + ",sqlStatement:" + sqlStatement + "][op:" + executor.toString() + "][matchFieldValue:" +
-//                            fact.getObject(countField)+"][whereFieldValue:"+obj+"]"+"[count:"+count+"]");
                     matched = executor.match(count, matchValue);
                 }
             }
