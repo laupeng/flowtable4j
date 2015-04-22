@@ -18,6 +18,7 @@ public class Counter {
     private static NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     private static Logger logger = LoggerFactory.getLogger(Counter.class);
     private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd\'T\'HH:mm:ss.SSS");
+
     static {
         namedParameterJdbcTemplate = SpringContextHolder.getBean("riskCtrlPreProcDBNamedTemplate");
     }
@@ -25,15 +26,15 @@ public class Counter {
     public static String getCounter(String countType, String sqlStatement, String whereField,
                                     Integer fromOffset, Integer toOffset, Object matchFieldValue, Object whereFieldValue) {
 
-        if( whereFieldValue == null|| String.valueOf(whereField)=="") {
-            return  "0";
+        if (whereFieldValue == null || String.valueOf(whereField) == "") {
+            return "0";
         }
 
-        Map<String,Object> paramMap = new HashMap<String, Object>();
+        Map<String, Object> paramMap = new HashMap<String, Object>();
         Set countSet = new HashSet();
         long nowMillis = System.currentTimeMillis();
-        long startMills = nowMillis + (long)fromOffset * 60 * 1000;
-        long timeLimit = nowMillis + (long)toOffset * 60 * 1000;
+        long startMills = nowMillis + (long) fromOffset * 60 * 1000;
+        long timeLimit = nowMillis + (long) toOffset * 60 * 1000;
 
         Date start = new Date(startMills);
         Date limit = new Date(timeLimit);
@@ -43,12 +44,12 @@ public class Counter {
         Stopwatch stopwatch = Stopwatch.createStarted();
 
         List<Map<String, Object>> results = namedParameterJdbcTemplate.queryForList(sqlStatement, paramMap);
-        logger.debug("sql:"+sqlStatement+",whereField:"+whereFieldValue+",StartTimeLimit:"+sdf.format(start)+"TimeLimit"+sdf.format(limit));
+        logger.debug("sql:" + sqlStatement + ",whereField:" + whereFieldValue + ",StartTimeLimit:" + sdf.format(start) + "TimeLimit" + sdf.format(limit));
         stopwatch.stop();
         logger.info("get data from db costs : " + stopwatch.elapsed(TimeUnit.MILLISECONDS) + "ms");
         if ("SUM".equals(countType)) {
             double sum = 0d;
-            if(matchFieldValue!=null){
+            if (matchFieldValue != null) {
                 sum += Double.parseDouble(String.valueOf(matchFieldValue));
             }
             if (results != null && results.size() > 0) {
@@ -65,6 +66,9 @@ public class Counter {
             return String.valueOf(sum);
         }
         if ("COUNT".equals(countType)) {
+            if (matchFieldValue != null) {
+                countSet.add(matchFieldValue.toString());
+            }
             if (results != null && results.size() > 0) {
                 String key = results.get(0).keySet().iterator().next();
                 for (Map<String, Object> item : results) {
@@ -73,11 +77,8 @@ public class Counter {
                         countSet.add(val);
                     }
                 }
-                if (matchFieldValue != null) {
-                    countSet.add(matchFieldValue.toString());
-                }
-                return String.valueOf(countSet.size());
             }
+            return String.valueOf(countSet.size());
         }
         return "0";
     }
