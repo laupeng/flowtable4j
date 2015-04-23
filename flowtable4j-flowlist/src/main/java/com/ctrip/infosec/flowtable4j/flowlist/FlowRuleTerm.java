@@ -1,11 +1,14 @@
 package com.ctrip.infosec.flowtable4j.flowlist;
 
 import com.ctrip.infosec.flowtable4j.model.FlowFact;
+import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by thyang on 2015/3/13 0013.
@@ -53,10 +56,10 @@ public abstract class FlowRuleTerm {
             executor = neOper;
         }
         else if("GE".equals(operator)||"FGE".equals(operator)){
-            executor =geOper;
+            executor = geOper;
         }
         else if("IN".equals(operator)||"FIN".equals(operator)){
-            executor =inOper;
+            executor = inOper;
         }
         else if("LE".equals(operator)||"FLE".equals(operator)){
             executor = leOper;
@@ -78,21 +81,16 @@ public abstract class FlowRuleTerm {
         }
         else if("REGEX".equals(operator)){
             executor = rgOper;
-        }else{
-            logger.error("has unbind op:"+operator);
         }
     }
 
     protected String getString(Map<String,Object> row,String fieldName){
         if(row.containsKey(fieldName)){
           Object obj=row.get(fieldName);
-            if(obj instanceof String){
-                return (String)obj;
-            }
-            else
-            {
-                return obj.toString();
-            }
+          if(obj != null)
+          {
+               return obj.toString();
+          }
         }
         return null;
     }
@@ -116,117 +114,192 @@ abstract class ConditionComparer {
 class EQComparer extends ConditionComparer {
     @Override
     public boolean match(String fieldValue, String matchValue) {
-        if(fieldValue!=null && matchValue!=null){
+        if(!Strings.isNullOrEmpty(fieldValue)){
+            fieldValue = fieldValue.trim();
+            matchValue=Strings.nullToEmpty(matchValue).trim();
             return  fieldValue.equalsIgnoreCase(matchValue);
         }
         return false;
+    }
+
+    @Override
+    public String toString() {
+        return "EQComparer{}";
     }
 }
 
 class NEComparer extends ConditionComparer {
     @Override
     public boolean match(String fieldValue, String matchValue) {
-        if(fieldValue!=null && matchValue!=null){
+        if(!Strings.isNullOrEmpty(fieldValue)){
+            fieldValue = fieldValue.trim();
+            matchValue=Strings.nullToEmpty(matchValue).trim();
             return  !fieldValue.equalsIgnoreCase(matchValue);
         }
         return false;
+    }
+
+    @Override
+    public String toString() {
+        return "NEComparer{}";
     }
 }
 
 class GEComparer extends ConditionComparer {
     @Override
     public boolean match(String fieldValue, String matchValue) {
-        if(fieldValue!=null && matchValue!=null){
+        if(!Strings.isNullOrEmpty(fieldValue)  && !Strings.isNullOrEmpty(matchValue)){
             BigDecimal fv = new BigDecimal(fieldValue);
             BigDecimal mv = new BigDecimal(matchValue);
             return fv.compareTo(mv) >= 0;
         }
         return false;
     }
+
+    @Override
+    public String toString() {
+        return "GEComparer{}";
+    }
 }
 
 class INComparer extends ConditionComparer {
     @Override
     public boolean match(String fieldValue, String matchValue) {
-        if(fieldValue!=null && matchValue!=null){
-            return  fieldValue.contains(matchValue);
+        //等同正则表达式
+        if(!Strings.isNullOrEmpty(fieldValue) && !Strings.isNullOrEmpty(matchValue)){
+            fieldValue = fieldValue.trim();
+            matchValue = matchValue.trim();
+            Pattern p = Pattern.compile(matchValue,Pattern.CASE_INSENSITIVE);
+            return  p.matcher(fieldValue).find();
         }
         return false;
+    }
+
+    @Override
+    public String toString() {
+        return "INComparer{}";
     }
 }
 
 class LEComparer extends ConditionComparer {
     @Override
     public boolean match(String fieldValue, String matchValue) {
-        if(fieldValue!=null && matchValue!=null){
+        if(!Strings.isNullOrEmpty(fieldValue) && !Strings.isNullOrEmpty(matchValue)){
             BigDecimal fv = new BigDecimal(fieldValue);
             BigDecimal mv = new BigDecimal(matchValue);
             return fv.compareTo(mv) <= 0;
         }
         return false;
     }
+
+    @Override
+    public String toString() {
+        return "LEComparer{}";
+    }
 }
 
 class LLIKEComparer extends ConditionComparer {
     @Override
     public boolean match(String fieldValue, String matchValue) {
-        if(fieldValue!=null && matchValue!=null){
-            return  fieldValue.startsWith(matchValue);
+        if(!Strings.isNullOrEmpty(fieldValue) && !Strings.isNullOrEmpty(matchValue)){
+            fieldValue = fieldValue.trim();
+            matchValue = matchValue.trim();
+            Pattern p = Pattern.compile(matchValue,Pattern.CASE_INSENSITIVE);
+            return  p.matcher(fieldValue).find();
         }
         return false;
+    }
+
+    @Override
+    public String toString() {
+        return "LLIKEComparer{}";
     }
 }
 
 class RLIKEComparer extends ConditionComparer {
     @Override
     public boolean match(String fieldValue, String matchValue) {
-        if(fieldValue!=null && matchValue!=null){
-            return  fieldValue.endsWith(matchValue);
+        if(!Strings.isNullOrEmpty(fieldValue) && !Strings.isNullOrEmpty(matchValue)){
+            fieldValue = fieldValue.trim();
+            matchValue = matchValue.trim();
+            Pattern p = Pattern.compile(matchValue,Pattern.CASE_INSENSITIVE);
+            return  p.matcher(fieldValue).find();
         }
         return false;
+    }
+
+    @Override
+    public String toString() {
+        return "RLIKEComparer{}";
     }
 }
 
 class GTComparer extends ConditionComparer {
     @Override
     public boolean match(String fieldValue, String matchValue) {
-        if(fieldValue!=null && matchValue!=null){
+        if(!Strings.isNullOrEmpty(fieldValue) && !Strings.isNullOrEmpty(matchValue)){
             BigDecimal fv = new BigDecimal(fieldValue);
             BigDecimal mv = new BigDecimal(matchValue);
             return fv.compareTo(mv) > 0;
         }
         return false;
     }
+
+    @Override
+    public String toString() {
+        return "GTComparer{}";
+    }
 }
 
 class LTComparer extends ConditionComparer {
     @Override
     public boolean match(String fieldValue, String matchValue) {
-        if(fieldValue!=null && matchValue!=null){
+        if(!Strings.isNullOrEmpty(fieldValue) && !Strings.isNullOrEmpty(matchValue)){
             BigDecimal fv = new BigDecimal(fieldValue);
             BigDecimal mv = new BigDecimal(matchValue);
             return fv.compareTo(mv) < 0;
         }
         return false;
     }
+
+    @Override
+    public String toString() {
+        return "LTComparer{}";
+    }
 }
 
 class NAComparer extends ConditionComparer {
     @Override
     public boolean match(String fieldValue, String matchValue) {
-        if(fieldValue!=null && matchValue!=null){
-            return  !fieldValue.contains(matchValue);
+        if(!Strings.isNullOrEmpty(fieldValue) && !Strings.isNullOrEmpty(matchValue)){
+            fieldValue = fieldValue.trim();
+            matchValue = matchValue.trim();
+            Pattern p = Pattern.compile(matchValue,Pattern.CASE_INSENSITIVE);
+            return !p.matcher(fieldValue).find();
         }
         return false;
+    }
+
+    @Override
+    public String toString() {
+        return "NAComparer{}";
     }
 }
 
 class RegXComparer extends ConditionComparer {
     @Override
     public boolean match(String fieldValue, String matchValue) {
-        if(fieldValue!=null && matchValue!=null){
-            return  fieldValue.matches(matchValue);
+        if (matchValue!=null){
+            fieldValue = Strings.nullToEmpty(fieldValue).trim();
+            matchValue = matchValue.trim();
+            Pattern p = Pattern.compile(matchValue,Pattern.CASE_INSENSITIVE);
+            return  p.matcher(fieldValue).find();
         }
         return false;
+    }
+
+    @Override
+    public String toString() {
+        return "RegXComparer{}";
     }
 }

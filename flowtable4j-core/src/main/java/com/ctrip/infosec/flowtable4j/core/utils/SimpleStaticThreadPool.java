@@ -1,4 +1,5 @@
 package com.ctrip.infosec.flowtable4j.core.utils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -9,25 +10,30 @@ import java.util.List;
 import java.util.concurrent.*;
 
 /**
-* Created by zhangsx on 2015/3/25.
-*/
-public class SimpleStaticThreadPool {
-    private static ThreadPoolExecutor excutor = new ThreadPoolExecutor(64, 512, 60, TimeUnit.SECONDS, new SynchronousQueue(), new ThreadPoolExecutor.CallerRunsPolicy());
+ * Created by zhangsx on 2015/3/25.
+ */
+public class SimpleStaticThreadPool extends ThreadPoolExecutor{
     private static final Logger logger = LoggerFactory.getLogger(SimpleStaticThreadPool.class);
-    public static <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks,long timeout,TimeUnit timeUnit){
+
+    private SimpleStaticThreadPool(){
+        super(64, 512, 60, TimeUnit.SECONDS, new SynchronousQueue(), new ThreadPoolExecutor.CallerRunsPolicy());
+    }
+
+    private static SimpleStaticThreadPool instance = new SimpleStaticThreadPool();
+    public static SimpleStaticThreadPool getInstance(){
+        return instance;
+    }
+    protected void afterExecute(Runnable r, Throwable t) {
+        super.afterExecute(r, t);
+        Future<?> f = (Future<?>) r;
         try {
-            return excutor.invokeAll(tasks,timeout,timeUnit);
+            f.get();
         } catch (InterruptedException e) {
-            logger.error("i am interrupted",e);
-            return new ArrayList<Future<T>>();
+            logger.error("线程池中发现异常，被中断 ,InterruptedException");
+        } catch (ExecutionException e) {
+            logger.error("线程池中发现异常", e);
         }
     }
 
-    public static void shutdown(){
-        excutor.shutdown();
-    }
 
-    public static void shutdownNow(){
-        excutor.shutdownNow();
-    }
 }

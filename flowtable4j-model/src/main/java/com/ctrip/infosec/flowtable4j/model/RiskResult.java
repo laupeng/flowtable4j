@@ -9,6 +9,11 @@ import java.util.List;
 public class RiskResult {
     private String status="OK";
     private List<CheckResultLog> results=new ArrayList<CheckResultLog>();
+    private long reqId;
+
+    public void setReqId(long reqId) {
+        this.reqId = reqId;
+    }
 
     public void add(CheckResultLog log){
         results.add(log);
@@ -30,6 +35,10 @@ public class RiskResult {
 
     public List<CheckResultLog> getResults() {
         return results;
+    }
+
+    public long getReqId() {
+        return reqId;
     }
 
 }

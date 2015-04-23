@@ -66,9 +66,8 @@ public class BWFact {
             String key = keyPath[keyPath.length - 1];
             if (parentMap.containsKey(key)) {
                 Object obj = parentMap.get(key);
-                if (obj instanceof String) {
-                    return (String) obj;
-                } else {
+                if(obj != null)
+                {
                     return obj.toString();
                 }
             }

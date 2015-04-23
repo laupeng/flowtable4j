@@ -1,8 +1,10 @@
 package com.ctrip.infosec.flowtable4j.bwlist;
 
 import com.ctrip.infosec.flowtable4j.model.BWFact;
+import com.google.common.base.Strings;
 
 import java.math.BigDecimal;
+import java.util.regex.Pattern;
 
 /**
  * Created by thyang on 2015/3/13 0013.
@@ -20,26 +22,28 @@ public class RuleTerm {
 
     private ConditionComparer executor;
 
-    public RuleTerm(String fieldName,String operator,String matchValue){
+    public RuleTerm(String fieldName, String operator, String matchValue) {
         this.setFieldName(fieldName);
         this.setMatchValue(matchValue);
         this.operator = operator;
 
-        if("EQ".equals(operator)) {
+        if ("EQ".equals(operator)) {
             executor = eqOper;
-        } else if("LE".equals(operator)){
+        } else if ("LE".equals(operator)) {
             executor = leOper;
-        } else if("IN".equals(operator)){
+        } else if ("IN".equals(operator)) {
             executor = inOper;
-        } else if("GE".equals(operator)){
+        } else if ("GE".equals(operator)) {
             executor = geOper;
-        }
-        else if("LLIKE".equals(operator)){
+        } else if ("LLIKE".equals(operator)) {
             executor = llOper;
         }
     }
 
-    public boolean check(BWFact fact){
+    public boolean check(BWFact fact) {
+        if (executor == null) {
+            return false;
+        }
         return executor.match(fact.getString(getFieldName()), getMatchValue());
     }
 
@@ -69,14 +73,16 @@ public class RuleTerm {
 }
 
 abstract class ConditionComparer {
-    public abstract boolean match(String fieldValue,String matchValue);
+    public abstract boolean match(String fieldValue, String matchValue);
 }
 
 class EQComparer extends ConditionComparer {
     @Override
     public boolean match(String fieldValue, String matchValue) {
-        if(fieldValue!=null && matchValue!=null){
-            return  fieldValue.equalsIgnoreCase(matchValue);
+        if (!Strings.isNullOrEmpty(fieldValue)) {
+            fieldValue = fieldValue.trim();
+            matchValue = Strings.nullToEmpty(matchValue).trim();
+            return fieldValue.equalsIgnoreCase(matchValue);
         }
         return false;
     }
@@ -85,7 +91,7 @@ class EQComparer extends ConditionComparer {
 class GEComparer extends ConditionComparer {
     @Override
     public boolean match(String fieldValue, String matchValue) {
-        if(fieldValue!=null && matchValue!=null){
+        if (!Strings.isNullOrEmpty(fieldValue)) {
             BigDecimal fv = new BigDecimal(fieldValue);
             BigDecimal mv = new BigDecimal(matchValue);
             return fv.compareTo(mv) >= 0;
@@ -97,16 +103,20 @@ class GEComparer extends ConditionComparer {
 class INComparer extends ConditionComparer {
     @Override
     public boolean match(String fieldValue, String matchValue) {
-        if(fieldValue!=null && matchValue!=null){
-            return  fieldValue.contains(matchValue);
+        if (!Strings.isNullOrEmpty(fieldValue) && !Strings.isNullOrEmpty(matchValue)) {
+              fieldValue= fieldValue.toLowerCase().trim();
+              matchValue = matchValue.toLowerCase().trim();
+              return fieldValue.contains(matchValue);
+              //黑白名单中，Match Value小
         }
         return false;
     }
 }
+
 class LEComparer extends ConditionComparer {
     @Override
     public boolean match(String fieldValue, String matchValue) {
-        if(fieldValue!=null && matchValue!=null){
+        if (!Strings.isNullOrEmpty(fieldValue)) {
             BigDecimal fv = new BigDecimal(fieldValue);
             BigDecimal mv = new BigDecimal(matchValue);
             return fv.compareTo(mv) <= 0;
@@ -118,8 +128,10 @@ class LEComparer extends ConditionComparer {
 class LLIKEComparer extends ConditionComparer {
     @Override
     public boolean match(String fieldValue, String matchValue) {
-        if(fieldValue!=null && matchValue!=null){
-            return  fieldValue.startsWith(matchValue);
+        if (!Strings.isNullOrEmpty(fieldValue)) {
+            fieldValue = fieldValue.toLowerCase().trim();
+            matchValue = matchValue.toLowerCase().trim();
+            return fieldValue.startsWith(matchValue);
         }
         return false;
     }

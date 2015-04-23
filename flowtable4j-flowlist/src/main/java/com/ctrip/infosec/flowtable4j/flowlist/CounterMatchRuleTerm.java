@@ -2,9 +2,13 @@ package com.ctrip.infosec.flowtable4j.flowlist;
 
 import com.ctrip.infosec.flowtable4j.dal.Counter;
 import com.ctrip.infosec.flowtable4j.model.FlowFact;
+import com.google.common.base.Stopwatch;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by thyang on 2015/3/24 0024.
@@ -16,7 +20,7 @@ public class CounterMatchRuleTerm extends FlowRuleTerm {
     private Integer startOffset;
     private Integer endOffset;
     private String sqlStatement;
-
+    private static Logger logger = LoggerFactory.getLogger(CounterMatchRuleTerm.class);
     public CounterMatchRuleTerm(String fieldName, String operator, String matchValue) {
         super(fieldName, operator, matchValue);
     }
@@ -24,7 +28,7 @@ public class CounterMatchRuleTerm extends FlowRuleTerm {
     public void setCountType(String countType, String countField, String sqlStatement) {
         this.countType = countType;
         this.countField = countField;
-        this.sqlStatement = sqlStatement;
+        this.sqlStatement = sqlStatement.replace('@', ':').toUpperCase();
     }
 
     public void setTimeOffset(Integer startOffset, Integer endOffset) {
@@ -34,12 +38,17 @@ public class CounterMatchRuleTerm extends FlowRuleTerm {
 
     @Override
     public boolean check(FlowFact fact) {
+        if(executor == null){
+            return false;
+        }
+        Stopwatch stopwatch = Stopwatch.createStarted();
         boolean matched = false;
         if (prefix == null) {
             Object obj = fact.getObject(fieldName);
             if (obj != null) {
                 String key = String.format("%s|(%d,%d)|%s", sqlStatement, startOffset, endOffset, obj);
                 if (fact.requestCache.containsKey(key)) {
+                    logger.debug("[whereField:"+fieldName+",sqlStatement:"+sqlStatement+"][op:"+executor.toString()+"][matchValue:"+matchValue+"]");
                     matched = executor.match(fact.requestCache.get(key), matchValue);
                 } else {
                     String count = Counter.getCounter(countType, sqlStatement, fieldName, startOffset,
@@ -74,6 +83,8 @@ public class CounterMatchRuleTerm extends FlowRuleTerm {
                 }
             }
         }
+        stopwatch.stop();
+        logger.info("CounterMatch costs:"+stopwatch.elapsed(TimeUnit.MILLISECONDS)+"ms");
         return matched;
     }
 }

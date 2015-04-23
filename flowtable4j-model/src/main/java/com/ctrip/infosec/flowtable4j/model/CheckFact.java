@@ -1,13 +1,22 @@
 package com.ctrip.infosec.flowtable4j.model;
 
 /**
-* Created by zhangsx on 2015/3/24.
-*/
+ * Created by zhangsx on 2015/3/24.
+ */
 public class CheckFact {
     private CheckType[] checkTypes;
     private AccountFact accountFact;
     private BWFact bwFact;
     private FlowFact flowFact;
+    private long reqId;
+
+    public long getReqId() {
+        return reqId;
+    }
+
+    public void setReqId(long reqId) {
+        this.reqId = reqId;
+    }
 
     public CheckType[] getCheckTypes() {
         return checkTypes;

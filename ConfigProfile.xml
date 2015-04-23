@@ -110,7 +110,7 @@
 		<CLogging.serverPort>63100</CLogging.serverPort>
 		<Configs.Caches.url>http://10.2.25.54:8080/configsws/rest/loadconfig</Configs.Caches.url></uat_nt>
 	<prd>
-		<DBDataCenter></DBDataCenter>
+		<DBDataCenter>_SH</DBDataCenter>
 		<AppID>100000807</AppID>
 		<ESBUrl>http://soa.fws.qa.nt.ctripcorp.com/SOA.ESB/Ctrip.SOA.ESB.asmx</ESBUrl>
 		<sars.monitor.rest.url>http://10.8.85.45:8080/infosec-monitor-ws/rest/monitor</sars.monitor.rest.url>

@@ -22,39 +22,35 @@ import java.util.concurrent.TimeUnit;
  */
 @Component
 public class ParameterDeamon {
-    /**
-     * 开启监听
-     */
+
     private Logger logger = LoggerFactory.getLogger(ParameterDeamon.class);
-    private Map checkType2Int = new HashMap();
-    private Map sceneType2Int = new HashMap();
-    //TODO template PCIDB 实现
+    private Map<String,String> checkType2Int = new HashMap<String,String>();
+    private Map<String,String> sceneType2Int = new HashMap<String,String>();
+
     @Autowired
     @Qualifier("pciAccountRiskDetailDBTemplate")
     private JdbcTemplate template;
 
     @Scheduled(fixedDelay = 5*60*1000)
     public void startWatch() {
-        String sql = "Select ParamType,CheckType,SceneType,ResultLevel,ParamValue From AccountSecurity_Param with (nolock) Where ParamType <= 2";
+        String sql = "Select ParamType,CheckType,SceneType,ResultLevel " +
+                     "From AccountSecurity_Param with (nolock) " +
+                     "Where ParamType <= 2";
         List<Map<String, Object>> ips = template.queryForList(sql);
         if (ips != null && ips.size() > 0) {
-            String key = "";
-            String pType, checkType, stype, resultlv, paraVal;
+            String pType, checkType, sceneType, resultLevel;
             for (Map p : ips) {
                 pType = Objects.toString(p.get("ParamType"), "");
-                checkType = Objects.toString(p.get("CheckType"), "");
-                stype = Objects.toString(p.get("SceneType"), "");
-                resultlv = Objects.toString(p.get("ResultLevel"), "");
-                paraVal = Objects.toString(p.get("ParamValue"), "");
-
-                Objects.toString("", "");
+                checkType = Objects.toString(p.get("CheckType"), "").toUpperCase();
+                sceneType = Objects.toString(p.get("SceneType"), "").toUpperCase();
+                resultLevel = Objects.toString(p.get("ResultLevel"), "0");
                 if ("1".equals(pType)) {
                     if (!checkType2Int.containsKey(checkType)) {
-                        checkType2Int.put(checkType, resultlv);
+                        checkType2Int.put(checkType, resultLevel);
                     }
                 } else if ("2".equals(pType)) {
-                    if (!sceneType2Int.containsKey(stype)) {
-                        sceneType2Int.put(stype, resultlv);
+                    if (!sceneType2Int.containsKey(sceneType)) {
+                        sceneType2Int.put(sceneType, resultLevel);
                     }
                 }
             }
@@ -64,7 +60,6 @@ public class ParameterDeamon {
 
     /**
      * 获取检验类型 int
-     *
      * @param key
      * @return
      */
@@ -72,7 +67,7 @@ public class ParameterDeamon {
         if (!Strings.isNullOrEmpty(key)) {
             key = key.toUpperCase();
             if (checkType2Int.containsKey(key)) {
-                return Integer.parseInt(checkType2Int.get(key).toString());
+                return Integer.parseInt(checkType2Int.get(key));
             }
         }
         return 0;
@@ -88,7 +83,7 @@ public class ParameterDeamon {
         if (!Strings.isNullOrEmpty(key)) {
             key = key.toUpperCase();
             if (sceneType2Int.containsKey(key)) {
-                return Integer.parseInt(sceneType2Int.get(key).toString());
+                return Integer.parseInt(sceneType2Int.get(key));
             }
         }
         return 0;

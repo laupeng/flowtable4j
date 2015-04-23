@@ -1,54 +1,84 @@
 package com.ctrip.infosec.flowtable4j.dal;
 
-import ch.qos.logback.classic.PatternLayout;
 import com.ctrip.infosec.sars.util.SpringContextHolder;
-import org.apache.commons.dbcp.BasicDataSource;
+import com.google.common.base.Stopwatch;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
-import javax.sql.DataSource;
+import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by thyang on 2015/3/25 0025.
  */
 public class Counter {
-//    @Resource(name = "riskCtrlPreProcDBNamedTemplate")
+    // @Resource(name = "riskCtrlPreProcDBNamedTemplate")
     private static NamedParameterJdbcTemplate namedParameterJdbcTemplate;
-    static{
+    private static Logger logger = LoggerFactory.getLogger(Counter.class);
+    private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd\'T\'HH:mm:ss.SSS");
+
+    static {
         namedParameterJdbcTemplate = SpringContextHolder.getBean("riskCtrlPreProcDBNamedTemplate");
     }
-    public static String getCounter(String countType,String sqlStatement,String whereField,
-                                      Integer fromOffset,Integer toOffset,Object matchFieldValue,Object whereFieldValue){
-        Map paramMap = new HashMap();
-        Set countSet = new HashSet();
-        sqlStatement = sqlStatement.replace('@',':');
-        long nowMillis = System.currentTimeMillis();
-        paramMap.put(whereField,whereFieldValue);
-        paramMap.put("StartTimeLimit",new Date(nowMillis+fromOffset*60*1000));
-        paramMap.put("TimeLimit",new Date(nowMillis+toOffset*60*1000));
 
-        List<Map<String,Object>> results = namedParameterJdbcTemplate.queryForList(sqlStatement, paramMap);
-        if("SUM".equals(countType)){
-            if(results!=null&&results.size()>0){
-                for(Iterator<String> it = results.get(0).keySet().iterator();it.hasNext();){
-                    return results.get(0).get(it.next()).toString();
+    public static String getCounter(String countType, String sqlStatement, String whereField,
+                                    Integer fromOffset, Integer toOffset, Object matchFieldValue, Object whereFieldValue) {
+
+        if (whereFieldValue == null || String.valueOf(whereField) == "") {
+            return "0";
+        }
+
+        Map<String, Object> paramMap = new HashMap<String, Object>();
+        Set countSet = new HashSet();
+        long nowMillis = System.currentTimeMillis();
+        long startMills = nowMillis + (long) fromOffset * 60 * 1000;
+        long timeLimit = nowMillis + (long) toOffset * 60 * 1000;
+
+        Date start = new Date(startMills);
+        Date limit = new Date(timeLimit);
+        paramMap.put(whereField.toUpperCase(), whereFieldValue);
+        paramMap.put("STARTTIMELIMIT", start);
+        paramMap.put("TIMELIMIT", limit);
+        Stopwatch stopwatch = Stopwatch.createStarted();
+
+        List<Map<String, Object>> results = namedParameterJdbcTemplate.queryForList(sqlStatement, paramMap);
+        logger.debug("sql:" + sqlStatement + ",whereField:" + whereFieldValue + ",StartTimeLimit:" + sdf.format(start) + "TimeLimit" + sdf.format(limit));
+        stopwatch.stop();
+        logger.info("get data from db costs : " + stopwatch.elapsed(TimeUnit.MILLISECONDS) + "ms");
+        if ("SUM".equals(countType)) {
+            double sum = 0d;
+            if (matchFieldValue != null) {
+                sum += Double.parseDouble(String.valueOf(matchFieldValue));
+            }
+            if (results != null && results.size() > 0) {
+                if (results != null && results.size() > 0) {
+                    String key = results.get(0).keySet().iterator().next();
+                    for (Map<String, Object> item : results) {
+                        String val = String.valueOf(item.get(key));
+                        if (!"null".equals(val)) {
+                            sum += Double.parseDouble(val);
+                        }
+                    }
                 }
             }
+            return String.valueOf(sum);
         }
-        if("COUNT".equals(countType)){
-            if(results!=null&&results.size()>0){
+        if ("COUNT".equals(countType)) {
+            if (matchFieldValue != null) {
+                countSet.add(matchFieldValue.toString());
+            }
+            if (results != null && results.size() > 0) {
                 String key = results.get(0).keySet().iterator().next();
-                for(Map<String,Object> item : results){
+                for (Map<String, Object> item : results) {
                     String val = String.valueOf(item.get(key));
-                    if(!"null".equals(val)){
+                    if (!"null".equals(val)) {
                         countSet.add(val);
                     }
                 }
-                countSet.add(matchFieldValue);
-                return String.valueOf(countSet.size());
             }
+            return String.valueOf(countSet.size());
         }
         return "0";
     }

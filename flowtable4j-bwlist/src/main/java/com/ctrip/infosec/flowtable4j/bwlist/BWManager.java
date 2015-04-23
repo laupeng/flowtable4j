@@ -38,7 +38,7 @@ public class BWManager {
             }
         }
         catch (Throwable ex){
-            logger.warn(ex.getMessage());
+            logger.warn(ex.getMessage(),ex);
         }
         return false;
     }
@@ -50,7 +50,7 @@ public class BWManager {
             }
         }
         catch (Throwable ex){
-            logger.warn(ex.getMessage());
+            logger.warn(ex.getMessage(),ex);
         }
         return false;
     }
@@ -75,7 +75,7 @@ public class BWManager {
             return true;
         }
         catch (Throwable ex){
-            logger.warn(ex.getMessage());
+            logger.warn(ex.getMessage(),ex);
             return false;
         }
     }
@@ -100,7 +100,7 @@ public class BWManager {
             return true;
         }
         catch (Throwable ex){
-            logger.warn(ex.getMessage());
+            logger.warn(ex.getMessage(),ex);
             return false;
         }
     }

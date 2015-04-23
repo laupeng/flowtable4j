@@ -33,7 +33,7 @@
         <appender-ref ref="CLoggingAppender" />
     </logger>
     <logger name="com.ctrip.infosec.sars.monitor" additivity="false">
-        <level value="WARN" />
+        <level value="ERROR" />
         <appender-ref ref="STDOUT" />
         <appender-ref ref="fileAppender" />
         <appender-ref ref="CLoggingAppender" />

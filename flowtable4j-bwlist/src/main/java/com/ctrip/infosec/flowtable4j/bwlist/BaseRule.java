@@ -72,7 +72,7 @@ public abstract class BaseRule {
             globalNEQ_Read.lock();
             return checkNEQRules(fact, globalNEQ, results);
         } catch (Throwable ex) {
-            logger.warn(ex.getMessage());
+            logger.warn(ex.getMessage(),ex);
         } finally {
             globalNEQ_Read.unlock();
         }
@@ -90,7 +90,7 @@ public abstract class BaseRule {
             globalEQ_Read.lock();
             return checkEQRules(fact, globalEQ, results);
         } catch (Throwable ex) {
-            logger.warn(ex.getMessage());
+            logger.warn(ex.getMessage(),ex);
         } finally {
             globalEQ_Read.unlock();
         }
@@ -111,7 +111,7 @@ public abstract class BaseRule {
               return checkNEQRules(fact, orderTypeNEQ.get(orderType), results);
             }
         } catch (Throwable ex) {
-            logger.warn(ex.getMessage());
+            logger.warn(ex.getMessage(),ex);
         } finally {
             orderTypeNEQ_Read.unlock();
         }
@@ -132,7 +132,7 @@ public abstract class BaseRule {
                return checkEQRules(fact, orderTypeEQ.get(orderType), results);
             }
         } catch (Throwable ex) {
-            logger.warn(ex.getMessage());
+            logger.warn(ex.getMessage(),ex);
         } finally {
             orderTypeEQ_Read.unlock();
         }
@@ -218,7 +218,7 @@ public abstract class BaseRule {
                     globalEQ_Write.lock();
                     mergeMap(globalEQTemp, globalEQ);
                 } catch (Throwable ex) {
-                    logger.warn(ex.getMessage());
+                    logger.warn(ex.getMessage(),ex);
                 } finally {
                     globalEQ_Write.unlock();
                 }
@@ -229,7 +229,7 @@ public abstract class BaseRule {
                     globalNEQ_Write.lock();
                     mergeMap(globalNEQTemp, globalNEQ);
                 } catch (Throwable ex) {
-                    logger.warn(ex.getMessage());
+                    logger.warn(ex.getMessage(),ex);
                 } finally {
                     globalNEQ_Write.unlock();
                 }
@@ -240,7 +240,7 @@ public abstract class BaseRule {
                     orderTypeEQ_Write.lock();
                     mergeMap(orderTypeEQTemp, orderTypeEQ);
                 } catch (Throwable ex) {
-                    logger.warn(ex.getMessage());
+                    logger.warn(ex.getMessage(),ex);
                 } finally {
                     orderTypeEQ_Write.unlock();
                 }
@@ -251,7 +251,7 @@ public abstract class BaseRule {
                     orderTypeNEQ_Write.lock();
                     mergeMap(orderTypeNEQTemp, orderTypeNEQ);
                 } catch (Throwable ex) {
-                    logger.warn(ex.getMessage());
+                    logger.warn(ex.getMessage(),ex);
                 } finally {
                     orderTypeNEQ_Write.unlock();
                 }
@@ -360,7 +360,7 @@ public abstract class BaseRule {
                     globalEQ_Write.lock();
                     removeMap(globalEQTemp, globalEQ);
                 } catch (Throwable ex) {
-                    logger.warn(ex.getMessage());
+                    logger.warn(ex.getMessage(),ex);
                 } finally {
                     globalEQ_Write.unlock();
                 }
@@ -371,7 +371,7 @@ public abstract class BaseRule {
                     globalNEQ_Write.lock();
                     removeMap(globalNEQTemp, globalNEQ);
                 } catch (Throwable ex) {
-                    logger.warn(ex.getMessage());
+                    logger.warn(ex.getMessage(),ex);
                 } finally {
                     globalNEQ_Write.unlock();
                 }
@@ -382,7 +382,7 @@ public abstract class BaseRule {
                     orderTypeEQ_Write.lock();
                     removeMap(orderTypeEQTemp, orderTypeEQ);
                 } catch (Throwable ex) {
-                    logger.warn(ex.getMessage());
+                    logger.warn(ex.getMessage(),ex);
                 } finally {
                     orderTypeEQ_Write.unlock();
                 }
@@ -393,7 +393,7 @@ public abstract class BaseRule {
                     orderTypeNEQ_Write.lock();
                     removeMap(orderTypeNEQTemp, orderTypeNEQ);
                 } catch (Throwable ex) {
-                    logger.warn(ex.getMessage());
+                    logger.warn(ex.getMessage(),ex);
                 } finally {
                     orderTypeNEQ_Write.unlock();
                 }

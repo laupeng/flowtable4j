@@ -1,4 +1,5 @@
 package com.ctrip.infosec.flowtable4j.accountsecurity;
+
 import com.ctrip.infosec.flowtable4j.core.utils.SimpleStaticThreadPool;
 import com.ctrip.infosec.flowtable4j.model.AccountFact;
 import com.ctrip.infosec.flowtable4j.model.AccountItem;
@@ -10,7 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by zhangsx on 2015/3/17.
@@ -32,114 +35,123 @@ public class PaymentViaAccount {
      * @param fact
      * @return
      */
-    public void CheckBWGRule(AccountFact fact,Map<String, Integer> result) {
-        if (fact==null ||fact.getCheckItems() == null || fact.getCheckItems().size() == 0) {
+    public void CheckBWGRule(AccountFact fact, Map<String, Integer> result) {
+        if (fact == null || fact.getCheckItems() == null || fact.getCheckItems().size() == 0) {
             throw new RuntimeException("数据格式错误，请求内容为空");
         }
         List<Callable<Object>> tasks = new ArrayList<Callable<Object>>();
         final String currentDate = format.format(System.currentTimeMillis());
 
         //多线程取Redis规则
-        final ConcurrentHashMap<String,List<RedisStoreItem>> dic_allRules = new ConcurrentHashMap<String, List<RedisStoreItem>>();
+        final ConcurrentHashMap<String, List<RedisStoreItem>> dic_allRules = new ConcurrentHashMap<String, List<RedisStoreItem>>();
+
         //按Key取SortedSet Rules并发取规则
         for (final AccountItem item : fact.getCheckItems()) {
-
+            //参数为空，略过
             if (Strings.isNullOrEmpty(item.getCheckType().trim()) || Strings.isNullOrEmpty(item.getSceneType().trim()) ||
                     Strings.isNullOrEmpty(item.getCheckValue().trim())) {
                 continue;
             }
-            result.put(item.getSceneType().toUpperCase(),0);
+
+            result.put(item.getSceneType().toUpperCase(), 0);
+
             final int chkType = parameterDeamon.getCheckType(item.getCheckType());
-            final int scntype = parameterDeamon.getSceneType(item.getSceneType());
-            if (chkType > 0 && scntype > 0) {
+            final int sceneType = parameterDeamon.getSceneType(item.getSceneType());
+
+            if (chkType > 0 && sceneType > 0) {
                 tasks.add(new Callable<Object>() {
                     @Override
                     public Object call() throws Exception {
                         KeyValue keyValue = new KeyValue();
                         keyValue.setSceneType(item.getSceneType().toUpperCase());
-                        keyValue.setRuleKey(String.format("CheckType:{%s}|SceneType:{%s}|CheckValue:{%s}", chkType, scntype, item.getCheckValue()).toUpperCase());
-
+                        keyValue.setRuleKey(String.format("CheckType:{%s}|SceneType:{%s}|CheckValue:{%s}", chkType, sceneType, item.getCheckValue()).toUpperCase());
                         getRuleByKey(dic_allRules, currentDate, keyValue);
                         return null;
                     }
                 });
             }
         }
-        List<Future<Object>> results = SimpleStaticThreadPool.invokeAll(tasks, ACCOUNT_EXPIRE, TimeUnit.MILLISECONDS);
+        try {
+            SimpleStaticThreadPool.getInstance().invokeAll(tasks, ACCOUNT_EXPIRE, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            logger.error("InterruptedException.", e);
+        }
         MergeRedisRules(dic_allRules, result);
-        return;
     }
 
     /**
      * 合并结果
+     *
      * @param dic_allRules
      * @param response
      */
-    private void MergeRedisRules(Map<String, List<RedisStoreItem>> dic_allRules, Map<String, Integer> response) {
+    public void MergeRedisRules(Map<String, List<RedisStoreItem>> dic_allRules, Map<String, Integer> response) {
+        /**
+         * 所有有效黑白名单
+         */
         List<RedisStoreItem> allRules = new ArrayList<RedisStoreItem>();
-        for(List<RedisStoreItem> items : dic_allRules.values()){
+        for (List<RedisStoreItem> items : dic_allRules.values()) {
             allRules.addAll(items);
         }
+        /**
+         * 按SceneType + ResultLevel 排序
+         */
+        Collections.sort(allRules, new Comparator<RedisStoreItem>() {
+            @Override
+            public int compare(RedisStoreItem o1, RedisStoreItem o2) {
+                int cmp = o1.getSceneType().compareToIgnoreCase(o2.getSceneType());
+                if (cmp == 0) {
+                    cmp = o1.getResultLevel() - o2.getResultLevel();
+                }
+                return cmp;
+            }
+        });
 
-        HashMap<String,List<RedisStoreItem>> group = new HashMap<String, List<RedisStoreItem>>();
-        for(RedisStoreItem entry:allRules){
-            if(group.containsKey(entry.getSceneType())){
-                group.get(entry.getSceneType()).add(entry);
-            }else{
-                List<RedisStoreItem> group_list = new ArrayList<RedisStoreItem>();
-                group_list.add(entry);
-                group.put(entry.getSceneType(),group_list);
+        String currentSceneType = "";
+        int currentResultLevel = 0;
+        /**
+         * 按SceneType遍历规则，如果有<99的取最小，否则取最大
+         */
+        for (Iterator<RedisStoreItem> it = allRules.iterator(); it.hasNext(); ) {
+            RedisStoreItem item = it.next();
+            if (item.getSceneType().compareToIgnoreCase(currentSceneType) == 0) {
+                if (currentResultLevel > 99) {
+                    currentResultLevel = item.getResultLevel();
+                }
+            } else {
+                if (!currentSceneType.equals("")) {
+                    response.put(currentSceneType, currentResultLevel);
+                }
+                currentSceneType = item.getSceneType().toUpperCase();
+                currentResultLevel = item.getResultLevel();
             }
         }
-
-        for(Iterator<String> it=group.keySet().<String>iterator();it.hasNext();){
-            String key= it.next();
-            List<RedisStoreItem> list = group.get(key);
-            Collections.sort(list, new Comparator<RedisStoreItem>() {
-                @Override
-                public int compare(RedisStoreItem o1, RedisStoreItem o2) {
-                    if(o1.getResultLevel()==o2.getResultLevel()){
-                        return 0;
-                    }else if(o1.getResultLevel()>o2.getResultLevel()){
-                        return 1;
-                    }else{
-                        return -1;
-                    }
-                }
-            });
-            //白名单取第一笔，其它取最大值
-            RedisStoreItem item = list.get(0);
-            if (item.getResultLevel() > 99)
-            {
-                item = list.get(list.size() - 1);
-            }
-            response.put(item.getSceneType(),item.getResultLevel());
+        if (!currentSceneType.equals("")) {
+            response.put(currentSceneType, currentResultLevel);
         }
     }
 
 
     /**
      * 线程方法，增加异常处理
+     *
      * @param dic_allRules
      * @param currentDate
      * @param ruleInfo
      */
     private void getRuleByKey(Map<String, List<RedisStoreItem>> dic_allRules, String currentDate, Object ruleInfo) {
-        if(ruleInfo instanceof KeyValue){
-            KeyValue val = (KeyValue)ruleInfo;
+        if (ruleInfo instanceof KeyValue) {
+            KeyValue val = (KeyValue) ruleInfo;
             List<RedisStoreItem> redisStoreItems = redisProvider.GetBWGFromRedis(val.getRuleKey());
-            List<RedisStoreItem> redisRules = new ArrayList<RedisStoreItem>();
-            if(redisStoreItems!=null){
-                for(RedisStoreItem item : redisStoreItems){
-                    if(item.getEffectDate().compareTo(currentDate)<=0&&currentDate.compareTo(item.getExpiryDate())<=0){
-                        redisRules.add(item);
+            if (redisStoreItems != null && redisStoreItems.size() > 0) {
+                for (int i = redisStoreItems.size() - 1; i >= 0; i--) {
+                    RedisStoreItem item = redisStoreItems.get(i);
+                    if (item.getEffectDate().compareTo(currentDate) > 0 || currentDate.compareTo(item.getExpiryDate()) > 0) {
+                        redisStoreItems.remove(i);
                     }
                 }
-            }
-
-            for(RedisStoreItem item : redisRules){
-                if(item.getSceneType().equals(val.getSceneType())){
-                    dic_allRules.put(val.getRuleKey(),redisRules);
+                if (redisStoreItems.size() > 0){
+                    dic_allRules.put(val.getRuleKey(), redisStoreItems);
                 }
             }
         }
