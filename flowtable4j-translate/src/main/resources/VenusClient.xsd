@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+  <xs:element name="venus-client">
+    <xs:complexType>
+      <xs:all>
+        <xs:element ref="remotes" maxOccurs="1" minOccurs="0"/>
+        <xs:element ref="services" maxOccurs="1"/>
+      </xs:all>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="remotes">
+    <xs:complexType>
+      <xs:sequence maxOccurs="unbounded" minOccurs="0">
+        <xs:element ref="remote"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="remote">
+    <xs:complexType>
+    	<xs:sequence>
+    		<xs:element ref="factory"></xs:element>
+    		<xs:element ref="pool" />
+    		<xs:element ref="authenticator" maxOccurs="1" minOccurs="0" />
+    	</xs:sequence>
+    	<xs:attribute name="name" use="required" type="xs:NCName" />
+
+    	<xs:attribute name="loadbalance" default="1">
+    		<xs:simpleType>
+    			<xs:restriction base="xs:int">
+
+    				<xs:maxInclusive value="4"></xs:maxInclusive>
+    				<xs:minInclusive value="1"></xs:minInclusive>
+    			</xs:restriction>
+    		</xs:simpleType>
+    	</xs:attribute>
+    	<xs:attribute name="share" type="xs:boolean"></xs:attribute>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="factory">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="property" minOccurs="0"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="pool">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="property" minOccurs="0"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="authenticator">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="property" minOccurs="0"/>
+      </xs:sequence>
+      <xs:attribute name="class" use="required"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="services">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="service" minOccurs="0"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="service">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" minOccurs="0" ref="property"/>
+        <xs:element minOccurs="0" ref="endpoint" maxOccurs="unbounded"/>
+      </xs:sequence>
+      <xs:attribute name="remote" use="optional" type="xs:NCName"/>
+      <xs:attribute name="beanName" use="optional" type="xs:NCName"/>
+      <xs:attribute name="type" use="required"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="endpoint">
+    <xs:complexType>
+      <xs:attribute name="name" use="required" type="xs:NCName"/>
+      <xs:attribute name="timeWait" use="optional" type="xs:integer"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="property">
+    <xs:complexType mixed="true">
+      <xs:sequence minOccurs="0">
+        <xs:element ref="bean"/>
+      </xs:sequence>
+      <xs:attribute name="name" use="required" type="xs:NCName"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="bean">
+    <xs:complexType>
+      <xs:sequence maxOccurs="unbounded" minOccurs="0">
+        <xs:element ref="property"/>
+      </xs:sequence>
+      <xs:attribute name="class" type="xs:NCName"/>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

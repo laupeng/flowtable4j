@@ -15,9 +15,15 @@ public class Processor
     public void execute(Map data)
     {
         //订单类型(1 2 3 4 ...24)
-        int orderType = (int) data.get("OrderType");
+        Object orderType = data.get("OrderType");
+        Object checkType = data.get("OrderType");
+        if(orderType != null)
+        {
+
+        }
+//        int order = (int) data.get("OrderType");
         //支付类型（0 1 2）
-        int CheckType = (int) data.get("CheckType");
+//        int CheckType = (int) data.get("CheckType");
         //FIXME 这里有24个业务线 怎么把不同的订单划分到不同的业务比较好
 
     }

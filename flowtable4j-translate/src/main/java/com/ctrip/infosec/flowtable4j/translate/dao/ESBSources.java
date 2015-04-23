@@ -12,6 +12,7 @@ import org.dom4j.Element;
 import javax.xml.namespace.QName;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -22,7 +23,7 @@ import java.util.Map;
 public class ESBSources
 {
     private static final QName SERVICE_NAME = new QName("http://tempuri.org/", "ESB");
-    ESBSoap port = null;
+    public static ESBSoap port = null;
     /*esb的url*/
     static final String serviceUrl = GlobalConfig.getString("ESB.serviceUrl");
     static final String appId = GlobalConfig.getString("appId");
@@ -37,7 +38,7 @@ public class ESBSources
         URL wsdlURL = null;
         try
         {
-            wsdlURL = new URL("");
+            wsdlURL = new URL(serviceUrl);
         } catch (MalformedURLException e)
         {
             e.printStackTrace();
@@ -47,6 +48,7 @@ public class ESBSources
     }
 
     /**
+     * 提供给外部使用的的接口
      * 测试这个接口的报文数据
      * @param requestXml
      * @return
@@ -60,24 +62,24 @@ public class ESBSources
 
     /**
      * 这里构建xml需要根据不同的服务配置不同的格式
-     * @param contentId
-     * @param contentType
+     * @param contentBody   <GetCreditCardInfoRequest><CardInfoId>" + params.get("cardInfoId") + "</CardInfoId></GetCreditCardInfoRequest>
+     * @param contentType   AccCash.CreditCard.GetCreditCardInfo
      * @return
      */
-    private String constructXml(String contentId,String contentType)//FIXME 根据不同的服务配置不同的格式
+    public String constructXml(String contentBody,String contentType)//FIXME 根据不同的服务配置不同的格式
     {
         StringBuilder requestContent = new StringBuilder();
         requestContent.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
         requestContent.append("<Request>");
         requestContent.append(String.format("<Header UserID=\"%s\" RequestType=\"%s\" />", appId, contentType));
-        requestContent.append(contentId);
+        requestContent.append(contentBody);
         requestContent.append("</Request>");
         return requestContent.toString();
     }
 
-    private Map parseXml(String xml,String xpath) throws DocumentException
+    public Map parseXml(String xml,String xpath) throws DocumentException
     {
-        Map resultMap = null;
+        Map<String,Object> resultMap = new HashMap();
         Document document = DocumentHelper.parseText(xml);
         //String xpath = "/Response/GetCreditCardInfoResponse/CreditCardItems/CreditCardInfoResponseItem";//FIXME xpath 应该作为参数传进来
         List<Element> list = document.selectNodes(xpath);

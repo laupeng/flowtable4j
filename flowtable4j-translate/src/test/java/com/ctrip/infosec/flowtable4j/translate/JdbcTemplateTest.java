@@ -24,7 +24,7 @@ import java.util.Map;
  * @author zhengby
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"classpath*:spring/preprocess-datasource.xml"})
+@ContextConfiguration(locations = {"classpath*:spring/preprocess-datasource-test.xml"})
 public class JdbcTemplateTest
 {
     @Resource(name = "CardRiskDB")

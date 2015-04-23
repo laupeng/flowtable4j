@@ -1,13 +1,11 @@
 package com.ctrip.infosec.flowtable4j.translate.model;
 
 /**
- * Created by lpxie on 15-4-16.
- * checkType=0的报文字段标签
- * 注意里面有两个字段的名称一样,
- * 在嵌套里面的字段名称前面加了一个S字母区分
+ * Created by lpxie on 15-4-20.
  */
-public class Flight
+public class HotelGroup
 {
+
     public static String OrderType = "OrderType";
     public static String OrderID = "OrderID";
     public static String MerchantID = "MerchantID";
@@ -214,4 +212,5 @@ public class Flight
 
     //DID相关相关信息
     public static String DIDInfo = "DIDInfo";
+
 }

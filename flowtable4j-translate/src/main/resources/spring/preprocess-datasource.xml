@@ -13,38 +13,18 @@
 
     <!--生产环境数据库连接 单改变环境的时候需要更改id的名称-->
     <!-- JDNI数据源 -->
-    <bean id="dataSource_CardRiskDB" class="org.springframework.jndi.JndiObjectFactoryBean">
+    <!--<bean id="dataSource_CardRiskDB" class="org.springframework.jndi.JndiObjectFactoryBean">
         <property name="jndiName" value="java:comp/env/jdbc/CardRiskDB_SELECT_1"/>
     </bean>
     <bean id="dataSource_RiskCtrlPreProcDB" class="org.springframework.jndi.JndiObjectFactoryBean">
         <property name="jndiName" value="java:comp/env/jdbc/RiskCtrlPreProcDB_SELECT_1"/>
     </bean>
 
-    <!-- 单元测试使用的Dev数据库 -->
-    <bean id="cardRiskDBDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-        <property name="driverClassName" value="com.microsoft.sqlserver.jdbc.SQLServerDriver"/>
-        <property name="url" value="jdbc:sqlserver://devdb.dev.sh.ctriptravel.com:28747;database=CardRiskDB;integratedSecurity=false"/>
-        <property name="username" value="uws_AllInOneKey_dev"/>
-        <property name="password" value="!QAZ@WSX1qaz2wsx"/>
-        <property name="maxIdle" value="5" />
-        <property name="maxActive" value="50" />
-    </bean>
-
-    <!-- 单元测试使用的Dev数据库 -->
-    <bean id="riskCtrlPreProcDBDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-        <property name="driverClassName" value="$com.microsoft.sqlserver.jdbc.SQLServerDriver"/>
-        <property name="url" value="jdbc:sqlserver://devdb.dev.sh.ctriptravel.com:28747;database=RiskCtrlPreProcDB;integratedSecurity=false"/>
-        <property name="username" value="uws_AllInOneKey_dev"/>
-        <property name="password" value="!QAZ@WSX1qaz2wsx"/>
-        <property name="maxIdle" value="5" />
-        <property name="maxActive" value="50" />
-    </bean>
-
-    <!-- JDBC模板 -->
+    &lt;!&ndash; JDBC模板 &ndash;&gt;
     <bean id="CardRiskDB" class="org.springframework.jdbc.core.JdbcTemplate">
-        <property name="dataSource" ref="cardRiskDBDataSource"/>
+        <property name="dataSource" ref="dataSource_CardRiskDB"/>
     </bean>
     <bean id="RiskCtrlPreProcDB" class="org.springframework.jdbc.core.JdbcTemplate">
-        <property name="dataSource" ref="riskCtrlPreProcDBDataSource"/>
-    </bean>
+        <property name="dataSource" ref="dataSource_RiskCtrlPreProcDB"/>
+    </bean>-->
 </beans>

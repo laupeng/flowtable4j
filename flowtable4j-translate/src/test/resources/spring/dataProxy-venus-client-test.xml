@@ -12,27 +12,21 @@
             http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd
             http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-4.0.xsd">
      
-    <context:annotation-config />
-    <context:component-scan base-package="com.ctrip.infosec.flowtable4j.translate.core" />
+    <!-- use venus placeholder config process -->
+    <bean class="com.meidusa.venus.spring.VenusPropertyPlaceholderConfigurer">
+        <property name="location" value="classpath:GlobalConfig.properties"/>
+    </bean>    
     
+    <bean id="serviceFactory" class="com.meidusa.venus.client.VenusServiceFactory" destroy-method="destroy" >
+        <property name="configFiles">
+            <list>
+                <value>classpath:VenusClient.xml</value>
+            </list>
+        </property>
+    </bean>
+    
+    <bean class="org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor" />
+
     <!-- SpringContextHolder -->
-    <!--<bean class="com.ctrip.infosec.sars.util.SpringContextHolder"/>-->
-    
-    <!-- 初始化Engine -->
-    <bean id="statelessRuleEngine" class="com.ctrip.infosec.flowtable4j.translate.core.engine.StatelessRuleEngine" init-method="initEngine"/>
-    
-    <!-- 初始化缓存 -->
-    <bean class="com.ctrip.infosec.configs.ConfigsDeamon" init-method="start" depends-on="statelessRuleEngine">
-        <property name="url" value="${Configs.URL}"/>
-        <property name="part" value="RuleEngine"/>   
-        <property name="callback">
-            <bean class="com.ctrip.infosec.flowtable4j.translate.core.executor.RuleUpdateCallback"/>
-        </property>  
-    </bean>
-    
-    <!-- 初始化trace工具 -->
-    <bean class="com.ctrip.infosec.configs.rule.trace.TraceDeamon" init-method="start" destroy-method="stop">
-        <property name="url" value="${Configs.Trace.URL}"/>
-    </bean>
-                       
+    <bean class="com.ctrip.infosec.sars.util.SpringContextHolder"/>
 </beans>

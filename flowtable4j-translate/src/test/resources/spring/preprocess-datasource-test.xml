@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:c="http://www.springframework.org/schema/c"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+            http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+            http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+            http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">
+
+    <context:component-scan base-package="com.ctrip.infosec.flowtable4j.translate.dao"/>
+    <context:component-scan base-package="com.ctrip.infosec.flowtable4j.translate.service"/>
+    <!-- 单元测试使用的Dev数据库 -->
+    <bean id="cardRiskDBDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="com.microsoft.sqlserver.jdbc.SQLServerDriver"/>
+        <property name="url" value="jdbc:sqlserver://devdb.dev.sh.ctriptravel.com:28747;database=CardRiskDB;integratedSecurity=false"/>
+        <property name="username" value="uws_AllInOneKey_dev"/>
+        <property name="password" value="!QAZ@WSX1qaz2wsx"/>
+        <property name="maxIdle" value="5" />
+        <property name="maxActive" value="50" />
+    </bean>
+
+    <!-- 单元测试使用的Dev数据库 -->
+    <bean id="riskCtrlPreProcDBDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="$com.microsoft.sqlserver.jdbc.SQLServerDriver"/>
+        <property name="url" value="jdbc:sqlserver://devdb.dev.sh.ctriptravel.com:28747;database=RiskCtrlPreProcDB;integratedSecurity=false"/>
+        <property name="username" value="uws_AllInOneKey_dev"/>
+        <property name="password" value="!QAZ@WSX1qaz2wsx"/>
+        <property name="maxIdle" value="5" />
+        <property name="maxActive" value="50" />
+    </bean>
+
+    <!--机票库-->
+    <bean id="fltProductDBDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="$com.microsoft.sqlserver.jdbc.SQLServerDriver"/>
+        <property name="url" value="jdbc:sqlserver://devdb.dev.sh.ctriptravel.com:28747;database=FltProductDB;integratedSecurity=false"/>
+        <property name="username" value="uws_AllInOneKey_dev"/>
+        <property name="password" value="!QAZ@WSX1qaz2wsx"/>
+        <property name="maxIdle" value="5" />
+        <property name="maxActive" value="50" />
+    </bean>
+
+    <!-- JDBC模板 -->
+    <bean id="CardRiskDB" class="org.springframework.jdbc.core.JdbcTemplate">
+        <property name="dataSource" ref="cardRiskDBDataSource"/>
+    </bean>
+    <bean id="RiskCtrlPreProcDB" class="org.springframework.jdbc.core.JdbcTemplate">
+        <property name="dataSource" ref="riskCtrlPreProcDBDataSource"/>
+    </bean>
+    <bean id="FltProductDB" class="org.springframework.jdbc.core.JdbcTemplate">
+        <property name="dataSource" ref="fltProductDBDataSource"/>
+    </bean>
+
+    <bean id="flightSources" class="com.ctrip.infosec.flowtable4j.translate.dao.FlightSources" />
+
+    <bean id="flightExecutor" class="com.ctrip.infosec.flowtable4j.translate.service.FlightExecutor"/>
+
+    <bean id="redisSources" class="com.ctrip.infosec.flowtable4j.translate.dao.RedisSources" init-method="init"/>
+
+    <bean id="esbSources" class="com.ctrip.infosec.flowtable4j.translate.dao.ESBSources" init-method="init"/>
+
+    <bean id="dataProxySources" class="com.ctrip.infosec.flowtable4j.translate.dao.DataProxySources" />
+</beans>
