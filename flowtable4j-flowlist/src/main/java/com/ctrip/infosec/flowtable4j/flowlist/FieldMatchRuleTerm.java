@@ -29,8 +29,8 @@ public class FieldMatchRuleTerm extends FlowRuleTerm {
                 for (Map<String, Object> row : rows) {
                     String fn = getString(row, fieldName);
                     String mf = getString(row, matchField);
-                    if (executor.match(fn, mf)) {
-                        matched = true;
+                    matched =executor.match(fn, mf);
+                    if(matched){
                         break;
                     }
                 }

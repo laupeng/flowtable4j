@@ -15,8 +15,9 @@ public class CounterMatchRuleTerm extends FlowRuleTerm {
     private String countField;
     private Integer startOffset;
     private Integer endOffset;
-    private String  sqlStatement;
-    private String  keyFieldName;
+    private String sqlStatement;
+    private String keyFieldName;
+
     public CounterMatchRuleTerm(String fieldName, String operator, String matchValue) {
         super(fieldName, operator, matchValue);
         keyFieldName = fieldName.toUpperCase();
@@ -35,12 +36,12 @@ public class CounterMatchRuleTerm extends FlowRuleTerm {
 
     @Override
     public String toString() {
-        return String.format("%s|(%d,%d)|%s", sqlStatement, startOffset, endOffset,fieldName);
+        return String.format("%s|(%d,%d)|%s", sqlStatement, startOffset, endOffset, fieldName);
     }
 
     @Override
     public boolean check(FlowFact fact) {
-        if(executor == null){
+        if (executor == null) {
             return false;
         }
         boolean matched = false;
@@ -63,21 +64,21 @@ public class CounterMatchRuleTerm extends FlowRuleTerm {
              * 比较乘客时需要遍历所有乘客
              */
             List<Map<String, Object>> rows = (List<Map<String, Object>>) fact.getList(prefix);
-            if (rows != null && rows.size()>0) {
+            if (rows != null && rows.size() > 0) {
                 for (Map<String, Object> row : rows) {
                     String keyFieldValue = getString(row, fieldName);
                     if (!Strings.isNullOrEmpty(keyFieldValue)) {
-                        String key = String.format("%s|(%d,%d)|%s", sqlStatement, startOffset, endOffset,keyFieldValue).toUpperCase();
+                        String key = String.format("%s|(%d,%d)|%s", sqlStatement, startOffset, endOffset, keyFieldValue).toUpperCase();
                         if (fact.requestCache.containsKey(key)) {
                             matched = executor.match(fact.requestCache.get(key), matchValue);
                         } else {
                             String count = Counter.getCounter(countType, sqlStatement, fieldName, startOffset,
-                                    endOffset, getString(row,countField), keyFieldValue);
+                                    endOffset, getString(row, countField), keyFieldValue);
                             fact.requestCache.put(key, count);
-                            if (executor.match(count,matchValue)) {
-                                matched = true;
-                                break;
-                            }
+                            matched = executor.match(count, matchValue);
+                        }
+                        if (matched) { //多位乘客，只要命中一个既退出
+                            break;
                         }
                     }
                 }

@@ -28,8 +28,8 @@ public class ValueMatchRuleTerm extends FlowRuleTerm {
             if (rows != null && rows.size()>0) {
                 for (Map<String, Object> row : rows) {
                     String fn = getString(row, fieldName);
-                    if (executor.match(fn, matchValue)) {
-                        matched = true;
+                    matched = executor.match(fn, matchValue);
+                    if(matched){ //其中一行数据满足即退出
                         break;
                     }
                 }
