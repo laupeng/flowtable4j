@@ -161,12 +161,9 @@ public class Processor {
         for (Iterator<String> it = mapAccount.keySet().iterator(); it.hasNext(); ) {
             String sceneType = it.next();
             CheckResultLog riskResult = new CheckResultLog();
-            riskResult.setRuleID(0);
-            riskResult.setRuleRemark(sceneType);
             riskResult.setRuleType(CheckType.ACCOUNT.toString());
-            riskResult.setRuleName("ACCOUNTSEC");
+            riskResult.setRuleName(sceneType);
             riskResult.setRiskLevel(mapAccount.get(sceneType));
-
             listResult.add(riskResult);
         }
         listResult.merge(listResult_b);
@@ -191,8 +188,7 @@ public class Processor {
                                     cs.setString(5, Objects.toString(item.getRuleName(), ""));
                                     cs.setInt(6, item.getRiskLevel());
                                     cs.setString(7, Objects.toString(item.getRuleRemark(), ""));
-                                    cs.setDate(8, new Date(System.currentTimeMillis()));
-
+                                    cs.setTimestamp(8, new Timestamp(System.currentTimeMillis()));
                                     cs.registerOutParameter(1, Types.BIGINT);// 注册输出参数的类型
                                     return cs;
                                 }

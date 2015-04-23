@@ -36,7 +36,5 @@ public class CounterTest {
         String aa=null;
         System.out.println(f1()|f2());
         System.out.println(String.format("%d GT %d",2,1));
-        Pattern p = Pattern.compile("",Pattern.CASE_INSENSITIVE);
-        System.out.println(p.matcher("AA").find());
   }
 }

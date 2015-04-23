@@ -1,16 +1,18 @@
 package com.ctrip.infosec.flowtable4j.dal;
 
 import com.ctrip.infosec.sars.util.SpringContextHolder;
-import com.google.common.base.Stopwatch;
 import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
+import java.sql.Timestamp;
 import java.sql.Types;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by thyang on 2015/3/25 0025.
@@ -31,12 +33,13 @@ public class Counter {
         long startMills = nowMillis + (long) fromOffset * 60 * 1000;
         long timeLimit = nowMillis + (long) toOffset * 60 * 1000;
 
-        Date start = new Date(startMills);
-        Date limit = new Date(timeLimit);
+        Timestamp start = new Timestamp(startMills);
+        Timestamp limit = new Timestamp(timeLimit);
+
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue(whereField,whereFieldValue, Types.VARCHAR);
-        params.addValue("STARTTIMELIMIT", start, Types.DATE);
-        params.addValue("TIMELIMIT", limit, Types.DATE);
+        params.addValue("STARTTIMELIMIT", start, Types.TIMESTAMP);
+        params.addValue("TIMELIMIT", limit, Types.TIMESTAMP);
 
         List<Map<String, Object>> results = namedParameterJdbcTemplate.queryForList(sqlStatement, params);
 

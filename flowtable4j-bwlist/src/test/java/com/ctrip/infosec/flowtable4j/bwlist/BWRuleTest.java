@@ -6,8 +6,10 @@ import org.apache.commons.dbcp.BasicDataSource;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
+import java.sql.Types;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -106,28 +108,19 @@ public class BWRuleTest {
         dataSource.setMaxActive(50);
         NamedParameterJdbcTemplate CardRiskDB = new NamedParameterJdbcTemplate(dataSource);
 
-        String sqlStatement = "select CCardNoCode from CTRIP_FLT_CCardNoCode_OrderID(nolock)  where OrderID = @OrderID and CreateDate>=@StartTimeLimit and CreateDate<=@TimeLimit";
+        String sqlStatement = "select CCardNoCode from CTRIP_FLT_CCardNoCode_OrderID(nolock)  where ReqID = 992 and CreateDate <= @StartTimeLimit";
 
-        Map<String,Object> paramMap = new HashMap<String, Object>();
         Set countSet = new HashSet();
         sqlStatement = sqlStatement.replace('@', ':').toUpperCase();
-        int fromOffset=-24*60*380;
-        long nowMillis = System.currentTimeMillis();
-        long startMills = nowMillis + (long)fromOffset * 60 * 1000;
-        long timeLimit = nowMillis;
-        String whereField = "OrderID";
         Object whereFieldValue=602105156;
-        Date start = new Date(startMills);
-        Date limit = new Date(timeLimit);
-        paramMap.put(whereField.toUpperCase(), whereFieldValue);
-        paramMap.put("STARTTIMELIMIT", start);
-        paramMap.put("TIMELIMIT", limit);
-        Stopwatch stopwatch = Stopwatch.createStarted();
+        Date limit = new Date(System.currentTimeMillis()-24 * 24 * 60 * 60 * 1000);
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("STARTTIMELIMIT", limit, Types.TIMESTAMP);
 
-        List<Map<String, Object>> results = CardRiskDB.queryForList(sqlStatement, paramMap);
+        List<Map<String, Object>> results = CardRiskDB.queryForList(sqlStatement, params);
         String countType="COUNT";
         Object matchFieldValue="XXXX";
-        stopwatch.stop();
+
         if ("SUM".equals(countType)) {
             double sum = 0d;
             if(matchFieldValue!=null){
