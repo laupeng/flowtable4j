@@ -2,6 +2,7 @@ package com.ctrip.infosec.flowtable4j.dal;
 
 import com.ctrip.infosec.sars.util.SpringContextHolder;
 import com.google.common.base.Stopwatch;
+import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -41,7 +42,7 @@ public class Counter {
 
         if ("SUM".equals(countType)) {
             double sum = 0d;
-            if (matchFieldValue != null) {
+            if (!Strings.isNullOrEmpty(matchFieldValue)) {
                 sum += Double.parseDouble(String.valueOf(matchFieldValue));
             }
             if (results != null && results.size() > 0) {
@@ -59,13 +60,13 @@ public class Counter {
         }
         if ("COUNT".equals(countType)) {
             Set<String> countSet = new HashSet<String>();
-            if (matchFieldValue != null) {
-                countSet.add(matchFieldValue.toString());
+            if (!Strings.isNullOrEmpty(matchFieldValue)) {
+                countSet.add(matchFieldValue.toLowerCase());
             }
             if (results != null && results.size() > 0) {
                 String key = results.get(0).keySet().iterator().next();
                 for (Map<String, Object> item : results) {
-                    String val = String.valueOf(item.get(key));
+                    String val = String.valueOf(item.get(key)).toLowerCase();
                     if (!"null".equals(val)) {
                         countSet.add(val);
                     }
