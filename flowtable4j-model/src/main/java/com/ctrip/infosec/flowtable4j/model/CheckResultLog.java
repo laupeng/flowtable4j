@@ -9,6 +9,13 @@ public class CheckResultLog {
     private String ruleName;
     private Integer riskLevel;
     private String ruleRemark;
+    public CheckResultLog(){
+        ruleID = 0;
+        riskLevel =0;
+        ruleType ="";
+        ruleName ="";
+        ruleRemark ="";
+    }
 
     public String getRuleType() {
         return ruleType;

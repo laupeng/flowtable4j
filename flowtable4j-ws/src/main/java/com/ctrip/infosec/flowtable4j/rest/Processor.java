@@ -1,8 +1,8 @@
 package com.ctrip.infosec.flowtable4j.rest;
 
-import com.ctrip.infosec.flowtable4j.core.utils.SimpleStaticThreadPool;
 import com.ctrip.infosec.flowtable4j.accountsecurity.PaymentViaAccount;
 import com.ctrip.infosec.flowtable4j.bwlist.BWManager;
+import com.ctrip.infosec.flowtable4j.core.utils.SimpleStaticThreadPool;
 import com.ctrip.infosec.flowtable4j.flowlist.FlowRuleManager;
 import com.ctrip.infosec.flowtable4j.model.*;
 import com.ctrip.infosec.sars.monitor.util.Utils;
@@ -11,12 +11,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.*;
+import org.springframework.jdbc.core.CallableStatementCallback;
+import org.springframework.jdbc.core.CallableStatementCreator;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import java.sql.*;
-import java.sql.Date;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
@@ -60,8 +60,6 @@ public class Processor {
                 long eps = System.currentTimeMillis() - s;
                 String info=String.format("ReqId:%d, CheckWhite elapse %d ms",checkEntity.getReqId(),eps);
                 CheckResultLog result = new CheckResultLog();
-                result.setRuleID(0);
-                result.setRiskLevel(0);
                 result.setRuleRemark(info);
                 result.setRuleName(String.valueOf(eps));
                 result.setRuleType(CheckType.BW.toString());
@@ -94,8 +92,6 @@ public class Processor {
                         long eps = System.currentTimeMillis() - now;
                         String info=String.format("ReqId:%d,CheckBlack elapse %d ms",checkEntity.getReqId(),eps);
                         CheckResultLog result = new CheckResultLog();
-                        result.setRuleID(0);
-                        result.setRiskLevel(0);
                         result.setRuleRemark(info);
                         result.setRuleName(String.valueOf(eps));
                         result.setRuleType(CheckType.BW.toString());
@@ -116,8 +112,6 @@ public class Processor {
                         long eps = System.currentTimeMillis() - now;
                         String info=String.format("ReqId:%d,CheckBWGRule elapse %d ms",checkEntity.getReqId(),eps);
                         CheckResultLog result = new CheckResultLog();
-                        result.setRuleID(0);
-                        result.setRiskLevel(0);
                         result.setRuleRemark(info);
                         result.setRuleName(String.valueOf(eps));
                         result.setRuleType(CheckType.ACCOUNT.toString());
@@ -136,8 +130,6 @@ public class Processor {
                         long eps = System.currentTimeMillis() - now;
                         String info=String.format("ReqId:%d,CheckFlowRule elapse %d ms",checkEntity.getReqId(),eps);
                         CheckResultLog result = new CheckResultLog();
-                        result.setRuleID(0);
-                        result.setRiskLevel(0);
                         result.setRuleRemark(info);
                         result.setRuleName(String.valueOf(eps));
                         result.setRuleType(CheckType.FLOWRULE.toString());
