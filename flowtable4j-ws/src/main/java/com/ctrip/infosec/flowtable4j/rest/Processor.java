@@ -30,6 +30,7 @@ public class Processor {
     private static Logger logger = LoggerFactory.getLogger(Processor.class);
     @Autowired
     private PaymentViaAccount paymentViaAccount;
+
     @Autowired
     @Qualifier("cardRiskDBInsertTemplate")
     private JdbcTemplate cardRiskDBTemplate;
@@ -38,15 +39,13 @@ public class Processor {
 
     public RiskResult handle(final CheckFact checkEntity) {
 
-        /**
-         * debug use
-         */
-        logger.debug("----json body start-----");
+        long s = System.currentTimeMillis();
         logger.debug(Utils.JSON.toJSONString(checkEntity));
-        logger.debug("----json body end-----");
+        logger.debug(String.format("ReqId %d to Json elapsed %d",checkEntity.getReqId(),System.currentTimeMillis() -s));
 
         final RiskResult listResult_w = new RiskResult();
         final RiskResult listResult = new RiskResult();
+
         boolean isWhite = false;
         /**
          * 1. 检测是否是白名单，是就直接返回，否则继续check黑名单，账户和flowrule
@@ -57,6 +56,17 @@ public class Processor {
                     listResult.merge(listResult_w);
                     isWhite = true;
                 }
+                //log req
+                long eps = System.currentTimeMillis() - s;
+                String info=String.format("ReqId:%d, CheckWhite elapse %d ms",checkEntity.getReqId(),eps);
+                CheckResultLog result = new CheckResultLog();
+                result.setRuleID(0);
+                result.setRiskLevel(0);
+                result.setRuleRemark(info);
+                result.setRuleName(String.valueOf(eps));
+                result.setRuleType(CheckType.BW.toString());
+                listResult.add(result);
+                logger.debug(info);
             }
         }
         if (!isWhite) {
@@ -81,7 +91,16 @@ public class Processor {
                     public Object call() throws Exception {
                         long now = System.currentTimeMillis();
                         BWManager.checkBlack(checkEntity.getBwFact(), listResult_b);
-                        logger.info("***1:" + (System.currentTimeMillis() - now));
+                        long eps = System.currentTimeMillis() - now;
+                        String info=String.format("ReqId:%d,CheckBlack elapse %d ms",checkEntity.getReqId(),eps);
+                        CheckResultLog result = new CheckResultLog();
+                        result.setRuleID(0);
+                        result.setRiskLevel(0);
+                        result.setRuleRemark(info);
+                        result.setRuleName(String.valueOf(eps));
+                        result.setRuleType(CheckType.BW.toString());
+                        listResult_b.add(result);
+                        logger.debug(info);
                         return null;
                     }
                 });
@@ -93,8 +112,17 @@ public class Processor {
                         AccountFact item = checkEntity.getAccountFact();
                         if(item!=null&&item.getCheckItems()!=null&&item.getCheckItems().size()>0){
                             paymentViaAccount.CheckBWGRule(item, mapAccount);
-                            logger.info("***2:" + (System.currentTimeMillis() - now));
                         }
+                        long eps = System.currentTimeMillis() - now;
+                        String info=String.format("ReqId:%d,CheckBWGRule elapse %d ms",checkEntity.getReqId(),eps);
+                        CheckResultLog result = new CheckResultLog();
+                        result.setRuleID(0);
+                        result.setRiskLevel(0);
+                        result.setRuleRemark(info);
+                        result.setRuleName(String.valueOf(eps));
+                        result.setRuleType(CheckType.ACCOUNT.toString());
+                        listResult_b.add(result);
+                        logger.debug(info);
                         return null;
                     }
                 });
@@ -105,7 +133,16 @@ public class Processor {
                         long now = System.currentTimeMillis();
                         FlowFact flowFact = checkEntity.getFlowFact();
                         FlowRuleManager.check(flowFact, listFlow);
-                        logger.info("***3:" + (System.currentTimeMillis() - now));
+                        long eps = System.currentTimeMillis() - now;
+                        String info=String.format("ReqId:%d,CheckFlowRule elapse %d ms",checkEntity.getReqId(),eps);
+                        CheckResultLog result = new CheckResultLog();
+                        result.setRuleID(0);
+                        result.setRiskLevel(0);
+                        result.setRuleRemark(info);
+                        result.setRuleName(String.valueOf(eps));
+                        result.setRuleType(CheckType.FLOWRULE.toString());
+                        listResult_b.add(result);
+                        logger.debug(info);
                         return null;
                     }
                 });
@@ -167,6 +204,5 @@ public class Processor {
                 }
             });
         }
-//        SimpleStaticThreadPool.invokeAll(tasks, DBTIMEOUT, TimeUnit.MILLISECONDS);
     }
 }

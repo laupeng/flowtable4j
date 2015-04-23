@@ -1,5 +1,8 @@
 package com.ctrip.infosec.flowtable4j.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by zhangsx on 2015/3/24.
  */
@@ -48,5 +51,27 @@ public class CheckFact {
 
     public void setAccountFact(AccountFact accountFact) {
         this.accountFact = accountFact;
+    }
+
+    /**
+     * 初始化默认订单类型
+     */
+    public void processOrderTypes()
+    {
+        if(bwFact!=null){
+            if(bwFact.getOrderTypes()==null){
+                List<Integer> os= new ArrayList<Integer>();
+                os.add(0);
+                bwFact.setOrderTypes(os);
+            }
+        }
+        if(flowFact!=null){
+            if(flowFact.getOrderTypes()==null){
+                List<Integer> os= new ArrayList<Integer>();
+                os.add(0);
+                flowFact.setOrderTypes(os);
+            }
+            flowFact.setReqId(reqId);
+        }
     }
 }

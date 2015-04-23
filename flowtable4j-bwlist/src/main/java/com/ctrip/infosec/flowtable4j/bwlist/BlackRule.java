@@ -2,6 +2,7 @@ package com.ctrip.infosec.flowtable4j.bwlist;
 
 import com.ctrip.infosec.flowtable4j.model.BWFact;
 import com.ctrip.infosec.flowtable4j.model.RiskResult;
+import com.google.common.base.Strings;
 
 import java.util.HashMap;
 import java.util.List;
@@ -14,56 +15,60 @@ public class BlackRule extends BaseRule {
 
     @Override
     public boolean check(BWFact fact,RiskResult results) {
-        checkEQRuleByOrderType(fact, results);
-        checkGlobalEQRule(fact, results);
-        checkNEQRuleByOrderType(fact, results);
-        checkGlobalNEQRule(fact, results);
-        return true;
+        return checkEQRuleByOrderType(fact, results) | checkNEQRuleByOrderType(fact, results);
     }
 
     @Override
-    protected boolean checkEQRules(BWFact fact, HashMap<String, HashMap<String, List<RuleStatement>>> matchRules, RiskResult results) {
-        boolean matched = false;
-        for (String key : matchRules.keySet()) {
-            String val = fact.getString(key);
-            if (val != null && val != "") {
-                HashMap<String, List<RuleStatement>> fieldRules = matchRules.get(key);
-                if (fieldRules.containsKey(val)) {
-                    List<RuleStatement> valRules = fieldRules.get(val);
-                    try {
-                        for (RuleStatement ruleStatement : valRules) {
-                            matched = ruleStatement.check(fact, results) | matched;
+    protected boolean checkEQRules(BWFact fact, HashMap<Integer,HashMap<String, HashMap<String, List<RuleStatement>>>> orderTypeEQ, RiskResult results) {
+        int matched = 0;
+        for (Integer orderType : fact.getOrderTypes()) {
+            if (orderTypeEQ.containsKey(orderType)) {
+                HashMap<String, HashMap<String, List<RuleStatement>>> matchRules = orderTypeEQ.get(orderType);
+                for (String key : matchRules.keySet()) { //遍历所有字段
+                    String val = fact.getString(key);
+                    if (!Strings.isNullOrEmpty(val)) {
+                        HashMap<String, List<RuleStatement>> fieldRules = matchRules.get(key);
+                        if (fieldRules.containsKey(val)) { //如果值的 Key 存在
+                            List<RuleStatement> valRules = fieldRules.get(val);
+                            try {
+                                for (RuleStatement ruleStatement : valRules) {
+                                    if(ruleStatement.check(fact, results))  matched++;
+                                }
+                            } catch (Throwable ex) {
+                                logger.warn(ex.getMessage(), ex);
+                            }
                         }
                     }
-                    catch (Throwable ex)
-                    {
-                        logger.warn(ex.getMessage(),ex);
-                    }
                 }
             }
         }
-        return matched;
+        return matched > 0;
     }
 
     @Override
-    protected boolean checkNEQRules(BWFact fact, HashMap<String, List<RuleStatement>> matchRules, RiskResult results) {
-        boolean matched = false;
-        for (String key : matchRules.keySet()) {
-            String val = fact.getString(key);
-            if (val != null && val != "") {
-                List<RuleStatement> keyRules = matchRules.get(key);
-                try {
-                    for (RuleStatement ruleStatement : keyRules) {
-                        matched = ruleStatement.check(fact, results) | matched;
+    protected boolean checkNEQRules(BWFact fact,HashMap<Integer,HashMap<String, List<RuleStatement>>> orderTypeNEQ, RiskResult results) {
+        int matched = 0;
+        for (Integer orderType : fact.getOrderTypes()) {
+            if (orderTypeNEQ.containsKey(orderType)) {
+                HashMap<String, List<RuleStatement>> matchRules= orderTypeNEQ.get(orderType);
+                for (String key : matchRules.keySet()) { //遍历所有字段
+                     String val = fact.getString(key);
+                     if (!Strings.isNullOrEmpty(val)) {
+                        List<RuleStatement> keyRules = matchRules.get(key);
+                        try {
+                            for (RuleStatement ruleStatement : keyRules) {
+                                if(ruleStatement.check(fact, results)) matched++;
+                            }
+                        }
+                        catch (Throwable ex)
+                        {
+                            logger.warn(ex.getMessage(),ex);
+                        }
                     }
-                }
-                catch (Throwable ex)
-                {
-                    logger.warn(ex.getMessage(),ex);
                 }
             }
         }
-        return matched;
+        return matched > 0;
     }
 
 }

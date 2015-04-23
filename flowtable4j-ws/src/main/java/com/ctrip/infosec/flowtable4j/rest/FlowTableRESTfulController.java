@@ -8,6 +8,7 @@ package com.ctrip.infosec.flowtable4j.rest;
 import com.ctrip.infosec.flowtable4j.model.CheckFact;
 import com.ctrip.infosec.flowtable4j.model.CheckResultLog;
 import com.ctrip.infosec.flowtable4j.model.RiskResult;
+import com.ctrip.infosec.sars.monitor.util.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +32,9 @@ public class FlowTableRESTfulController {
     private static Logger logger = LoggerFactory.getLogger(FlowTableRESTfulController.class);
     @RequestMapping(value = "/checkRisk")
     public @ResponseBody
-    RiskResult checkRisk(@RequestBody CheckFact checkEntity) {
+    RiskResult checkRisk(@RequestBody String requestInfo) {
+        CheckFact checkEntity = Utils.JSON.parseObject(requestInfo,CheckFact.class);
+        checkEntity.processOrderTypes();
         return processor.handle(checkEntity);
     }
 }

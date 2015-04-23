@@ -15,6 +15,8 @@ public class FlowFact {
      */
     private Integer orderType;
 
+    private List<Integer> orderTypes;
+
     private List<String>  prepayType;
 
     public Map<String,String> requestCache = new HashMap<String, String>();
@@ -40,6 +42,7 @@ public class FlowFact {
         this.content = content;
     }
 
+    private long reqId;
 
     /**
      * 获取直接双亲
@@ -86,17 +89,6 @@ public class FlowFact {
         return null;
     }
 
-    public Object getObject(String... keyPath) {
-        Map<String, Object> parentMap = getDirectParentMapNode(keyPath);
-        if (parentMap != null) {
-            String key = keyPath[keyPath.length - 1];
-            if (parentMap.containsKey(key)) {
-                return parentMap.get(key);
-            }
-        }
-        return null;
-    }
-
 
     /**
      * 获取子节点
@@ -135,6 +127,23 @@ public class FlowFact {
 
     public void setPrepayType(List<String> prepayType) {
         this.prepayType = prepayType;
+    }
+
+
+    public void setOrderTypes(List<Integer> orderTypes) {
+        this.orderTypes = orderTypes;
+    }
+
+    public List<Integer> getOrderTypes() {
+        return orderTypes;
+    }
+
+    public long getReqId() {
+        return reqId;
+    }
+
+    public void setReqId(long reqId) {
+        this.reqId = reqId;
     }
 }
 

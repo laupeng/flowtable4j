@@ -69,8 +69,28 @@ public class FlowRuleStatement {
             if (flowRuleTerms != null && flowRuleTerms.size() > 0) {
                 match = true;
                 for (FlowRuleTerm term : flowRuleTerms) {
-                    if (!term.check(fact)) {
-                        match = false;
+                    if(term instanceof CounterMatchRuleTerm){
+                        long start  = System.currentTimeMillis();
+                        match = term.check(fact);
+                        long elapse = System.currentTimeMillis() - start;
+                        if(elapse > 100){
+                            // 取数超过100ms
+                            String info = term.toString()+" ReqID:" + fact.getReqId();
+                            CheckResultLog result = new CheckResultLog();
+                            result.setRuleID(ruleID);
+                            result.setRiskLevel(riskLevel);
+                            result.setRuleRemark(info);
+                            result.setRuleName(String.valueOf(elapse));
+                            result.setRuleType(CheckType.COUNTER.toString());
+
+                            results.add(result);
+                            logger.debug(info);
+                        }
+                    }
+                    else {
+                          match =term.check(fact);
+                    }
+                    if(!match){
                         break;
                     }
                 }

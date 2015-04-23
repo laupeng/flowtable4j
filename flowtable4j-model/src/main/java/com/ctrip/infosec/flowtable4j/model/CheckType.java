@@ -23,5 +23,7 @@ public enum CheckType {
     /**
      *
      */
-    SCORE;
+    SCORE,
+
+    COUNTER;
 }

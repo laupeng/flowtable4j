@@ -1,5 +1,5 @@
 package com.ctrip.infosec.flowtable4j.model;
-
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -13,6 +13,7 @@ public class BWFact {
      */
     private Integer orderType;
 
+    private List<Integer> orderTypes;
     /**
      * 校验内容，字典类型
      */
@@ -89,4 +90,14 @@ public class BWFact {
         return null;
     }
 
+    /**
+     * 自定义 OrderTypes，包括 0
+     */
+    public List<Integer> getOrderTypes() {
+        return orderTypes;
+    }
+
+    public void setOrderTypes(List<Integer> orderTypes) {
+        this.orderTypes = orderTypes;
+    }
 }

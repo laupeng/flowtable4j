@@ -20,12 +20,8 @@ public abstract class BaseRule {
     /**
      * 订单类型区分
      */
-    private HashMap<Integer, OrderTypeRule> byOrderType = new HashMap<Integer, OrderTypeRule>();
+    private HashMap<Integer, HashMap<String, List<FlowRuleStatement>>> byOrderType = new HashMap<Integer, HashMap<String, List<FlowRuleStatement>>>();
 
-    /**
-     * 所有订单类型，OrderType=0
-     */
-    private OrderTypeRule allOrderType = new OrderTypeRule();
 
     /**
      * 黑白名单校验不同逻辑
@@ -38,29 +34,13 @@ public abstract class BaseRule {
 
     /**
      * 按订单类型校验
-     *
-     * @param rules
+     * @param byOrderType
      * @param fact
      * @param results
      * @return
      */
-    public abstract boolean checkByOrderType(OrderTypeRule rules, FlowFact fact, RiskResult results);
+    public abstract boolean checkByOrderType(HashMap<Integer, HashMap<String, List<FlowRuleStatement>>> byOrderType, FlowFact fact, RiskResult results);
 
-    /**
-     * 校验适用所有订单类型的规则
-     *
-     * @param fact
-     * @param results
-     * @return
-     */
-    protected boolean checkAllOrderTypeMap(FlowFact fact, RiskResult results) {
-        try {
-            return checkByOrderType(allOrderType, fact, results);
-        } catch (Throwable ex) {
-            logger.warn(ex.getMessage(),ex);
-        }
-        return false;
-    }
 
     /**
      * 优先校验按订单类型区分的规则
@@ -71,12 +51,9 @@ public abstract class BaseRule {
      */
     protected boolean checkByOrderTypeMap(FlowFact fact, RiskResult results) {
         try {
-            Integer orderType = fact.getOrderType();
-            if (byOrderType.containsKey(orderType)) {
-                return checkByOrderType(byOrderType.get(orderType), fact, results);
-            }
+            checkByOrderType(byOrderType, fact, results);
         } catch (Throwable ex) {
-            logger.warn(ex.getMessage(),ex);
+            logger.warn(ex.getMessage(), ex);
         }
         return false;
     }
@@ -90,11 +67,9 @@ public abstract class BaseRule {
     public boolean addRule(List<FlowRuleStatement> rules) {
 
         if (rules != null && rules.size() > 0) {
-            HashMap<Integer, OrderTypeRule> orderTypeMapTemp = new HashMap<Integer, OrderTypeRule>();
-            OrderTypeRule globalMapTemp = new OrderTypeRule();
-            buildRuleTree(rules, globalMapTemp, orderTypeMapTemp);
+            HashMap<Integer, HashMap<String, List<FlowRuleStatement>>> orderTypeMapTemp = new HashMap<Integer, HashMap<String, List<FlowRuleStatement>>>();
+            buildRuleTree(rules, orderTypeMapTemp);
             byOrderType = orderTypeMapTemp;
-            allOrderType = globalMapTemp;
         }
         return true;
     }
@@ -102,43 +77,33 @@ public abstract class BaseRule {
     /**
      * 构造规则树，按订单类型、支付类型
      */
-    private void buildRuleTree(List<FlowRuleStatement> rules, OrderTypeRule allOrderTypeTemp, HashMap<Integer, OrderTypeRule> byOrderTypeTemp) {
+    private void buildRuleTree(List<FlowRuleStatement> rules, HashMap<Integer, HashMap<String, List<FlowRuleStatement>>> orderTypeMapTemp) {
         Integer orderType = 0;
         String prepayType = "";
-        OrderTypeRule orderTypeRule;
         for (FlowRuleStatement rule : rules) {
             orderType = rule.getOrderType();
             prepayType = rule.getPrepayType();
-            if (orderType.equals(0)) {
-                addRuleByPrepayType(allOrderTypeTemp, prepayType, rule);
+            HashMap<String, List<FlowRuleStatement>> orderTypeRule = null;
+            if (orderTypeMapTemp.containsKey(orderType)) {
+                orderTypeRule = orderTypeMapTemp.get(orderType);
             } else {
-                if (byOrderTypeTemp.containsKey(orderType)) {
-                    orderTypeRule = byOrderTypeTemp.get(orderType);
-                } else {
-                    orderTypeRule = new OrderTypeRule();
-                }
-                addRuleByPrepayType(orderTypeRule, prepayType, rule);
-                byOrderTypeTemp.put(orderType, orderTypeRule);
+                orderTypeRule = new HashMap<String, List<FlowRuleStatement>>();
             }
+            addRuleByPrepayType(orderTypeRule, prepayType, rule);
+            orderTypeMapTemp.put(orderType, orderTypeRule);
         }
     }
 
-    private void addRuleByPrepayType(OrderTypeRule orderTypeRule, String prepayType, FlowRuleStatement rule) {
+    private void addRuleByPrepayType(HashMap<String, List<FlowRuleStatement>> orderTypeRule, String prepayType, FlowRuleStatement rule) {
         List<FlowRuleStatement> prepayRules;
-        if ("ALL".equalsIgnoreCase(prepayType)) {
-            if (!orderTypeRule.allPrepay.contains(rule)) {
-                orderTypeRule.allPrepay.add(rule);
-            }
+        if (orderTypeRule.containsKey(prepayType)) {
+            prepayRules = orderTypeRule.get(prepayType);
         } else {
-            if (orderTypeRule.byPrepay.containsKey(prepayType)) {
-                prepayRules = orderTypeRule.byPrepay.get(prepayType);
-            } else {
-                prepayRules = new ArrayList<FlowRuleStatement>();
-            }
-            if (!prepayRules.contains(rule)) {
-                prepayRules.add(rule);
-            }
-            orderTypeRule.byPrepay.put(prepayType, prepayRules);
+            prepayRules = new ArrayList<FlowRuleStatement>();
         }
+        if (!prepayRules.contains(rule)) {
+            prepayRules.add(rule);
+        }
+        orderTypeRule.put(prepayType, prepayRules);
     }
 }
