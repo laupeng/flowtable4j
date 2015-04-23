@@ -62,6 +62,7 @@ public class CheckFact {
             if(bwFact.getOrderTypes()==null){
                 List<Integer> os= new ArrayList<Integer>();
                 os.add(0);
+                os.add(bwFact.getOrderType());
                 bwFact.setOrderTypes(os);
             }
         }
@@ -69,6 +70,7 @@ public class CheckFact {
             if(flowFact.getOrderTypes()==null){
                 List<Integer> os= new ArrayList<Integer>();
                 os.add(0);
+                os.add(flowFact.getOrderType());
                 flowFact.setOrderTypes(os);
             }
             flowFact.setReqId(reqId);

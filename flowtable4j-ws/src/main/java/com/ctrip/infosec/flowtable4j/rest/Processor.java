@@ -161,9 +161,12 @@ public class Processor {
         for (Iterator<String> it = mapAccount.keySet().iterator(); it.hasNext(); ) {
             String sceneType = it.next();
             CheckResultLog riskResult = new CheckResultLog();
+            riskResult.setRuleID(0);
+            riskResult.setRuleRemark(sceneType);
             riskResult.setRuleType(CheckType.ACCOUNT.toString());
-            riskResult.setRuleName(sceneType);
+            riskResult.setRuleName("ACCOUNTSEC");
             riskResult.setRiskLevel(mapAccount.get(sceneType));
+
             listResult.add(riskResult);
         }
         listResult.merge(listResult_b);

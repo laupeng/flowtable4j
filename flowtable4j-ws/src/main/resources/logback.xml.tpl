@@ -59,7 +59,7 @@
         <level value="INFO" />
     </logger>
 
-    <root level="WARN">
+    <root level="DEBUG">
         <appender-ref ref="STDOUT" />
         <appender-ref ref="fileAppender" />
         <appender-ref ref="CLoggingAppender" />

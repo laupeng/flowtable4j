@@ -78,8 +78,8 @@ public class FlowRuleStatement {
                             // 取数超过100ms
                             String info = term.toString()+" ReqID:" + fact.getReqId();
                             CheckResultLog result = new CheckResultLog();
-                            result.setRuleID(ruleID);
-                            result.setRiskLevel(riskLevel);
+                            result.setRuleID(0);
+                            result.setRiskLevel(0);
                             result.setRuleRemark(info);
                             result.setRuleName(String.valueOf(elapse));
                             result.setRuleType(CheckType.COUNTER.toString());

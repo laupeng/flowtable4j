@@ -32,8 +32,7 @@ public class FlowTableRESTfulController {
     private static Logger logger = LoggerFactory.getLogger(FlowTableRESTfulController.class);
     @RequestMapping(value = "/checkRisk")
     public @ResponseBody
-    RiskResult checkRisk(@RequestBody String requestInfo) {
-        CheckFact checkEntity = Utils.JSON.parseObject(requestInfo,CheckFact.class);
+    RiskResult checkRisk(@RequestBody CheckFact checkEntity) {
         checkEntity.processOrderTypes();
         return processor.handle(checkEntity);
     }
