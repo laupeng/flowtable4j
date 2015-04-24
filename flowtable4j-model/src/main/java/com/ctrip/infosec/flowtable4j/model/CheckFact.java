@@ -2,10 +2,11 @@ package com.ctrip.infosec.flowtable4j.model;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 /**
  * Created by zhangsx on 2015/3/24.
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class CheckFact {
     private CheckType[] checkTypes;
     private AccountFact accountFact;
