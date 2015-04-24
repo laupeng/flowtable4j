@@ -27,43 +27,17 @@
     </appender>
 
     <logger name="com.ctrip.infosec.flowtable4j" additivity="false">
-        <level value="INFO" />
-        <appender-ref ref="STDOUT" />
-        <appender-ref ref="fileAppender" />
-        <appender-ref ref="CLoggingAppender" />
-    </logger>
-    <logger name="com.ctrip.infosec.sars.monitor" additivity="false">
-        <level value="ERROR" />
-        <appender-ref ref="STDOUT" />
-        <appender-ref ref="fileAppender" />
-        <appender-ref ref="CLoggingAppender" />
-    </logger>
+            <level value="DEBUG" />
+            <appender-ref ref="STDOUT" />
+            <appender-ref ref="fileAppender" />
+            <appender-ref ref="CLoggingAppender" />
+        </logger>
 
-    <logger name="org.springframework">
-        <level value="ERROR" />
-    </logger>
-
-    <logger name="org.mybatis">
-        <level value="WARN" />
-    </logger>
-
-    <logger name="java.sql">
-        <level value="WARN" />
-    </logger>
-
-    <logger name="org.apache.commons">
-        <level value="ERROR" />
-    </logger>
-
-    <logger name="org.eclipse.jetty">
-        <level value="INFO" />
-    </logger>
-
-    <root level="DEBUG">
-        <appender-ref ref="STDOUT" />
-        <appender-ref ref="fileAppender" />
-        <appender-ref ref="CLoggingAppender" />
-    </root>
+        <root level="ERROR">
+            <appender-ref ref="STDOUT" />
+            <appender-ref ref="fileAppender" />
+            <appender-ref ref="CLoggingAppender" />
+        </root>
 
 </configuration>
 

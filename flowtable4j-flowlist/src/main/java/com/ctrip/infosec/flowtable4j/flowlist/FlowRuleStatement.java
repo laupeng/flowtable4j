@@ -67,7 +67,6 @@ public class FlowRuleStatement {
         boolean match = false;
         try {
             if (flowRuleTerms != null && flowRuleTerms.size() > 0) {
-                logger.debug("#######ruleId:"+this.getRuleID()+" start check#######");
                 match = true;
                 for (FlowRuleTerm term : flowRuleTerms) {
                     if(term instanceof CounterMatchRuleTerm){
@@ -95,7 +94,6 @@ public class FlowRuleStatement {
                         break;
                     }
                 }
-                logger.debug("#######ruleId:"+this.getRuleID()+" end check and match:"+match+"#######");
             }
             if (match) {
                 CheckResultLog result = new CheckResultLog();
