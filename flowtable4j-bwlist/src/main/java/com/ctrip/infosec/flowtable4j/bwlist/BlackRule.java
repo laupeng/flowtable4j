@@ -25,7 +25,7 @@ public class BlackRule extends BaseRule {
             if (orderTypeEQ.containsKey(orderType)) {
                 HashMap<String, HashMap<String, List<RuleStatement>>> matchRules = orderTypeEQ.get(orderType);
                 for (String key : matchRules.keySet()) { //遍历所有字段
-                    String val = fact.getString(key);
+                    String val = Strings.nullToEmpty(fact.getString(key)).toUpperCase();
                     if (!Strings.isNullOrEmpty(val)) {
                         HashMap<String, List<RuleStatement>> fieldRules = matchRules.get(key);
                         if (fieldRules.containsKey(val)) { //如果值的 Key 存在
