@@ -2,6 +2,7 @@ package com.ctrip.infosec.flowtable4j.flowlist;
 import com.ctrip.infosec.flowtable4j.model.CheckType;
 import com.ctrip.infosec.flowtable4j.model.FlowFact;
 import com.ctrip.infosec.flowtable4j.model.CheckResultLog;
+import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -145,8 +146,12 @@ public class FlowRuleStatement {
         return prepayType;
     }
 
+    /**
+     * 不区分大小写
+     * @param prepayType
+     */
     public void setPrepayType(String prepayType) {
-        this.prepayType = prepayType;
+        this.prepayType = Strings.nullToEmpty(prepayType).toUpperCase();
     }
 }
 

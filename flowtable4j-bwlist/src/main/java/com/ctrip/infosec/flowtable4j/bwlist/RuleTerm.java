@@ -23,8 +23,9 @@ public class RuleTerm {
 
     public RuleTerm(String fieldName, String operator, String matchValue) {
         this.setFieldName(fieldName);
-        this.setMatchValue(matchValue);
-        this.operator = operator;
+        //兼容性考虑，用matchValue作为字典的Key，需要不区分大小写
+        this.setMatchValue(Strings.nullToEmpty(matchValue).toUpperCase());
+        this.operator = Strings.nullToEmpty(operator).toUpperCase();
 
         if ("EQ".equals(operator)) {
             executor = eqOper;

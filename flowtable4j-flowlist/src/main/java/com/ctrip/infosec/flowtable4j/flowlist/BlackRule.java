@@ -2,6 +2,7 @@ package com.ctrip.infosec.flowtable4j.flowlist;
 
 import com.ctrip.infosec.flowtable4j.model.FlowFact;
 import com.ctrip.infosec.flowtable4j.model.RiskResult;
+import com.google.common.base.Strings;
 
 import java.util.HashMap;
 import java.util.List;
@@ -23,6 +24,7 @@ public class BlackRule extends BaseRule  {
             if(byOrderType.containsKey(orderType)){
                 HashMap<String, List<FlowRuleStatement>> orderTypeRules = byOrderType.get(orderType);
                 for(String s:fact.getPrepayType()) {
+                    s= Strings.nullToEmpty(s).toUpperCase(); //PrepayType不区分大小写
                     if (orderTypeRules.containsKey(s)) {
                         for (FlowRuleStatement rule : orderTypeRules.get(s)) {
                              if(rule.check(fact, results)) {
