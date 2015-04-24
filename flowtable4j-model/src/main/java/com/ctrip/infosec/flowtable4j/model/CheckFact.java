@@ -2,7 +2,11 @@ package com.ctrip.infosec.flowtable4j.model;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIgnoreType;
+
 /**
  * Created by zhangsx on 2015/3/24.
  */

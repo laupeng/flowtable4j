@@ -1,5 +1,7 @@
 package com.ctrip.infosec.flowtable4j.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,6 +10,7 @@ import java.util.Map;
  * Created by thyang on 2015/3/13 0013.
  * 黑白名单校验实体
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class FlowFact {
 
     /**
