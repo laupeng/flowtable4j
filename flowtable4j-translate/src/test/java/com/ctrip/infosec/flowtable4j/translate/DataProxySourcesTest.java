@@ -7,19 +7,21 @@ import com.ctrip.sec.userprofile.contract.venusapi.DataProxyVenusService;
 import com.ctrip.sec.userprofile.vo.content.request.DataProxyRequest;
 import com.ctrip.sec.userprofile.vo.content.response.DataProxyResponse;
 import com.google.common.collect.ImmutableMap;
+import org.apache.commons.lang3.time.DateUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.text.ParseException;
 import java.util.*;
 
 /**
  * Created by lpxie on 15-4-10.
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"classpath*:spring/dataProxy-venus-client-test.xml"})
+/*@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = {"classpath*:spring/dataProxy-venus-client-test.xml"})*/
 public class DataProxySourcesTest
 {
     MyJSON myJSON = new MyJSON();
@@ -40,7 +42,7 @@ public class DataProxySourcesTest
         requests.add(request);
         requests.add(request);
         //List<DataProxyResponse> responses = dataProxyVenusService.dataproxyQueries(requests);
-       Map responses = DataProxySources.queryForOne("UserProfileService", "DataQuery", params);
+       Map responses = DataProxySources.queryForMap("UserProfileService", "DataQuery", params);
     }
 
     /**
@@ -65,7 +67,7 @@ public class DataProxySourcesTest
         String serviceName = "CRMService";
         String operationName = "getMemberInfo";
         Map params = ImmutableMap.of("uid", "wwwwww");
-         Map result = DataProxySources.queryForOne(serviceName, operationName, params);
+         Map result = DataProxySources.queryForMap(serviceName, operationName, params);
         System.out.println(myJSON.toPrettyJSONString(result));
 
         /*String serviceName = "AirPortService";
@@ -170,5 +172,21 @@ public class DataProxySourcesTest
         List<Map> result = DataProxySources.queryForList(requests);
 
         System.out.println(myJSON.toPrettyJSONString(result));
+    }
+
+    @Test
+    public void testDate()
+    {
+        String orderTime = "2015-4-27 14:41:15";
+
+        try
+        {
+            orderTime = orderTime.replace(" ","T")+".9564416+08:00";
+            Date newTime = DateUtils.parseDate(orderTime, "yyyy-MM-ddTHH:mm:ss");
+            System.out.println(orderTime);
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+        }
     }
 }

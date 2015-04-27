@@ -213,4 +213,65 @@ public class HotelGroup
     //DID相关相关信息
     public static String DIDInfo = "DIDInfo";
 
+    //paymentInfoList
+    public static String PaymentInfoList = "PaymentInfoList";
+
+    //CardBinIssue
+    public static String CardBinIssue = "CardBinIssue";
+
+    //PrepayTypeDetails
+    public static String PrepayTypeDetails = "PrepayTypeDetails";
+
+    //ContactEmail
+    public static String ContactEmail = "ContactEmail";
+
+    //ForignMobilePhone
+    public static String ForignMobilePhone = "ForignMobilePhone";
+
+    //SendTicketAddr
+    public static String SendTicketAddr = "SendTicketAddr";
+
+    //UserPassword
+    public static String UserPassword = "UserPassword";
+
+    //ProductID
+    public static String ProductID = "ProductID";
+
+    //ProductNameD
+    public static String ProductNameD = "ProductNameD";
+    //coutry id ...
+    public static String DeviceID = "DeviceID";
+    public static String FuzzyDeviceID = "FuzzyDeviceID";
+    public static String TrueIP = "TrueIP";
+    public static String TrueIPGeo = "TrueIPGeo";
+    public static String ProxyIP = "ProxyIP";
+    public static String ProxyIPGeo = "ProxyIPGeo";
+
+    //DID
+    public static String DID = "DID";
+
+    //MergerOrderDate
+    public static String MergerOrderDate = "MergerOrderDate";
+
+    //OrderDateHour
+    public static String OrderDateHour = "OrderDateHour";
+
+    //CardBinOrderID
+    public static String CardBinOrderID = "CardBinOrderID";
+
+    //CardBinUID
+    public static String CardBinUID = "CardBinUID";
+    public static String CardBinMobilePhone = "CardBinMobilePhone";
+    public static String CardBinUserIPAdd = "CardBinUserIPAdd";
+    public static String ContactEMailCardBin = "ContactEMailCardBin";
+
+    //UserIPAddMobileNumber
+    public static String UserIPAddMobileNumber = "UserIPAddMobileNumber";
+    public static String UIDMobileNumber = "UIDMobileNumber";
+
+    //主键表示
+    public static String ReqID = "ReqID";
+
+    //系统发行卡名称
+    public static String CardBinBankOfCardIssue = "CardBinBankOfCardIssue";
 }

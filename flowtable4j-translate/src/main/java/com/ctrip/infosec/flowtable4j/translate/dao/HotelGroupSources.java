@@ -3,6 +3,8 @@ package com.ctrip.infosec.flowtable4j.translate.dao;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -49,5 +51,163 @@ public class HotelGroupSources
             //log for warn
         }
         return ipInfo;
+    }
+
+    public Map getDIDInfo(String orderId,String orderType)
+    {
+        Map DIDInfo = null;
+        try{
+            String sqlCommand = "SELECT TOP 1 FROM CacheData_DeviceIDInfo with (nolock) WHERE [CacheData_DeviceIDInfo].[Oid] = "+orderId +" and " +
+                    "[CacheData_DeviceIDInfo].[Payid] = "+orderType +" order by [CacheData_DeviceIDInfo].[RecordID] desc";
+            DIDInfo = riskCtrlPreProcDBTemplate.queryForMap(sqlCommand);
+            return DIDInfo;
+        }catch (Exception exp)
+        {
+            //log for warn
+            return DIDInfo;
+        }
+    }
+
+    public Map getMainInfo(String orderType,String orderId)
+    {
+        Map mainInfo = null;
+        try{
+            String commandText = "SELECT top 1 * from InfoSecurity_MainInfo with(nolock) where [InfoSecurity_MainInfo].OrderType" +
+                    " = "+orderType +" and [InfoSecurity_MainInfo].OrderId = "+orderId+" order by [InfoSecurity_MainInfo].ReqID desc";
+            mainInfo = cardRiskDBTemplate.queryForMap(commandText);
+            return mainInfo;
+        }catch (Exception exp)
+        {
+            return mainInfo;
+        }
+    }
+
+    public Map getCardInfo(String cardTypeId,String cardBin)
+    {
+        Map cardInfo = null;
+        try{
+            String commandText = "SELECT * from CreditCardRule_ForeignCard with (nolock) where CardTypeID = "+cardTypeId
+                    +" and CardRule = "+cardBin;
+            cardInfo = cardRiskDBTemplate.queryForMap(commandText);
+            return cardInfo;
+        }catch(Exception exp)
+        {
+            return cardInfo;
+        }
+    }
+
+    public List getListPaymentInfo(long lastReqID)
+    {
+        List paymentInfoList = null;//这里的泛型类型到时根据数据库的数据来确定
+        try{
+            String commandText = "select * from InfoSecurity_PaymentInfo with (nolock) where [InfoSecurity_PaymentInfo].[ReqID] = " +
+                    lastReqID;
+            paymentInfoList = cardRiskDBTemplate.queryForList(commandText);
+            return paymentInfoList;
+        }catch(Exception exp)
+        {
+            return paymentInfoList;
+        }
+    }
+
+    public List getListCardInfo(String paymentInfoId)
+    {
+        List cardInfoList = null;
+        try
+        {
+            String commandText = "select * from InfoSecurity_CardInfo with (nolock) where [InfoSecurity_CardInfo].[PaymentInfoID] =" +
+                    paymentInfoId;
+            cardInfoList = cardRiskDBTemplate.queryForList(commandText);
+            return cardInfoList;
+        }catch(Exception exp)
+        {
+            return cardInfoList;
+        }
+    }
+
+    //获取mainInfo信息
+    public Map getPaymentMainInfo(long reqId)
+    {
+        Map paymentMainInfo = null;
+        try{
+            String commandText = "select * from InfoSecurity_PaymentMainInfo with (nolock) where [InfoSecurity_PaymentMainInfo].[ReqID] = " +
+                    reqId;
+            paymentMainInfo = cardRiskDBTemplate.queryForMap(commandText);
+            return paymentMainInfo;
+        }catch(Exception exp)
+        {
+            return paymentMainInfo;
+        }
+    }
+
+    //通过lastReqId获取联系人信息
+    public Map getContactInfo(long reqId)
+    {
+        Map contactInfo = null;
+        try{
+            String commandText = "select * from InfoSecurity_ContactInfo with (nolock) where [InfoSecurity_ContactInfo].[ReqID] = " +
+                    reqId;
+            contactInfo = cardRiskDBTemplate.queryForMap(commandText);
+            return contactInfo;
+        }catch(Exception exp)
+        {
+            return contactInfo;
+        }
+    }
+    //通过lastReqId获取用户信息
+    public Map getUserInfo(long reqId)
+    {
+        Map userInfo = null;
+        try{
+            String commandText = "select * from InfoSecurity_UserInfo with (nolock) where [InfoSecurity_UserInfo].[ReqID] = " +
+                    reqId;
+            userInfo = cardRiskDBTemplate.queryForMap(commandText);
+            return userInfo;
+        }catch(Exception exp)
+        {
+            return userInfo;
+        }
+    }
+    //通过lastReqId获取ip信息
+    public Map getIpInfo(long reqId)
+    {
+        Map userInfo = null;
+        try{
+            String commandText = "select * from InfoSecurity_UserInfo with (nolock) where [InfoSecurity_UserInfo].[ReqID] = " +
+                    reqId;
+            userInfo = cardRiskDBTemplate.queryForMap(commandText);
+            return userInfo;
+        }catch(Exception exp)
+        {
+            return userInfo;
+        }
+    }
+    //通过lastReqId获取酒店团购信息
+    public Map getHotelGroupInfo(long reqId)
+    {
+        Map hotelGroupInfo = null;
+        try{
+            String commandText = "select * from InfoSecurity_HotelGroupInfo with (nolock) where [InfoSecurity_HotelGroupInfo].[ReqID] = " +
+                    reqId;
+            hotelGroupInfo = cardRiskDBTemplate.queryForMap(commandText);
+            return hotelGroupInfo;
+        }catch(Exception exp)
+        {
+            return hotelGroupInfo;
+        }
+    }
+    //通过lastReqId获取其他信息
+    public Map getOtherInfo(long reqId)
+    {
+        Map otherInfo = null;
+        try{
+            String commandText = "select * from InfoSecurity_OtherInfo with (nolock) where [InfoSecurity_OtherInfo].[ReqID] = " +
+                    reqId;
+            otherInfo = cardRiskDBTemplate.queryForMap(commandText);
+            return otherInfo;
+        }catch(Exception exp)
+        {
+            return otherInfo;
+        }
     }
 }

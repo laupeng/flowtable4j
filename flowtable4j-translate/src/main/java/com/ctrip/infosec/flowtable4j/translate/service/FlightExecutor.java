@@ -653,7 +653,7 @@ public class FlightExecutor
         String uid = data.get(Flight.Uid)==null?"":data.get(Flight.Uid).toString();
         Map params = new HashMap();
         params.put("uid",uid);
-        Map uidInfo = DataProxySources.queryForOne("CRMService","getMemberInfo",params);
+        Map uidInfo = DataProxySources.queryForMap("CRMService","getMemberInfo",params);
         String BindedEmail = uidInfo.get(Flight.BindedEmail)==null?"":uidInfo.get(Flight.BindedEmail).toString();
         String BindedMobilePhone = uidInfo.get(Flight.BindedMobilePhone)==null?"":uidInfo.get(Flight.BindedMobilePhone).toString();
         String RelatedEMail = uidInfo.get(Flight.RelatedEMail)==null?"":uidInfo.get(Flight.RelatedEMail).toString();
