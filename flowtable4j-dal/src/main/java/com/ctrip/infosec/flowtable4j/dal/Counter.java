@@ -4,9 +4,13 @@ import com.ctrip.infosec.sars.util.SpringContextHolder;
 import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.jdbc.core.SqlParameterValue;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+import sun.misc.Unsafe;
 
+import java.sql.DriverManager;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.HashSet;
@@ -19,15 +23,15 @@ import java.util.Set;
  */
 public class Counter {
 
-    private static NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+        private static NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
-    private static Logger logger = LoggerFactory.getLogger(Counter.class);
-    static {
-        namedParameterJdbcTemplate = SpringContextHolder.getBean("riskCtrlPreProcDBNamedTemplate");
-    }
+        private static Logger logger = LoggerFactory.getLogger(Counter.class);
+        static {
+            namedParameterJdbcTemplate = SpringContextHolder.getBean("riskCtrlPreProcDBNamedTemplate");
+        }
 
     public static String getCounter(String countType, String sqlStatement, String whereField,
-                                      Integer fromOffset, Integer toOffset, String matchFieldValue, String whereFieldValue) {
+                                    Integer fromOffset, Integer toOffset, String matchFieldValue, String whereFieldValue) {
 
         long nowMillis = System.currentTimeMillis();
         long startMills = nowMillis + (long) fromOffset * 60 * 1000;
@@ -37,10 +41,16 @@ public class Counter {
         Timestamp limit = new Timestamp(timeLimit);
 
         MapSqlParameterSource params = new MapSqlParameterSource();
-        params.addValue(whereField,whereFieldValue, Types.VARCHAR);
-        params.addValue("STARTTIMELIMIT", start, Types.TIMESTAMP);
-        params.addValue("TIMELIMIT", limit, Types.TIMESTAMP);
+        SqlParameterValue value0 = new SqlParameterValue(Types.VARCHAR,whereFieldValue);
+        SqlParameterValue value1 = new SqlParameterValue(Types.TIMESTAMP,start);
+        SqlParameterValue value2 = new SqlParameterValue(Types.TIMESTAMP,limit);
+//        params.addValue(whereField,whereFieldValue,Types.VARCHAR);
+//        params.addValue("STARTTIMELIMIT", start, Types.TIMESTAMP);
+//        params.addValue("TIMELIMIT", limit, Types.TIMESTAMP);
 
+        params.addValue(whereField,value0);
+        params.addValue("STARTTIMELIMIT", value1);
+        params.addValue("TIMELIMIT", value2);
         List<Map<String, Object>> results = namedParameterJdbcTemplate.queryForList(sqlStatement, params);
 
         if ("SUM".equals(countType)) {

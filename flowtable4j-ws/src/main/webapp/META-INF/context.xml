@@ -42,7 +42,8 @@
               logAbandoned="true"
               minEvictableIdleTimeMillis="30000"
               jmxEnabled="true"
-              jdbcInterceptors="org.apache.tomcat.jdbc.pool.interceptor.ConnectionState;org.apache.tomcat.jdbc.pool.interceptor.StatementFinalizer"	
+              jdbcInterceptors="org.apache.tomcat.jdbc.pool.interceptor.ConnectionState;org.apache.tomcat.jdbc.pool.interceptor.StatementFinalizer"
+              connectionProperties="sendStringParametersAsUnicode=false"
     />
     <Resource name="jdbc/PciAccountRiskDetailDB_S0_R"
               auth="Container"
