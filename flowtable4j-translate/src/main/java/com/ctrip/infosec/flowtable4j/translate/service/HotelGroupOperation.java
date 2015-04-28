@@ -253,4 +253,47 @@ public class HotelGroupOperation
         data.putAll(hotelGroupSources.getHotelGroupInfo(lastReqID));
         data.putAll(hotelGroupSources.getOtherInfo(lastReqID));
     }
+
+    //补充主要支付方式
+    public void fillMainOrderType(Map data)
+    {
+        String orderPrepayType = data.get(HotelGroup.OrderPrepayType) == null ? "" : data.get(HotelGroup.OrderPrepayType).toString();
+        if(orderPrepayType.isEmpty())
+        {
+            //如果主要支付方式为空，则用订单号和订单类型到risk_levelData取上次的主要支付方式
+            String orderType = data.get(HotelGroup.OrderType) == null ? "" : data.get(HotelGroup.OrderType).toString();
+            String orderId = data.get(HotelGroup.OrderID) == null ? "" : data.get(HotelGroup.OrderID).toString();
+            Map payInfo = hotelGroupSources.getMainPrepayType(orderType,orderId);
+            if(payInfo != null && !payInfo.isEmpty())
+            {
+                data.put(HotelGroup.OrderPrepayType,payInfo.get(HotelGroup.PrepayType));
+            }
+        }
+
+        //补充主要支付方式自动判断逻辑
+        if(data.get(HotelGroup.OrderPrepayType).toString().isEmpty() || data.get(HotelGroup.CheckType).toString().equals("2"))
+        {
+            if(data.get(HotelGroup.PaymentInfoList) == null)
+            return;
+            List<Map> paymentInfoList = (List<Map>)data.get(HotelGroup.PaymentInfoList);
+            for(Map paymentInfos : paymentInfoList)
+            {
+                if(paymentInfos.get(HotelGroup.PaymentInfo) == null )
+                    continue;
+                Map payment = (Map)paymentInfos.get(HotelGroup.PaymentInfo);
+                if(payment == null || payment.get(HotelGroup.PrepayType) == null)
+                    continue;
+                if(payment.get(HotelGroup.PrepayType).toString().toUpperCase().equals("CCARD") || payment.get(HotelGroup.PrepayType).toString().toUpperCase().equals("DCARD"))
+                {
+                    data.put(HotelGroup.OrderPrepayType,payment.get(HotelGroup.PrepayType).toString().toUpperCase());
+                    break;
+                }else
+                {
+                    data.put(HotelGroup.OrderPrepayType,payment.get(HotelGroup.PrepayType).toString().toUpperCase());//这句没看懂？？？//fixme
+                }
+            }
+        }
+    }
+
+    //根据bindedMobilePhone来获取相关的城市
 }

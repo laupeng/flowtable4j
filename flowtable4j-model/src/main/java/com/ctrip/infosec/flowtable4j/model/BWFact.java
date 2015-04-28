@@ -1,11 +1,14 @@
 package com.ctrip.infosec.flowtable4j.model;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import java.util.List;
 import java.util.Map;
 
 /**
  * Created by thyang on 2015/3/13 0013.
  * 黑白名单校验实体
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class BWFact {
 
     /**
@@ -13,6 +16,7 @@ public class BWFact {
      */
     private Integer orderType;
 
+    private List<Integer> orderTypes;
     /**
      * 校验内容，字典类型
      */
@@ -89,4 +93,14 @@ public class BWFact {
         return null;
     }
 
+    /**
+     * 自定义 OrderTypes，包括 0
+     */
+    public List<Integer> getOrderTypes() {
+        return orderTypes;
+    }
+
+    public void setOrderTypes(List<Integer> orderTypes) {
+        this.orderTypes = orderTypes;
+    }
 }

@@ -2,6 +2,7 @@ package com.ctrip.infosec.flowtable4j.flowlist;
 import com.ctrip.infosec.flowtable4j.model.CheckType;
 import com.ctrip.infosec.flowtable4j.model.FlowFact;
 import com.ctrip.infosec.flowtable4j.model.CheckResultLog;
+import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,15 +68,33 @@ public class FlowRuleStatement {
         boolean match = false;
         try {
             if (flowRuleTerms != null && flowRuleTerms.size() > 0) {
-                logger.debug("#######ruleId:"+this.getRuleID()+" start check#######");
                 match = true;
                 for (FlowRuleTerm term : flowRuleTerms) {
-                    if (!term.check(fact)) {
-                        match = false;
+                    if(term instanceof CounterMatchRuleTerm){
+                        long start  = System.currentTimeMillis();
+                        match = term.check(fact);
+                        long elapse = System.currentTimeMillis() - start;
+                        if(elapse > 100){
+                            // 取数超过100ms
+                            String info = term.toString()+" ReqID:" + fact.getReqId();
+                            CheckResultLog result = new CheckResultLog();
+                            result.setRuleID(0);
+                            result.setRiskLevel(0);
+                            result.setRuleRemark(info);
+                            result.setRuleName(String.valueOf(elapse));
+                            result.setRuleType(CheckType.COUNTER.toString());
+
+                            results.add(result);
+                            logger.debug(info);
+                        }
+                    }
+                    else {
+                          match =term.check(fact);
+                    }
+                    if(!match){
                         break;
                     }
                 }
-                logger.debug("#######ruleId:"+this.getRuleID()+" end check and match:"+match+"#######");
             }
             if (match) {
                 CheckResultLog result = new CheckResultLog();
@@ -127,8 +146,12 @@ public class FlowRuleStatement {
         return prepayType;
     }
 
+    /**
+     * 不区分大小写
+     * @param prepayType
+     */
     public void setPrepayType(String prepayType) {
-        this.prepayType = prepayType;
+        this.prepayType = Strings.nullToEmpty(prepayType).toUpperCase();
     }
 }
 

@@ -4,7 +4,6 @@ import com.ctrip.infosec.flowtable4j.model.BWFact;
 import com.google.common.base.Strings;
 
 import java.math.BigDecimal;
-import java.util.regex.Pattern;
 
 /**
  * Created by thyang on 2015/3/13 0013.
@@ -24,8 +23,9 @@ public class RuleTerm {
 
     public RuleTerm(String fieldName, String operator, String matchValue) {
         this.setFieldName(fieldName);
-        this.setMatchValue(matchValue);
-        this.operator = operator;
+        //兼容性考虑，用matchValue作为字典的Key，需要不区分大小写
+        this.setMatchValue(Strings.nullToEmpty(matchValue).toUpperCase());
+        this.operator = Strings.nullToEmpty(operator).toUpperCase();
 
         if ("EQ".equals(operator)) {
             executor = eqOper;
@@ -103,9 +103,9 @@ class GEComparer extends ConditionComparer {
 class INComparer extends ConditionComparer {
     @Override
     public boolean match(String fieldValue, String matchValue) {
-        if (!Strings.isNullOrEmpty(fieldValue) && !Strings.isNullOrEmpty(matchValue)) {
+        if (!Strings.isNullOrEmpty(fieldValue)) {
               fieldValue= fieldValue.toLowerCase().trim();
-              matchValue = matchValue.toLowerCase().trim();
+              matchValue =Strings.nullToEmpty(matchValue).toLowerCase().trim();
               return fieldValue.contains(matchValue);
               //黑白名单中，Match Value小
         }
@@ -130,7 +130,7 @@ class LLIKEComparer extends ConditionComparer {
     public boolean match(String fieldValue, String matchValue) {
         if (!Strings.isNullOrEmpty(fieldValue)) {
             fieldValue = fieldValue.toLowerCase().trim();
-            matchValue = matchValue.toLowerCase().trim();
+            matchValue = Strings.nullToEmpty(matchValue).toLowerCase().trim();
             return fieldValue.startsWith(matchValue);
         }
         return false;

@@ -1,4 +1,5 @@
 package com.ctrip.infosec.flowtable4j.bwlist;
+
 import com.ctrip.infosec.flowtable4j.model.BWFact;
 import com.ctrip.infosec.flowtable4j.model.CheckType;
 import com.ctrip.infosec.flowtable4j.model.CheckResultLog;
@@ -99,11 +100,10 @@ public class RuleStatement {
         boolean match = false;
 
         if (now.compareTo(effectDate) >= 0 && now.compareTo(expireDate) < 0) {
-            match = true;
             if (ruleTerms != null && ruleTerms.size() > 0) {
                 for (RuleTerm term : ruleTerms) {
-                    if (!term.check(fact)) {
-                        match = false;
+                    match = term.check(fact);
+                    if (!match) {
                         break;
                     }
                 }

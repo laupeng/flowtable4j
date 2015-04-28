@@ -114,9 +114,9 @@ abstract class ConditionComparer {
 class EQComparer extends ConditionComparer {
     @Override
     public boolean match(String fieldValue, String matchValue) {
-        if(!Strings.isNullOrEmpty(fieldValue)){
+        if(!Strings.isNullOrEmpty(fieldValue) && !Strings.isNullOrEmpty(matchValue)){
             fieldValue = fieldValue.trim();
-            matchValue=Strings.nullToEmpty(matchValue).trim();
+            matchValue = matchValue.trim();
             return  fieldValue.equalsIgnoreCase(matchValue);
         }
         return false;
@@ -131,9 +131,9 @@ class EQComparer extends ConditionComparer {
 class NEComparer extends ConditionComparer {
     @Override
     public boolean match(String fieldValue, String matchValue) {
-        if(!Strings.isNullOrEmpty(fieldValue)){
+        if(!Strings.isNullOrEmpty(fieldValue) && !Strings.isNullOrEmpty(matchValue)){
             fieldValue = fieldValue.trim();
-            matchValue=Strings.nullToEmpty(matchValue).trim();
+            matchValue=  matchValue.trim();
             return  !fieldValue.equalsIgnoreCase(matchValue);
         }
         return false;

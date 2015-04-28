@@ -210,4 +210,48 @@ public class HotelGroupSources
             return otherInfo;
         }
     }
+
+    //获取上次主支付信息
+    public Map getMainPrepayType(String orderType,String orderId)
+    {
+        Map payInfo = null;
+        try{
+            String commandText = "select top 1 * from InfoSecurity_RiskLevelData with (nolock) where [InfoSecurity_RiskLevelData].OrderType" +
+                    " = "+orderId+" and [InfoSecurity_RiskLevelData].OrderId = "+orderId +" ORDER BY [InfoSecurity_RiskLevelData].ReqID DESC";
+            payInfo = cardRiskDBTemplate.queryForMap(commandText);
+            return payInfo;
+        }catch(Exception exp)
+        {
+            return payInfo;
+        }
+    }
+
+    //根据ipCity获取对应的城市名称
+    public Map getCityInfo(String city)
+    {
+        Map cityInfo = null;
+        try{
+            String commandText = "select top 1 * from BaseData_City with (nolock) where city = "+city;
+            cityInfo = cardRiskDBTemplate.queryForMap(commandText);
+            return cityInfo;
+        }catch (Exception exp)
+        {
+            return cityInfo;
+        }
+    }
+
+    //查询CUSRATDB的CardRisk_Leaked_Uid  //todo 执行徐洪
+    public Map getLeakedInfo(String uid)
+    {
+        Map leakInfo = null;
+        try{
+            String commandText = "select top 1 * from CardRisk_Leaked_Uid with (nolock) where [CardRisk_Leaked_Uid].[Uid] = " +
+                    uid;
+            //leakInfo = //todo 获取CUSRATDB的jndi
+            return leakInfo;
+        }catch(Exception exp)
+        {
+            return leakInfo;
+        }
+    }
 }

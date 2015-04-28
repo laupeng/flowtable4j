@@ -274,4 +274,21 @@ public class HotelGroup
 
     //系统发行卡名称
     public static String CardBinBankOfCardIssue = "CardBinBankOfCardIssue";
+
+    //主要支付方式
+    public static String OrderPrepayType = "OrderPrepayType";
+
+    //根据绑定的手机号获取对应的城市
+    public static String BindedMobilePhoneCity = "BindedMobilePhoneCity";
+    public static String BindedMobilePhoneProvince = "BindedMobilePhoneProvince";
+    //根据联系的手机号获取对应的城市
+    public static String RelatedMobilePhoneCity = "RelatedMobilePhoneCity";
+    public static String RelatedMobilePhoneProvince = "RelatedMobilePhoneProvince";
+
+    //ip补充信息 //IPCityName  IPProvince 用在流量表里面
+    public static String IPCityName = "IPCityName";
+    public static String IPProvince = "IPProvince";
+
+    //uid是否激活标识 UidActive
+    public static String UidActive = "UidActive";
 }
