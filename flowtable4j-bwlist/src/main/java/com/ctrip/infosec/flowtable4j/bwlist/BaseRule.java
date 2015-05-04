@@ -55,7 +55,7 @@ public abstract class BaseRule {
     protected boolean checkNEQRuleByOrderType(BWFact fact, RiskResult results) {
         try {
             orderTypeNEQ_Read.lock();
-            checkNEQRules(fact,orderTypeNEQ,results);
+            return checkNEQRules(fact,orderTypeNEQ,results);
         } catch (Throwable ex) {
             logger.warn(ex.getMessage(), ex);
         } finally {

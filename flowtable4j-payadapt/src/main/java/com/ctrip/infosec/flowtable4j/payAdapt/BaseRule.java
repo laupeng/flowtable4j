@@ -1,4 +1,4 @@
-package com.ctrip.infosec.flowtable4j.flowlist;
+package com.ctrip.infosec.flowtable4j.payAdapt;
 
 import com.ctrip.infosec.flowtable4j.model.FlowFact;
 import com.ctrip.infosec.flowtable4j.model.RiskResult;
@@ -20,7 +20,7 @@ public abstract class BaseRule {
     /**
      * 订单类型区分
      */
-    private HashMap<Integer, HashMap<String, List<FlowRuleStatement>>> byOrderType = new HashMap<Integer, HashMap<String, List<FlowRuleStatement>>>();
+    private HashMap<Integer, HashMap<String, List<PayAdaptStatement>>> byOrderType = new HashMap<Integer, HashMap<String, List<PayAdaptStatement>>>();
 
 
     /**
@@ -39,7 +39,7 @@ public abstract class BaseRule {
      * @param results
      * @return
      */
-    public abstract boolean checkByOrderType(HashMap<Integer, HashMap<String, List<FlowRuleStatement>>> byOrderType, FlowFact fact, RiskResult results);
+    public abstract boolean checkByOrderType(HashMap<Integer, HashMap<String, List<PayAdaptStatement>>> byOrderType, FlowFact fact, RiskResult results);
 
 
     /**
@@ -51,7 +51,7 @@ public abstract class BaseRule {
      */
     protected boolean checkByOrderTypeMap(FlowFact fact, RiskResult results) {
         try {
-           return  checkByOrderType(byOrderType, fact, results);
+            checkByOrderType(byOrderType, fact, results);
         } catch (Throwable ex) {
             logger.warn(ex.getMessage(), ex);
         }
@@ -64,10 +64,10 @@ public abstract class BaseRule {
      * @param rules
      * @return
      */
-    public boolean addRule(List<FlowRuleStatement> rules) {
+    public boolean addRule(List<PayAdaptStatement> rules) {
 
         if (rules != null && rules.size() > 0) {
-            HashMap<Integer, HashMap<String, List<FlowRuleStatement>>> orderTypeMapTemp = new HashMap<Integer, HashMap<String, List<FlowRuleStatement>>>();
+            HashMap<Integer, HashMap<String, List<PayAdaptStatement>>> orderTypeMapTemp = new HashMap<Integer, HashMap<String, List<PayAdaptStatement>>>();
             buildRuleTree(rules, orderTypeMapTemp);
             byOrderType = orderTypeMapTemp;
         }
@@ -77,29 +77,29 @@ public abstract class BaseRule {
     /**
      * 构造规则树，按订单类型、支付类型
      */
-    private void buildRuleTree(List<FlowRuleStatement> rules, HashMap<Integer, HashMap<String, List<FlowRuleStatement>>> orderTypeMapTemp) {
+    private void buildRuleTree(List<PayAdaptStatement> rules, HashMap<Integer, HashMap<String, List<PayAdaptStatement>>> orderTypeMapTemp) {
         Integer orderType = 0;
         String prepayType = "";
-        for (FlowRuleStatement rule : rules) {
+        for (PayAdaptStatement rule : rules) {
             orderType = rule.getOrderType();
             prepayType = rule.getPrepayType();
-            HashMap<String, List<FlowRuleStatement>> orderTypeRule = null;
+            HashMap<String, List<PayAdaptStatement>> orderTypeRule = null;
             if (orderTypeMapTemp.containsKey(orderType)) {
                 orderTypeRule = orderTypeMapTemp.get(orderType);
             } else {
-                orderTypeRule = new HashMap<String, List<FlowRuleStatement>>();
+                orderTypeRule = new HashMap<String, List<PayAdaptStatement>>();
             }
             addRuleByPrepayType(orderTypeRule, prepayType, rule);
             orderTypeMapTemp.put(orderType, orderTypeRule);
         }
     }
 
-    private void addRuleByPrepayType(HashMap<String, List<FlowRuleStatement>> orderTypeRule, String prepayType, FlowRuleStatement rule) {
-        List<FlowRuleStatement> prepayRules;
+    private void addRuleByPrepayType(HashMap<String, List<PayAdaptStatement>> orderTypeRule, String prepayType, PayAdaptStatement rule) {
+        List<PayAdaptStatement> prepayRules;
         if (orderTypeRule.containsKey(prepayType)) {
             prepayRules = orderTypeRule.get(prepayType);
         } else {
-            prepayRules = new ArrayList<FlowRuleStatement>();
+            prepayRules = new ArrayList<PayAdaptStatement>();
         }
         if (!prepayRules.contains(rule)) {
             prepayRules.add(rule);
