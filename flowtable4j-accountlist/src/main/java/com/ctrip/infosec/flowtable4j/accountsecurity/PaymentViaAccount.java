@@ -64,7 +64,7 @@ public class PaymentViaAccount {
                     public Object call() throws Exception {
                         KeyValue keyValue = new KeyValue();
                         keyValue.setSceneType(item.getSceneType().toUpperCase());
-                        keyValue.setRuleKey(String.format("CheckType:{%s}|SceneType:{%s}|CheckValue:{%s}", chkType, sceneType, item.getCheckValue()).toUpperCase());
+                        keyValue.setRuleKey(String.format("CheckType:%s|SceneType:%s|CheckValue:%s", chkType, sceneType, item.getCheckValue()).toUpperCase());
                         getRuleByKey(dic_allRules, currentDate, keyValue);
                         return null;
                     }
