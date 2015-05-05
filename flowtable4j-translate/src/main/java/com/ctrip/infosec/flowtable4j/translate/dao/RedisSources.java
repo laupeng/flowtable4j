@@ -5,12 +5,16 @@ import credis.java.client.CacheProvider;
 import credis.java.client.setting.RAppSetting;
 import credis.java.client.util.CacheFactory;
 import org.apache.commons.lang3.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Created by lpxie on 15-3-31.
  */
 public class RedisSources
 {
+    private static Logger logger = LoggerFactory.getLogger(RedisSources.class);
+
     private static CacheProvider cacheProvider;
     private static int expireTime = 3600 * 24;//一天
     /*redis相关属性检查*/
@@ -26,14 +30,14 @@ public class RedisSources
 
     public void init(){
         check();
-//        logger.info(Contexts.getLogPrefix() + "Start to connect redis");
+        logger.info("Start to connect redis");
         RAppSetting.setAppID(appId);
         RAppSetting.setCRedisServiceUrl(serviceUrl);
         RAppSetting.setLogging(false);
         try {
             cacheProvider = CacheFactory.GetProvider(provider);
         } catch (RuntimeException exp) {
-//            logger.error(Contexts.getLogPrefix() + "Connect to redis failed by " + exp.getMessage());
+            logger.error("Connect to redis failed by " + exp.getMessage());
         }
     }
 

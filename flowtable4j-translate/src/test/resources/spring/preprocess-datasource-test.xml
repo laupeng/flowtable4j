@@ -17,7 +17,7 @@
     <!-- 单元测试使用的Dev数据库 -->
     <bean id="cardRiskDBDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
         <property name="driverClassName" value="com.microsoft.sqlserver.jdbc.SQLServerDriver"/>
-        <property name="url" value="jdbc:sqlserver://devdb.dev.sh.ctriptravel.com:28747;database=RiskCtrlPreProcDB;integratedSecurity=false"/>
+        <property name="url" value="jdbc:sqlserver://devdb.dev.sh.ctriptravel.com:28747;database=CardRiskDB;integratedSecurity=false"/>
         <property name="username" value="uws_AllInOneKey_dev"/>
         <property name="password" value="!QAZ@WSX1qaz2wsx"/>
         <property name="maxIdle" value="5" />

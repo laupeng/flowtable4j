@@ -11,20 +11,23 @@
             http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
             http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">
 
-    <!--生产环境数据库连接 单改变环境的时候需要更改id的名称-->
-    <!-- JDNI数据源 -->
-    <!--<bean id="dataSource_CardRiskDB" class="org.springframework.jndi.JndiObjectFactoryBean">
-        <property name="jndiName" value="java:comp/env/jdbc/CardRiskDB_SELECT_1"/>
-    </bean>
-    <bean id="dataSource_RiskCtrlPreProcDB" class="org.springframework.jndi.JndiObjectFactoryBean">
-        <property name="jndiName" value="java:comp/env/jdbc/RiskCtrlPreProcDB_SELECT_1"/>
+    <bean id="allTemplates"  class="com.ctrip.infosec.flowtable4j.translate.dao.Jndi.AllTemplates" init-method="init" />
+
+    <bean id="hotelGroupSources" class="com.ctrip.infosec.flowtable4j.translate.dao.HotelGroupSources"
+          depends-on="allTemplates" init-method="init">
     </bean>
 
-    &lt;!&ndash; JDBC模板 &ndash;&gt;
-    <bean id="CardRiskDB" class="org.springframework.jdbc.core.JdbcTemplate">
-        <property name="dataSource" ref="dataSource_CardRiskDB"/>
-    </bean>
-    <bean id="RiskCtrlPreProcDB" class="org.springframework.jdbc.core.JdbcTemplate">
-        <property name="dataSource" ref="dataSource_RiskCtrlPreProcDB"/>
-    </bean>-->
+    <bean id="hotelGroupOperation" class="com.ctrip.infosec.flowtable4j.translate.service.HotelGroupOperation"
+          depends-on="hotelGroupSources"></bean>
+
+    <bean id="hotelGroupExecutor" class="com.ctrip.infosec.flowtable4j.translate.service.HotelGroupExecutor"
+          depends-on="hotelGroupOperation"></bean>
+
+    <bean id="processor" class="com.ctrip.infosec.flowtable4j.translate.Processor" depends-on="hotelGroupExecutor"/>
+
+    <bean id="redisSources" class="com.ctrip.infosec.flowtable4j.translate.dao.RedisSources" init-method="init"/>
+
+    <bean id="esbSources" class="com.ctrip.infosec.flowtable4j.translate.dao.ESBSources" init-method="init"/>
+
+    <bean id="dataProxySources" class="com.ctrip.infosec.flowtable4j.translate.dao.DataProxySources" />
 </beans>

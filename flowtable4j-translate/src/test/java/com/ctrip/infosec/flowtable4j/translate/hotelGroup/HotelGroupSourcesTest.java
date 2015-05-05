@@ -1,273 +1,280 @@
-package com.ctrip.infosec.flowtable4j.translate.dao;
+package com.ctrip.infosec.flowtable4j.translate.hotelGroup;
 
 import com.ctrip.infosec.flowtable4j.translate.dao.Jndi.AllTemplates;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 /**
- * Created by lpxie on 15-4-20.
+ * Created by lpxie on 15-4-24.
  */
-public class HotelGroupSources
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = {"classpath*:spring/allTemplates.xml"})
+public class HotelGroupSourcesTest
 {
-    private static Logger logger = LoggerFactory.getLogger(HotelGroupSources.class);
-
     @Resource(name="allTemplates")
     private AllTemplates allTemplates;
 
     JdbcTemplate cardRiskDBTemplate = null;
     JdbcTemplate riskCtrlPreProcDBTemplate = null;
-
-    /**
-     * 初始化jndi
-     */
-    private void init()
+    JdbcTemplate cUSRATDBTemplate = null;
+    @Before
+    public void init()
     {
-        logger.info("开始初始化JNDI模板");
         cardRiskDBTemplate = allTemplates.getCardRiskDBTemplate();
         riskCtrlPreProcDBTemplate = allTemplates.getRiskCtrlPreProcDBTemplate();
-        logger.info("初始化JNDI模板结束");
     }
 
-    /**
-     * 这个方法可以作为公共的方法 //Todo 下次把这个方法放到公共查询里面 或者 把从数据库查询改成从郁伟的DataProxy查询！
-     * 通过手机号查询对应的城和市
-     * @param mobilePhone 手机号
-     * @return
-     */
-    public Map getCityAndProv(String mobilePhone)
+    @Test
+    public void testGetCityAndProv()
     {
-        Map mobileInfo = null;
-        try
-        {
+        try{
+            String mobilePhone = "13917863756";
             String subMobileNum = mobilePhone.substring(0,7);
             String sqlCommand = "SELECT Top 1 *" + " FROM BaseData_MobilePhoneInfo with (nolock) WHERE MobileNumber = "+subMobileNum;
-            mobileInfo = cardRiskDBTemplate.queryForMap(sqlCommand);
-        }catch(Exception exp)
+            Map mobileInfo = cardRiskDBTemplate.queryForMap(sqlCommand);
+            Assert.assertNotNull(mobileInfo);
+        }catch (Exception exp)
         {
-            //log for warn
+            exp.printStackTrace();
         }
-        return mobileInfo;//这里取出里面的 CityName 和 ProvinceName 这两个字段
     }
 
-    //获取当前IP所在地信息(Top 1 OrderBy IpStart Desc)  IpCountryCity
-    public Map getIpCountryCity(long ipValue)
+    @Test
+    public void getIpCountryCity()
     {
         Map ipInfo = null;
         try{
-            String sqlCommand = "SELECT Top 1 * FROM IpCountryCity with (nolock) WHERE IpStart <= "+ipValue +" ORDER BY IpStart DESC ";//FIXME 这里问徐洪修正
+            //SELECT Top 1 * FROM IpCountryCity with (nolock) WHERE IpStart <= "+ipValue +" ORDER BY IpStart DESC
+            String ipValue = "4278190082";
+            String sqlCommand = "SELECT Top 1 * FROM IpCountryCity with (nolock) WHERE IpStart <= "+ipValue +" ORDER BY IpStart DESC";//FIXME 这里问徐洪修正
             ipInfo = cardRiskDBTemplate.queryForMap(sqlCommand);
+            Assert.assertNotNull(ipInfo);
         }catch(Exception exp)
         {
             //log for warn
         }
-        return ipInfo;
     }
 
-    public Map getDIDInfo(String orderId,String orderType)
+    @Test
+    public void testGetDIDInfo()
     {
         Map DIDInfo = null;
         try{
-            String sqlCommand = "SELECT TOP 1 * FROM RiskCtrlPreProcDB.dbo.CacheData_DeviceIDInfo with (nolock) WHERE [CacheData_DeviceIDInfo].[Oid] = "+"'"+orderId+"'" +
-                    " and [CacheData_DeviceIDInfo].[Payid] = "+"'"+orderType+"'" + " order by [CacheData_DeviceIDInfo].[RecordID] desc";
+            String orderId = "37348379";
+            String orderType = "16";
+            String sqlCommand = "SELECT TOP 1 * FROM CacheData_DeviceIDInfo with (nolock) WHERE [CacheData_DeviceIDInfo].[Oid] = "+orderId +
+                    " and [CacheData_DeviceIDInfo].[Payid] = "+orderType + " order by [CacheData_DeviceIDInfo].[RecordID] desc";
             DIDInfo = riskCtrlPreProcDBTemplate.queryForMap(sqlCommand);
-            return DIDInfo;
+            Assert.assertNotNull(DIDInfo);
         }catch (Exception exp)
         {
-            //log for warn
-            return DIDInfo;
+            exp.printStackTrace();
         }
     }
 
-    public Map getMainInfo(String orderType,String orderId)
+    @Test
+    public void testGetMainInfo()
     {
         Map mainInfo = null;
         try{
-            String commandText = "SELECT top 1 * from InfoSecurity_MainInfo with (nolock) where [InfoSecurity_MainInfo].[OrderType] = "
+            String orderId = "37348379";
+            String orderType = "16";//CardRiskDB..
+            String sqlCommand = "SELECT top 1 * from InfoSecurity_MainInfo with (nolock) where [InfoSecurity_MainInfo].[OrderType] = "
                     +orderType +" and [InfoSecurity_MainInfo].[OrderId] = "+orderId+" order by [InfoSecurity_MainInfo].ReqID desc";
-            mainInfo = cardRiskDBTemplate.queryForMap(commandText);
-            return mainInfo;
+            mainInfo = cardRiskDBTemplate.queryForMap(sqlCommand);
+            Assert.assertNotNull(mainInfo);
         }catch (Exception exp)
         {
-            return mainInfo;
+            exp.printStackTrace();
         }
     }
 
-    public Map getCardInfo(String cardTypeId,String cardBin)
+    @Test
+    public void testGetCardInfo()
     {
         Map cardInfo = null;
         try{
+            String cardTypeId = "6";
+            String cardBin = "550903";
             String commandText = "SELECT * from CreditCardRule_ForeignCard with (nolock) where CardTypeID = "+cardTypeId
                     +" and CardRule = "+cardBin;
             cardInfo = cardRiskDBTemplate.queryForMap(commandText);
-            return cardInfo;
+            Assert.assertNotNull(cardInfo);
         }catch(Exception exp)
         {
-            return cardInfo;
         }
     }
 
-    public List<Map<String, Object>> getListPaymentInfo(long lastReqID)
+    @Test
+    public void testGetListPaymentInfo()
     {
-        List<Map<String, Object>> paymentInfoList = null;//这里的泛型类型到时根据数据库的数据来确定
+        List paymentInfoList = null;
         try{
-            String commandText = "select * from InfoSecurity_PaymentInfo with (nolock) where [InfoSecurity_PaymentInfo].[ReqID] = " +
-                    lastReqID;
+            String lastReqID = "7183607";
+            String commandText = "select * from InfoSecurity_PaymentInfo with (nolock) where [InfoSecurity_PaymentInfo].[ReqID] = " +lastReqID;
             paymentInfoList = cardRiskDBTemplate.queryForList(commandText);
-            return paymentInfoList;
+            Assert.assertNotNull(paymentInfoList);
         }catch(Exception exp)
         {
-            return paymentInfoList;
         }
     }
 
-    public List<Map<String, Object>> getListCardInfo(String paymentInfoId)
+    @Test
+    public void testGetListCardInfo()
     {
         List<Map<String, Object>> cardInfoList = null;
-        try
-        {
+        try{
+            String paymentInfoId = "169";
             String commandText = "select * from InfoSecurity_CardInfo with (nolock) where [InfoSecurity_CardInfo].[PaymentInfoID] =" +
                     paymentInfoId;
             cardInfoList = cardRiskDBTemplate.queryForList(commandText);
-            return cardInfoList;
+            Assert.assertNotNull(cardInfoList);
         }catch(Exception exp)
         {
-            return cardInfoList;
         }
     }
 
-    //获取mainInfo信息
-    public Map getPaymentMainInfo(long reqId)
+    @Test
+    public void testGetPaymentMainInfo()
     {
+        long reqId = 7229792;
         Map paymentMainInfo = null;
         try{
             String commandText = "select * from InfoSecurity_PaymentMainInfo with (nolock) where [InfoSecurity_PaymentMainInfo].[ReqID] = " +
                     reqId;
             paymentMainInfo = cardRiskDBTemplate.queryForMap(commandText);
-            return paymentMainInfo;
+            Assert.assertNotNull(paymentMainInfo);
         }catch(Exception exp)
         {
-            return paymentMainInfo;
         }
     }
 
-    //通过lastReqId获取联系人信息
-    public Map getContactInfo(long reqId)
+    @Test
+    public void testGetContactInfo()
     {
+        long reqId = 1362;
         Map contactInfo = null;
         try{
             String commandText = "select * from InfoSecurity_ContactInfo with (nolock) where [InfoSecurity_ContactInfo].[ReqID] = " +
                     reqId;
             contactInfo = cardRiskDBTemplate.queryForMap(commandText);
-            return contactInfo;
+            Assert.assertNotNull(contactInfo);
         }catch(Exception exp)
         {
-            return contactInfo;
         }
     }
-    //通过lastReqId获取用户信息
-    public Map getUserInfo(long reqId)
+
+    @Test
+    public void testGetUserInfo()
     {
+        long reqId = 1362;
         Map userInfo = null;
         try{
             String commandText = "select * from InfoSecurity_UserInfo with (nolock) where [InfoSecurity_UserInfo].[ReqID] = " +
                     reqId;
             userInfo = cardRiskDBTemplate.queryForMap(commandText);
-            return userInfo;
+            Assert.assertNotNull(userInfo);
         }catch(Exception exp)
         {
-            return userInfo;
         }
     }
-    //通过lastReqId获取ip信息
-    public Map getIpInfo(long reqId)
+
+    @Test
+    public void testGetIpInfo()
     {
+        long reqId = 1362;
         Map ipInfo = null;
         try{
             String commandText = "select * from InfoSecurity_IPInfo with (nolock) where [InfoSecurity_IPInfo].[ReqID] = " +
                     reqId;
             ipInfo = cardRiskDBTemplate.queryForMap(commandText);
-            return ipInfo;
+            Assert.assertNotNull(ipInfo);
         }catch(Exception exp)
         {
-            return ipInfo;
         }
     }
-    //通过lastReqId获取酒店团购信息
-    public Map getHotelGroupInfo(long reqId)
+
+    @Test
+    public void testGetHotelGroupInfo()
     {
+        long reqId = 6056524;
         Map hotelGroupInfo = null;
         try{
             String commandText = "select * from InfoSecurity_HotelGroupInfo with (nolock) where [InfoSecurity_HotelGroupInfo].[ReqID] = " +
                     reqId;
             hotelGroupInfo = cardRiskDBTemplate.queryForMap(commandText);
-            return hotelGroupInfo;
+            Assert.assertNotNull(hotelGroupInfo);
         }catch(Exception exp)
         {
-            return hotelGroupInfo;
         }
     }
-    //通过lastReqId获取其他信息
-    public Map getOtherInfo(long reqId)
+
+    @Test
+    public void testGetOtherInfo()
     {
+        long reqId = 1362;
         Map otherInfo = null;
         try{
             String commandText = "select * from InfoSecurity_OtherInfo with (nolock) where [InfoSecurity_OtherInfo].[ReqID] = " +
                     reqId;
             otherInfo = cardRiskDBTemplate.queryForMap(commandText);
-            return otherInfo;
+            Assert.assertNotNull(otherInfo);
         }catch(Exception exp)
         {
-            return otherInfo;
         }
     }
 
-    //获取上次主支付信息
-    public Map getMainPrepayType(String orderType,String orderId)
+    @Test
+    public void testGetMainPrepayType()
     {
+        String orderId = "1";
+        String orderType = "16";
         Map payInfo = null;
         try{
-            String commandText = "select top 1 * from CardRiskDB.dbo.InfoSecurity_RiskLevelData with (nolock) where [InfoSecurity_RiskLevelData].OrderType" +
+            String commandText = "select top 1 * from InfoSecurity_RiskLevelData with (nolock) where [InfoSecurity_RiskLevelData].OrderType" +
                     " = "+orderType+" and [InfoSecurity_RiskLevelData].OrderId = "+orderId +" ORDER BY [InfoSecurity_RiskLevelData].ReqID DESC";
             payInfo = cardRiskDBTemplate.queryForMap(commandText);
-            return payInfo;
+            Assert.assertNotNull(payInfo);
         }catch(Exception exp)
         {
-            return payInfo;
         }
     }
 
-    //根据ipCity获取对应的城市名称
-    public Map getCityInfo(String city)
+    @Test
+    public void testGetCityInfo()
     {
         Map cityInfo = null;
+        String city = "1";
         try{
             String commandText = "select top 1 * from BaseData_City with (nolock) where city = "+city;
             cityInfo = cardRiskDBTemplate.queryForMap(commandText);
-            return cityInfo;
+            Assert.assertNotNull(cityInfo);
         }catch (Exception exp)
         {
-            return cityInfo;
         }
     }
 
-    //查询CUSRATDB的CardRisk_Leaked_Uid  //todo 执行徐洪
-    public Map getLeakedInfo(String uid)
+    /*@Test
+    public void testGetLeakedInfo()
     {
         Map leakInfo = null;
         try{
+            String uid = "test12";
             String commandText = "select top 1 * from CUSRATDB..CardRisk_Leaked_Uid with (nolock) where [CardRisk_Leaked_Uid].[Uid] = " +
                     uid;
-            //leakInfo = //todo 获取CUSRATDB的jndi
-            return leakInfo;
+            cUSRATDBTemplate.queryForMap(commandText);
+            Assert.assertNotNull(leakInfo);
         }catch(Exception exp)
         {
-            return leakInfo;
         }
-    }
+    }*/
 }

@@ -23,8 +23,11 @@ import java.util.Map;
  *
  * @author zhengby
  */
+
+//deprecate 这个类不再使用
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"classpath*:spring/preprocess-datasource-test.xml"})
+@ContextConfiguration(locations = {"classpath*:spring/preprocess-datasource-test.xml",
+        "classpath*:spring/preprocess-datasource-test.xml"})
 public class JdbcTemplateTest
 {
     @Resource(name = "CardRiskDB")

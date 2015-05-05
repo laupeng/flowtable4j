@@ -27,6 +27,7 @@ public class ESBSources
     /*esb的url*/
     static final String serviceUrl = GlobalConfig.getString("ESB.serviceUrl");
     static final String appId = GlobalConfig.getString("appId");
+
     static void check() {
         Validate.notEmpty(serviceUrl, "在GlobalConfig.properties里没有找到\"ESB.serviceUrl\"配置项.");
         Validate.notEmpty(appId, "在GlobalConfig.properties里没有找到\"appId\"配置项.");

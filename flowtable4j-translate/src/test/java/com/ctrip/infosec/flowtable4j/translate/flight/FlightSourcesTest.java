@@ -1,4 +1,4 @@
-package com.ctrip.infosec.flowtable4j.translate;
+package com.ctrip.infosec.flowtable4j.translate.flight;
 
 import org.junit.Assert;
 import org.junit.Test;

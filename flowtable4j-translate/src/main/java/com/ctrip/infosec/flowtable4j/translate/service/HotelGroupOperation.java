@@ -8,6 +8,8 @@ import com.ctrip.infosec.flowtable4j.translate.dao.RedisSources;
 import com.ctrip.infosec.flowtable4j.translate.model.Flight;
 import com.ctrip.infosec.flowtable4j.translate.model.HotelGroup;
 import org.apache.commons.lang3.time.DateUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.text.ParseException;
@@ -20,16 +22,14 @@ import static com.ctrip.infosec.flowtable4j.translate.common.MyDateUtil.getDateA
  */
 public class HotelGroupOperation
 {
+    private Logger logger = LoggerFactory.getLogger(HotelGroupOperation.class);
 
     @Autowired
     HotelGroupSources hotelGroupSources;
-
     @Autowired
     RedisSources redisSources;
-
     @Autowired
     ESBSources esbSources;
-
     @Autowired
     DataProxySources dataProxySources;
 
@@ -38,31 +38,34 @@ public class HotelGroupOperation
      */
     public void fillMobilePhone(Map data)
     {
+        logger.info("酒店团购"+data.get("OrderID")+"获取手机相关信息");
         String mobilePhone = data.get(HotelGroup.MobilePhone) == null ? "" : data.get(HotelGroup.MobilePhone).toString();
         if(mobilePhone == null || mobilePhone.length() <= 6)
             return;
 
         Map mobileInfo = hotelGroupSources.getCityAndProv(mobilePhone);
+        data.putAll(mobileInfo);
     }
 
     /**
      * 添加用户的用户等级信息
      * @param data
      */
-    public void fillUserCusCharacter(Map data)
+    public void fillUserCusCharacter(Map data)//fixme  这里的获取用户等级信息的代码有点问题
     {
+        logger.info("酒店团购"+data.get("OrderID")+"获取用户等级相关信息");
         String uid = data.get(HotelGroup.Uid) == null ? "" : data.get(HotelGroup.Uid).toString();
         String serviceName = "UserProfileService";
         String operationName = "DataQuery";
         List tagContents = new ArrayList();
-        tagContents.add("RECENT_IP");
-        tagContents.add("RECENT_IPAREA");
+        tagContents.add("CUSCHARACTER");
         Map params = new HashMap();
         params.put("uid",uid);
         params.put("tagNames",tagContents);
 
         Map uidInfo = dataProxySources.queryForMap(serviceName, operationName, params);
-        String CusCharacter = uidInfo.get("CusCharacter") == null ? "" : uidInfo.get("CusCharacter").toString();
+
+        String CusCharacter = uidInfo.get("CUSCHARACTER") == null ? "" : uidInfo.get("CUSCHARACTER").toString();
         data.put(HotelGroup.CusCharacter,CusCharacter);
     }
 
@@ -72,6 +75,7 @@ public class HotelGroupOperation
      */
     public void fillIpInfo(Map data)
     {
+        logger.info("酒店团购"+data.get("OrderID")+"获取ip相关信息");
         String userIp = data.get(HotelGroup.UserIP) == null ? "" : data.get(HotelGroup.UserIP).toString();
         data.put(HotelGroup.UserIPAdd,userIp);
         Long userIPValue = IpConvert.ipConvertTo10(userIp);
@@ -91,6 +95,7 @@ public class HotelGroupOperation
 
     public void fillPaymentInfo(Map data)
     {
+        logger.info("酒店团购"+data.get("OrderID")+"获取支付相关信息");
         if(data.get(HotelGroup.PaymentInfos) == null)
             return;
         List<Map> paymentInfo = (List<Map>)data.get(HotelGroup.PaymentInfos);
@@ -113,6 +118,7 @@ public class HotelGroupOperation
      */
     public void getTimeAbs(Map data) throws ParseException
     {
+        logger.info("酒店团购"+data.get("OrderID")+"获取时间的差值相关信息");
         //订单日期
         String orderDateStr = data.get(Flight.OrderDate) == null ? "": data.get(Flight.OrderDate).toString();
         Date orderDate = DateUtils.parseDate(orderDateStr, "yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd HH:mm:ss.SSS");//yyyy-MM-dd HH:mm:ss   yyyy-MM-dd HH:mm:ss.SSS
@@ -127,16 +133,20 @@ public class HotelGroupOperation
         String orderId = data.get(HotelGroup.OrderID) == null ? "" : data.get(HotelGroup.OrderID).toString();
         String orderType = data.get(HotelGroup.OrderType) == null ? "" : data.get(HotelGroup.OrderType).toString();
         Map DIDInfo = hotelGroupSources.getDIDInfo(orderId,orderType);
-        data.putAll(DIDInfo);
-
+        if(DIDInfo !=null && DIDInfo.size()>0 &&DIDInfo.get("Did") != null)
+            data.put(HotelGroup.DID,DIDInfo.get("Did"));
     }
 
     public long getLastReqID(Map data)
     {
+        logger.info("酒店团购"+data.get("OrderID")+"获取lastReqID");
         String orderId = data.get(HotelGroup.OrderID) == null ? "" : data.get(HotelGroup.OrderID).toString();
         String orderType = data.get(HotelGroup.OrderType) == null ? "" : data.get(HotelGroup.OrderType).toString();
-        Map mainInfo = hotelGroupSources.getMainInfo(orderId, orderType);
-        return Long.parseLong(mainInfo.get(HotelGroup.ReqID).toString());
+        Map mainInfo = hotelGroupSources.getMainInfo(orderType, orderId);
+        if(mainInfo!=null)
+            return Long.parseLong(mainInfo.get(HotelGroup.ReqID).toString());
+        else
+            return -1;
     }
 
     /**
@@ -204,20 +214,21 @@ public class HotelGroupOperation
         data.put(HotelGroup.PaymentInfoList,PaymentInfoList);//添加支付信息到当前的报文
     }
 
-    //同上
-    public void fillPaymentInfo1(Map data,long lastReqID)
+    //同上解释
+    public void fillPaymentInfo1(Map data,long lastReqID)//reqId :7186418
     {
-        List<Object> PaymentInfoList = new ArrayList<Object>();
-        Map<String,Object> PaymentInfo = new HashMap();
-        List<Map> CardInfoList = new ArrayList<Map>();
-        Map<String,Object> cardInfo = new HashMap<String, Object>();
-        List<Map> paymentInfos = hotelGroupSources.getListPaymentInfo(lastReqID);
+        logger.info("酒店团购"+data.get("OrderID")+"通过LastReqID获取支付信息");
+        List<Map> PaymentInfoList = new ArrayList<Map>();
+        List<Map<String, Object>> paymentInfos = hotelGroupSources.getListPaymentInfo(lastReqID);
         for(Map payment : paymentInfos)
         {
-            PaymentInfoList.add(payment);
+            Map subPayInfo = new HashMap();
+            subPayInfo.put(HotelGroup.PaymentInfo,payment);
             String paymentInfoId = payment.get("PaymentInfoID") == null ? "" : payment.get("PaymentInfoID").toString();//PaymentInfoID数据库存储字段名称
-            PaymentInfoList.add(hotelGroupSources.getListCardInfo(paymentInfoId));
+            subPayInfo.put(HotelGroup.CardInfoList, hotelGroupSources.getListCardInfo(paymentInfoId));
+            PaymentInfoList.add(subPayInfo);
         }
+        data.put(HotelGroup.PaymentInfoList,PaymentInfoList);
         data.put(HotelGroup.PaymentMainInfo,hotelGroupSources.getPaymentMainInfo(lastReqID));
     }
 

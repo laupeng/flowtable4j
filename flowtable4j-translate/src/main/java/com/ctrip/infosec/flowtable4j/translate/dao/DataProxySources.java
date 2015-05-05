@@ -30,8 +30,7 @@ import static com.ctrip.infosec.configs.utils.Utils.JSON;
  */
 public class DataProxySources
 {
-    /*@Autowired
-    private static DataProxyVenusService dataProxyVenusService;*/
+    private static Logger logger = LoggerFactory.getLogger(DataProxySources.class);
 
     /**
      * 查询一个服务的接口
@@ -66,22 +65,19 @@ public class DataProxySources
                     response.setResult(newResult);
                 }else if(request.getParams().get("tagNames") != null)
                 {
-                    List<Map> oldResults = (List<Map>)response.getResult().get("tagNames");
-                    List<Map> newResults = new ArrayList<Map>();
-                    Iterator iterator = oldResults.iterator();
-                    while(iterator.hasNext())
+                    Object[] oldResults = (Object[])response.getResult().get("tagNames");
+                    Map newResults = new HashMap();
+                    for(int j=0;j<oldResults.length;j++)
                     {
-                        Map oneResult = (Map)iterator.next();
-                        newResults.add(getNewResult(oneResult));
+                        Map oneResult = (Map)oldResults[j];
+                        newResults.putAll(getNewResult(oneResult));
                     }
-                    Map finalResult = new HashMap();
-                    finalResult.put("result",newResults);
-                    response.setResult(finalResult);
+                    response.setResult(newResults);
                 }
             }
         } catch (Exception ex) {
             fault();
-//            logger.error(Contexts.getLogPrefix() + "invoke DataProxy.queries fault.", ex);
+           logger.error("invoke DataProxy.queries fault.", ex);
         } finally {
             afterInvoke("DataProxy.queries");
         }
@@ -122,12 +118,11 @@ public class DataProxySources
                         response.setResult(newResult);
                     }else if(request.getParams().get("tagNames") != null)
                     {
-                        List<Map> oldResults = (List<Map>)response.getResult().get("tagNames");
+                        Object[] oldResults = (Object[])response.getResult().get("tagNames");
                         List<Map> newResults = new ArrayList<Map>();
-                        Iterator iterator = oldResults.iterator();
-                        while(iterator.hasNext())
+                        for(int j=0;j<oldResults.length;j++)
                         {
-                            Map oneResult = (Map)iterator.next();
+                            Map oneResult = (Map)oldResults[j];
                             newResults.add(getNewResult(oneResult));
                         }
                         Map finalResult = new HashMap();
@@ -139,7 +134,7 @@ public class DataProxySources
             }
         } catch (Exception ex) {
             fault();
-//            logger.error(Contexts.getLogPrefix() + "invoke DataProxy.queries fault.", ex);
+           logger.error("invoke DataProxy.queries fault.", ex);
         } finally {
             afterInvoke("DataProxy.queries");
         }
@@ -165,8 +160,13 @@ public class DataProxySources
         }else if(tagDataType.toLowerCase().equals("list"))
         {
             String tagName = oldValue.get("tagName") == null ? "" : oldValue.get("tagName").toString();
-            List tagContent = oldValue.get("tagContent") == null ? new ArrayList() : (List)oldValue.get("tagContent");
-            newResult.put(tagName,tagContent);
+            if(oldValue.get("tagContent") == null)
+                newResult.put(tagName,"");
+            else
+            {
+                Object[] tagContent = (Object[])oldValue.get("tagContent");
+                newResult.put(tagName,tagContent);
+            }
         }
         return newResult;
     }

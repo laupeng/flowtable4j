@@ -20,8 +20,8 @@ import java.util.*;
 /**
  * Created by lpxie on 15-4-10.
  */
-/*@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"classpath*:spring/dataProxy-venus-client-test.xml"})*/
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = {"classpath*:spring/dataProxy-venus-client-test.xml"})
 public class DataProxySourcesTest
 {
     MyJSON myJSON = new MyJSON();
@@ -123,7 +123,7 @@ public class DataProxySourcesTest
     @Test
     public void testQueryForList()
     {
-        DataProxyRequest request1 = new DataProxyRequest();
+        /*DataProxyRequest request1 = new DataProxyRequest();
         request1.setServiceName("IpService");
         request1.setOperationName("getIpArea");
         Map params1 = ImmutableMap.of("ip", "202.96.209.133");
@@ -145,7 +145,7 @@ public class DataProxySourcesTest
         request4.setServiceName("AirPortService");
         request4.setOperationName("getAirPortCity");
         Map params4 = ImmutableMap.of("airport", "PEK");
-        request4.setParams(params4);
+        request4.setParams(params4);*/
 
         DataProxyRequest request5 = new DataProxyRequest();
         request5.setServiceName("UserProfileService");
@@ -156,19 +156,19 @@ public class DataProxySourcesTest
         Map params5 = ImmutableMap.of("uid", "M00713231","tagNames",tagContents);
         request5.setParams(params5);
 
-        DataProxyRequest request6 = new DataProxyRequest();
+        /*DataProxyRequest request6 = new DataProxyRequest();
         request6.setServiceName("UserProfileService");
         request6.setOperationName("DataQuery");
         Map params6 = ImmutableMap.of("uid", "M00713231","tagName","RECENT_IP");//STATUS  RECENT_IP
-        request6.setParams(params6);
+        request6.setParams(params6);*/
 
         List<DataProxyRequest> requests = new ArrayList<DataProxyRequest>();
-        requests.add(request1);
+        /*requests.add(request1);
         requests.add(request2);
         requests.add(request3);
-        requests.add(request4);
+        requests.add(request4);*/
         requests.add(request5);
-        requests.add(request6);
+        /*requests.add(request6);*/
         List<Map> result = DataProxySources.queryForList(requests);
 
         System.out.println(myJSON.toPrettyJSONString(result));

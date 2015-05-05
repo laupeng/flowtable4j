@@ -2,13 +2,13 @@
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
-  <!--<parent>
+  <parent>
     <groupId>com.ctrip.infosec.flowtable4j</groupId>
     <artifactId>flowtable4j-parent</artifactId>
     <version>1.0.0-SNAPSHOT</version>
-  </parent>-->
-   <groupId>com.ctrip.infosec.flowtable4j</groupId>
-    <version>1.0.0-SNAPSHOT</version>
+  </parent>
+   <!--<groupId>com.ctrip.infosec.flowtable4j</groupId>
+    <version>1.0.0-SNAPSHOT</version>-->
   <artifactId>flowtable4j-translate</artifactId>
   <packaging>jar</packaging>
   <name>flowtable4j-translate-1.0.0</name>
@@ -149,18 +149,54 @@
             <groupId>com.ctrip.infosec.sars</groupId>
             <artifactId>sars-util</artifactId>
             <version>${sars.util.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>spring-core</artifactId>
+                    <groupId>org.springframework</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>spring-beans</artifactId>
+                    <groupId>org.springframework</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>spring-context</artifactId>
+                    <groupId>org.springframework</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>spring-context-support</artifactId>
+                    <groupId>org.springframework</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>spring-aop</artifactId>
+                    <groupId>org.springframework</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>commons-io</artifactId>
+                    <groupId>commons-io</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>slf4j-api</artifactId>
+                    <groupId>org.slf4j</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>spring-aspects</artifactId>
+                    <groupId>org.springframework</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
-        <dependency>
+        <!--<dependency>
             <groupId>com.ctrip.infosec.sars</groupId>
             <artifactId>sars-util-test</artifactId>
             <version>${sars.util.version}</version>
-        </dependency>
+        </dependency>-->
+
         <!--Credis-->
         <dependency>
             <groupId>com.ctrip.credis</groupId>
             <artifactId>credis</artifactId>
             <version>2.0.0</version>
         </dependency>
+
         <!--drools-->
         <dependency>
             <groupId>org.drools</groupId>
@@ -172,6 +208,7 @@
             <artifactId>drools-compiler</artifactId>
             <version>${drools.version}</version>
         </dependency>
+
         <!--configs client-->
         <dependency>
             <groupId>com.ctrip.infosec.antifraud</groupId>
@@ -210,12 +247,29 @@
             <groupId>jaxen</groupId>
             <artifactId>jaxen</artifactId>
             <version>1.1.1</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>xml-apis</artifactId>
+                    <groupId>xml-apis</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <!--jdbc-->
         <dependency>
             <groupId>com.microsoft.sqlserver</groupId>
             <artifactId>sqljdbc</artifactId>
             <version>4.0</version>
+        </dependency>
+        <!--dataSource-->
+        <dependency>
+            <groupId>com.ctrip.datasource</groupId>
+            <artifactId>datasource-locator</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.ctrip.datasource</groupId>
+            <artifactId>datasource-local</artifactId>
+            <version>1.0</version>
         </dependency>
         <!-- Venus 3.x -->
         <dependency>
@@ -225,6 +279,10 @@
                 <exclusion>
                     <groupId>com.google.collections</groupId>
                     <artifactId>google-collections</artifactId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>spring-beans</artifactId>
+                    <groupId>org.springframework</groupId>
                 </exclusion>
             </exclusions>
             <version>3.2.13</version>
@@ -258,6 +316,12 @@
             <groupId>com.meidusa.toolkit.commons</groupId>
             <artifactId>toolkit-common-util</artifactId>
             <version>1.2.2</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>commons-digester</artifactId>
+                    <groupId>commons-digester</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.meidusa.toolkit.net</groupId>
@@ -279,11 +343,20 @@
             <artifactId>fastbson</artifactId>
             <version>1.3.2</version>
         </dependency>
+
         <!--dataproxy-venus-client-->
         <dependency>
             <groupId>com.ctrip.sec.userprofile</groupId>
             <artifactId>userprofile-contract</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
+
+        <!--fix bug jar-->
+        <dependency>
+            <groupId>xerces</groupId>
+            <artifactId>xercesImpl</artifactId>
+            <version>2.11.0</version>
+        </dependency>
+
     </dependencies>
 </project>

@@ -1,0 +1,39 @@
+{
+    "CheckType" : "1",
+    "OrderType" : "PEK",
+    "OrderDate" : "1",
+    "OrderID" : "0",
+    "MerchantID" : "1390.0",
+    "OrderAmount" : "",
+    "OrderPrepayType" : "",
+    "Serverfrom" : "client",
+    "IsOnline" : "T",
+    "ReferenceNo" : "436748",
+    "Uid" : "",
+    "UserIP" : "210075759",
+    "ContactName" : "0",
+    "ContactTel" : "lxb6611@163.com",
+    "MobilePhone" : "",
+    "ContactEMail" : "龙晓兵",
+    "SendTickerAddr" : "",
+    "ProductID" : "5",
+    "ProductType" : "LZH",
+    "ProductName" : "354",
+    "City" : "LZH",
+    "Price" : "116032",
+    "Quantity" : "N",
+    "PaymentInfos" : [
+        {
+            "PrepayType" : "CASH",
+            "Amount" : "111",
+            "RefNo" : "2",
+            "CardInfoID" : "CASH"
+        },
+        {
+            "PrepayType" : "CASH",
+            "Amount" : "111",
+            "RefNo" : "2",
+            "CardInfoID" : "CASH"
+        }
+    ]
+}

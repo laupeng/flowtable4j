@@ -23,7 +23,7 @@ public class FlightExecutorTest
     public void testComplementData()
     {
         int checkType = 0;
-        Map data = ReadFactFile.getData("flight.json");
+        Map data = ReadFactFile.getData("flight0.json");
         flightExecutor.complementData(data,checkType);
 
     }

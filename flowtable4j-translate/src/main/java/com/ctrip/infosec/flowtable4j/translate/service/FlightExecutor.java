@@ -22,7 +22,7 @@ import static com.ctrip.infosec.flowtable4j.translate.common.Utils.Json;
  * 两个模块：1，数据补充。2，转换成实体
  */
 @Service
-public class FlightExecutor
+public class FlightExecutor implements Executor
 {
     /*@Autowired
     RulesExecutorService rulesExecutorService;*/

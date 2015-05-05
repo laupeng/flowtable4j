@@ -291,4 +291,11 @@ public class HotelGroup
 
     //uid是否激活标识 UidActive
     public static String UidActive = "UidActive";
+
+    //Quantity  City   ProductName   ProductType  Price  酒店团购产品信息
+    public static String Quantity = "Quantity";
+    public static String City = "City";
+    public static String ProductName = "ProductName";
+    public static String ProductType = "ProductType";
+    public static String Price = "Price";
 }
