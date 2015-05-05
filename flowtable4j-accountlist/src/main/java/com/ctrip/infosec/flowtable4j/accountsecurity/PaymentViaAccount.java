@@ -64,7 +64,7 @@ public class PaymentViaAccount {
                     public Object call() throws Exception {
                         KeyValue keyValue = new KeyValue();
                         keyValue.setSceneType(item.getSceneType().toUpperCase());
-                        keyValue.setRuleKey(String.format("CheckType:{%s}|SceneType:{%s}|CheckValue:{%s}", chkType, sceneType, item.getCheckValue()).toUpperCase());
+                        keyValue.setRuleKey(String.format("CheckType:%s|SceneType:%s|CheckValue:%s", chkType, sceneType, item.getCheckValue()).toUpperCase());
                         getRuleByKey(dic_allRules, currentDate, keyValue);
                         return null;
                     }
@@ -146,6 +146,7 @@ public class PaymentViaAccount {
             if (redisStoreItems != null && redisStoreItems.size() > 0) {
                 for (int i = redisStoreItems.size() - 1; i >= 0; i--) {
                     RedisStoreItem item = redisStoreItems.get(i);
+                    item.setSceneType(val.getSceneType().toUpperCase());
                     if (item.getEffectDate().compareTo(currentDate) > 0 || currentDate.compareTo(item.getExpiryDate()) > 0) {
                         redisStoreItems.remove(i);
                     }

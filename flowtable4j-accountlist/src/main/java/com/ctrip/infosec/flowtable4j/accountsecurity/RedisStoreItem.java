@@ -1,12 +1,18 @@
 package com.ctrip.infosec.flowtable4j.accountsecurity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * Created by zhangsx on 2015/3/17.
  */
 public class RedisStoreItem {
+    @JsonProperty("D")
     private String SourceID;
+    @JsonProperty("F")
     private int ResultLevel;
+    @JsonProperty("G")
     private String EffectDate;
+    @JsonProperty("H")
     private String ExpiryDate;
     private String RuleRemark;
     private String CreateDate;
