@@ -1,31 +1,38 @@
 package com.ctrip.infosec.flowtable4j.translate.hotelGroup;
 
+import com.ctrip.infosec.flowtable4j.translate.dao.HotelGroupSources;
 import com.ctrip.infosec.flowtable4j.translate.dao.Jndi.AllTemplates;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.annotation.Resource;
-import java.util.List;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * Created by lpxie on 15-4-24.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"classpath*:spring/allTemplates.xml"})
+@ContextConfiguration(locations = {"classpath*:spring/allTemplates.xml","classpath*:spring/preprocess-datasource.xml"})
 public class HotelGroupSourcesTest
 {
+    @Autowired
+    HotelGroupSources hotelGroupSources;
+
     @Resource(name="allTemplates")
     private AllTemplates allTemplates;
 
     JdbcTemplate cardRiskDBTemplate = null;
     JdbcTemplate riskCtrlPreProcDBTemplate = null;
     JdbcTemplate cUSRATDBTemplate = null;
+
+
     @Before
     public void init()
     {
@@ -263,18 +270,38 @@ public class HotelGroupSourcesTest
         }
     }
 
-    /*@Test
+    @Test
+    public void testGetOriginalRisklevel()
+    {
+        Date date = new Date(System.currentTimeMillis());
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.sss");
+        String nowTimeStr = format.format(date);
+
+        Calendar calendar = new GregorianCalendar();
+        calendar.setTime(date);
+        //测试的时间往前一年，真是数据是720分钟
+        calendar.add(calendar.YEAR,-1);
+        //calendar.add(calendar.MINUTE,-720);
+        String timeLimitStr = format.format(calendar.getTime());
+
+        Map params = new HashMap();
+        params.put("uid","wwwwww");
+        hotelGroupSources.getOriginalRisklevel(params,timeLimitStr,nowTimeStr);
+    }
+
+    @Test
     public void testGetLeakedInfo()
     {
         Map leakInfo = null;
         try{
             String uid = "test12";
-            String commandText = "select top 1 * from CUSRATDB..CardRisk_Leaked_Uid with (nolock) where [CardRisk_Leaked_Uid].[Uid] = " +
-                    uid;
+            String commandText = "select top 1 * from CUSRATDB..CardRisk_Leaked_Uid with (nolock) where [CardRisk_Leaked_Uid].[Uid] = '" +
+                    uid+"'";
             cUSRATDBTemplate.queryForMap(commandText);
             Assert.assertNotNull(leakInfo);
         }catch(Exception exp)
         {
+
         }
-    }*/
+    }
 }

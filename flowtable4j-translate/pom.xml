@@ -27,8 +27,13 @@
     </properties>
 
     <dependencies>
-        <!-- logs -->
         <dependency>
+            <groupId>com.ctrip.infosec.flowtable4j</groupId>
+            <artifactId>flowtable4j-model</artifactId>
+           <!-- <version></version>-->
+        </dependency>
+        <!-- logs -->
+        <!--<dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>1.1.2</version>
@@ -57,7 +62,7 @@
             <groupId>org.slf4j</groupId>
             <artifactId>log4j-over-slf4j</artifactId>
             <version>${slf4j.version}</version>
-        </dependency>
+        </dependency>-->
 
         <!-- Spring -->
         <dependency>

@@ -13,10 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.print.attribute.standard.OrientationRequested;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * Created by lpxie on 15-4-20.
@@ -135,7 +133,6 @@ public class HotelGroupExecutor implements Executor
     //如果，主要支付方式为空，则用订单号和订单类型到risk_levelData取上次的主要支付方式
 
     //补充主要支付方式自动判断逻辑
-
     public Map<String,Object> convertToBlackCheckItem(Map data)
     {
         logger.info("开始构造酒店团购"+data.get("OrderID")+"黑白名单数据");
@@ -227,7 +224,7 @@ public class HotelGroupExecutor implements Executor
         bwList.put(HotelGroup.ProductID,data.get(HotelGroup.ProductID));//	产品编号(酒店团购)
         bwList.put(HotelGroup.ProductNameD,data.get(HotelGroup.ProductNameD));//	产品名称(酒店团购)
 
-        //Country //fixme
+        //Country //fixme 这里放空值的意义
         bwList.put(HotelGroup.DeviceID,"");
         bwList.put(HotelGroup.FuzzyDeviceID,"");
         bwList.put(HotelGroup.TrueIP,"");
@@ -257,8 +254,22 @@ public class HotelGroupExecutor implements Executor
         flowData.put(HotelGroup.CheckType,data.get(HotelGroup.CheckType));
         flowData.put(HotelGroup.Serverfrom,data.get(HotelGroup.Serverfrom));
         flowData.put(HotelGroup.OrderDate,data.get(HotelGroup.OrderDate));
-        flowData.put(HotelGroup.MergerOrderDate,"yyyyMMdd");//fixme change time form 这里到时候写个DateUtil类
-        flowData.put(HotelGroup.OrderDateHour,"hour");//fixme time to hour ?
+
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.sss");
+        String orderDateStr = data.get(HotelGroup.OrderDate) == null ? "" : data.get(HotelGroup.OrderDate).toString();
+        try
+        {
+            Date orderDate = format.parse(orderDateStr);
+            SimpleDateFormat format2 = new SimpleDateFormat("yyyyMMdd");
+            String mergerOrderDate = format2.format(orderDate);
+            flowData.put(HotelGroup.MergerOrderDate,mergerOrderDate);
+            int hours = orderDate.getHours();//fixme 这个方法回头改下
+            flowData.put(HotelGroup.OrderDateHour,hours);
+        } catch (ParseException e)
+        {
+            logger.warn("转换时间格式为yyyyMMdd异常："+e.getMessage());
+        }
+
 
         //InfoSecurity_CardInfo
         //     PaymentInfoList
@@ -351,16 +362,6 @@ public class HotelGroupExecutor implements Executor
         flowData.put(HotelGroup.DID,data.get(HotelGroup.DID));//fixme 这里在添加的时候需要把did值直接添加在data里面
 
         //场景  下面这段是用来判断账户风控结果的 这里在通辉的服务里面去做
-        /*List<String> sceneTypeList = new ArrayList<String>();
-        sceneTypeList.add("PAYMENT-REALTIME-CASH");
-        sceneTypeList.add("PAYMENT-REALTIME-CC");
-        sceneTypeList.add("PAYMENT-REALTIME-LIPIN");
-        Map<String,Object> infos = new HashMap();
-        infos.put("UID",data.get(HotelGroup.Uid));
-        infos.put("IP",data.get(HotelGroup.UserIPAdd));
-        infos.put("DID",data.get(HotelGroup.DID));*/
-        //得到账户风控结果 //todo ...这里到时候咨询徐洪  里面调用的是外部服务 AccountSecurityService.Client.AccountSecurityServiceClient.GetInstance();
-
 
         //衍生字段
         if(data.get(HotelGroup.PaymentInfoList) != null)
@@ -384,13 +385,12 @@ public class HotelGroupExecutor implements Executor
                 }
             }
         }
-        //todo
+
         Map leakInfo = hotelGroupSources.getLeakedInfo(data.get(HotelGroup.Uid).toString());
         if(leakInfo != null && leakInfo.size()>0)
         {
             flowData.put(HotelGroup.UidActive,leakInfo.get("Active"));
         }
-
 
         //统计分值大于195的数据
         Map<String,Object> temp = new HashMap();
@@ -398,9 +398,18 @@ public class HotelGroupExecutor implements Executor
         temp.put("ContactEMail",data.get(HotelGroup.ContactEMail));
         temp.put("MobilePhone",data.get(HotelGroup.MobilePhone));
         temp.put("CCardNoCode",data.get(HotelGroup.CCardNoCode));
-        //统计
-        //todo 这里不是很清楚，找徐洪确认（是查数据库还是）！！！
 
+        Date date = new Date(System.currentTimeMillis());
+        SimpleDateFormat format1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.sss");
+        String nowTimeStr = format1.format(date);
+
+        Calendar calendar = new GregorianCalendar();
+        calendar.setTime(date);
+        calendar.add(calendar.MINUTE,-720);//往前720分钟
+        String timeLimitStr = format1.format(calendar.getTime());
+
+        int count = hotelGroupSources.getOriginalRisklevel(temp,timeLimitStr,nowTimeStr);
+        flowData.put(HotelGroup.OriginalRisklevelCount,count);
         return flowData;
     }
 }

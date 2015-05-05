@@ -1,14 +1,15 @@
 package com.ctrip.infosec.flowtable4j.translate.dao;
 
 import com.ctrip.infosec.flowtable4j.translate.dao.Jndi.AllTemplates;
+import com.sun.java.swing.plaf.windows.resources.windows_zh_HK;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * Created by lpxie on 15-4-20.
@@ -22,6 +23,7 @@ public class HotelGroupSources
 
     JdbcTemplate cardRiskDBTemplate = null;
     JdbcTemplate riskCtrlPreProcDBTemplate = null;
+    JdbcTemplate cUSRATDBTemplate = null;
 
     /**
      * 初始化jndi
@@ -31,6 +33,7 @@ public class HotelGroupSources
         logger.info("开始初始化JNDI模板");
         cardRiskDBTemplate = allTemplates.getCardRiskDBTemplate();
         riskCtrlPreProcDBTemplate = allTemplates.getRiskCtrlPreProcDBTemplate();
+        cUSRATDBTemplate = allTemplates.getcUSRATDBTemplate();
         logger.info("初始化JNDI模板结束");
     }
 
@@ -256,18 +259,77 @@ public class HotelGroupSources
         }
     }
 
-    //查询CUSRATDB的CardRisk_Leaked_Uid  //todo 执行徐洪
     public Map getLeakedInfo(String uid)
     {
         Map leakInfo = null;
         try{
-            String commandText = "select top 1 * from CUSRATDB..CardRisk_Leaked_Uid with (nolock) where [CardRisk_Leaked_Uid].[Uid] = " +
-                    uid;
-            //leakInfo = //todo 获取CUSRATDB的jndi
+            String commandText = "select top 1 * from CUSRATDB..CardRisk_Leaked_Uid with (nolock) where [CardRisk_Leaked_Uid].[Uid] = '" +
+                    uid+"'";
+            leakInfo = cUSRATDBTemplate.queryForMap(commandText);
             return leakInfo;
         }catch(Exception exp)
         {
+            logger.warn("getLeakedInfo查询异常"+exp.getMessage());
             return leakInfo;
         }
+    }
+
+    /**
+     * 获取流量表数据 统计分值大于195分的数据  目前是根据Uid,ContactEMail,MobilePhone,CCardNoCode
+     * 感谢夏阳的帮忙
+     * @param params 要统计的维度属性
+     * @param timeLimitStr 过去的时间结点
+     * @param nowTimeStr 当前时间
+     * @return 获取的大于195分的数量
+     */
+    public int getOriginalRisklevel(Map params,String timeLimitStr,String nowTimeStr)
+    {
+        int countValue = 0;
+        //遍历每一个属性
+        Iterator iterator = params.keySet().iterator();
+        while(iterator.hasNext())
+        {
+            String key = iterator.next().toString();
+            String value = params.get(key) == null ? "" : params.get(key).toString();
+            if(value.isEmpty())
+                continue;
+            try{
+                List<Map<String,Object>> allTableNames = null;
+                //先取出出所有的表名称
+                String commandText = "select t.StatisticTableId, t.StatisticTableName ,f1.ColumnName as KeyFieldID1,f2.ColumnName as " +
+                        "KeyFieldID2,t.OrderType,t.Active,t.[TableType]" +
+                        "from Def_RuleStatisticTable t with (nolock)" +
+                        "join Def_RuleMatchField f1 (nolock) on t.KeyFieldID1 = f1.FieldID " +
+                        "join Def_RuleMatchField f2 (nolock) on t.KeyFieldID2 = f2.FieldID " +
+                        "where f2.ColumnName='OriginalRisklevel' and  f1.ColumnName= '"+key+"'";//添加key来关联字段
+                allTableNames = cardRiskDBTemplate.queryForList(commandText);
+
+                Iterator iterator1 = allTableNames.iterator();
+                while(iterator1.hasNext())
+                {
+                    Map<String,Object> columnValue = (Map)iterator1.next();
+                    String active = columnValue.get("Active") == null ? "" : columnValue.get("Active").toString();
+                    String orderType = columnValue.get("OrderType") == null ? "" : columnValue.get("OrderType").toString();
+                    String tableType = columnValue.get("TableType") == null ? "" : columnValue.get("TableType").toString();
+                    if(active.equals("T") && orderType.equals("0") && tableType.equals("1"))
+                    {
+                        //固定的值195分
+                        String tableName = columnValue.get("StatisticTableName") == null ? "" : columnValue.get("StatisticTableName").toString();
+
+                        String commandText1 = "select count(distinct originalrisklevel) from RiskCtrlPreProcDB.."+tableName +
+                                " with (nolock) where "+key +" = '"+value+"' and originalrisklevel>=195 and CreateDate>= '"+timeLimitStr+"' and CreateDate<= '"+nowTimeStr+"'";
+                        countValue = riskCtrlPreProcDBTemplate.queryForObject(commandText1, Integer.class);
+                        break;
+                    }
+                }
+
+                if(countValue>0)
+                    break;
+            }catch (Exception exp)
+            {
+                logger.warn("getOriginalRisklevel获取数据异常"+exp.getMessage());
+            }
+        }
+        return countValue;
     }
 }

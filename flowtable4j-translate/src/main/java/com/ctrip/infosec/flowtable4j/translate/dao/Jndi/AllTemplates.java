@@ -15,7 +15,7 @@ public class AllTemplates
     private JdbcTemplate riskCtrlPreProcDBTemplate = null;
     private JdbcTemplate cUSRATDBTemplate = null;
     //fixme 这里以后读取配置文件，在每个环境的名称不一样
-    private String[] dbNames = {"CardRiskDB_SELECT_1","RiskCtrlPreProcDB_SELECT_1","CUSRATDB"};//注意这里的name顺序不能改变！ RiskCtrlPreProcDB
+    private String[] dbNames = {"CardRiskDB_SELECT_1","RiskCtrlPreProcDB_SELECT_1","CUSRATDB_SELECT_1"};//注意这里的name顺序不能改变！ RiskCtrlPreProcDB
 
     private void init() throws SQLException
     {
@@ -23,7 +23,7 @@ public class AllTemplates
         AllInOneConfigParser.newInstance().reloadAllInOneConfig();
         cardRiskDBTemplate = new JdbcTemplate(LocalDataSourceProvider.getDataSource(dbNames[0]));
         riskCtrlPreProcDBTemplate = new JdbcTemplate(LocalDataSourceProvider.getDataSource(dbNames[1]));
-        //cUSRATDBTemplate = new JdbcTemplate(LocalDataSourceProvider.getDataSource(dbNames[2]));
+        cUSRATDBTemplate = new JdbcTemplate(LocalDataSourceProvider.getDataSource(dbNames[2]));
     }
 
     public JdbcTemplate getCardRiskDBTemplate()

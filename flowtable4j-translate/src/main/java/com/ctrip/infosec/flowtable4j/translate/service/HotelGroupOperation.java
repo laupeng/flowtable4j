@@ -306,5 +306,9 @@ public class HotelGroupOperation
         }
     }
 
-    //根据bindedMobilePhone来获取相关的城市
+    //统计大于195分的值
+    public  void fillOriginalRisklevelCount(Map data)
+    {
+
+    }
 }

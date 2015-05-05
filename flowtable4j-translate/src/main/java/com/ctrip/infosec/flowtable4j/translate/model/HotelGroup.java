@@ -298,4 +298,7 @@ public class HotelGroup
     public static String ProductName = "ProductName";
     public static String ProductType = "ProductType";
     public static String Price = "Price";
+
+    //分值大于195分的数量
+    public static String OriginalRisklevelCount = "OriginalRisklevelCount";
 }
