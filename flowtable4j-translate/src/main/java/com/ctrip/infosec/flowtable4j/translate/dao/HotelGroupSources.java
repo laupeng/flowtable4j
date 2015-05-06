@@ -164,7 +164,7 @@ public class HotelGroupSources
     {
         Map contactInfo = null;
         try{
-            String commandText = "select * from InfoSecurity_ContactInfo with (nolock) where [InfoSecurity_ContactInfo].[ReqID] = " +
+            String commandText = "select * from CardRiskDB..InfoSecurity_ContactInfo with (nolock) where [InfoSecurity_ContactInfo].[ReqID] = " +
                     reqId;
             contactInfo = cardRiskDBTemplate.queryForMap(commandText);
             return contactInfo;

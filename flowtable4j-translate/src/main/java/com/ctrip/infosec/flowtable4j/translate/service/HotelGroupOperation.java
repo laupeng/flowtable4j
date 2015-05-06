@@ -120,12 +120,12 @@ public class HotelGroupOperation
     {
         logger.info("酒店团购"+data.get("OrderID")+"获取时间的差值相关信息");
         //订单日期
-        String orderDateStr = data.get(Flight.OrderDate) == null ? "": data.get(Flight.OrderDate).toString();
+        String orderDateStr = data.get(HotelGroup.OrderDate) == null ? "": data.get(HotelGroup.OrderDate).toString();
         Date orderDate = DateUtils.parseDate(orderDateStr, "yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd HH:mm:ss.SSS");//yyyy-MM-dd HH:mm:ss   yyyy-MM-dd HH:mm:ss.SSS
         //注册日期
-        String signUpDateStr = data.get(Flight.SignUpDate) == null ? "": data.get(Flight.SignUpDate).toString();
+        String signUpDateStr = data.get(HotelGroup.SignUpDate) == null ? "": data.get(HotelGroup.SignUpDate).toString();
         Date signUpDate = DateUtils.parseDate(signUpDateStr,"yyyy-MM-dd HH:mm:ss","yyyy-MM-dd HH:mm:ss.SSS");
-        data.put(Flight.OrderToSignUpDate,getDateAbs(signUpDate, orderDate));
+        data.put(HotelGroup.OrderToSignUpDate,getDateAbs(signUpDate, orderDate,1));
     }
 
     public void getDIDInfo(Map data)
@@ -161,17 +161,18 @@ public class HotelGroupOperation
      */
     public void fillPaymentInfo0(Map data)//fixme 这里可能有点问题 ，回头改下
     {
-        List<Map> paymentInfoList = (List<Map>)data.get(HotelGroup.PaymentInfos);
-        if(paymentInfoList == null || paymentInfoList.size()<1)
+        List<Map> paymentInfos = (List<Map>)data.get(HotelGroup.PaymentInfos);
+        if(paymentInfos == null || paymentInfos.size()<1)
             return;
         List<Object> PaymentInfoList = new ArrayList<Object>();
-        Map<String,Object> PaymentInfo = new HashMap();
-        List<Map> CardInfoList = new ArrayList<Map>();
-        Map<String,Object> cardInfo = new HashMap<String, Object>();
-        for(Map payment : paymentInfoList)
+        for(Map payment : paymentInfos)
         {
-            String prepayType = payment.get(HotelGroup.PrepayType) == null ? "" : payment.get(HotelGroup.PrepayType).toString();
+            Map<String,Object> subPaymentInfoList = new HashMap<String, Object>();
+            Map<String,Object> PaymentInfo = new HashMap();
+            List<Map> CardInfoList = new ArrayList<Map>();
+            Map<String,Object> cardInfo = new HashMap<String, Object>();
 
+            String prepayType = payment.get(HotelGroup.PrepayType) == null ? "" : payment.get(HotelGroup.PrepayType).toString();
             PaymentInfo.put(HotelGroup.PrepayType,prepayType);
             PaymentInfo.put(HotelGroup.Amount,payment.get(HotelGroup.Amount));
             if(prepayType.equals("CCARD") || prepayType.equals("DCARD"))
@@ -180,22 +181,13 @@ public class HotelGroupOperation
                 cardInfo.put(HotelGroup.InfoID,"0");
 
                 ///从wsdl里面获取卡信息
-                Map cardInfoResult = getCardInfo(data);
+                String cardInfoId = payment.get(HotelGroup.CardInfoID) == null ? "" : payment.get(HotelGroup.CardInfoID).toString();
+                if(cardInfoId.isEmpty())
+                    continue;
+                Map cardInfoResult = getCardInfo(payment.get(HotelGroup.CardInfoID).toString());
                 if(cardInfoResult != null && cardInfoResult.size()>0)
                 {
-                    cardInfo.put(HotelGroup.BillingAddress,cardInfoResult.get(HotelGroup.BillingAddress));
-                    cardInfo.put(HotelGroup.CardBin,cardInfoResult.get(HotelGroup.CardBin));
-                    cardInfo.put(HotelGroup.CardHolder,cardInfoResult.get(HotelGroup.CardHolder));
-                    cardInfo.put(HotelGroup.CCardLastNoCode,cardInfoResult.get(HotelGroup.CCardLastNoCode));
-                    cardInfo.put(HotelGroup.CCardNoCode,cardInfoResult.get(HotelGroup.CCardNoCode));
-                    cardInfo.put(HotelGroup.CCardPreNoCode,cardInfoResult.get(HotelGroup.CCardPreNoCode));
-                    cardInfo.put(HotelGroup.CreditCardType,cardInfoResult.get(HotelGroup.CreditCardType));
-                    cardInfo.put(HotelGroup.CValidityCode,cardInfoResult.get(HotelGroup.CValidityCode));
-                    cardInfo.put(HotelGroup.IsForigenCard,cardInfoResult.get(HotelGroup.IsForigenCard));
-                    cardInfo.put(HotelGroup.Nationality,cardInfoResult.get(HotelGroup.Nationality));
-                    cardInfo.put(HotelGroup.Nationalityofisuue,cardInfoResult.get(HotelGroup.Nationalityofisuue));
-                    cardInfo.put(HotelGroup.BankOfCardIssue,cardInfoResult.get(HotelGroup.BankOfCardIssue));
-                    cardInfo.put(HotelGroup.StateName,cardInfoResult.get(HotelGroup.StateName));
+                    cardInfo.putAll(cardInfoResult);
                 }
                 //通过卡种和卡BIN获取系统中维护的信用卡信息
                 String cardTypeId = cardInfoResult.get(HotelGroup.CreditCardType) == null ? "" : cardInfoResult.get(HotelGroup.CreditCardType).toString();
@@ -208,8 +200,9 @@ public class HotelGroupOperation
                 }
                 CardInfoList.add(cardInfo);
             }
-            PaymentInfoList.add(payment);
-            PaymentInfoList.add(CardInfoList);
+            subPaymentInfoList.put(HotelGroup.PaymentInfo,payment);
+            subPaymentInfoList.put(HotelGroup.CardInfoList,CardInfoList);
+            PaymentInfoList.add(subPaymentInfoList);
         }
         data.put(HotelGroup.PaymentInfoList,PaymentInfoList);//添加支付信息到当前的报文
     }
@@ -232,10 +225,9 @@ public class HotelGroupOperation
         data.put(HotelGroup.PaymentMainInfo,hotelGroupSources.getPaymentMainInfo(lastReqID));
     }
 
-    public Map getCardInfo(Map data)
+    public Map getCardInfo(String cardInfoId)
     {
-        int cardInfoId = data.get(HotelGroup.CardInfoID)==null ? 0 : Integer.parseInt(data.get(HotelGroup.CardInfoID).toString());
-        // 从ESB获取数据
+        //int cardInfoId = PaymentInfo.get(HotelGroup.CardInfoID)==null ? 0 : Integer.parseInt(PaymentInfo.get(HotelGroup.CardInfoID).toString());
         //从esb获取数据 根据CardInfoID取出卡的信息
         String requestType = "AccCash.CreditCard.GetCreditCardInfo";
         String xpath = "/Response/GetCreditCardInfoResponse/CreditCardItems/CreditCardInfoResponseItem";
@@ -258,11 +250,14 @@ public class HotelGroupOperation
     //补充产品信息
     public void fillProductInfo(Map data,long lastReqID)
     {
-        data.putAll(hotelGroupSources.getContactInfo(lastReqID));
-        data.putAll(hotelGroupSources.getUserInfo(lastReqID));
-        data.putAll(hotelGroupSources.getIpInfo(lastReqID));
-        data.putAll(hotelGroupSources.getHotelGroupInfo(lastReqID));
-        data.putAll(hotelGroupSources.getOtherInfo(lastReqID));
+        if(lastReqID>0)
+        {
+            data.putAll(hotelGroupSources.getContactInfo(lastReqID));
+            data.putAll(hotelGroupSources.getUserInfo(lastReqID));
+            data.putAll(hotelGroupSources.getIpInfo(lastReqID));
+            data.putAll(hotelGroupSources.getHotelGroupInfo(lastReqID));
+            data.putAll(hotelGroupSources.getOtherInfo(lastReqID));
+        }
     }
 
     //补充主要支付方式
@@ -304,11 +299,5 @@ public class HotelGroupOperation
                 }
             }
         }
-    }
-
-    //统计大于195分的值
-    public  void fillOriginalRisklevelCount(Map data)
-    {
-
     }
 }

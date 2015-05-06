@@ -22,14 +22,36 @@ public class MyDateUtil
 
     /**
      * 计算绝对时间
+     * type：0代表天，1代表小时，2代表分钟，3代表秒
      * @param date1
      * @param date2
      * @return
      */
-    public static long getDateAbs(Date date1,Date date2)
+    public static long getDateAbs(Date date1,Date date2,int type)
     {
+        long result = 0;
         long time1 = date1.getTime();
         long time2 = date2.getTime();
-        return Math.abs(time1-time2);
+        long absTime = Math.abs(time1-time2);
+        switch (type)
+        {
+            //天
+            case 0:
+                result = absTime/86400000;
+                break;
+            //小时
+            case 1:
+                result = absTime/3600000;
+                break;
+            //分钟
+            case 2:
+                result = absTime/60000;
+                break;
+            //秒
+            case 3:
+                result = absTime/1000;
+                break;
+        }
+        return result;
     }
 }

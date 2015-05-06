@@ -21,7 +21,7 @@ public class ProcessorTest
     @Test
     public void testHoteGroup()
     {
-        Map data = ReadFactFile.getData("hotelGroup1.json");
+        Map data = ReadFactFile.getData("hotelGroup2.json");
         processor.execute(data);
     }
 }

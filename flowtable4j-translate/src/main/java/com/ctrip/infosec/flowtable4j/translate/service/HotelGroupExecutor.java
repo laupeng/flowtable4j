@@ -46,7 +46,7 @@ public class HotelGroupExecutor implements Executor
         Map<String,Object> bwList = convertToBlackCheckItem(data);
         Map<String,Object> flowData = convertToFlowRuleCheckItem(data);
 
-        //构造规则引擎的数据类型
+        //构造规则引擎的数据类型CheckFact
         CheckFact checkFact = new CheckFact();
         CheckType[] checkTypes = {CheckType.BW,CheckType.FLOWRULE};
 
@@ -74,7 +74,6 @@ public class HotelGroupExecutor implements Executor
     public void complementData(Map data) throws ParseException
     {
         logger.info("开始补充酒店团购"+data.get("OrderID")+"数据");
-
         long lastReqID = Long.MIN_VALUE;
         data.put(HotelGroup.LastCheck,"T");
         data.put(HotelGroup.CorporationID,"");
@@ -116,7 +115,7 @@ public class HotelGroupExecutor implements Executor
                 break;
             case 2:
                 //补充支付信息
-                hotelGroupOperation.fillPaymentInfo0(data);//和checkType = 0 的补充支付信息一样
+                hotelGroupOperation.fillPaymentInfo0(data);//和checkType = 0的补充支付信息一样
                 //通过lastReqID查询所有订单相关的信息
                 hotelGroupOperation.fillProductInfo(data,lastReqID);
                 break;
@@ -130,9 +129,6 @@ public class HotelGroupExecutor implements Executor
         hotelGroupOperation.fillMainOrderType(data);//这里面加一个字段 “OrderPrepayType”
     }
 
-    //如果，主要支付方式为空，则用订单号和订单类型到risk_levelData取上次的主要支付方式
-
-    //补充主要支付方式自动判断逻辑
     public Map<String,Object> convertToBlackCheckItem(Map data)
     {
         logger.info("开始构造酒店团购"+data.get("OrderID")+"黑白名单数据");
@@ -142,12 +138,12 @@ public class HotelGroupExecutor implements Executor
         bwList.put(HotelGroup.IPCountry,data.get(HotelGroup.IPCountry));
         bwList.put(HotelGroup.UserIP,data.get(HotelGroup.UserIPAdd));//fixme 这里为什么是UserIPAdd
         
-        bwList.put(HotelGroup.OrderToSignUpDate,data.get(HotelGroup.OrderToSignUpDate));
+        bwList.put(HotelGroup.OrderToSignUpDate,data.get(HotelGroup.OrderToSignUpDate)); //预定距注册日期小时数
 
+        //支付信息处理
         //paymentInfo
         //     PaymentInfoList
         //PaymentInfo(Map) ; CardInfoList(List)
-        //todo 这块的代码一定要调试一下
         if(data.get(HotelGroup.PaymentInfoList) != null)
          {
             List<Map> paymentInfos = (List<Map>)data.get(HotelGroup.PaymentInfoList);
@@ -167,28 +163,30 @@ public class HotelGroupExecutor implements Executor
                     bwList.put(HotelGroup.Nationality,cardInfoList.get(0).get(HotelGroup.Nationality));
                     bwList.put(HotelGroup.Nationalityofisuue,cardInfoList.get(0).get(HotelGroup.Nationalityofisuue));
                     bwList.put(HotelGroup.CCardPreNoCode,cardInfoList.get(0).get(HotelGroup.CCardPreNoCode));
-
-                    //这里和下面的是一起的  //黑名单校验临时转换  订单类型(C/W/N/X/P)  当前只判断CCARD，CASH，PAYPL
-                    String mainOrderPay = data.get(HotelGroup.OrderPrepayType) == null ? "" : data.get(HotelGroup.OrderPrepayType).toString();
-                    if(mainOrderPay.toUpperCase().equals("CCARD"))
-                    {
-                        if(subPaymentInfo.get(HotelGroup.PrepayType).toString().toUpperCase().equals("CCARD"))
-                        {
-
-                            if(cardInfoList.get(0).get(HotelGroup.IsForeignCard) != null && cardInfoList.get(0).get(HotelGroup.IsForeignCard).toString().equals("T"))
-                            {
-                                bwList.put(HotelGroup.PrepayTypeDetails,"W");
-                            }else
-                            {
-                                bwList.put(HotelGroup.PrepayTypeDetails,"N");
-                            }
-                        }
-                    }
+                    break;//fixme 这里不确定是否要跳出
                 }
             }
 
-            //黑名单校验临时转换  订单类型(C/W/N/X/P)  当前只判断CCARD，CASH，PAYPL
-            String mainOrderPay = data.get(HotelGroup.OrderPrepayType) == null ? "" : data.get(HotelGroup.OrderPrepayType).toString();
+             ////黑名单校验临时转换  订单类型(C/W/N/X/P)  当前只判断CCARD，CASH，PAYPL
+             String mainOrderPay = data.get(HotelGroup.OrderPrepayType) == null ? "" : data.get(HotelGroup.OrderPrepayType).toString();
+             for(Map paymentInfo : paymentInfos)
+             {
+                 Map subPaymentInfo = (Map)paymentInfo.get(HotelGroup.PaymentInfo);
+                 List<Map> cardInfoList = (List<Map>)paymentInfo.get(HotelGroup.CardInfoList);
+                 if(mainOrderPay.toUpperCase().equals("CCARD"))
+                 {
+                     if(subPaymentInfo.get(HotelGroup.PrepayType).toString().toUpperCase().equals("CCARD"))
+                     {
+                         if(cardInfoList.get(0).get(HotelGroup.IsForeignCard) != null && cardInfoList.get(0).get(HotelGroup.IsForeignCard).toString().equals("T"))
+                         {
+                             bwList.put(HotelGroup.PrepayTypeDetails,"W");
+                         }else
+                         {
+                             bwList.put(HotelGroup.PrepayTypeDetails,"N");
+                         }
+                     }
+                 }
+             }
             if(mainOrderPay.toUpperCase().equals("CASH"))
             {
                 bwList.put(HotelGroup.PrepayTypeDetails,"X");
@@ -245,8 +243,6 @@ public class HotelGroupExecutor implements Executor
     {
         logger.info("开始构造酒店团购"+data.get("OrderID")+"流量表数据");
         Map<String,Object> flowData = new HashMap();
-        //common properties
-        //nothing done ?
 
         //InfoSecurity_MainInfo
         flowData.put(HotelGroup.OrderID,data.get(HotelGroup.OrderID));
@@ -270,7 +266,7 @@ public class HotelGroupExecutor implements Executor
             logger.warn("转换时间格式为yyyyMMdd异常："+e.getMessage());
         }
 
-
+        //处理卡信息
         //InfoSecurity_CardInfo
         //     PaymentInfoList
         //PaymentInfo(Map) ; CardInfoList(List)
@@ -293,8 +289,7 @@ public class HotelGroupExecutor implements Executor
                     flowData.put(HotelGroup.CardBin,cardInfoList.get(0).get(HotelGroup.CardBin));
                     flowData.put(HotelGroup.CardHolder,cardInfoList.get(0).get(HotelGroup.CardHolder));
                     flowData.put(HotelGroup.CardBinOrderID,cardInfoList.get(0).get(HotelGroup.CardBin)+""+data.get(HotelGroup.OrderID));
-
-                    break; //fixme ??? 如果这里遍历下去会覆盖
+                    break;
                 }
             }
         }
@@ -359,10 +354,9 @@ public class HotelGroupExecutor implements Executor
         flowData.put(HotelGroup.IPCountry,data.get(HotelGroup.IPCountry));
 
         //DID
-        flowData.put(HotelGroup.DID,data.get(HotelGroup.DID));//fixme 这里在添加的时候需要把did值直接添加在data里面
+        flowData.put(HotelGroup.DID,data.get(HotelGroup.DID));
 
         //场景  下面这段是用来判断账户风控结果的 这里在通辉的服务里面去做
-
         //衍生字段
         if(data.get(HotelGroup.PaymentInfoList) != null)
         {
@@ -386,6 +380,7 @@ public class HotelGroupExecutor implements Executor
             }
         }
 
+        //
         Map leakInfo = hotelGroupSources.getLeakedInfo(data.get(HotelGroup.Uid).toString());
         if(leakInfo != null && leakInfo.size()>0)
         {

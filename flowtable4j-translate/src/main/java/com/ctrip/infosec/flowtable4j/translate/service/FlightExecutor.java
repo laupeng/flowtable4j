@@ -1129,10 +1129,10 @@ public class FlightExecutor implements Executor
         //注册日期
         String signUpDateStr = data.get(Flight.SignUpDate) == null ? "": data.get(Flight.SignUpDate).toString();
         Date signUpDate = DateUtils.parseDate(signUpDateStr,"yyyy-MM-dd HH:mm:ss","yyyy-MM-dd HH:mm:ss.SSS");
-        data.put(Flight.OrderToSignUpDate,getDateAbs(signUpDate, orderDate));
+        data.put(Flight.OrderToSignUpDate,getDateAbs(signUpDate, orderDate,1));
         //起飞日期
         String takeOffTimeDateStr = data.get(Flight.TakeOffTime) == null ? "": data.get(Flight.TakeOffTime).toString();
         Date takeOffTimeDate =  DateUtils.parseDate(takeOffTimeDateStr, "yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd HH:mm:ss.SSS");
-        data.put(Flight.TakeOffToOrderDate,getDateAbs(takeOffTimeDate, orderDate));
+        data.put(Flight.TakeOffToOrderDate,getDateAbs(takeOffTimeDate, orderDate,1));
     }
 }
