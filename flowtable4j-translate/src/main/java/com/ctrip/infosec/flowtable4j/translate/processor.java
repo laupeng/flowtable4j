@@ -33,11 +33,9 @@ public class Processor
             case 2:
                 break;
             case 14:
-                logger.info("开始处理酒店团购 "+data.get("OrderID").toString()+" 数据");
                 hotelGroupExecutor.executeHotelGroup(data);
-                logger.info("酒店团购 "+data.get("OrderID").toString()+" 数据处理完毕");
                 break;
-            //...
+            //...14-24
             default:
                 logger.info("没有找到相关的订单类型 : "+orderType);
                 break;

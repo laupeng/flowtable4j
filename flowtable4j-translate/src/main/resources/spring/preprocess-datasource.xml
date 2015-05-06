@@ -17,6 +17,10 @@
           depends-on="allTemplates" init-method="init">
     </bean>
 
+    <bean id="commonSources" class="com.ctrip.infosec.flowtable4j.translate.dao.CommonSources"
+          depends-on="allTemplates" init-method="init">
+    </bean>
+
     <bean id="hotelGroupOperation" class="com.ctrip.infosec.flowtable4j.translate.service.HotelGroupOperation"
           depends-on="hotelGroupSources"></bean>
 

@@ -1,10 +1,7 @@
 package com.ctrip.infosec.flowtable4j.translate.service;
 
 import com.ctrip.infosec.flowtable4j.translate.common.IpConvert;
-import com.ctrip.infosec.flowtable4j.translate.dao.DataProxySources;
-import com.ctrip.infosec.flowtable4j.translate.dao.ESBSources;
-import com.ctrip.infosec.flowtable4j.translate.dao.HotelGroupSources;
-import com.ctrip.infosec.flowtable4j.translate.dao.RedisSources;
+import com.ctrip.infosec.flowtable4j.translate.dao.*;
 import com.ctrip.infosec.flowtable4j.translate.model.Flight;
 import com.ctrip.infosec.flowtable4j.translate.model.HotelGroup;
 import org.apache.commons.lang3.time.DateUtils;
@@ -27,6 +24,8 @@ public class HotelGroupOperation
     @Autowired
     HotelGroupSources hotelGroupSources;
     @Autowired
+    CommonSources commonSources;
+    @Autowired
     RedisSources redisSources;
     @Autowired
     ESBSources esbSources;
@@ -43,7 +42,7 @@ public class HotelGroupOperation
         if(mobilePhone == null || mobilePhone.length() <= 6)
             return;
 
-        Map mobileInfo = hotelGroupSources.getCityAndProv(mobilePhone);
+        Map mobileInfo = commonSources.getCityAndProv(mobilePhone);
         data.putAll(mobileInfo);
     }
 
@@ -91,23 +90,6 @@ public class HotelGroupOperation
             data.put(HotelGroup.IPCity,CityId);
             data.put(HotelGroup.IPCountry,NationCode);
         }
-    }
-
-    public void fillPaymentInfo(Map data)
-    {
-        logger.info("酒店团购"+data.get("OrderID")+"获取支付相关信息");
-        if(data.get(HotelGroup.PaymentInfos) == null)
-            return;
-        List<Map> paymentInfo = (List<Map>)data.get(HotelGroup.PaymentInfos);
-        if(paymentInfo.size()<1)
-            return;
-
-        for(Map payment : paymentInfo)
-        {
-            //这里层级关系是PaymentInfoList PaymentInfo CardInfoList cardInfo
-            //data.put(HotelGroup.P)  //Fixme 层级关系等确认数据格式以后再做
-
-         }
     }
 
     /**
@@ -159,7 +141,7 @@ public class HotelGroupOperation
      * PaymentInfo(Map);CardInfoList(List):cardInfo(Map)
      * @param data
      */
-    public void fillPaymentInfo0(Map data)//fixme 这里可能有点问题 ，回头改下
+    public void fillPaymentInfo0(Map data)
     {
         List<Map> paymentInfos = (List<Map>)data.get(HotelGroup.PaymentInfos);
         if(paymentInfos == null || paymentInfos.size()<1)

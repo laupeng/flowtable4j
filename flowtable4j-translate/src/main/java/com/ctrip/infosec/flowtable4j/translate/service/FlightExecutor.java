@@ -1,10 +1,7 @@
 package com.ctrip.infosec.flowtable4j.translate.service;
 
 import com.ctrip.infosec.flowtable4j.translate.common.MyJSON;
-import com.ctrip.infosec.flowtable4j.translate.dao.DataProxySources;
-import com.ctrip.infosec.flowtable4j.translate.dao.ESBSources;
-import com.ctrip.infosec.flowtable4j.translate.dao.FlightSources;
-import com.ctrip.infosec.flowtable4j.translate.dao.RedisSources;
+import com.ctrip.infosec.flowtable4j.translate.dao.*;
 import com.ctrip.infosec.flowtable4j.translate.model.Flight;
 import org.apache.commons.lang3.time.DateUtils;
 import org.dom4j.DocumentException;
@@ -24,20 +21,20 @@ import static com.ctrip.infosec.flowtable4j.translate.common.Utils.Json;
 @Service
 public class FlightExecutor implements Executor
 {
-    /*@Autowired
-    RulesExecutorService rulesExecutorService;*/
-
     @Autowired
-    FlightSources flightSources;
-
+    HotelGroupSources hotelGroupSources;
+    @Autowired
+    CommonSources commonSources;
     @Autowired
     RedisSources redisSources;
-
     @Autowired
     ESBSources esbSources;
-
     @Autowired
     DataProxySources dataProxySources;
+    @Autowired
+    HotelGroupOperation hotelGroupOperation;
+    @Autowired
+    FlightSources flightSources;
 
     /**
      * 补充订单信息
@@ -288,7 +285,7 @@ public class FlightExecutor implements Executor
             {
                 String moblieNumber = BindedMobilePhone.substring(0,7);
                 //...
-                Map binded = flightSources.getCityAndProv(BindedMobilePhone);//CityName 和 ProvinceName
+                Map binded = commonSources.getCityAndProv(BindedMobilePhone);//CityName 和 ProvinceName
                 String MobilePhoneCity = binded.get("CityName") == null ? "" : binded.get("CityName").toString();
                 String MobilePhoneProvince = binded.get("ProvinceName") == null ? "" : binded.get("ProvinceName").toString();
 
@@ -636,7 +633,7 @@ public class FlightExecutor implements Executor
         String mobilePhone = data.get(Flight.MobilePhone) == null ? "" : data.get(Flight.MobilePhone).toString();
         if(mobilePhone.length()<=6)
             return;
-        Map mobileInfo = flightSources.getCityAndProv(mobilePhone);
+        Map mobileInfo = commonSources.getCityAndProv(mobilePhone);
         if(mobileInfo == null || mobileInfo.size()<1)
         {
             return;
