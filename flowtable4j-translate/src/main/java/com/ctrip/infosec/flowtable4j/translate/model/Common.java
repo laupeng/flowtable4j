@@ -1,9 +1,9 @@
 package com.ctrip.infosec.flowtable4j.translate.model;
 
 /**
- * Created by lpxie on 15-4-20.
+ * Created by lpxie on 15-5-7.
  */
-public class HotelGroup
+public class Common
 {
     public static String OrderType = "OrderType";
     public static String OrderID = "OrderID";
@@ -82,6 +82,8 @@ public class HotelGroup
     public static String NeedCheckBlackList = "NeedCheckBlackList";
     public static String IsNeedCheckRisk = "IsNeedCheckRisk";
     public static String FltRiskLevel = "FltRiskLevel";
+    public static String CreateDate = "CreateDate";
+    public static String MerchantOrderID = "MerchantOrderID";
     /**
      * 乘客信息
      * 对应的内容是List类型
@@ -122,12 +124,6 @@ public class HotelGroup
     public static String CanAccountPay = "CanAccountPay";
     public static String CompanyType = "CompanyType";
     public static String BusinessItem = "BusinessItem";
-
-    /*支付相关的信息*/
-    public static String PayMethod = "PayMethod";
-    public static String PayValidationMethod = "PayValidationMethod";
-    public static String BankValidationMethod = "BankValidationMethod";
-    public static String ValidationFailsReason = "ValidationFailsReason";
 
     /**
      * 对应的内容类型是List
@@ -300,4 +296,14 @@ public class HotelGroup
 
     //分值大于195分的数量
     public static String OriginalRisklevelCount = "OriginalRisklevelCount";
+
+    //预付信息
+    public static String BankValidationMethod = "BankValidationMethod";
+    public static String ClientIDOrIP = "ClientIDOrIP";
+    public static String ClientOS = "ClientOS";
+    public static String DeductType = "DeductType";
+    public static String IsPrepaID = "IsPrepaID";
+    public static String PayMethod = "PayMethod";
+    public static String PayValidationMethod = "PayValidationMethod";
+    public static String ValidationFailsReason = "ValidationFailsReason";
 }
