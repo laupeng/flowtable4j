@@ -32,8 +32,6 @@ public class FlightExecutor implements Executor
     @Autowired
     DataProxySources dataProxySources;
     @Autowired
-    HotelGroupOperation hotelGroupOperation;
-    @Autowired
     FlightSources flightSources;
 
     /**

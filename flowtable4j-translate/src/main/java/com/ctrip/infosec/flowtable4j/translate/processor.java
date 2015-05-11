@@ -1,6 +1,7 @@
 package com.ctrip.infosec.flowtable4j.translate;
 
 import com.ctrip.infosec.flowtable4j.translate.service.HotelGroupExecutor;
+import com.ctrip.infosec.flowtable4j.translate.service.TieYouExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,8 @@ public class Processor
 
     @Autowired
     HotelGroupExecutor hotelGroupExecutor;
+    @Autowired
+    TieYouExecutor tieYouExecutor;
 
     /**
      * 这里分orderType处理
@@ -34,6 +37,9 @@ public class Processor
                 break;
             case 14:
                 hotelGroupExecutor.executeHotelGroup(data);
+                break;
+            case 18:
+                tieYouExecutor.executeTieYou(data);
                 break;
             //...14-24
             default:

@@ -24,6 +24,7 @@ import static com.ctrip.infosec.common.SarsMonitorWrapper.fault;
 import static com.ctrip.infosec.flowtable4j.translate.common.MyDateUtil.getDateAbs;
 import static com.ctrip.infosec.flowtable4j.translate.common.Utils.getValue;
 import static com.ctrip.infosec.flowtable4j.translate.common.Utils.getValueMap;
+
 /**
  * Created by lpxie on 15-5-8.
  */
@@ -44,7 +45,7 @@ public class TieYouExecutor implements Executor
         DataFact dataFact = new DataFact();
         CheckFact checkFact = new CheckFact();
         try{
-            logger.info("开始处理酒店团购 "+data.get("OrderID").toString()+" 数据");
+            logger.info("开始处理铁友 "+data.get("OrderID").toString()+" 数据");
 
             //一：补充数据
             commonExecutor.complementData(dataFact,data);
@@ -108,11 +109,16 @@ public class TieYouExecutor implements Executor
                 flowData.put(Common.DCity,getValue(getValueMap(dataFact.productInfoL.get(0), TieYou.ExRailInfo),Common.DCity));
                 flowData.put(Common.ACity,getValue(getValueMap(dataFact.productInfoL.get(0), TieYou.ExRailInfo),Common.ACity));
 
-                String departureDateStr = getValue(dataFact.productInfoL.get(0),TieYou.DepartureDate);
+                String departureDateStr = getValue((Map)dataFact.productInfoL.get(0).get(TieYou.ExRailInfo),TieYou.DepartureDate);
                 String orderDateStr = getValue(dataFact.mainInfo,Common.OrderDate);
-                Date departureDate = DateUtils.parseDate(departureDateStr, "yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd HH:mm:ss.SSS");//yyyy-MM-dd HH:mm:ss   yyyy-MM-dd HH:mm:ss.SSS
-                Date orderDate = DateUtils.parseDate(orderDateStr, "yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd HH:mm:ss.SSS");
-                flowData.put(Common.OrderToSignUpDate,getDateAbs(departureDate, orderDate,1));
+                try{
+                    Date departureDate = DateUtils.parseDate(departureDateStr, "yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd HH:mm:ss.SSS");//yyyy-MM-dd HH:mm:ss   yyyy-MM-dd HH:mm:ss.SSS
+                    Date orderDate = DateUtils.parseDate(orderDateStr, "yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd HH:mm:ss.SSS");
+                    flowData.put(Common.OrderToSignUpDate,getDateAbs(departureDate, orderDate,1));
+                }catch (Exception exp)
+                {
+                    logger.warn("解析时间格式出错:departureDateStr,orderDateStr "+departureDateStr+"\t"+orderDateStr,exp);
+                }
 
                 for(Map tempInfo : dataFact.productInfoL)
                 {
@@ -174,6 +180,11 @@ public class TieYouExecutor implements Executor
         dataFact.otherInfo.put(Common.OrderToSignUpDate,getDateAbs(signUpDate, orderDate,1));
     }
 
+    /**
+     * 获取铁友产品信息当checkType是0或1的时候
+     * @param dataFact
+     * @param data
+     */
     public void getTieYouProductInfo0(DataFact dataFact,Map data)
     {
         List<Map> tieYouOrderInfos = data.get(TieYou.TieYouOrderInfos) == null ? new ArrayList<Map>() : (List<Map>)data.get(TieYou.TieYouOrderInfos);
@@ -201,6 +212,11 @@ public class TieYouExecutor implements Executor
         }
     }
 
+    /**
+     * 获取铁友产品信息当checkType是2的时候
+     * @param dataFact
+     * @param data
+     */
     public void getTieYouProductInfo1(DataFact dataFact,Map data)
     {
         //通过lastReqID查询所有订单相关的信息
@@ -220,6 +236,4 @@ public class TieYouExecutor implements Executor
             dataFact.productInfoL.add(subProductInfo);
         }
     }
-
-
 }

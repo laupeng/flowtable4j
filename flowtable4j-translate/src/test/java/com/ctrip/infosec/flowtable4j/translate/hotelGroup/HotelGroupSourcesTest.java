@@ -1,5 +1,6 @@
 package com.ctrip.infosec.flowtable4j.translate.hotelGroup;
 
+import com.ctrip.infosec.flowtable4j.translate.dao.CommonSources;
 import com.ctrip.infosec.flowtable4j.translate.dao.HotelGroupSources;
 import com.ctrip.infosec.flowtable4j.translate.dao.Jndi.AllTemplates;
 import org.junit.Assert;
@@ -23,7 +24,7 @@ import java.util.*;
 public class HotelGroupSourcesTest
 {
     @Autowired
-    HotelGroupSources hotelGroupSources;
+    CommonSources commonSources;
 
     @Resource(name="allTemplates")
     private AllTemplates allTemplates;
@@ -286,7 +287,7 @@ public class HotelGroupSourcesTest
 
         Map params = new HashMap();
         params.put("uid","wwwwww");
-        hotelGroupSources.getOriginalRisklevel(params,timeLimitStr,nowTimeStr);
+        commonSources.getOriginalRisklevel(params, timeLimitStr, nowTimeStr);
     }
 
     @Test

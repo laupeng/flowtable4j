@@ -22,6 +22,16 @@ public class TieYouSources
     JdbcTemplate riskCtrlPreProcDBTemplate = null;
     JdbcTemplate cUSRATDBTemplate = null;
 
+    /**
+     * 初始化jndi
+     */
+    private void init()
+    {
+        cardRiskDBTemplate = allTemplates.getCardRiskDBTemplate();
+        riskCtrlPreProcDBTemplate = allTemplates.getRiskCtrlPreProcDBTemplate();
+        cUSRATDBTemplate = allTemplates.getcUSRATDBTemplate();
+    }
+
     public Map getExRailUserInfo(String exRailId)
     {
         Map exRailUserInfo = null;

@@ -5,8 +5,11 @@ import com.ctrip.infosec.flowtable4j.model.CheckFact;
 import com.ctrip.infosec.flowtable4j.model.CheckType;
 import com.ctrip.infosec.flowtable4j.model.FlowFact;
 import com.ctrip.infosec.flowtable4j.translate.dao.*;
+import com.ctrip.infosec.flowtable4j.translate.model.Common;
+import com.ctrip.infosec.flowtable4j.translate.model.DataFact;
 import com.ctrip.infosec.flowtable4j.translate.model.HotelGroup;
 import com.google.common.collect.ImmutableMap;
+import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +22,9 @@ import java.util.*;
 import static com.ctrip.infosec.common.SarsMonitorWrapper.afterInvoke;
 import static com.ctrip.infosec.common.SarsMonitorWrapper.beforeInvoke;
 import static com.ctrip.infosec.common.SarsMonitorWrapper.fault;
+import static com.ctrip.infosec.flowtable4j.translate.common.MyDateUtil.getDateAbs;
+import static com.ctrip.infosec.flowtable4j.translate.common.Utils.getValue;
+import static com.ctrip.infosec.flowtable4j.translate.common.Utils.getValueMap;
 
 /**
  * Created by lpxie on 15-4-20.
@@ -37,41 +43,73 @@ public class HotelGroupExecutor implements Executor
     @Autowired
     DataProxySources dataProxySources;
     @Autowired
-    HotelGroupOperation hotelGroupOperation;
+    CommonExecutor commonExecutor;
 
     public CheckFact executeHotelGroup(Map data)
     {
         beforeInvoke();
+        DataFact dataFact = new DataFact();
         CheckFact checkFact = new CheckFact();
         try{
             logger.info("开始处理酒店团购 "+data.get("OrderID").toString()+" 数据");
-            try
+
+            //一：补充数据
+            commonExecutor.complementData(dataFact,data);
+            dataFact.mainInfo.put(Common.OrderType,14);//添加订单类型 酒店团购是14
+            //这里分checkType 0、1和2两种情况
+            int checkType = Integer.parseInt(getValue(data, Common.CheckType));
+            if(checkType == 0 ||checkType == 1)
             {
-                complementData(data);
-            } catch (ParseException e)
+                getOtherInfo0(dataFact, data);
+                getHotelGroupProductInfo0(dataFact, data);
+            }else if(checkType == 2)
             {
-                logger.warn("补充酒店团购 "+data.get("OrderID")+" 数据异常"+e.getMessage());
+                getOtherInfo1(dataFact, data);
+                getHotelGroupProductInfo1(dataFact, data);
             }
-            Map<String,Object> bwList = convertToBlackCheckItem(data);
-            Map<String,Object> flowData = convertToFlowRuleCheckItem(data);
+
+            //二：黑白名单数据
+            Map<String,Object> bwList = commonExecutor.convertToBlackCheckItem(dataFact,data);
+            bwList.putAll(dataFact.productInfoM);
+
+            //三：流量实体数据
+            Map<String,Object> flowData = commonExecutor.convertToFlowRuleCheckItem(dataFact,data);
+            //支付衍生字段
+            List<Map> paymentInfos = dataFact.paymentInfoList;
+            for(Map paymentInfo : paymentInfos)
+            {
+                Map subPaymentInfo = (Map)paymentInfo.get(Common.PaymentInfo);
+                List<Map> cardInfoList = (List<Map>)paymentInfo.get(Common.CardInfoList);
+                Map cardInfoFirst = cardInfoList.get(0);
+
+                flowData.put(HotelGroup.CardBinUID,getValue(cardInfoFirst,Common.CardBin)+getValue(dataFact.userInfo,Common.Uid));
+                flowData.put(HotelGroup.CardBinMobilePhone,getValue(cardInfoFirst,Common.CardBin)+getValue(dataFact.contactInfo,Common.MobilePhone));
+                flowData.put(HotelGroup.CardBinUserIPAdd,getValue(cardInfoFirst,Common.CardBin)+getValue(dataFact.ipInfo,Common.UserIPAdd));
+                flowData.put(HotelGroup.ContactEMailCardBin,getValue(dataFact.contactInfo,Common.ContactEMail)+getValue(cardInfoFirst,Common.CardBin));
+                if(getValue(dataFact.contactInfo,Common.MobilePhone).length()>=7)
+                {
+                    flowData.put(HotelGroup.UserIPAddMobileNumber,getValue(dataFact.ipInfo,Common.UserIPAdd)+getValue(dataFact.contactInfo,Common.MobilePhone).substring(0,7));
+                    flowData.put(HotelGroup.UIDMobileNumber,getValue(dataFact.contactInfo,Common.Uid)+getValue(dataFact.contactInfo,Common.MobilePhone).substring(0,7));
+                }
+                break;
+            }
+            //产品信息加到流量实体
+            flowData.putAll(dataFact.productInfoM);
 
             //构造规则引擎的数据类型CheckFact
             CheckType[] checkTypes = {CheckType.BW,CheckType.FLOWRULE};
-
             BWFact bwFact = new BWFact();
             bwFact.setOrderType(Integer.parseInt(data.get(HotelGroup.OrderType).toString()));
             bwFact.setContent(bwList);
-
             FlowFact flowFact = new FlowFact();
             flowFact.setContent(flowData);
             flowFact.setOrderType(Integer.parseInt(data.get(HotelGroup.OrderType).toString()));
-
             checkFact.setBwFact(bwFact);
             checkFact.setFlowFact(flowFact);
             checkFact.setCheckTypes(checkTypes);
             if(data.get(HotelGroup.ReqID)!=null)
                 checkFact.setReqId(Long.parseLong(data.get(HotelGroup.ReqID).toString()));//reqId如何获取
-            logger.info("酒店团购 "+data.get("OrderID").toString()+" 数据处理完毕");
+            logger.info(data.get("OrderID").toString()+" 数据处理完毕");
         }catch (Exception exp)
         {
             fault();
@@ -84,373 +122,67 @@ public class HotelGroupExecutor implements Executor
     }
 
     /**
-     * 补充订单数据
+     * 添加订单日期到注册日期的差值
+     * 添加订单日期到起飞日期的差值
      * @param data
-     * @throws ParseException
+     * @throws java.text.ParseException
      */
-    public void complementData(Map data) throws ParseException
+    public void getOtherInfo0(DataFact dataFact,Map data) throws ParseException
     {
-        beforeInvoke();
-        try{
-            logger.info("开始补充酒店团购"+data.get("OrderID")+"数据");
-            long lastReqID = Long.MIN_VALUE;
-            data.put(HotelGroup.LastCheck,"T");
-            data.put(HotelGroup.CorporationID,"");
-
-            //根据uid取出crm信息
-            String serviceName = "CRMService";
-            String operationName = "getMemberInfo";
-            String uid = data.get(HotelGroup.Uid) == null ? "" : data.get(HotelGroup.Uid).toString();
-            Map params = ImmutableMap.of("uid", uid);
-            Map crmInfo = DataProxySources.queryForMap(serviceName, operationName, params);
-            data.putAll(crmInfo);
-
-            //得到mainInfo信息
-            lastReqID = hotelGroupOperation.getLastReqID(data);
-            data.put(HotelGroup.ReqID,lastReqID);
-            int checkType = data.get(HotelGroup.CheckType) == null ? Integer.MIN_VALUE : Integer.parseInt(data.get(HotelGroup.CheckType).toString());
-            switch (checkType)
-            {
-                case 0:
-                    //补充联系人手机对应的省市
-                    hotelGroupOperation.fillMobilePhone(data);
-                    //这里获取用户的用户属性（NEW,REPEAT,VIP） 这里有两个方法：1，直接调用esb，2，调用郁伟新增加的DataProxy
-                    hotelGroupOperation.fillUserCusCharacter(data);
-                    //处理ip相关的信息
-                    hotelGroupOperation.fillIpInfo(data);
-                    //支付信息（兼容混合支付）  这里是根据CardInfoID来取出相关的信息
-                    hotelGroupOperation.fillPaymentInfo0(data);
-                    //注册日期和订单日期的差值
-                    hotelGroupOperation.getTimeAbs(data);
-                    break;
-                case 1:
-                    hotelGroupOperation.fillMobilePhone(data);
-                    hotelGroupOperation.fillUserCusCharacter(data);
-                    //处理ip相关的信息
-                    hotelGroupOperation.fillIpInfo(data);
-                    //补充支付信息 从数据库获取支付信息
-                    hotelGroupOperation.fillPaymentInfo1(data,lastReqID);
-                    //注册日期和订单日期的差值
-                    hotelGroupOperation.getTimeAbs(data);
-                    break;
-                case 2:
-                    //补充支付信息
-                    hotelGroupOperation.fillPaymentInfo0(data);//和checkType = 0的补充支付信息一样
-                    //通过lastReqID查询所有订单相关的信息
-                    hotelGroupOperation.fillProductInfo(data,lastReqID);
-                    break;
-                default:
-                    break;
-            }
-            //补充DID信息 通过订单id和订单类型来获取
-            hotelGroupOperation.getDIDInfo(data);
-            //补充主要支付方式
-            hotelGroupOperation.fillMainOrderType(data);//这里面加一个字段 “OrderPrepayType”
-            logger.info("补充酒店团购"+data.get("OrderID")+"数据完毕");
-        }catch (Exception exp)
-        {
-            fault();
-            logger.error("invoke HotelGroupExecutor.complementData fault.",exp);
-        }finally
-        {
-            afterInvoke("HotelGroupExecutor.complementData");
-        }
+        logger.info(data.get("OrderID")+"获取时间的差值相关信息");
+        //订单日期
+        String orderDateStr = getValue(data,Common.OrderDate);
+        Date orderDate = DateUtils.parseDate(orderDateStr, "yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd HH:mm:ss.SSS");//yyyy-MM-dd HH:mm:ss   yyyy-MM-dd HH:mm:ss.SSS
+        //注册日期
+        String signUpDateStr = getValue(data,Common.SignUpDate);
+        Date signUpDate = DateUtils.parseDate(signUpDateStr,"yyyy-MM-dd HH:mm:ss","yyyy-MM-dd HH:mm:ss.SSS");
+        dataFact.otherInfo.put(Common.OrderToSignUpDate,getDateAbs(signUpDate, orderDate,1));
     }
 
-    public Map<String,Object> convertToBlackCheckItem(Map data)
+    public void getOtherInfo1(DataFact dataFact,Map data)
     {
-        beforeInvoke();
-        Map bwList = new HashMap<String,Object>();//定义黑白名单实体
-        try{
-            logger.info("开始构造酒店团购"+data.get("OrderID")+"黑白名单数据");
-            bwList.put(HotelGroup.IPCity, data.get(HotelGroup.IPCity));
-            bwList.put(HotelGroup.IPCountry,data.get(HotelGroup.IPCountry));
-            bwList.put(HotelGroup.UserIP,data.get(HotelGroup.UserIPAdd));
-
-            bwList.put(HotelGroup.OrderToSignUpDate,data.get(HotelGroup.OrderToSignUpDate)); //预定距注册日期小时数
-
-            //支付信息处理
-            //paymentInfo
-            //     PaymentInfoList
-            //PaymentInfo(Map) ; CardInfoList(List)
-            if(data.get(HotelGroup.PaymentInfoList) != null)
-             {
-                List<Map> paymentInfos = (List<Map>)data.get(HotelGroup.PaymentInfoList);
-                for(Map paymentInfo : paymentInfos)
-                {
-                    Map subPaymentInfo = (Map)paymentInfo.get(HotelGroup.PaymentInfo);
-                    List<Map> cardInfoList = (List<Map>)paymentInfo.get(HotelGroup.CardInfoList);
-
-                    if((subPaymentInfo.get(HotelGroup.PrepayType).toString().toUpperCase().equals("CCARD")||
-                            subPaymentInfo.get(HotelGroup.PrepayType).toString().toUpperCase().equals("DCARD")) &&
-                            cardInfoList.size()>0)
-                    {
-                        bwList.put(HotelGroup.BankOfCardIssue,cardInfoList.get(0).get(HotelGroup.BankOfCardIssue));//why it is the first one
-                        bwList.put(HotelGroup.CardBin,cardInfoList.get(0).get(HotelGroup.CardBin));
-                        bwList.put(HotelGroup.CardHolder,cardInfoList.get(0).get(HotelGroup.CardHolder));
-                        bwList.put(HotelGroup.CCardNoCode,cardInfoList.get(0).get(HotelGroup.CCardNoCode));
-                        bwList.put(HotelGroup.Nationality,cardInfoList.get(0).get(HotelGroup.Nationality));
-                        bwList.put(HotelGroup.Nationalityofisuue,cardInfoList.get(0).get(HotelGroup.Nationalityofisuue));
-                        bwList.put(HotelGroup.CCardPreNoCode,cardInfoList.get(0).get(HotelGroup.CCardPreNoCode));
-                        break;
-                    }
-                }
-
-                 ////黑名单校验临时转换  订单类型(C/W/N/X/P)  当前只判断CCARD，CASH，PAYPL
-                 String mainOrderPay = data.get(HotelGroup.OrderPrepayType) == null ? "" : data.get(HotelGroup.OrderPrepayType).toString();
-                 for(Map paymentInfo : paymentInfos)
-                 {
-                     Map subPaymentInfo = (Map)paymentInfo.get(HotelGroup.PaymentInfo);
-                     List<Map> cardInfoList = (List<Map>)paymentInfo.get(HotelGroup.CardInfoList);
-                     if(mainOrderPay.toUpperCase().equals("CCARD"))
-                     {
-                         if(subPaymentInfo.get(HotelGroup.PrepayType).toString().toUpperCase().equals("CCARD"))
-                         {
-                             if(cardInfoList.get(0).get(HotelGroup.IsForeignCard) != null && cardInfoList.get(0).get(HotelGroup.IsForeignCard).toString().equals("T"))
-                             {
-                                 bwList.put(HotelGroup.PrepayTypeDetails,"W");
-                             }else
-                             {
-                                 bwList.put(HotelGroup.PrepayTypeDetails,"N");
-                             }
-                         }
-                     }
-                 }
-                if(mainOrderPay.toUpperCase().equals("CASH"))
-                {
-                    bwList.put(HotelGroup.PrepayTypeDetails,"X");
-                }else if(mainOrderPay.toUpperCase().equals("PAYPL"))
-                {
-                    bwList.put(HotelGroup.PrepayTypeDetails,"P");
-                }else if(mainOrderPay.toUpperCase().equals("DCARD"))
-                {
-                    bwList.put(HotelGroup.PrepayTypeDetails,"D");
-                }
-            }
-
-            //ContactInfo
-            bwList.put(HotelGroup.ContactEmail,data.get(HotelGroup.ContactEmail));
-            bwList.put(HotelGroup.ContactFax,data.get(HotelGroup.ContactFax));
-            bwList.put(HotelGroup.ContactName,data.get(HotelGroup.ContactName));
-            bwList.put(HotelGroup.ContactTel,data.get(HotelGroup.ContactTel));
-            bwList.put(HotelGroup.MobilePhone,data.get(HotelGroup.MobilePhone));
-            bwList.put(HotelGroup.TelCall,data.get(HotelGroup.TelCall));
-            bwList.put(HotelGroup.SendTicketAddr,data.get(HotelGroup.SendTicketAddr));
-            bwList.put(HotelGroup.ForignMobilePhone,data.get(HotelGroup.ForignMobilePhone));
-
-            //UserInfo
-            bwList.put(HotelGroup.IsTempUser,data.get(HotelGroup.IsTempUser));
-            bwList.put(HotelGroup.Uid,data.get(HotelGroup.Uid));
-            bwList.put(HotelGroup.UserPassword,data.get(HotelGroup.UserPassword));
-            bwList.put(HotelGroup.TotalPenalty,data.get(HotelGroup.TotalPenalty));
-
-            //mainInfo
-            bwList.put(HotelGroup.IsOnline,data.get(HotelGroup.IsOnline));
-
-            //HotelGroupInfo
-            bwList.put(HotelGroup.ProductID,data.get(HotelGroup.ProductID));//	产品编号(酒店团购)
-            bwList.put(HotelGroup.ProductNameD,data.get(HotelGroup.ProductNameD));//	产品名称(酒店团购)
-
-            //Country //fixme 这里放空值的意义
-            bwList.put(HotelGroup.DeviceID,"");
-            bwList.put(HotelGroup.FuzzyDeviceID,"");
-            bwList.put(HotelGroup.TrueIP,"");
-            bwList.put(HotelGroup.TrueIPGeo,"");
-            bwList.put(HotelGroup.ProxyIP,"");
-            bwList.put(HotelGroup.ProxyIPGeo,"");
-
-            //did
-            bwList.put(HotelGroup.DID,data.get(HotelGroup.DID));
-
-            //serverForm
-            bwList.put(HotelGroup.Serverfrom,data.get(HotelGroup.Serverfrom));
-            logger.info("构造酒店团购"+data.get("OrderID")+"黑白名单数据完毕");
-        }catch (Exception exp)
+        String reqIdStr = getValue(data,Common.ReqID);
+        if(reqIdStr.isEmpty())
         {
-            fault();
-            logger.error("invoke HotelGroupExecutor.convertToBlackCheckItem fault.",exp);
-        }finally
-        {
-            afterInvoke("HotelGroupExecutor.convertToBlackCheckItem");
+            return;
         }
-        return bwList;
+        long lastReqID= Long.parseLong(reqIdStr);
+        dataFact.otherInfo.putAll(commonSources.getOtherInfo(lastReqID));
+    }
+    /**
+     * 获取铁友产品信息当checkType是0或1的时候
+     * @param dataFact
+     * @param data
+     */
+    public void getHotelGroupProductInfo0(DataFact dataFact,Map data)
+    {
+        dataFact.productInfoM.put(HotelGroup.City,getValue(data,HotelGroup.City));
+        dataFact.productInfoM.put(HotelGroup.Price,getValue(data,HotelGroup.Price));//fixme 转成decimal
+        dataFact.productInfoM.put(HotelGroup.ProductID,getValue(data,HotelGroup.ProductID));
+        dataFact.productInfoM.put(HotelGroup.ProductName,getValue(data,HotelGroup.ProductName));
+        dataFact.productInfoM.put(HotelGroup.Quantity,getValue(data,HotelGroup.Quantity));
+        dataFact.productInfoM.put(HotelGroup.ProductType,getValue(data,HotelGroup.ProductType));
     }
 
-    public Map<String,Object> convertToFlowRuleCheckItem(Map data)
+    /**
+     * 获取铁友产品信息当checkType是2的时候
+     * @param dataFact
+     * @param data
+     */
+    public void getHotelGroupProductInfo1(DataFact dataFact,Map data)
     {
-        beforeInvoke();
-        Map<String,Object> flowData = new HashMap();
+        //通过lastReqID查询所有订单相关的信息
+        String reqIdStr = getValue(data, Common.ReqID);
+        if(reqIdStr.isEmpty())
+            return;
         try{
-            logger.info("开始构造酒店团购"+data.get("OrderID")+"流量表数据");
-            //InfoSecurity_MainInfo
-            flowData.put(HotelGroup.OrderID,data.get(HotelGroup.OrderID));
-            flowData.put(HotelGroup.Amount,data.get(HotelGroup.Amount));
-            flowData.put(HotelGroup.CheckType,data.get(HotelGroup.CheckType));
-            flowData.put(HotelGroup.Serverfrom,data.get(HotelGroup.Serverfrom));
-            flowData.put(HotelGroup.OrderDate,data.get(HotelGroup.OrderDate));
-
-            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.sss");
-            String orderDateStr = data.get(HotelGroup.OrderDate) == null ? "" : data.get(HotelGroup.OrderDate).toString();
-            try
-            {
-                Date orderDate = format.parse(orderDateStr);
-                SimpleDateFormat format2 = new SimpleDateFormat("yyyyMMdd");
-                String mergerOrderDate = format2.format(orderDate);
-                flowData.put(HotelGroup.MergerOrderDate,mergerOrderDate);
-                int hours = orderDate.getHours();//fixme 这个方法回头改下
-                flowData.put(HotelGroup.OrderDateHour,hours);
-            } catch (ParseException e)
-            {
-                logger.warn("转换时间格式为yyyyMMdd异常："+e.getMessage());
-            }
-
-            //处理卡信息
-            //InfoSecurity_CardInfo
-            //     PaymentInfoList
-            //PaymentInfo(Map) ; CardInfoList(List)
-            if(data.get(HotelGroup.PaymentInfoList) != null)
-            {
-                List<Map> paymentInfos = (List<Map>)data.get(HotelGroup.PaymentInfoList);
-                for(Map paymentInfo : paymentInfos)
-                {
-                    Map subPaymentInfo = (Map)paymentInfo.get(HotelGroup.PaymentInfo);
-                    List<Map> cardInfoList = (List<Map>)paymentInfo.get(HotelGroup.CardInfoList);
-                    if((subPaymentInfo.get(HotelGroup.PrepayType).toString().toUpperCase().equals("CCARD")||
-                            subPaymentInfo.get(HotelGroup.PrepayType).toString().toUpperCase().equals("DCARD")) &&
-                            cardInfoList.size()>0)
-                    {
-                        flowData.put(HotelGroup.CCardNoCode,cardInfoList.get(0).get(HotelGroup.CCardNoCode));//why it is the first one
-                        flowData.put(HotelGroup.CValidityCode,cardInfoList.get(0).get(HotelGroup.CValidityCode));
-                        flowData.put(HotelGroup.CreditCardType,cardInfoList.get(0).get(HotelGroup.CreditCardType));
-                        flowData.put(HotelGroup.IsForigenCard,cardInfoList.get(0).get(HotelGroup.IsForigenCard));
-                        flowData.put(HotelGroup.CardBinIssue,cardInfoList.get(0).get(HotelGroup.CardBinIssue));
-                        flowData.put(HotelGroup.CardBin,cardInfoList.get(0).get(HotelGroup.CardBin));
-                        flowData.put(HotelGroup.CardHolder,cardInfoList.get(0).get(HotelGroup.CardHolder));
-                        flowData.put(HotelGroup.CardBinOrderID,cardInfoList.get(0).get(HotelGroup.CardBin)+""+data.get(HotelGroup.OrderID));
-                        break;
-                    }
-                }
-            }
-
-            //InfoSecurity_ContactInfo
-            flowData.put(HotelGroup.MobilePhone,data.get(HotelGroup.MobilePhone));
-            flowData.put(HotelGroup.MobilePhoneCity,data.get(HotelGroup.MobilePhoneCity));
-            flowData.put(HotelGroup.ContactEMail,data.get(HotelGroup.ContactEMail));
-            flowData.put(HotelGroup.MobilePhoneProvince,data.get(HotelGroup.MobilePhoneProvince));
-
-            //InfoSecurity_OtherInfo
-            flowData.put(HotelGroup.OrderToSignUpDate,data.get(HotelGroup.OrderToSignUpDate));
-
-            //InfoSecurity_HotelGroupInfo
-            flowData.put(HotelGroup.Quantity,data.get(HotelGroup.Quantity));//Quantity  City   ProductName   ProductType  Price
-            flowData.put(HotelGroup.City,data.get(HotelGroup.City));
-            flowData.put(HotelGroup.ProductID,data.get(HotelGroup.ProductID));
-            flowData.put(HotelGroup.ProductName,data.get(HotelGroup.ProductName));
-            flowData.put(HotelGroup.ProductType,data.get(HotelGroup.ProductType));
-            flowData.put(HotelGroup.Price,data.get(HotelGroup.Price));//fixme 这段信息的添加是干嘛的 ，，有的里面没有
-
-            //InfoSecurity_UserInfo
-            flowData.put(HotelGroup.CusCharacter,data.get(HotelGroup.CusCharacter));
-            flowData.put(HotelGroup.BindedMobilePhone,data.get(HotelGroup.BindedMobilePhone));
-            flowData.put(HotelGroup.UserPassword,data.get(HotelGroup.UserPassword));
-            flowData.put(HotelGroup.Experience,data.get(HotelGroup.Experience));
-            flowData.put(HotelGroup.BindedEmail,data.get(HotelGroup.BindedEmail));
-            if(data.get(HotelGroup.BindedMobilePhone) != null && data.get(HotelGroup.BindedMobilePhone).toString().length()>7)
-            {
-                Map cityInfo = commonSources.getCityAndProv(data.get(HotelGroup.BindedMobilePhone).toString());
-                if(cityInfo != null)
-                {
-                    flowData.put(HotelGroup.BindedMobilePhoneCity,cityInfo.get("CityName"));
-                    flowData.put(HotelGroup.BindedMobilePhoneProvince,cityInfo.get("ProvinceName"));
-                }
-            }
-
-            flowData.put(HotelGroup.Uid,data.get(HotelGroup.Uid));
-            flowData.put(HotelGroup.VipGrade,data.get(HotelGroup.VipGrade));
-            flowData.put(HotelGroup.RelatedMobilephone,data.get(HotelGroup.RelatedMobilephone));
-            flowData.put(HotelGroup.RelatedEMail,data.get(HotelGroup.RelatedEMail));
-            if(data.get(HotelGroup.RelatedMobilephone) != null && data.get(HotelGroup.RelatedMobilephone).toString().length()>7)
-            {
-                Map cityInfo = commonSources.getCityAndProv(data.get(HotelGroup.BindedMobilePhone).toString());
-                if(cityInfo != null)
-                {
-                    flowData.put(HotelGroup.RelatedMobilePhoneCity,cityInfo.get("CityName"));
-                    flowData.put(HotelGroup.RelatedMobilePhoneProvince,cityInfo.get("ProvinceName"));
-                }
-            }
-
-            //InfoSecurity_IPInfo
-            flowData.put(HotelGroup.UserIPAdd,data.get(HotelGroup.UserIPAdd));
-            flowData.put(HotelGroup.UserIPValue,data.get(HotelGroup.UserIPValue));
-            flowData.put(HotelGroup.IPCity,data.get(HotelGroup.IPCity));
-            Map ipCityInfo = hotelGroupSources.getCityInfo(data.get(HotelGroup.IPCity).toString());
-            if(ipCityInfo != null && ipCityInfo.size()>0)
-            {
-                flowData.put(HotelGroup.IPCityName,ipCityInfo.get("CityName"));
-                flowData.put(HotelGroup.IPProvince,ipCityInfo.get("ProvinceName"));
-            }
-            flowData.put(HotelGroup.IPCountry,data.get(HotelGroup.IPCountry));
-
-            //DID
-            flowData.put(HotelGroup.DID,data.get(HotelGroup.DID));
-
-            //场景  下面这段是用来判断账户风控结果的 这里在通辉的服务里面去做
-            //衍生字段
-            if(data.get(HotelGroup.PaymentInfoList) != null)
-            {
-                List<Map> paymentInfos = (List<Map>)data.get(HotelGroup.PaymentInfoList);
-                for(Map paymentInfo : paymentInfos)
-                {
-                    Map subPaymentInfo = (Map)paymentInfo.get(HotelGroup.PaymentInfo);
-                    List<Map> cardInfoList = (List<Map>)paymentInfo.get(HotelGroup.CardInfoList);
-                    if((subPaymentInfo.get(HotelGroup.PrepayType) != null && subPaymentInfo.get(HotelGroup.PrepayType).toString().toUpperCase().equals("CCARD")||
-                            subPaymentInfo.get(HotelGroup.PrepayType).toString().toUpperCase().equals("DCARD")) &&
-                            cardInfoList.size()>0)
-                    {
-                        flowData.put(HotelGroup.CardBinUID,cardInfoList.get(0).get(HotelGroup.CardBin)+""+data.get(HotelGroup.Uid));//why it is the first one
-                        flowData.put(HotelGroup.CardBinMobilePhone,cardInfoList.get(0).get(HotelGroup.CardBin)+""+data.get(HotelGroup.MobilePhone));
-                        flowData.put(HotelGroup.CardBinUserIPAdd,cardInfoList.get(0).get(HotelGroup.CardBin)+""+data.get(HotelGroup.UserIPAdd));
-                        flowData.put(HotelGroup.ContactEMailCardBin,data.get(HotelGroup.ContactEMail)+""+cardInfoList.get(0).get(HotelGroup.CardBin));
-                        flowData.put(HotelGroup.UserIPAddMobileNumber,data.get(HotelGroup.UserIPAdd)+""+data.get(HotelGroup.UserIPAdd).toString().substring(0,7));
-                        flowData.put(HotelGroup.UIDMobileNumber,data.get(HotelGroup.Uid)+""+data.get(HotelGroup.UserIPAdd).toString().substring(0, 7));
-                    }
-                }
-            }
-
-            //
-            Map leakInfo = hotelGroupSources.getLeakedInfo(data.get(HotelGroup.Uid).toString());
-            if(leakInfo != null && leakInfo.size()>0)
-            {
-                flowData.put(HotelGroup.UidActive,leakInfo.get("Active"));
-            }
-
-            //统计分值大于195的数据
-            Map<String,Object> temp = new HashMap();
-            temp.put("Uid",data.get(HotelGroup.Uid));
-            temp.put("ContactEMail",data.get(HotelGroup.ContactEMail));
-            temp.put("MobilePhone",data.get(HotelGroup.MobilePhone));
-            temp.put("CCardNoCode",data.get(HotelGroup.CCardNoCode));
-
-            Date date = new Date(System.currentTimeMillis());
-            SimpleDateFormat format1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.sss");
-            String nowTimeStr = format1.format(date);
-
-            Calendar calendar = new GregorianCalendar();
-            calendar.setTime(date);
-            calendar.add(calendar.MINUTE,-720);//往前720分钟
-            String timeLimitStr = format1.format(calendar.getTime());
-
-            int count = hotelGroupSources.getOriginalRisklevel(temp,timeLimitStr,nowTimeStr);
-            flowData.put(HotelGroup.OriginalRisklevelCount,count);
-            logger.info("构造酒店团购"+data.get("OrderID")+"流量表数据完毕");
+            long reqId= Long.parseLong(reqIdStr);
+            Map hotelGroupProduct = hotelGroupSources.getHotelGroupInfo(reqId);
+            if(hotelGroupProduct != null && hotelGroupProduct.size()>0)
+                dataFact.productInfoM.putAll(hotelGroupProduct);
         }catch (Exception exp)
         {
-            fault();
-            logger.error("invoke HotelGroupExecutor.convertToFlowRuleCheckItem fault.",exp);
-        }finally
-        {
-            afterInvoke("HotelGroupExecutor.convertToFlowRuleCheckItem");
+            logger.warn("获取HotelGroupProductInfo1异常:",exp);
         }
-        return flowData;
     }
 }

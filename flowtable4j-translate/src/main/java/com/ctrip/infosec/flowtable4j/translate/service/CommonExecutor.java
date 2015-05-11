@@ -65,6 +65,13 @@ public class CommonExecutor
                     commonOperation.fillPaymentInfo1(dataFact,data);
                     break;
                 case 2:
+                    //补充产品
+                    String reqIdStr = getValue(data,Common.ReqID);
+                    if(!reqIdStr.isEmpty())
+                    {
+                        Long reqId = Long.parseLong(reqIdStr);
+                        commonOperation.fillProductInfo(data,reqId);
+                    }
                     //补充支付信息
                     commonOperation.fillPaymentInfo0(dataFact,data);//和checkType = 0的补充支付信息一样
                     break;
@@ -82,21 +89,25 @@ public class CommonExecutor
         }
     }
 
-    public void fillCommonInfo(DataFact dataFact,Map data) throws ParseException
+    public void fillCommonInfo(DataFact dataFact,Map data)
     {
         //这里面没有绝对的顺序
         long nowTime = System.currentTimeMillis();
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.sss");
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         long lastReqID = -1;
         dataFact.dealInfo.put(Common.LastCheck,"T");
         dataFact.dealInfo.put(Common.CorporationID,"");
         //mainInfo
         dataFact.mainInfo.put(Common.CheckType,getValue(data,Common.CheckType));
         dataFact.mainInfo.put(Common.CorporationID,"");
-        dataFact.mainInfo.put(Common.CreateDate,format.format(new Date(nowTime)));
+        try{
+            dataFact.mainInfo.put(Common.CreateDate,format.format(new Date(nowTime)));
+        }catch (Exception exp)
+        {
+            logger.warn("fillCommonInfo解析时间格式异常");
+        }
         dataFact.mainInfo.put(Common.LastCheck,"T");
-        dataFact.mainInfo.put("OrderId",getValue(data,Common.OrderID));//fixme 这里稍微修改下
-
+        dataFact.mainInfo.put("OrderId",getValue(data,Common.OrderID));
         dataFact.mainInfo.put(Common.MerchantID,getValue(data,Common.MerchantID));
         dataFact.mainInfo.put(Common.SubOrderType,getValue(data,Common.SubOrderType));
         dataFact.mainInfo.put(Common.MerchantOrderID,getValue(data,Common.MerchantOrderID));
@@ -125,7 +136,7 @@ public class CommonExecutor
         Map params = ImmutableMap.of("uid", uid);//根据uid取值
         Map crmInfo = DataProxySources.queryForMap(serviceName, operationName, params);
         dataFact.userInfo.putAll(crmInfo);
-        if(!getValue(dataFact.userInfo,"Vip").toUpperCase().equals("T"))//如果UID信息中没有标明是VIP用户，则需要从CustomerInfo中获取
+        if(!getValue(dataFact.userInfo,"Vip").toUpperCase().equals("T"))//如果UID信息中没有标明是VIP用户，则需要从CustomerInfo中获取//fixme 确认vip是不是每个产品都是这样
         {
             commonOperation.fillUserCusCharacter(dataFact,data);//这里获取用户的用户属性（NEW,REPEAT,VIP） 这里有两个方法：1，直接调用esb，2，调用郁伟新增加的DataProxy
         }
@@ -135,9 +146,7 @@ public class CommonExecutor
         dataFact.corporationInfo.put(Common.CanAccountPay,getValue(data,Common.CanAccountPay));
         dataFact.corporationInfo.put(Common.CompanyType,getValue(data,Common.CompanyType));
         dataFact.corporationInfo.put(Common.Corp_PayType,getValue(data,Common.Corp_PayType));
-        //otherInfo
-        commonOperation.getOtherInfo(dataFact,data);//注册日期和订单日期的差值 //FIXme 这里也要根据不同的产品来算出不同的时间差 比如飞机起飞据预订的时间
-        //补充DIDInfo
+         //补充DIDInfo
         commonOperation.getDIDInfo(dataFact,data);//通过订单id和订单类型来获取
         //补充主要支付方式                                           自己添加的以便于后面使用
         commonOperation.fillMainOrderType(data);//这里面加一个字段 “OrderPrepayType”
@@ -277,6 +286,7 @@ public class CommonExecutor
             //     PaymentInfoList
             //PaymentInfo(Map) ; CardInfoList(List)
             List<Map> paymentInfos = (List<Map>)data.get(Common.PaymentInfoList);
+            if(paymentInfos !=null && paymentInfos.size()>0)
             for(Map paymentInfo : paymentInfos)
             {
                 Map subPaymentInfo = (Map)paymentInfo.get(Common.PaymentInfo);
@@ -322,7 +332,8 @@ public class CommonExecutor
             if(!getValue(dataFact.ipInfo,Common.IPCity).isEmpty())
             {
                 Map ipCityInfo = commonSources.getCityInfo(getValue(dataFact.ipInfo, Common.IPCity));
-                flowData.putAll(ipCityInfo);
+                if(ipCityInfo != null && ipCityInfo.size()>0)
+                    flowData.putAll(ipCityInfo);
             }
 
             //DID

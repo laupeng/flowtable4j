@@ -22,5 +22,17 @@
     "ProductName" : "354",
     "City" : "LZH",
     "Price" : "116032",
-    "Quantity" : "N"
+    "Quantity" : "N",
+    "PaymentInfos":[
+        {
+            "PrepayType":"CCARD",
+            "Amount":"11000",
+            "CardInfoID":"29073706"
+        },
+        {
+            "PrepayType":"CCARD",
+            "Amount":"11000",
+            "CardInfoID":"29073706"
+        }
+    ]
 }

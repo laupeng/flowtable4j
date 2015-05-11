@@ -40,9 +40,9 @@ public class CommonOperation
         String mobilePhone = getValue(data,Common.MobilePhone);
         if(mobilePhone == null || mobilePhone.length() <= 6)
             return;
-
         Map mobileInfo = commonSources.getCityAndProv(mobilePhone);
-        dataFact.contactInfo.putAll(mobileInfo);
+        if(mobileInfo != null && mobileInfo.size()>0)
+            dataFact.contactInfo.putAll(mobileInfo);
     }
 
     /**
@@ -78,7 +78,7 @@ public class CommonOperation
         dataFact.ipInfo.put(Common.UserIPAdd, userIp);
         Long userIPValue = IpConvert.ipConvertTo10(userIp);
         dataFact.ipInfo.put(Common.UserIPValue,userIPValue);
-        //
+
         Map ipInfo = commonSources.getIpCountryCity(userIPValue);
         if(ipInfo != null && ipInfo.size()>0)
         {
@@ -89,24 +89,6 @@ public class CommonOperation
             dataFact.ipInfo.put(Common.IPCity,CityId);
             dataFact.ipInfo.put(Common.IPCountry,NationCode);
         }
-    }
-
-    /**
-     * 添加订单日期到注册日期的差值
-     * 添加订单日期到起飞日期的差值
-     * @param data
-     * @throws java.text.ParseException
-     */
-    public void getOtherInfo(DataFact dataFact,Map data) throws ParseException
-    {
-        logger.info("酒店团购"+data.get("OrderID")+"获取时间的差值相关信息");
-        //订单日期
-        String orderDateStr = getValue(data,Common.OrderDate);
-        Date orderDate = DateUtils.parseDate(orderDateStr, "yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd HH:mm:ss.SSS");//yyyy-MM-dd HH:mm:ss   yyyy-MM-dd HH:mm:ss.SSS
-        //注册日期
-        String signUpDateStr = getValue(data,Common.SignUpDate);
-        Date signUpDate = DateUtils.parseDate(signUpDateStr,"yyyy-MM-dd HH:mm:ss","yyyy-MM-dd HH:mm:ss.SSS");
-        dataFact.otherInfo.put(Common.OrderToSignUpDate,getDateAbs(signUpDate, orderDate,1));
     }
 
     public void getDIDInfo(DataFact dataFact,Map data)
@@ -120,14 +102,23 @@ public class CommonOperation
 
     public long getLastReqID(Map data)
     {
-        logger.info("酒店团购"+data.get("OrderID")+"获取lastReqID");
-        String orderId = data.get(Common.OrderID) == null ? "" : data.get(Common.OrderID).toString();
-        String orderType = data.get(Common.OrderType) == null ? "" : data.get(Common.OrderType).toString();
+        logger.info(data.get("OrderID")+"获取lastReqID");
+        String orderId = getValue(data,Common.OrderID);
+        String orderType = getValue(data,Common.OrderType);
         Map mainInfo = commonSources.getMainInfo(orderType, orderId);
         if(mainInfo!=null)
-            return Long.parseLong(mainInfo.get(Common.ReqID).toString());
+        {
+            try{
+                long reqId = Long.parseLong(mainInfo.get(Common.ReqID).toString());
+                return reqId;
+            }catch (Exception exp)
+            {
+                logger.warn("getLastReqID获取lastReqID异常:",exp);
+                return 0;
+            }
+        }
         else
-            return -1;
+            return 0;
     }
 
     /**
@@ -145,7 +136,7 @@ public class CommonOperation
         List<Map> paymentInfos = (List<Map>)data.get(Common.PaymentInfos);
         if(paymentInfos == null || paymentInfos.size()<1)
             return;
-        List<Object> PaymentInfoList = new ArrayList<Object>();
+
         for(Map payment : paymentInfos)
         {
             Map<String,Object> subPaymentInfoList = new HashMap<String, Object>();
@@ -192,7 +183,7 @@ public class CommonOperation
     public void fillPaymentInfo1(DataFact dataFact,Map data)//reqId :7186418
     {
         logger.info(data.get("OrderID")+"通过LastReqID获取支付信息");
-        long lastReqID = Long.parseLong(getValue(data,Common.ReqID));
+        long lastReqID = Long.parseLong(getValue(data, Common.ReqID));
         List<Map<String, Object>> paymentInfos = commonSources.getListPaymentInfo(lastReqID);
         for(Map payment : paymentInfos)
         {
@@ -202,7 +193,9 @@ public class CommonOperation
             subPayInfo.put(Common.CardInfoList, commonSources.getListCardInfo(paymentInfoId));
             dataFact.paymentInfoList.add(subPayInfo);
         }
-        dataFact.paymentMainInfo.putAll(commonSources.getPaymentMainInfo(lastReqID));
+        Map paymentMainInfo = commonSources.getPaymentMainInfo(lastReqID);
+        if(paymentMainInfo != null && paymentMainInfo.size()>0)
+            dataFact.paymentMainInfo.putAll(paymentMainInfo);
     }
 
     public Map getCardInfo(String cardInfoId)
@@ -232,22 +225,29 @@ public class CommonOperation
     {
         if(lastReqID>0)
         {
-            data.putAll(commonSources.getContactInfo(lastReqID));
-            data.putAll(commonSources.getUserInfo(lastReqID));
-            data.putAll(commonSources.getIpInfo(lastReqID));
-            data.putAll(commonSources.getOtherInfo(lastReqID));
+            Map contactInfo = commonSources.getContactInfo(lastReqID);
+            Map userInfo = commonSources.getContactInfo(lastReqID);
+            Map ipInfo = commonSources.getContactInfo(lastReqID);
+            Map otherInfo = commonSources.getContactInfo(lastReqID);
+            if(contactInfo!=null)
+                data.putAll(contactInfo);
+            if(userInfo!=null)
+                data.putAll(userInfo);
+            if(ipInfo!=null)
+                data.putAll(ipInfo);
+            if(otherInfo!=null)
+                data.putAll(otherInfo);
         }
     }
-
     //补充主要支付方式
     public void fillMainOrderType(Map data)
     {
-        String orderPrepayType = data.get(Common.OrderPrepayType) == null ? "" : data.get(Common.OrderPrepayType).toString();
+        String orderPrepayType = getValue(data,Common.OrderPrepayType);
         if(orderPrepayType.isEmpty())
         {
             //如果主要支付方式为空，则用订单号和订单类型到risk_levelData取上次的主要支付方式
-            String orderType = data.get(Common.OrderType) == null ? "" : data.get(Common.OrderType).toString();
-            String orderId = data.get(Common.OrderID) == null ? "" : data.get(Common.OrderID).toString();
+            String orderType = getValue(data,Common.OrderType);
+            String orderId = getValue(data,Common.OrderID);
             Map payInfo = commonSources.getMainPrepayType(orderType,orderId);
             if(payInfo != null && !payInfo.isEmpty())
             {
@@ -256,11 +256,11 @@ public class CommonOperation
         }
 
         //补充主要支付方式自动判断逻辑
-        if(data.get(Common.OrderPrepayType).toString().isEmpty() || data.get(Common.CheckType).toString().equals("2"))
+        if(getValue(data,Common.OrderPrepayType).isEmpty() || getValue(data,Common.CheckType).equals("2"))
         {
-            if(data.get(Common.PaymentInfoList) == null)
+            if(data.get(Common.PaymentInfos) == null)//FIXME 这里确认所有的产品支付的字段名称是PaymentInfos
                 return;
-            List<Map> paymentInfoList = (List<Map>)data.get(Common.PaymentInfoList);
+            List<Map> paymentInfoList = (List<Map>)data.get(Common.PaymentInfos);
             for(Map paymentInfos : paymentInfoList)
             {
                 if(paymentInfos.get(Common.PaymentInfo) == null )
