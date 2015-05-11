@@ -2,6 +2,7 @@ package com.ctrip.infosec.flowtable4j.jobws;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Created by zhangsx on 2015/3/13.
@@ -30,4 +31,16 @@ public interface RuleGetter {
     List<Map<String,Object>> getCounterMatchTerms();
 
     List<Map<String,Object>> getFlowRuleMaster();
+
+    /**
+     * 支付适配流量规则（全量）
+     * @return
+     */
+    List<Map<String,Object>> getPayadaptRuleMaster();
+
+    List<Map<String,Object>> getPayadaptValueMatchTerms();
+
+    List<Map<String,Object>> getPayadaptCounterMatchTerms();
+
+    List<Map<String,Object>> getPayadaptFieldMatchTerms();
 }

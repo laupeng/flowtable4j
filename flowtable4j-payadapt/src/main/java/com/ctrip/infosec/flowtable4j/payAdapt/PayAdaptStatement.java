@@ -1,10 +1,6 @@
 package com.ctrip.infosec.flowtable4j.payAdapt;
 
-import com.ctrip.infosec.flowtable4j.model.CheckResultLog;
-import com.ctrip.infosec.flowtable4j.model.CheckType;
-import com.ctrip.infosec.flowtable4j.model.FlowFact;
-import com.ctrip.infosec.flowtable4j.model.RiskResult;
-import com.google.common.base.Strings;
+import com.ctrip.infosec.flowtable4j.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,19 +13,20 @@ public class PayAdaptStatement {
     final static Logger logger = LoggerFactory.getLogger(PayAdaptStatement.class);
     private Integer ruleID;
     private String ruleName;
-    private String prepayType;
     private Integer riskLevel;
-    private String remark;
-    private List<FlowRuleTerm> flowRuleTerms;
+    private String sceneType;
+    private String paymentStatus;
+    private int isCheckAccount;
+    private String ruleDesc;
     private Integer orderType;
+    private List<PayAdaptRuleTerm> flowRuleTerms;
 
     /**
      * 有些流量规则需要遍历List，比如用passengerList的每位乘客姓名进行比较
      */
-    void setParentNode()
-    {
-        for(FlowRuleTerm term:flowRuleTerms ){
-            term.prefix = ExtraFieldManager.getParentNode(term.fieldName,orderType);
+    void setParentNode() {
+        for (PayAdaptRuleTerm term : flowRuleTerms) {
+            term.prefix = ExtraFieldManager.getParentNode(term.fieldName, orderType);
         }
     }
 
@@ -49,66 +46,36 @@ public class PayAdaptStatement {
         this.riskLevel = riskLevel;
     }
 
-    public String getRemark() {
-        return remark;
-    }
-
-    public void setRemark(String remark) {
-        this.remark = remark;
-    }
-
-    public List<FlowRuleTerm> getFlowRuleTerms() {
+    public List<PayAdaptRuleTerm> getFlowRuleTerms() {
         return flowRuleTerms;
     }
 
-    public void setFlowRuleTerms(List<FlowRuleTerm> flowRuleTerms) {
+    public void setFlowRuleTerms(List<PayAdaptRuleTerm> flowRuleTerms) {
         this.flowRuleTerms = flowRuleTerms;
     }
 
-    public boolean check(FlowFact fact, RiskResult results) {
-        boolean match = false;
+    public boolean check(FlowFact fact, List<PayAdaptRuleResult> results) {
+        boolean match = true;
         try {
             if (flowRuleTerms != null && flowRuleTerms.size() > 0) {
                 match = true;
-                for (FlowRuleTerm term : flowRuleTerms) {
-                    if(term instanceof CounterMatchRuleTerm){
-                        long start  = System.currentTimeMillis();
-                        match = term.check(fact);
-                        long elapse = System.currentTimeMillis() - start;
-                        if(elapse > 100){
-                            // 取数超过100ms
-                            String info = term.toString()+" ReqID:" + fact.getReqId();
-                            CheckResultLog result = new CheckResultLog();
-                            result.setRuleID(0);
-                            result.setRiskLevel(0);
-                            result.setRuleRemark(info);
-                            result.setRuleName(String.valueOf(elapse));
-                            result.setRuleType(CheckType.COUNTER.toString());
-
-                            results.add(result);
-                            logger.debug(info);
-                        }
-                    }
-                    else {
-                          match =term.check(fact);
-                    }
-                    if(!match){
+                for (PayAdaptRuleTerm term : flowRuleTerms) {
+                    match = term.check(fact);
+                    if (!match) {
                         break;
                     }
                 }
             }
             if (match) {
-                CheckResultLog result = new CheckResultLog();
-                result.setRuleID(ruleID);
-                result.setRiskLevel(riskLevel);
-                result.setRuleRemark(remark);
-                result.setRuleName(ruleName);
-                result.setRuleType(CheckType.FLOWRULE.toString());
+                PayAdaptRuleResult result = new PayAdaptRuleResult();
+                result.setPaymentStatus(this.paymentStatus);
+                result.setRiskLevel(this.riskLevel);
+                result.setRuleDesc(this.ruleDesc);
+                result.setSceneType(this.sceneType);
                 results.add(result);
             }
-        }
-        catch (Throwable ex){
-            logger.error("error",ex);
+        } catch (Throwable ex) {
+            logger.error("error", ex);
         }
         return match;
     }
@@ -143,16 +110,36 @@ public class PayAdaptStatement {
         this.ruleName = ruleName;
     }
 
-    public String getPrepayType() {
-        return prepayType;
+    public String getSceneType() {
+        return sceneType;
     }
 
-    /**
-     * 不区分大小写
-     * @param prepayType
-     */
-    public void setPrepayType(String prepayType) {
-        this.prepayType = Strings.nullToEmpty(prepayType).toUpperCase();
+    public void setSceneType(String sceneType) {
+        this.sceneType = sceneType;
+    }
+
+    public String getPaymentStatus() {
+        return paymentStatus;
+    }
+
+    public void setPaymentStatus(String paymentStatus) {
+        this.paymentStatus = paymentStatus;
+    }
+
+    public int getIsCheckAccount() {
+        return isCheckAccount;
+    }
+
+    public void setIsCheckAccount(int isCheckAccount) {
+        this.isCheckAccount = isCheckAccount;
+    }
+
+    public String getRuleDesc() {
+        return ruleDesc;
+    }
+
+    public void setRuleDesc(String ruleDesc) {
+        this.ruleDesc = ruleDesc;
     }
 }
 

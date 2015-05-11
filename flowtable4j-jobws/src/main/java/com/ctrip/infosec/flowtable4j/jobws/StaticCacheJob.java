@@ -22,6 +22,10 @@ public class StaticCacheJob {
     @Qualifier("simpleProcessor4Flow")
     private Processor processorFlow;
 
+    @Autowired
+    @Qualifier("simpleProcessor4PayAdapt")
+    private Processor simpleProcessor4PayAdapt;
+
     private static final Logger logger = LoggerFactory.getLogger(StaticCacheJob.class);
 
     @Scheduled(fixedDelay = 300000)
@@ -44,5 +48,18 @@ public class StaticCacheJob {
             logger.error("processorFlow error",ex);
         }
         logger.info("end execute update flow rule...");
+    }
+
+    @Scheduled(fixedDelay = 300000)
+    public void executePayadapt(){
+        logger.info("start execute update blackWhite rule...");
+
+        try {
+            simpleProcessor4PayAdapt.execute();
+        }catch (Throwable ex){
+            logger.error("processorPayadapt error",ex);
+        }
+
+        logger.info("end execute update blackWhite rule...");
     }
 }

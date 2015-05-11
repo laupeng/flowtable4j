@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 /**
  * Created by thyang on 2015/3/13 0013.
  */
-public abstract class FlowRuleTerm {
+public abstract class PayAdaptRuleTerm {
     private final static EQComparer eqOper = new EQComparer();
     private final static NEComparer neOper = new NEComparer();
     private final static GEComparer geOper = new GEComparer();
@@ -24,7 +24,7 @@ public abstract class FlowRuleTerm {
     private final static LLIKEComparer llOper = new LLIKEComparer();
     private final static RLIKEComparer rlOper = new RLIKEComparer();
     private final static RegXComparer rgOper = new RegXComparer();
-    private final static Logger logger = LoggerFactory.getLogger(FlowRuleTerm.class);
+    private final static Logger logger = LoggerFactory.getLogger(PayAdaptRuleTerm.class);
     protected ConditionComparer executor;
     protected String fieldName;
     private   String operator;
@@ -36,7 +36,7 @@ public abstract class FlowRuleTerm {
     protected String matchField;
 
 
-    public FlowRuleTerm(String fieldName,String operator,String matchValue){
+    public PayAdaptRuleTerm(String fieldName, String operator, String matchValue){
         this.fieldName = fieldName;
         this.operator =operator;
         this.matchValue = matchValue;

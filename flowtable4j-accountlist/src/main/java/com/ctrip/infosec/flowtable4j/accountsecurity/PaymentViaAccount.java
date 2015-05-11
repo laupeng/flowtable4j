@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -21,7 +22,7 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class PaymentViaAccount {
     //超时 ms
-    final int ACCOUNT_EXPIRE = 50;
+    final int ACCOUNT_EXPIRE = 2000;
     @Autowired
     private ParameterDeamon parameterDeamon;
     @Autowired

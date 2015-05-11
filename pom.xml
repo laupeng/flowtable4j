@@ -215,6 +215,18 @@
 				<artifactId>flowtable4j-dal</artifactId>
 				<version>${project.version}</version>
 			</dependency>
+
+			<dependency>
+				<groupId>com.ctrip.infosec.flowtable4j</groupId>
+				<artifactId>flowtable4j-payadapt</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.ctrip.infosec.flowtable4j</groupId>
+				<artifactId>flowtable4j-flowlist</artifactId>
+				<version>${project.version}</version>
+			</dependency>
 			<!-- All In One -->
 			<dependency>
 				<groupId>com.ctrip.platform</groupId>
@@ -631,6 +643,6 @@
 		<module>flowtable4j-model</module>
         <module>flowtable4j-flowlist</module>
         <module>flowtable4j-translate</module>
-    <module>flowtable4j-payadapt</module>
+    	<module>flowtable4j-payadapt</module>
   </modules>
 </project>
