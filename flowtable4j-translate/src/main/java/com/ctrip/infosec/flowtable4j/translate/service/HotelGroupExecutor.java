@@ -13,6 +13,7 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import javax.print.attribute.standard.OrientationRequested;
 import java.text.ParseException;
@@ -29,6 +30,7 @@ import static com.ctrip.infosec.flowtable4j.translate.common.Utils.getValueMap;
 /**
  * Created by lpxie on 15-4-20.
  */
+@Component
 public class HotelGroupExecutor implements Executor
 {
     private Logger logger = LoggerFactory.getLogger(HotelGroupExecutor.class);

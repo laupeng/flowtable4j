@@ -1,19 +1,22 @@
 package com.ctrip.infosec.flowtable4j.translate;
 
+import com.ctrip.infosec.flowtable4j.model.CheckFact;
 import com.ctrip.infosec.flowtable4j.translate.service.HotelGroupExecutor;
 import com.ctrip.infosec.flowtable4j.translate.service.TieYouExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.util.Map;
 
 /**
  * Created by lpxie on 15-3-31.
  */
-public class Processor
+public class PreProcessor
 {
-    private Logger logger = LoggerFactory.getLogger(Processor.class);
+    private Logger logger = LoggerFactory.getLogger(PreProcessor.class);
 
     @Autowired
     HotelGroupExecutor hotelGroupExecutor;
@@ -25,7 +28,7 @@ public class Processor
      * 把不同的订单交个不同的业务执行器来处理
      * @param data
      */
-    public void execute(Map data)
+    public CheckFact execute(Map data)
     {
         //订单类型(1 2 3 4 ...24)
         int orderType = Integer.parseInt(data.get("OrderType").toString());
@@ -36,15 +39,14 @@ public class Processor
             case 2:
                 break;
             case 14:
-                hotelGroupExecutor.executeHotelGroup(data);
-                break;
+                return hotelGroupExecutor.executeHotelGroup(data);
             case 18:
-                tieYouExecutor.executeTieYou(data);
-                break;
+                return tieYouExecutor.executeTieYou(data);
             //...14-24
             default:
                 logger.info("没有找到相关的订单类型 : "+orderType);
-                break;
+                return null;
         }
+        return null;
     }
 }

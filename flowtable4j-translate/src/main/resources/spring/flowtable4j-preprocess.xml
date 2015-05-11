@@ -11,13 +11,16 @@
             http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
             http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">
 
+    <context:annotation-config />
+
     <bean id="allTemplates"  class="com.ctrip.infosec.flowtable4j.translate.dao.Jndi.AllTemplates" init-method="init" />
 
     <bean id="hotelGroupSources" class="com.ctrip.infosec.flowtable4j.translate.dao.HotelGroupSources"
           depends-on="allTemplates" init-method="init">
     </bean>
 
-    <bean id="tieYouSources" class="com.ctrip.infosec.flowtable4j.translate.dao.TieYouSources" depends-on="allTemplates" init-method="init"/>
+    <bean id="tieYouSources" class="com.ctrip.infosec.flowtable4j.translate.dao.TieYouSources" depends-on="allTemplates"
+          init-method="init"/>
 
     <bean id="commonSources" class="com.ctrip.infosec.flowtable4j.translate.dao.CommonSources"
           depends-on="allTemplates" init-method="init">
@@ -38,5 +41,5 @@
 
     <bean id = "tieYouExecutor" class="com.ctrip.infosec.flowtable4j.translate.service.TieYouExecutor"/>
 
-    <bean id="processor" class="com.ctrip.infosec.flowtable4j.translate.Processor"/>
+    <bean id="preProcessor" class="com.ctrip.infosec.flowtable4j.translate.PreProcessor"/>
 </beans>

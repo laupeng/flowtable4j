@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
+import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resources;
 import java.util.*;
@@ -28,6 +29,7 @@ import static com.ctrip.infosec.configs.utils.Utils.JSON;
 /**
  * Created by lpxie on 15-4-8.
  */
+@Repository
 public class DataProxySources
 {
     private static Logger logger = LoggerFactory.getLogger(DataProxySources.class);

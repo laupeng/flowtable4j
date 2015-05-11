@@ -7,11 +7,9 @@
     <artifactId>flowtable4j-parent</artifactId>
     <version>1.0.0-SNAPSHOT</version>
   </parent>
-   <!--<groupId>com.ctrip.infosec.flowtable4j</groupId>
-    <version>1.0.0-SNAPSHOT</version>-->
   <artifactId>flowtable4j-translate</artifactId>
   <packaging>jar</packaging>
-  <name>flowtable4j-translate-1.0.0</name>
+  <name>flowtable4j-translate-1.0.0-SNAPSHOT</name>
   <url>http://maven.apache.org</url>
 
     <properties>
@@ -30,176 +28,75 @@
         <dependency>
             <groupId>com.ctrip.infosec.flowtable4j</groupId>
             <artifactId>flowtable4j-model</artifactId>
-           <!-- <version></version>-->
         </dependency>
-        <!-- logs -->
-        <!--<dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>1.1.2</version>
-        </dependency>
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-core</artifactId>
-            <version>1.1.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>${slf4j.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>jcl-over-slf4j</artifactId>
-            <version>${slf4j.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>jul-to-slf4j</artifactId>
-            <version>${slf4j.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>log4j-over-slf4j</artifactId>
-            <version>${slf4j.version}</version>
-        </dependency>-->
 
         <!-- Spring -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
-            <version>${spring.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-beans</artifactId>
-            <version>${spring.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
-            <version>${spring.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context-support</artifactId>
-            <version>${spring.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-web</artifactId>
-            <version>${spring.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>
-            <version>${spring.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-tx</artifactId>
-            <version>${spring.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-oxm</artifactId>
-            <version>${spring.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-orm</artifactId>
-            <version>${spring.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-jdbc</artifactId>
-            <version>${spring.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-jms</artifactId>
-            <version>${spring.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-expression</artifactId>
-            <version>${spring.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-aop</artifactId>
-            <version>${spring.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-aspects</artifactId>
-            <version>${spring.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
-            <version>${spring.version}</version>
             <scope>test</scope>
         </dependency>
-
-        <!-- sars-monitor -->
-        <dependency>
-            <groupId>com.ctrip.infosec</groupId>
-            <artifactId>infosec-monitor-client</artifactId>
-            <version>${infosec.monitor.version}</version>
-        </dependency>
-
-        <!-- sars-util -->
-        <dependency>
-            <groupId>com.ctrip.infosec.sars</groupId>
-            <artifactId>sars-util</artifactId>
-            <version>${sars.util.version}</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>spring-core</artifactId>
-                    <groupId>org.springframework</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>spring-beans</artifactId>
-                    <groupId>org.springframework</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>spring-context</artifactId>
-                    <groupId>org.springframework</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>spring-context-support</artifactId>
-                    <groupId>org.springframework</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>spring-aop</artifactId>
-                    <groupId>org.springframework</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>commons-io</artifactId>
-                    <groupId>commons-io</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>slf4j-api</artifactId>
-                    <groupId>org.slf4j</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>spring-aspects</artifactId>
-                    <groupId>org.springframework</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <!--<dependency>
-            <groupId>com.ctrip.infosec.sars</groupId>
-            <artifactId>sars-util-test</artifactId>
-            <version>${sars.util.version}</version>
-        </dependency>-->
 
         <!--Credis-->
         <dependency>
             <groupId>com.ctrip.credis</groupId>
             <artifactId>credis</artifactId>
-            <version>2.0.0</version>
         </dependency>
 
         <!--drools-->
@@ -225,22 +122,18 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
-            <version>${jackson.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>${jackson.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.module</groupId>
             <artifactId>jackson-module-jaxb-annotations</artifactId>
-            <version>${jackson.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.jaxrs</groupId>
             <artifactId>jackson-jaxrs-json-provider</artifactId>
-            <version>${jackson.version}</version>
         </dependency>
         <!--dom4j-->
         <dependency>
@@ -248,6 +141,12 @@
             <artifactId>dom4j</artifactId>
             <version>1.6.1</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.ctrip.infosec.antifraud</groupId>
+            <artifactId>configs-client</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>jaxen</groupId>
             <artifactId>jaxen</artifactId>
@@ -263,7 +162,6 @@
         <dependency>
             <groupId>com.microsoft.sqlserver</groupId>
             <artifactId>sqljdbc</artifactId>
-            <version>4.0</version>
         </dependency>
         <!--dataSource-->
         <dependency>
@@ -360,8 +258,46 @@
         <dependency>
             <groupId>xerces</groupId>
             <artifactId>xercesImpl</artifactId>
-           <!-- <version>2.11.0</version>-->
         </dependency>
 
+    <!-- sars-util -->
+    <dependency>
+        <groupId>com.ctrip.infosec.sars</groupId>
+        <artifactId>sars-util</artifactId>
+        <exclusions>
+            <exclusion>
+                <artifactId>spring-core</artifactId>
+                <groupId>org.springframework</groupId>
+            </exclusion>
+            <exclusion>
+                <artifactId>spring-beans</artifactId>
+                <groupId>org.springframework</groupId>
+            </exclusion>
+            <exclusion>
+                <artifactId>spring-context</artifactId>
+                <groupId>org.springframework</groupId>
+            </exclusion>
+            <exclusion>
+                <artifactId>spring-context-support</artifactId>
+                <groupId>org.springframework</groupId>
+            </exclusion>
+            <exclusion>
+                <artifactId>spring-aop</artifactId>
+                <groupId>org.springframework</groupId>
+            </exclusion>
+            <exclusion>
+                <artifactId>commons-io</artifactId>
+                <groupId>commons-io</groupId>
+            </exclusion>
+            <exclusion>
+                <artifactId>slf4j-api</artifactId>
+                <groupId>org.slf4j</groupId>
+            </exclusion>
+            <exclusion>
+                <artifactId>spring-aspects</artifactId>
+                <groupId>org.springframework</groupId>
+            </exclusion>
+        </exclusions>
+    </dependency>
     </dependencies>
 </project>

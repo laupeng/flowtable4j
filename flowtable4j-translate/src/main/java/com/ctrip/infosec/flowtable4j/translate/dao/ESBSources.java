@@ -8,6 +8,7 @@ import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
+import org.springframework.stereotype.Repository;
 
 import javax.xml.namespace.QName;
 import java.net.MalformedURLException;
@@ -20,6 +21,7 @@ import java.util.Map;
 /**
  * Created by lpxie on 15-4-2.
  */
+@Repository
 public class ESBSources
 {
     private static final QName SERVICE_NAME = new QName("http://tempuri.org/", "ESB");

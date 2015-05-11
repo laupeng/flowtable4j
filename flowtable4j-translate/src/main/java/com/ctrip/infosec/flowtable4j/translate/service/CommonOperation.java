@@ -8,6 +8,7 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.text.ParseException;
 import java.util.*;
@@ -18,6 +19,7 @@ import static com.ctrip.infosec.flowtable4j.translate.common.Utils.getValue;
 /**
  * Created by lpxie on 15-5-7.
  */
+@Component
 public class CommonOperation
 {
     private Logger logger = LoggerFactory.getLogger(CommonOperation.class);

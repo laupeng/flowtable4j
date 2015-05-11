@@ -2,6 +2,7 @@ package com.ctrip.infosec.flowtable4j.translate.dao.Jndi;
 
 import com.ctrip.datasource.AllInOneConfigParser;
 import org.apache.tomcat.jdbc.pool.PoolProperties;
+import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
@@ -13,6 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * 这个代码是参考dataDispatch来的
  * 这样可以不用context文件来连接数据库
  */
+@Repository
 public class LocalDataSourceProvider
 {
     private static final ConcurrentHashMap<String,DataSource> dataSourcePool = new ConcurrentHashMap<String,DataSource>();

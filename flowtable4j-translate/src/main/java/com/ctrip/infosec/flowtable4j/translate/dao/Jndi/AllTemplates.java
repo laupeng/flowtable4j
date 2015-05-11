@@ -7,12 +7,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.stereotype.Repository;
 
 import java.sql.SQLException;
 
 /**
  * Created by lpxie on 15-4-29.
  */
+@Repository
 public class AllTemplates
 {
     private static Logger logger = LoggerFactory.getLogger(AllTemplates.class);

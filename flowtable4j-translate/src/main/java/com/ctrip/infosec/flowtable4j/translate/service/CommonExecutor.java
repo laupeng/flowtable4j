@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -21,6 +22,7 @@ import static com.ctrip.infosec.flowtable4j.translate.common.Utils.getValue;
 /**
  * Created by lpxie on 15-5-7.
  */
+@Component
 public class CommonExecutor
 {
     private Logger logger = LoggerFactory.getLogger(HotelGroupExecutor.class);
@@ -135,7 +137,8 @@ public class CommonExecutor
         String uid = data.get(Common.Uid) == null ? "" : data.get(Common.Uid).toString();
         Map params = ImmutableMap.of("uid", uid);//根据uid取值
         Map crmInfo = DataProxySources.queryForMap(serviceName, operationName, params);
-        dataFact.userInfo.putAll(crmInfo);
+        if(crmInfo !=null && crmInfo.size()>0)
+            dataFact.userInfo.putAll(crmInfo);
         if(!getValue(dataFact.userInfo,"Vip").toUpperCase().equals("T"))//如果UID信息中没有标明是VIP用户，则需要从CustomerInfo中获取//fixme 确认vip是不是每个产品都是这样
         {
             commonOperation.fillUserCusCharacter(dataFact,data);//这里获取用户的用户属性（NEW,REPEAT,VIP） 这里有两个方法：1，直接调用esb，2，调用郁伟新增加的DataProxy

@@ -16,7 +16,7 @@ import java.util.Map;
 public class ProcessorTest
 {
     @Autowired
-    Processor processor;
+    PreProcessor processor;
 
     @Test
     public void testHoteGroup()

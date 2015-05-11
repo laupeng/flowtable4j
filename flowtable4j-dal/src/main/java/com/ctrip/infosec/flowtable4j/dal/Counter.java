@@ -8,7 +8,6 @@ import org.springframework.jdbc.core.SqlParameterValue;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
-import sun.misc.Unsafe;
 
 import java.sql.DriverManager;
 import java.sql.Timestamp;

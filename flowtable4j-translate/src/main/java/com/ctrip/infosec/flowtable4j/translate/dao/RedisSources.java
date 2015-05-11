@@ -7,10 +7,12 @@ import credis.java.client.util.CacheFactory;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Repository;
 
 /**
  * Created by lpxie on 15-3-31.
  */
+@Repository
 public class RedisSources
 {
     private static Logger logger = LoggerFactory.getLogger(RedisSources.class);

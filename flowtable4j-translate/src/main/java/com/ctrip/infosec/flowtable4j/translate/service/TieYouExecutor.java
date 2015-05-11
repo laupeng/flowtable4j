@@ -14,6 +14,7 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.text.ParseException;
 import java.util.*;
@@ -28,6 +29,7 @@ import static com.ctrip.infosec.flowtable4j.translate.common.Utils.getValueMap;
 /**
  * Created by lpxie on 15-5-8.
  */
+@Component
 public class TieYouExecutor implements Executor
 {
     private Logger logger = LoggerFactory.getLogger(TieYouExecutor.class);

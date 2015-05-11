@@ -4,6 +4,7 @@ import com.ctrip.infosec.flowtable4j.translate.dao.Jndi.AllTemplates;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
 import java.util.Map;
@@ -11,6 +12,7 @@ import java.util.Map;
 /**
  * Created by lpxie on 15-5-8.
  */
+@Repository
 public class TieYouSources
 {
     private static Logger logger = LoggerFactory.getLogger(TieYouSources.class);

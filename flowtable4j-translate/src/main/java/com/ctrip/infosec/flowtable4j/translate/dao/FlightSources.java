@@ -13,7 +13,6 @@ import java.util.Map;
 /**
  * Created by lpxie on 15-3-31.
  */
-@Repository
 public class FlightSources
 {
     @Resource(name="CardRiskDB")
