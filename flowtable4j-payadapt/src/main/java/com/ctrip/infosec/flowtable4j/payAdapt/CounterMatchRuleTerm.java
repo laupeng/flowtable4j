@@ -10,7 +10,7 @@ import java.util.Map;
 /**
  * Created by thyang on 2015/3/24 0024.
  */
-public class CounterMatchRuleTerm extends FlowRuleTerm {
+public class CounterMatchRuleTerm extends PayAdaptRuleTerm {
     private String countType;
     private String countField;
     private Integer startOffset;

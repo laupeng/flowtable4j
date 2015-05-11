@@ -17,7 +17,7 @@ public class SimpleRuleGetter implements RuleGetter {
     @Autowired
     @Qualifier("cardRiskDBTemplate")
     private JdbcTemplate cardRiskDB;
-    private final int INTERVAL = 5 ;
+    private final int INTERVAL = 5;
 
     /**
      * 获取近5分钟内改变的黑白名单
@@ -27,7 +27,7 @@ public class SimpleRuleGetter implements RuleGetter {
      */
     @Override
     public List<Map<String, Object>> getUpdateBWRule() {
-        Date date = new Date(System.currentTimeMillis() - INTERVAL * 60 * 1000- 1000);
+        Date date = new Date(System.currentTimeMillis() - INTERVAL * 60 * 1000 - 1000);
         return cardRiskDB.queryForList(
                 " Select r.RuleID,ISNULL(r.OrderType,0) OrderType,c.CheckName,c.CheckType," +
                         " cv.CheckValue,ISNULL(r.Sdate,'1900-01-01 00:00:00.000') Sdate," +
@@ -114,4 +114,35 @@ public class SimpleRuleGetter implements RuleGetter {
                         " Where Active='T'" +
                         " ORDER BY FlowRuleID , MatchIndex ");
     }
+
+    @Override
+    public List<Map<String, Object>> getPayadaptRuleMaster() {
+        return cardRiskDB.queryForList("SELECT PayAdapterRuleID,RuleName,RiskLevel,OrderType,SceneType,PaymentStatus,IsCheckAccount,RuleDesc " +
+                "FROM dbo.InfoSecurity_PayAdapterRule (NOLOCK)" +
+                "WHERE Active='T'  ORDER BY PayAdapterRuleID,MatchIndex");
+    }
+
+    @Override
+    public List<Map<String, Object>> getPayadaptValueMatchTerms() {
+        return cardRiskDB.queryForList("select p.PayAdapterRuleID,d.ColumnName ,p.MatchType,p.MatchValue from dbo.InfoSecurity_PayAdapterRuleMatchField p(NOLOCK) \n" +
+                "inner join Def_RuleMatchField d (NOLOCK) on p.FieldID=d.FieldID where CHARINDEX('F',p.MatchType)<>1 ORDER BY p.PayAdapterRuleID, p.MatchIndex");
+    }
+
+    @Override
+    public List<Map<String, Object>> getPayadaptCounterMatchTerms() {
+        return cardRiskDB.queryForList("Select r.FlowRuleID,d.ColumnName as KeyColumnName, \n" +
+                "                         d1.ColumnName as MatchColumnName,r.MatchType,r.MatchValue,r.StatisticType,r.StartTimeLimit,r.TimeLimit,r.SqlValue\n" +
+                "                         From  InfoSecurity_PayAdapterRuleStatistic (NOLOCK) r\n" +
+                "                          inner join Def_RuleMatchField d (NOLOCK) on r.KeyFieldID=d.FieldID\n" +
+                "                          inner join Def_RuleMatchField d1 (NOLOCK) on r.MatchFieldID=d1.FieldID\n" +
+                "                         ORDER BY r.FlowRuleID,r.MatchIndex");
+    }
+
+    @Override
+    public List<Map<String, Object>> getPayadaptFieldMatchTerms() {
+        return cardRiskDB.queryForList("select p.PayAdapterRuleID,d.ColumnName ,p.MatchType,p.MatchValue from dbo.InfoSecurity_PayAdapterRuleMatchField p(NOLOCK) \n" +
+                "inner join Def_RuleMatchField d (NOLOCK) on p.FieldID=d.FieldID where CHARINDEX('F',p.MatchType)=1 ORDER BY p.PayAdapterRuleID, p.MatchIndex");
+    }
+
+
 }

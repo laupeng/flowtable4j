@@ -6,6 +6,8 @@
 package com.ctrip.infosec.flowtable4j.rest;
 
 import com.ctrip.infosec.flowtable4j.model.CheckFact;
+import com.ctrip.infosec.flowtable4j.model.PayAdaptFact;
+import com.ctrip.infosec.flowtable4j.model.PayAdaptResult;
 import com.ctrip.infosec.flowtable4j.model.RiskResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,5 +33,11 @@ public class FlowTableRESTfulController {
     RiskResult checkRisk(@RequestBody CheckFact checkEntity) {
         checkEntity.processOrderTypes();
         return processor.handle(checkEntity);
+    }
+
+    @RequestMapping(value="/checkPayAdapt")
+    public @ResponseBody
+    PayAdaptResult checkPayAdapt(@RequestBody PayAdaptFact checkEntity){
+        return processor.handle4PayAdapt(checkEntity);
     }
 }

@@ -17,3 +17,4 @@ Configs.Caches.url={$Configs.Caches.url}
 APPID={$AppID}
 ESBUrl={$ESBUrl}
 DBDataCenter={$DBDataCenter}
+EventWS={$EventWS}

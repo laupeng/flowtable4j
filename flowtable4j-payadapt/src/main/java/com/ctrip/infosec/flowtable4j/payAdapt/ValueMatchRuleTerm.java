@@ -8,7 +8,7 @@ import java.util.Map;
 /**
  * Created by thyang on 2015/3/24 0024.
  */
-public class ValueMatchRuleTerm extends FlowRuleTerm {
+public class ValueMatchRuleTerm extends PayAdaptRuleTerm {
 
     public ValueMatchRuleTerm(String fieldName, String operator, String matchValue) {
         super(fieldName, operator, matchValue);

@@ -31,7 +31,7 @@
 		<CLogging.serverIp>collector.logging.uat.qa.nt.ctripcorp.com</CLogging.serverIp>
 		<CLogging.serverPort>63100</CLogging.serverPort>
 		<Configs.Caches.url>http://10.2.10.76:8080/configsws/rest/loadconfig</Configs.Caches.url>
-
+		<EventWS>http://10.2.10.77:8080/eventws/execute</EventWS>
 	</dev>
 	<test>
 		<DBDataCenter></DBDataCenter>
@@ -45,6 +45,7 @@
 		<CLogging.serverIp>collector.logging.uat.qa.nt.ctripcorp.com</CLogging.serverIp>
 		<CLogging.serverPort>63100</CLogging.serverPort>
 		<Configs.Caches.url>http://10.2.10.76:8080/configsws/rest/loadconfig</Configs.Caches.url></test>
+		<EventWS>http://10.2.10.77:8080/eventws/execute</EventWS>
 	<fws>
 		<DBDataCenter></DBDataCenter>
 		<AppID>100000807</AppID>
@@ -57,6 +58,7 @@
 		<CLogging.serverIp>collector.logging.uat.qa.nt.ctripcorp.com</CLogging.serverIp>
 		<CLogging.serverPort>63100</CLogging.serverPort>
 		<Configs.Caches.url>http://10.2.10.76:8080/configsws/rest/loadconfig</Configs.Caches.url></fws>
+		<EventWS>http://10.2.10.77:8080/eventws/execute</EventWS>
 	<fat>
 		<DBDataCenter></DBDataCenter>
 		<AppID>100000807</AppID>
@@ -69,6 +71,7 @@
 		<CLogging.serverIp>collector.logging.uat.qa.nt.ctripcorp.com</CLogging.serverIp>
 		<CLogging.serverPort>63100</CLogging.serverPort>
 		<Configs.Caches.url>http://10.2.10.76:8080/configsws/rest/loadconfig</Configs.Caches.url>
+		<EventWS>http://10.2.10.77:8080/eventws/execute</EventWS>
 
 	</fat>
 	<lpt>
@@ -83,6 +86,7 @@
 		<CLogging.serverIp>collector.logging.uat.qa.nt.ctripcorp.com</CLogging.serverIp>
 		<CLogging.serverPort>63100</CLogging.serverPort>
 		<Configs.Caches.url>http://10.2.25.54:8080/configsws/rest/loadconfig</Configs.Caches.url>
+		<EventWS>http://10.2.10.77:8080/eventws/execute</EventWS>
 	</lpt>
 	<uat>
 		<DBDataCenter></DBDataCenter>
@@ -96,6 +100,7 @@
 		<CLogging.serverIp>collector.logging.uat.qa.nt.ctripcorp.com</CLogging.serverIp>
 		<CLogging.serverPort>63100</CLogging.serverPort>
 		<Configs.Caches.url>http://10.2.25.54:8080/configsws/rest/loadconfig</Configs.Caches.url>
+		<EventWS>http://10.2.25.54:8080/eventws/execute</EventWS>
 	</uat>
 	<uat_nt>
 		<DBDataCenter></DBDataCenter>
@@ -109,6 +114,7 @@
 		<CLogging.serverIp>collector.logging.uat.qa.nt.ctripcorp.com</CLogging.serverIp>
 		<CLogging.serverPort>63100</CLogging.serverPort>
 		<Configs.Caches.url>http://10.2.25.54:8080/configsws/rest/loadconfig</Configs.Caches.url></uat_nt>
+		<EventWS>http://10.2.25.54:8080/eventws/execute</EventWS>
 	<prd>
 		<DBDataCenter>_SH</DBDataCenter>
 		<AppID>100000807</AppID>
@@ -121,5 +127,6 @@
 		<CLogging.serverIp>collector.logging.sh.ctriptravel.com</CLogging.serverIp>
 		<CLogging.serverPort>63100</CLogging.serverPort>
 		<Configs.Caches.url>http://ws.configs.infosec.ctripcorp.com/configsws/rest/loadconfig</Configs.Caches.url>
+		<EventWS>http://ws.event.infosec.ctripcorp.com/eventws/execute</EventWS>
 	</prd>
 </profile>

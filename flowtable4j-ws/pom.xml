@@ -29,6 +29,21 @@
             <groupId>com.ctrip.infosec.flowtable4j</groupId>
             <artifactId>flowtable4j-jobws</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.ctrip.infosec.flowtable4j</groupId>
+            <artifactId>flowtable4j-bwlist</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.ctrip.infosec.flowtable4j</groupId>
+            <artifactId>flowtable4j-flowlist</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.ctrip.infosec.flowtable4j</groupId>
+            <artifactId>flowtable4j-dal</artifactId>
+        </dependency>
         <!-- RabbitMQ -->
         <dependency>
             <groupId>org.springframework.amqp</groupId>
