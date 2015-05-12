@@ -1,25 +1,16 @@
-package com.ctrip.infosec.flowtable4j.model;
-
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+package com.ctrip.infosec.flowtable4j.accountsecurity;
 
 /**
- * Created by zhangsx on 2015/3/17.
+ * Created by thyang on 2015-05-12.
  */
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class AccountItem {
+public class RuleContent {
 
     private String checkType;
     private String sceneType;
     private String checkValue;
-    public AccountItem(){
+    private String expiryDate;
+    private int resultLevel;
 
-    }
-
-    public AccountItem(String checkType, String sceneType, String checkValue){
-        this.checkType=checkType;
-        this.checkValue=checkValue;
-        this.sceneType=sceneType;
-    }
     public String getCheckType() {
         return checkType;
     }
@@ -42,5 +33,21 @@ public class AccountItem {
 
     public void setCheckValue(String checkValue) {
         this.checkValue = checkValue;
+    }
+
+    public String getExpiryDate() {
+        return expiryDate;
+    }
+
+    public void setExpiryDate(String expiryDate) {
+        this.expiryDate = expiryDate;
+    }
+
+    public int getResultLevel() {
+        return resultLevel;
+    }
+
+    public void setResultLevel(int resultLevel) {
+        this.resultLevel = resultLevel;
     }
 }

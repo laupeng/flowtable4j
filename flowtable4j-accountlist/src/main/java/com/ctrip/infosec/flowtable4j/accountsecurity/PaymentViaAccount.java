@@ -30,6 +30,10 @@ public class PaymentViaAccount {
     private FastDateFormat format = FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ss");
     private Logger logger = LoggerFactory.getLogger(PaymentViaAccount.class);
 
+    public int SetBWGRule(List<RuleContent> rules)
+    {
+        return  0;
+    }
     /**
      * 验证黑白灰名单
      *
