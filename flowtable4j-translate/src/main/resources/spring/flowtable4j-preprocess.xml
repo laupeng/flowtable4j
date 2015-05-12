@@ -13,33 +13,33 @@
 
     <context:annotation-config />
 
-    <!--<bean id="allTemplates"  class="com.ctrip.infosec.flowtable4j.translate.dao.Jndi.AllTemplates" init-method="init" />-->
+    <bean id="allTemplates"  class="com.ctrip.infosec.flowtable4j.translate.dao.Jndi.AllTemplates" init-method="init" />
 
-    <!--<bean id="hotelGroupSources" class="com.ctrip.infosec.flowtable4j.translate.dao.HotelGroupSources"-->
-          <!--depends-on="allTemplates" init-method="init">-->
-    <!--</bean>-->
+    <bean id="hotelGroupSources" class="com.ctrip.infosec.flowtable4j.translate.dao.HotelGroupSources"
+          depends-on="allTemplates" init-method="init">
+    </bean>
 
-    <!--<bean id="tieYouSources" class="com.ctrip.infosec.flowtable4j.translate.dao.TieYouSources" depends-on="allTemplates"-->
-          <!--init-method="init"/>-->
+    <bean id="tieYouSources" class="com.ctrip.infosec.flowtable4j.translate.dao.TieYouSources" depends-on="allTemplates"
+          init-method="init"/>
 
-    <!--<bean id="commonSources" class="com.ctrip.infosec.flowtable4j.translate.dao.CommonSources"-->
-          <!--depends-on="allTemplates" init-method="init">-->
-    <!--</bean>-->
+    <bean id="commonSources" class="com.ctrip.infosec.flowtable4j.translate.dao.CommonSources"
+          depends-on="allTemplates" init-method="init">
+    </bean>
 
-    <!--<bean id="commonOperation" class="com.ctrip.infosec.flowtable4j.translate.service.CommonOperation" depends-on="commonSources"/>-->
+    <bean id="commonOperation" class="com.ctrip.infosec.flowtable4j.translate.service.CommonOperation" depends-on="commonSources"/>
 
-    <!--<bean id="commonExecutor" class="com.ctrip.infosec.flowtable4j.translate.service.CommonExecutor" depends-on="commonOperation"></bean>-->
+    <bean id="commonExecutor" class="com.ctrip.infosec.flowtable4j.translate.service.CommonExecutor" depends-on="commonOperation"></bean>
 
-    <!--<bean id="redisSources" class="com.ctrip.infosec.flowtable4j.translate.dao.RedisSources" init-method="init"/>-->
+    <bean id="redisSources" class="com.ctrip.infosec.flowtable4j.translate.dao.RedisSources" init-method="init"/>
 
-    <!--<bean id="esbSources" class="com.ctrip.infosec.flowtable4j.translate.dao.ESBSources" init-method="init"/>-->
+    <bean id="esbSources" class="com.ctrip.infosec.flowtable4j.translate.dao.ESBSources" init-method="init"/>
 
-    <!--<bean id="dataProxySources" class="com.ctrip.infosec.flowtable4j.translate.dao.DataProxySources" />-->
+    <bean id="dataProxySources" class="com.ctrip.infosec.flowtable4j.translate.dao.DataProxySources" />
 
 
-    <!--<bean id="hotelGroupExecutor" class="com.ctrip.infosec.flowtable4j.translate.service.HotelGroupExecutor"></bean>-->
+    <bean id="hotelGroupExecutor" class="com.ctrip.infosec.flowtable4j.translate.service.HotelGroupExecutor"></bean>
 
-    <!--<bean id = "tieYouExecutor" class="com.ctrip.infosec.flowtable4j.translate.service.TieYouExecutor"/>-->
+    <bean id = "tieYouExecutor" class="com.ctrip.infosec.flowtable4j.translate.service.TieYouExecutor"/>
 
-    <!--<bean id="preProcessor" class="com.ctrip.infosec.flowtable4j.translate.PreProcessor"/>-->
+    <bean id="preProcessor" class="com.ctrip.infosec.flowtable4j.translate.PreProcessor"/>
 </beans>
