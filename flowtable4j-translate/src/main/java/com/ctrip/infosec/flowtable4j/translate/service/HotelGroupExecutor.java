@@ -54,10 +54,10 @@ public class HotelGroupExecutor implements Executor
         CheckFact checkFact = new CheckFact();
         try{
             logger.info("开始处理酒店团购 "+data.get("OrderID").toString()+" 数据");
-
+            long now = System.currentTimeMillis();
             //一：补充数据
             commonExecutor.complementData(dataFact,data);
-            dataFact.mainInfo.put(Common.OrderType,14);//添加订单类型 酒店团购是14
+//            dataFact.mainInfo.put(Common.OrderType,14);//添加订单类型 酒店团购是14
             //这里分checkType 0、1和2两种情况
             int checkType = Integer.parseInt(getValue(data, Common.CheckType));
             if(checkType == 0 ||checkType == 1)
@@ -69,12 +69,14 @@ public class HotelGroupExecutor implements Executor
                 getOtherInfo1(dataFact, data);
                 getHotelGroupProductInfo1(dataFact, data);
             }
-
+            logger.info("补充数据的时间是："+(System.currentTimeMillis()-now));
             //二：黑白名单数据
+            long now1 = System.currentTimeMillis();
             Map<String,Object> bwList = commonExecutor.convertToBlackCheckItem(dataFact,data);
             bwList.putAll(dataFact.productInfoM);
-
+            logger.info("补充数据的时间是："+(System.currentTimeMillis()-now1));
             //三：流量实体数据
+            long now2 = System.currentTimeMillis();
             Map<String,Object> flowData = commonExecutor.convertToFlowRuleCheckItem(dataFact,data);
             //支付衍生字段
             List<Map> paymentInfos = dataFact.paymentInfoList;
@@ -95,6 +97,7 @@ public class HotelGroupExecutor implements Executor
                 }
                 break;
             }
+            logger.info("补充数据的时间是："+(System.currentTimeMillis()-now2));
             //产品信息加到流量实体
             flowData.putAll(dataFact.productInfoM);
 

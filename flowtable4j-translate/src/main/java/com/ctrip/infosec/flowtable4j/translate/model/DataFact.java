@@ -46,4 +46,8 @@ public class DataFact
     //六：DIDInfo信息
     public Map<String,Object> DIDInfo = new HashMap<String, Object>();
 
+
+    //七：临时信息
+
+
 }

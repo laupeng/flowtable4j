@@ -4,6 +4,7 @@ import com.ctrip.infosec.flowtable4j.translate.common.IpConvert;
 import com.ctrip.infosec.flowtable4j.translate.dao.*;
 import com.ctrip.infosec.flowtable4j.translate.model.Common;
 import com.ctrip.infosec.flowtable4j.translate.model.DataFact;
+import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,10 +37,9 @@ public class CommonOperation
     /**
      * 添加手机对应的省市信息
      */
-    public void fillMobilePhone(DataFact dataFact,Map data)
+    public void fillMobilePhone(DataFact dataFact,String mobilePhone)
     {
-        logger.info(data.get("OrderID")+"获取手机相关信息");
-        String mobilePhone = getValue(data,Common.MobilePhone);
+//        logger.info(data.get("OrderID")+"获取手机相关信息");
         if(mobilePhone == null || mobilePhone.length() <= 6)
             return;
         Map mobileInfo = commonSources.getCityAndProv(mobilePhone);
@@ -49,12 +49,11 @@ public class CommonOperation
 
     /**
      * 添加用户的用户等级信息
-     * @param data
+     * @param uid
      */
-    public void fillUserCusCharacter(DataFact dataFact,Map data)//fixme  这里的获取用户等级信息的代码有点问题
+    public void fillUserCusCharacter(DataFact dataFact,String uid)//fixme  这里的获取用户等级信息的代码有点问题
     {
-        logger.info(data.get("OrderID")+"获取用户等级相关信息");
-        String uid = getValue(data,Common.Uid);
+//        logger.info(data.get("OrderID")+"获取用户等级相关信息");
         String serviceName = "UserProfileService";
         String operationName = "DataQuery";
         List tagContents = new ArrayList();
@@ -71,12 +70,12 @@ public class CommonOperation
 
     /**
      * 补充ip对应的城市信息
-     * @param data
+     * @param userIp
      */
-    public void fillIpInfo(DataFact dataFact,Map data)
+    public void fillIpInfo(DataFact dataFact,String userIp)
     {
-        logger.info(data.get("OrderID")+"获取ip相关信息");
-        String userIp = getValue(data,Common.UserIP);
+//        logger.info(data.get("OrderID")+"获取ip相关信息");
+//        String userIp = getValue(data,Common.UserIP);
         dataFact.ipInfo.put(Common.UserIPAdd, userIp);
         Long userIPValue = IpConvert.ipConvertTo10(userIp);
         dataFact.ipInfo.put(Common.UserIPValue,userIPValue);
@@ -93,10 +92,8 @@ public class CommonOperation
         }
     }
 
-    public void getDIDInfo(DataFact dataFact,Map data)
+    public void getDIDInfo(DataFact dataFact,String orderId,String orderType)
     {
-        String orderId = getValue(data,Common.OrderID);
-        String orderType = getValue(data,Common.OrderType);
         Map DIDInfo = commonSources.getDIDInfo(orderId,orderType);
         if(DIDInfo !=null && DIDInfo.size()>0)
             dataFact.DIDInfo.put(Common.DID,getValue(DIDInfo,"Did"));
@@ -280,5 +277,16 @@ public class CommonOperation
                 }
             }
         }
+    }
+
+    //通过uid补充用户信息
+    public void fillUserInfo(DataFact dataFact,String uid)
+    {
+        String serviceName = "CRMService";
+        String operationName = "getMemberInfo";
+        Map params = ImmutableMap.of("uid", uid);//根据uid取值
+        Map crmInfo = DataProxySources.queryForMap(serviceName, operationName, params);
+        if(crmInfo !=null && crmInfo.size()>0)
+            dataFact.userInfo.putAll(crmInfo);
     }
 }

@@ -1,11 +1,14 @@
 package com.ctrip.infosec.flowtable4j.translate.service;
 
+import com.ctrip.infosec.flowtable4j.model.CheckFact;
+import com.ctrip.infosec.flowtable4j.translate.common.BeanMapper;
 import com.ctrip.infosec.flowtable4j.translate.dao.*;
 import com.ctrip.infosec.flowtable4j.translate.model.Common;
 import com.ctrip.infosec.flowtable4j.translate.model.Common;
 import com.ctrip.infosec.flowtable4j.translate.model.Common;
 import com.ctrip.infosec.flowtable4j.translate.model.DataFact;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +17,7 @@ import org.springframework.stereotype.Component;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.*;
 
 import static com.ctrip.infosec.common.SarsMonitorWrapper.afterInvoke;
 import static com.ctrip.infosec.common.SarsMonitorWrapper.beforeInvoke;
@@ -26,6 +30,8 @@ import static com.ctrip.infosec.flowtable4j.translate.common.Utils.getValue;
 public class CommonExecutor
 {
     private Logger logger = LoggerFactory.getLogger(HotelGroupExecutor.class);
+    private ThreadPoolExecutor excutor = new ThreadPoolExecutor(25, 50, 60, TimeUnit.SECONDS, new SynchronousQueue(), new ThreadPoolExecutor.CallerRunsPolicy());
+    List<Callable<DataFact>> runs = Lists.newArrayList();
     @Autowired
     CommonSources commonSources;
     @Autowired
@@ -64,6 +70,22 @@ public class CommonExecutor
                     //补充公共属性信息
                     fillCommonInfo(dataFact,data);
                     //补充支付信息 从数据库获取支付信息
+                    //并发执行
+                    final DataFact dataFactCopy = BeanMapper.copy(dataFact, DataFact.class);
+                    final String mobilePhone = getValue(data,Common.MobilePhone);
+                    runs.add(new Callable<DataFact>() {
+                        @Override
+                        public DataFact call() throws Exception {
+                            try {
+                                long start = System.currentTimeMillis();
+                                commonOperation.fillMobilePhone(dataFactCopy,mobilePhone);//补充联系人手机对应的省
+                                return dataFactCopy;
+                            } catch (Exception e) {
+                                logger.warn("invoke commonOperation fillMobilePhone failed.: ", e);
+                            }
+                            return null;
+                        }
+                    });
                     commonOperation.fillPaymentInfo1(dataFact,data);
                     break;
                 case 2:
@@ -80,6 +102,75 @@ public class CommonExecutor
                 default:
                     break;
             }
+            //这里执行并发操作
+            //并发执行
+            long t1 = System.currentTimeMillis();
+            List<DataFact> rawResult = new ArrayList<DataFact>();
+            try {
+                List<Future<DataFact>> result = excutor.invokeAll(runs, 1L, TimeUnit.SECONDS);
+                for (Future f : result) {
+                    try {
+                        if (f.isDone()) {
+                            DataFact r = (DataFact) f.get();
+                            rawResult.add(r);
+                        } else {
+                            f.cancel(true);
+                        }
+                    } catch (Exception e) {
+
+                    }
+                }
+            } catch (Exception e) {
+
+            }
+            logger.info("第一个线程池的时间是："+(System.currentTimeMillis()-t1));
+            if (rawResult.size() > 0){
+                for(DataFact item : rawResult)
+                {
+                    //合并里面的所有信息 注意这里面没有产品信息
+                    if(item.paymentInfoList != null &&item.paymentInfoList.size()>0)
+                    {
+                        dataFact.paymentInfoList.addAll(item.paymentInfoList);//fixme 调试这里
+                    }
+                    if(item.contactInfo != null &&item.contactInfo.size()>0)
+                    {
+                        dataFact.contactInfo.putAll(item.contactInfo);
+                    }
+                    if(item.mainInfo != null &&item.mainInfo.size()>0)
+                    {
+                        dataFact.mainInfo.putAll(item.mainInfo);
+                    }
+                    if(item.userInfo != null &&item.userInfo.size()>0)
+                    {
+                        dataFact.userInfo.putAll(item.userInfo);
+                    }
+                    if(item.ipInfo != null &&item.ipInfo.size()>0)
+                    {
+                        dataFact.ipInfo.putAll(item.ipInfo);
+                    }
+                    if(item.otherInfo != null &&item.otherInfo.size()>0)
+                    {
+                        dataFact.otherInfo.putAll(item.otherInfo);
+                    }
+                    if(item.paymentMainInfo != null &&item.paymentMainInfo.size()>0)
+                    {
+                        dataFact.paymentMainInfo.putAll(item.paymentMainInfo);
+                    }
+                    if(item.dealInfo != null &&item.dealInfo.size()>0)
+                    {
+                        dataFact.dealInfo.putAll(item.dealInfo);
+                    }
+                    if(item.corporationInfo != null &&item.corporationInfo.size()>0)
+                    {
+                        dataFact.corporationInfo.putAll(item.corporationInfo);
+                    }
+                    if(item.DIDInfo != null &&item.DIDInfo.size()>0)
+                    {
+                        dataFact.DIDInfo.putAll(item.DIDInfo);
+                    }
+                }
+            }
+
             logger.info("补充"+data.get("OrderID")+"数据完毕");
         }catch (Exception exp)
         {
@@ -130,29 +221,97 @@ public class CommonExecutor
         dataFact.contactInfo.put(Common.ContactTel,getValue(data,Common.ContactTel));
         dataFact.contactInfo.put(Common.ContactEMail,getValue(data,Common.ContactEMail));
         dataFact.contactInfo.put(Common.SendTickerAddr,getValue(data,Common.SendTickerAddr));
-        commonOperation.fillMobilePhone(dataFact,data);//补充联系人手机对应的省市
-        //补充userInfo
-        String serviceName = "CRMService";
+//        commonOperation.fillMobilePhone(dataFact,data);//补充联系人手机对应的省市 //fixme 01
+        //补充userInfo  fixme 02
+        /*String serviceName = "CRMService";
         String operationName = "getMemberInfo";
         String uid = data.get(Common.Uid) == null ? "" : data.get(Common.Uid).toString();
         Map params = ImmutableMap.of("uid", uid);//根据uid取值
         Map crmInfo = DataProxySources.queryForMap(serviceName, operationName, params);
         if(crmInfo !=null && crmInfo.size()>0)
-            dataFact.userInfo.putAll(crmInfo);
-        if(!getValue(dataFact.userInfo,"Vip").toUpperCase().equals("T"))//如果UID信息中没有标明是VIP用户，则需要从CustomerInfo中获取//fixme 确认vip是不是每个产品都是这样
+            dataFact.userInfo.putAll(crmInfo);*/
+        /*if(!getValue(dataFact.userInfo,"Vip").toUpperCase().equals("T"))//如果UID信息中没有标明是VIP用户，则需要从CustomerInfo中获取//fixme 确认vip是不是每个产品都是这样
         {
-            commonOperation.fillUserCusCharacter(dataFact,data);//这里获取用户的用户属性（NEW,REPEAT,VIP） 这里有两个方法：1，直接调用esb，2，调用郁伟新增加的DataProxy
-        }
+            commonOperation.fillUserCusCharacter(dataFact,data);//这里获取用户的用户属性（NEW,REPEAT,VIP） 这里有两个方法：1，直接调用esb，2，调用郁伟新增加的DataProxy //fixme 05
+        }*/
         //补充ipInfo
-        commonOperation.fillIpInfo(dataFact,data);
+//        commonOperation.fillIpInfo(dataFact, data);//fixme 03
         //补充corporationInfo
         dataFact.corporationInfo.put(Common.CanAccountPay,getValue(data,Common.CanAccountPay));
         dataFact.corporationInfo.put(Common.CompanyType,getValue(data,Common.CompanyType));
         dataFact.corporationInfo.put(Common.Corp_PayType,getValue(data,Common.Corp_PayType));
          //补充DIDInfo
-        commonOperation.getDIDInfo(dataFact,data);//通过订单id和订单类型来获取
+        //commonOperation.getDIDInfo(dataFact, data);//通过订单id和订单类型来获取 fixme 04
         //补充主要支付方式                                           自己添加的以便于后面使用
         commonOperation.fillMainOrderType(data);//这里面加一个字段 “OrderPrepayType”
+
+
+        //FIXME 这里检查
+        //并发执行
+        final DataFact dataFactCopy = BeanMapper.copy(dataFact, DataFact.class);
+        final String mobilePhone = getValue(data,Common.MobilePhone);
+        runs.add(new Callable<DataFact>() {
+            @Override
+            public DataFact call() throws Exception {
+                try {
+                    long start = System.currentTimeMillis();
+                    commonOperation.fillMobilePhone(dataFactCopy,mobilePhone);//补充联系人手机对应的省
+                    return dataFactCopy;
+                } catch (Exception e) {
+                    logger.warn("invoke commonOperation fillMobilePhone failed.: ", e);
+                }
+                return null;
+            }
+        });
+
+        final String uid = getValue(data,Common.Uid);
+        runs.add(new Callable<DataFact>() {
+            @Override
+            public DataFact call() throws Exception {
+                try {
+                    commonOperation.fillUserInfo(dataFactCopy,uid);
+                    if(!getValue(dataFactCopy.userInfo,"Vip").toUpperCase().equals("T"))//如果UID信息中没有标明是VIP用户，则需要从CustomerInfo中获取//fixme 确认vip是不是每个产品都是这样
+                    {
+                        commonOperation.fillUserCusCharacter(dataFactCopy,uid);//这里获取用户的用户属性（NEW,REPEAT,VIP） 这里有两个方法：1，直接调用esb，2，调用郁伟新增加的DataProxy
+                    }
+                    return dataFactCopy;
+                } catch (Exception e) {
+                    logger.warn("invoke commonOperation fillUserInfo failed.: ", e);
+                }
+                return null;
+            }
+        });
+
+        final String userIp = getValue(data,Common.UserIP);
+        runs.add(new Callable<DataFact>() {
+            @Override
+            public DataFact call() throws Exception {
+                try {
+                    long start = System.currentTimeMillis();
+                    commonOperation.fillIpInfo(dataFactCopy, userIp);
+                    return dataFactCopy;
+                } catch (Exception e) {
+                    logger.warn("invoke commonOperation fillIpInfo failed.: ", e);
+                }
+                return null;
+            }
+        });
+
+        final String orderId = getValue(data,Common.OrderID);
+        final String orderType = getValue(data,Common.OrderType);
+        runs.add(new Callable<DataFact>() {
+            @Override
+            public DataFact call() throws Exception {
+                try {
+                    long start = System.currentTimeMillis();
+                    commonOperation.getDIDInfo(dataFactCopy, orderId, orderType);
+                    return dataFactCopy;
+                } catch (Exception e) {
+                    logger.warn("invoke commonOperation getDIDInfo failed.: ", e);
+                }
+                return null;
+            }
+        });
     }
 
     public Map<String,Object> convertToBlackCheckItem(DataFact dataFact,Map data)
@@ -229,11 +388,6 @@ public class CommonExecutor
             //mainInfo
             bwList.put(Common.IsOnline, dataFact.mainInfo.get(Common.IsOnline));
 
-            //Fixme 产品信息放到具体的产品类里面去实现
-            /*//HotelGroupInfo
-            bwList.put(Common.ProductID,data.get(Common.ProductID));//	产品编号(酒店团购)
-            bwList.put(Common.ProductNameD,data.get(Common.ProductNameD));//	产品名称(酒店团购)*/
-
             //Country //fixme 这里放空值的意义
             bwList.put(Common.DeviceID,"");
             bwList.put(Common.FuzzyDeviceID,"");
@@ -263,6 +417,7 @@ public class CommonExecutor
     public Map<String,Object> convertToFlowRuleCheckItem(DataFact dataFact,Map data)
     {
         beforeInvoke();
+        List<Callable<Map>> runsF = Lists.newArrayList();
         Map<String,Object> flowData = new HashMap();
         try{
             logger.info("开始构造"+data.get("OrderID")+"流量表数据");
@@ -300,7 +455,6 @@ public class CommonExecutor
                 {
                     Map cardInfoFirst = cardInfoList.get(0);
                     flowData.putAll(cardInfoFirst);
-                    //flowData.put(Common.CardBinOrderID,getValue(cardInfoFirst,Common.CardBin)+getValue(cardInfoFirst,Common.OrderID));
                     break;
                 }
             }
@@ -313,7 +467,8 @@ public class CommonExecutor
 
             //InfoSecurity_UserInfo
             flowData.putAll(dataFact.userInfo);
-            if(dataFact.userInfo.get(Common.BindedMobilePhone) != null && dataFact.userInfo.get(Common.BindedMobilePhone).toString().length()>7)
+            //fixme 06
+            /*if(dataFact.userInfo.get(Common.BindedMobilePhone) != null && dataFact.userInfo.get(Common.BindedMobilePhone).toString().length()>7)
             {
                 Map cityInfo = commonSources.getCityAndProv(dataFact.userInfo.get(Common.BindedMobilePhone).toString());
                 if(cityInfo != null)
@@ -328,7 +483,7 @@ public class CommonExecutor
                 {
                     flowData.putAll(cityInfo);
                 }
-            }
+            }*/
 
             //InfoSecurity_IPInfo
             flowData.putAll(dataFact.ipInfo);
@@ -341,16 +496,125 @@ public class CommonExecutor
 
             //DID
             flowData.put(Common.DID, getValue(dataFact.DIDInfo,Common.DID));
-
-            //场景  下面这段是用来判断账户风控结果的 这里在通辉的服务里面去做
-
-            Map leakInfo = commonSources.getLeakedInfo(getValue(dataFact.userInfo, Common.Uid));
+            //fixme 07
+            /*Map leakInfo = commonSources.getLeakedInfo(getValue(dataFact.userInfo, Common.Uid));
             if(leakInfo != null && leakInfo.size()>0)
             {
                 flowData.put(Common.UidActive,leakInfo.get("Active"));
+            }*/
+
+            //并发执行
+            runs.clear();
+            final DataFact dataFactCopy = BeanMapper.copy(dataFact, DataFact.class);
+            final Map flowDataCopy = BeanMapper.copy(flowData,Map.class);
+            final Map dataCopy = BeanMapper.copy(data,Map.class);
+
+            runsF.add(new Callable<Map>() {
+                @Override
+                public Map call() throws Exception {
+                    try {
+                        long start = System.currentTimeMillis();
+                       if(dataFactCopy.userInfo.get(Common.BindedMobilePhone) != null && dataFactCopy.userInfo.get(Common.BindedMobilePhone).toString().length()>7)
+                        {
+                            Map cityInfo = commonSources.getCityAndProv(dataFactCopy.userInfo.get(Common.BindedMobilePhone).toString());
+                            if(cityInfo != null)
+                            {
+                                flowDataCopy.putAll(cityInfo);
+                            }
+                        }
+                        if(dataFactCopy.userInfo.get(Common.RelatedMobilephone) != null && dataFactCopy.userInfo.get(Common.RelatedMobilephone).toString().length()>7)
+                        {
+                            Map cityInfo = commonSources.getCityAndProv(dataCopy.get(Common.RelatedMobilephone).toString());
+                            if(cityInfo != null)
+                            {
+                                flowDataCopy.putAll(cityInfo);
+                            }
+                        }
+                        return flowDataCopy;
+                    } catch (Exception e) {
+                        logger.warn("invoke commonOperation fillMobilePhone failed.: ", e);
+                    }
+                    return null;
+                }
+            });
+
+            runsF.add(new Callable<Map>() {
+                @Override
+                public Map call() throws Exception {
+                    try {
+                        long start = System.currentTimeMillis();
+                        Map leakInfo = commonSources.getLeakedInfo(getValue(dataFactCopy.userInfo, Common.Uid));
+                        if(leakInfo != null && leakInfo.size()>0)
+                        {
+                            flowDataCopy.put(Common.UidActive,leakInfo.get("Active"));
+                        }
+                        return flowDataCopy;
+                    } catch (Exception e) {
+                        logger.warn("invoke commonOperation fillMobilePhone failed.: ", e);
+                    }
+                    return null;
+                }
+            });
+
+            runsF.add(new Callable<Map>() {
+                @Override
+                public Map call() throws Exception {
+                    try {
+                        long toCompute = System.currentTimeMillis();
+                        Map<String,Object> temp = new HashMap();
+                        temp.put("Uid",getValue(dataFactCopy.userInfo,Common.Uid));
+                        temp.put("ContactEMail",getValue(dataFactCopy.contactInfo,Common.ContactEMail));
+                        temp.put("MobilePhone",getValue(dataFactCopy.contactInfo, Common.MobilePhone));
+                        temp.put("CCardNoCode",getValue(flowDataCopy,Common.CCardNoCode));
+
+                        Date date = new Date(System.currentTimeMillis());
+                        SimpleDateFormat format1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.sss");
+                        String nowTimeStr = format1.format(date);
+
+                        Calendar calendar = new GregorianCalendar();
+                        calendar.setTime(date);
+                        calendar.add(calendar.MINUTE,-720);//往前720分钟
+                        String timeLimitStr = format1.format(calendar.getTime());
+
+                        int count = commonSources.getOriginalRisklevel(temp,timeLimitStr,nowTimeStr);
+                        flowDataCopy.put(Common.OriginalRisklevelCount,count);
+                        return flowDataCopy;
+                    } catch (Exception e) {
+                        logger.warn("invoke commonOperation fillMobilePhone failed.: ", e);
+                    }
+                    return null;
+                }
+            });
+            //并发执行
+            long t2 = System.currentTimeMillis();
+            List<Map> rawResult = new ArrayList<Map>();
+            try {
+                List<Future<Map>> result = excutor.invokeAll(runsF, 1L, TimeUnit.SECONDS);
+                for (Future f : result) {
+                    try {
+                        if (f.isDone()) {
+                            Map r = (Map) f.get();
+                            rawResult.add(r);
+                        } else {
+                            f.cancel(true);
+                        }
+                    } catch (Exception e) {
+
+                    }
+                }
+            } catch (Exception e) {
+
+            }
+            logger.info("第二个线程池执行的时间是："+(System.currentTimeMillis()-t2));
+            if (rawResult.size() > 0){
+                for(Map item: rawResult)
+                {
+                    flowData.putAll(item);//fixme 调试这里的
+                }
             }
 
-            //统计分值大于195的数据
+            //统计分值大于195的数据 fixme 08
+            /*long toCompute = System.currentTimeMillis();
             Map<String,Object> temp = new HashMap();
             temp.put("Uid",getValue(dataFact.userInfo,Common.Uid));
             temp.put("ContactEMail",getValue(dataFact.contactInfo,Common.ContactEMail));
@@ -368,7 +632,7 @@ public class CommonExecutor
 
             int count = commonSources.getOriginalRisklevel(temp,timeLimitStr,nowTimeStr);
             flowData.put(Common.OriginalRisklevelCount,count);
-
+            logger.info("统计分值大于195的时间是："+(System.currentTimeMillis()-toCompute));*/
             logger.info("构造"+data.get("OrderID")+"流量表数据完毕");
         }catch (Exception exp)
         {

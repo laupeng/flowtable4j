@@ -86,7 +86,7 @@
                 <artifactId>flowtable4j-translate</artifactId>
                 <version>${project.version}</version>
                 <exclusions>
-                    <exclusion>
+                    <!--<exclusion>
                         <groupId>com.ctrip.infosec.flowtable4j</groupId>
                         <artifactId>flowtable4j-model</artifactId>
                     </exclusion>
@@ -116,7 +116,7 @@
                         <groupId>com.meidusa.toolkit.net</groupId>
                         <artifactId>toolkit-net-nio</artifactId>
                     </exclusion>
-<!--venuse-->
+&lt;!&ndash;venuse&ndash;&gt;
                     <exclusion>
                         <groupId>com.meidusa.toolkit.commons</groupId>
                         <artifactId>toolkit-common-util</artifactId>
@@ -152,22 +152,7 @@
                     <exclusion>
                         <groupId>com.meidusa.venus</groupId>
                         <artifactId>venus-backend</artifactId>
-                    </exclusion>
-
-                    <exclusion>
-                        <groupId>com.ctrip.infosec.sars</groupId>
-                        <artifactId>sars-util</artifactId>
-                    </exclusion>
-
-                    <exclusion>
-                        <groupId>com.ctrip.infosec.sars</groupId>
-                        <artifactId>sars-util</artifactId>
-                    </exclusion>
-
-                    <exclusion>
-                        <groupId>com.ctrip.infosec.antifraud</groupId>
-                        <artifactId>configs-client</artifactId>
-                    </exclusion>
+                    </exclusion>-->
 
                     <exclusion>
                         <groupId>com.ctrip.datasource</groupId>

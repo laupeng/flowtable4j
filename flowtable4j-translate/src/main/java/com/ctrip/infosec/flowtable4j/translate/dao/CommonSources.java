@@ -43,6 +43,7 @@ public class CommonSources
      */
     public Map getCityAndProv(String mobilePhone)
     {
+        long now = System.currentTimeMillis();
         Map mobileInfo = null;
         try
         {
@@ -53,12 +54,14 @@ public class CommonSources
         {
             logger.warn("从sql查询手机号对应的城市信息异常:",exp);
         }
+        logger.info("getCityAndProv的查询sqlServer的时间是："+(System.currentTimeMillis()-now));
         return mobileInfo;//这里取出里面的是 CityName 和 ProvinceName 这两个字段
     }
 
     //获取当前IP所在地信息(Top 1 OrderBy IpStart Desc)  IpCountryCity
     public Map getIpCountryCity(long ipValue)
     {
+        long now = System.currentTimeMillis();
         Map ipInfo = null;
         try{
             String sqlCommand = "SELECT Top 1 * FROM IpCountryCity with (nolock) WHERE IpStart <= "+ipValue +" ORDER BY IpStart DESC ";//FIXME 这里问徐洪修正
@@ -67,198 +70,223 @@ public class CommonSources
         {
             logger.warn("查询ip对应的城市信息异常:",exp);
         }
+        logger.info("getIpCountryCity的查询sqlServer的时间是："+(System.currentTimeMillis()-now));
         return ipInfo;
     }
 
     public Map getDIDInfo(String orderId,String orderType)
     {
+        long now = System.currentTimeMillis();
         Map DIDInfo = null;
         try{
             String sqlCommand = "SELECT TOP 1 * FROM RiskCtrlPreProcDB.dbo.CacheData_DeviceIDInfo with (nolock) WHERE [CacheData_DeviceIDInfo].[Oid] = "+"'"+orderId+"'" +
                     " and [CacheData_DeviceIDInfo].[Payid] = "+"'"+orderType+"'" + " order by [CacheData_DeviceIDInfo].[RecordID] desc";
             DIDInfo = riskCtrlPreProcDBTemplate.queryForMap(sqlCommand);
-            return DIDInfo;
         }catch (Exception exp)
         {
-            //log for warn
-            return DIDInfo;
+            logger.warn("查询DID信息异常:",exp);
         }
+        logger.info("getDIDInfo的查询sqlServer的时间是："+(System.currentTimeMillis()-now));
+        return DIDInfo;
     }
 
 
     public Map getMainInfo(String orderType,String orderId)
     {
+        long now = System.currentTimeMillis();
         Map mainInfo = null;
         try{
             String commandText = "SELECT top 1 * from InfoSecurity_MainInfo with (nolock) where [InfoSecurity_MainInfo].[OrderType] = "
                     +orderType +" and [InfoSecurity_MainInfo].[OrderId] = "+orderId+" order by [InfoSecurity_MainInfo].ReqID desc";
             mainInfo = cardRiskDBTemplate.queryForMap(commandText);
-            return mainInfo;
         }catch (Exception exp)
         {
-            return mainInfo;
+            logger.warn("查询MainInfo信息异常:",exp);
         }
+        logger.info("getDIDInfo的查询sqlServer的时间是："+(System.currentTimeMillis()-now));
+        return mainInfo;
     }
 
     public Map getCardInfo(String cardTypeId,String cardBin)
     {
+        long now = System.currentTimeMillis();
         Map cardInfo = null;
         try{
             String commandText = "SELECT * from CreditCardRule_ForeignCard with (nolock) where CardTypeID = "+cardTypeId
                     +" and CardRule = "+cardBin;
             cardInfo = cardRiskDBTemplate.queryForMap(commandText);
-            return cardInfo;
         }catch(Exception exp)
         {
-            return cardInfo;
+            logger.warn("查询CardInfo信息异常:",exp);
         }
+        logger.info("getDIDInfo的查询sqlServer的时间是："+(System.currentTimeMillis()-now));
+        return cardInfo;
     }
 
     public List<Map<String, Object>> getListPaymentInfo(long lastReqID)
     {
+        long now = System.currentTimeMillis();
         List<Map<String, Object>> paymentInfoList = null;//这里的泛型类型到时根据数据库的数据来确定
         try{
             String commandText = "select * from InfoSecurity_PaymentInfo with (nolock) where [InfoSecurity_PaymentInfo].[ReqID] = " +
                     lastReqID;
             paymentInfoList = cardRiskDBTemplate.queryForList(commandText);
-            return paymentInfoList;
         }catch(Exception exp)
         {
-            return paymentInfoList;
+            logger.warn("查询PaymentInfo信息异常:",exp);
         }
+        logger.info("getListPaymentInfo的查询sqlServer的时间是："+(System.currentTimeMillis()-now));
+        return paymentInfoList;
     }
 
     public List<Map<String, Object>> getListCardInfo(String paymentInfoId)
     {
+        long now = System.currentTimeMillis();
         List<Map<String, Object>> cardInfoList = null;
         try
         {
             String commandText = "select * from InfoSecurity_CardInfo with (nolock) where [InfoSecurity_CardInfo].[PaymentInfoID] =" +
                     paymentInfoId;
             cardInfoList = cardRiskDBTemplate.queryForList(commandText);
-            return cardInfoList;
         }catch(Exception exp)
         {
-            return cardInfoList;
+            logger.warn("查询ListCardInfo信息异常:",exp);
         }
+        logger.info("getListCardInfo的查询sqlServer的时间是："+(System.currentTimeMillis()-now));
+        return cardInfoList;
     }
 
     //获取mainInfo信息
     public Map getPaymentMainInfo(long reqId)
     {
+        long now = System.currentTimeMillis();
         Map paymentMainInfo = null;
         try{
             String commandText = "select * from InfoSecurity_PaymentMainInfo with (nolock) where [InfoSecurity_PaymentMainInfo].[ReqID] = " +
                     reqId;
             paymentMainInfo = cardRiskDBTemplate.queryForMap(commandText);
-            return paymentMainInfo;
         }catch(Exception exp)
         {
-            return paymentMainInfo;
+            logger.warn("查询PaymentMainInfo信息异常:",exp);
         }
+        logger.info("getPaymentMainInfo的查询sqlServer的时间是："+(System.currentTimeMillis()-now));
+        return paymentMainInfo;
     }
 
     //通过lastReqId获取联系人信息
     public Map getContactInfo(long reqId)
     {
+        long now = System.currentTimeMillis();
         Map contactInfo = null;
         try{
             String commandText = "select * from CardRiskDB..InfoSecurity_ContactInfo with (nolock) where [InfoSecurity_ContactInfo].[ReqID] = " +
                     reqId;
             contactInfo = cardRiskDBTemplate.queryForMap(commandText);
-            return contactInfo;
         }catch(Exception exp)
         {
-            return contactInfo;
+            logger.warn("查询ContactInfo信息异常:",exp);
         }
+        logger.info("getContactInfo的查询sqlServer的时间是："+(System.currentTimeMillis()-now));
+        return contactInfo;
     }
 
     //通过lastReqId获取用户信息
     public Map getUserInfo(long reqId)
     {
+        long now = System.currentTimeMillis();
         Map userInfo = null;
         try{
             String commandText = "select * from InfoSecurity_UserInfo with (nolock) where [InfoSecurity_UserInfo].[ReqID] = " +
                     reqId;
             userInfo = cardRiskDBTemplate.queryForMap(commandText);
-            return userInfo;
         }catch(Exception exp)
         {
-            return userInfo;
+            logger.warn("查询UserInfo信息异常:",exp);
         }
+        logger.info("getUserInfo的查询sqlServer的时间是："+(System.currentTimeMillis()-now));
+        return userInfo;
     }
     //通过lastReqId获取ip信息
     public Map getIpInfo(long reqId)
     {
+        long now = System.currentTimeMillis();
         Map ipInfo = null;
         try{
             String commandText = "select * from InfoSecurity_IPInfo with (nolock) where [InfoSecurity_IPInfo].[ReqID] = " +
                     reqId;
             ipInfo = cardRiskDBTemplate.queryForMap(commandText);
-            return ipInfo;
         }catch(Exception exp)
         {
-            return ipInfo;
+            logger.warn("查询IpInfo信息异常:",exp);
         }
+        logger.info("getIpInfo的查询sqlServer的时间是："+(System.currentTimeMillis()-now));
+        return ipInfo;
     }
 
     //通过lastReqId获取其他信息
     public Map getOtherInfo(long reqId)
     {
+        long now = System.currentTimeMillis();
         Map otherInfo = null;
         try{
             String commandText = "select * from InfoSecurity_OtherInfo with (nolock) where [InfoSecurity_OtherInfo].[ReqID] = " +
                     reqId;
             otherInfo = cardRiskDBTemplate.queryForMap(commandText);
-            return otherInfo;
         }catch(Exception exp)
         {
-            return otherInfo;
+            logger.warn("查询OtherInfo信息异常:",exp);
         }
+        logger.info("getOtherInfo的查询sqlServer的时间是："+(System.currentTimeMillis()-now));
+        return otherInfo;
     }
 
     //获取上次主支付信息
     public Map getMainPrepayType(String orderType,String orderId)
     {
+        long now = System.currentTimeMillis();
         Map payInfo = null;
         try{
             String commandText = "select top 1 * from CardRiskDB.dbo.InfoSecurity_RiskLevelData with (nolock) where [InfoSecurity_RiskLevelData].OrderType" +
                     " = "+orderType+" and [InfoSecurity_RiskLevelData].OrderId = "+orderId +" ORDER BY [InfoSecurity_RiskLevelData].ReqID DESC";
             payInfo = cardRiskDBTemplate.queryForMap(commandText);
-            return payInfo;
         }catch(Exception exp)
         {
-            return payInfo;
+            logger.warn("查询MainPrepayType信息异常:",exp);
         }
+        logger.info("getMainPrepayType的查询sqlServer的时间是："+(System.currentTimeMillis()-now));
+        return payInfo;
     }
 
     //根据ipCity获取对应的城市名称
     public Map getCityInfo(String city)
     {
+        long now = System.currentTimeMillis();
         Map cityInfo = null;
         try{
             String commandText = "select top 1 * from BaseData_City with (nolock) where city = "+city;
             cityInfo = cardRiskDBTemplate.queryForMap(commandText);
-            return cityInfo;
         }catch (Exception exp)
         {
-            return cityInfo;
+            logger.warn("查询CityInfo信息异常:",exp);
         }
+        logger.info("getCityInfo的查询sqlServer的时间是："+(System.currentTimeMillis()-now));
+        return cityInfo;
     }
 
     public Map getLeakedInfo(String uid)
     {
+        long now = System.currentTimeMillis();
         Map leakInfo = null;
         try{
             String commandText = "select top 1 * from CUSRATDB..CardRisk_Leaked_Uid with (nolock) where [CardRisk_Leaked_Uid].[Uid] = '" +
                     uid+"'";
             leakInfo = cUSRATDBTemplate.queryForMap(commandText);
-            return leakInfo;
         }catch(Exception exp)
         {
             logger.warn("getLeakedInfo查询异常"+exp.getMessage());
-            return leakInfo;
         }
+        logger.info("getLeakedInfo的时间是"+(System.currentTimeMillis()-now));
+        return leakInfo;
     }
 
     /**
@@ -271,6 +299,7 @@ public class CommonSources
      */
     public int getOriginalRisklevel(Map params,String timeLimitStr,String nowTimeStr)
     {
+        long now = System.currentTimeMillis();
         int countValue = 0;
         //遍历每一个属性
         Iterator iterator = params.keySet().iterator();
@@ -317,22 +346,24 @@ public class CommonSources
                 logger.warn("getOriginalRisklevel获取数据异常"+exp.getMessage());
             }
         }
+        logger.info("getOriginalRisklevel的时间是"+(System.currentTimeMillis()-now));
         return countValue;
     }
 
     //通过lastReqId获取酒店团购信息
     public List<Map<String,Object>> getProductInfo(long reqId)
     {
+        long now = System.currentTimeMillis();
         List<Map<String,Object>> productInfo = null;
         try{
             String commandText = "select * from InfoSecurity_HotelGroupInfo with (nolock) where [InfoSecurity_HotelGroupInfo].[ReqID] = " +
                     reqId;
             productInfo = cardRiskDBTemplate.queryForList(commandText);
-            return productInfo;
         }catch(Exception exp)
         {
             logger.warn("查询产品信息异常",exp);
-            return productInfo;
         }
+        logger.info("getProductInfo的时间是"+(System.currentTimeMillis()-now));
+        return productInfo;
     }
 }
