@@ -47,7 +47,10 @@ public class FlowTableRESTfulController {
     public @ResponseBody
     CheckFact preProcess(@RequestBody Map data)
     {
-        return preProcessor.execute(data);
+        long now  = System.currentTimeMillis();
+        CheckFact checkFact =preProcessor.execute(data);
+        logger.info("总的执行时间是;"+(System.currentTimeMillis()-now));
+        return checkFact;
     }
 
     @RequestMapping(value="/checkPayAdapt")

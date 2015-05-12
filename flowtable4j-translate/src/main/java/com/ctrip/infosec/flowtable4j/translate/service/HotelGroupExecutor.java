@@ -56,8 +56,10 @@ public class HotelGroupExecutor implements Executor
             logger.info("开始处理酒店团购 "+data.get("OrderID").toString()+" 数据");
             long now = System.currentTimeMillis();
             //一：补充数据
+            long now5 = System.currentTimeMillis();
             commonExecutor.complementData(dataFact,data);
-//            dataFact.mainInfo.put(Common.OrderType,14);//添加订单类型 酒店团购是14
+            logger.info("公共补充数据的时间是:"+(System.currentTimeMillis()-now5));
+
             //这里分checkType 0、1和2两种情况
             int checkType = Integer.parseInt(getValue(data, Common.CheckType));
             if(checkType == 0 ||checkType == 1)
@@ -78,6 +80,7 @@ public class HotelGroupExecutor implements Executor
             //三：流量实体数据
             long now2 = System.currentTimeMillis();
             Map<String,Object> flowData = commonExecutor.convertToFlowRuleCheckItem(dataFact,data);
+            logger.info("通用流量实体执行时间:"+(System.currentTimeMillis()-now2));
             //支付衍生字段
             List<Map> paymentInfos = dataFact.paymentInfoList;
             for(Map paymentInfo : paymentInfos)

@@ -32,6 +32,14 @@
 		<CLogging.serverPort>63100</CLogging.serverPort>
 		<Configs.Caches.url>http://10.2.10.76:8080/configsws/rest/loadconfig</Configs.Caches.url>
 		<EventWS>http://10.2.10.77:8080/eventws/execute</EventWS>
+        <!--预处理-->
+        <ESB.serviceUrl>http://soa.fws.qa.nt.ctripcorp.com/SOA.ESB/Ctrip.SOA.ESB.asmx?WSDL</ESB.serviceUrl>
+        <DataProxy.REST.URL.Prefix>http://ws.userprofile.infosec.fat70.qa.nt.ctripcorp.com:8080/userprofilews</DataProxy.REST.URL.Prefix>
+        <DataProxy.Venus.ipAddressList>10.2.9.130:16800</DataProxy.Venus.ipAddressList>
+
+        <CardInfo.REST.URL.Prefix>http://soa.fws.qa.nt.ctripcorp.com/SOA.ESB/Ctrip.SOA.ESB.asmx</CardInfo.REST.URL.Prefix>
+        <Configs.URL>http://10.2.10.76:8080/configsws/rest/loadconfig</Configs.URL>
+        <Configs.Trace.URL>http://10.2.10.76:8080/configsws/rest/trace</Configs.Trace.URL>
 	</dev>
 	<test>
 		<DBDataCenter></DBDataCenter>
@@ -46,6 +54,14 @@
 		<CLogging.serverPort>63100</CLogging.serverPort>
 		<Configs.Caches.url>http://10.2.10.76:8080/configsws/rest/loadconfig</Configs.Caches.url>
 		<EventWS>http://10.2.10.77:8080/eventws/execute</EventWS>
+        <!--预处理-->
+        <ESB.serviceUrl>http://soa.fws.qa.nt.ctripcorp.com/SOA.ESB/Ctrip.SOA.ESB.asmx?WSDL</ESB.serviceUrl>
+        <DataProxy.REST.URL.Prefix>http://ws.userprofile.infosec.fat70.qa.nt.ctripcorp.com:8080/userprofilews</DataProxy.REST.URL.Prefix>
+        <DataProxy.Venus.ipAddressList>10.2.9.130:16800</DataProxy.Venus.ipAddressList>
+
+        <CardInfo.REST.URL.Prefix>http://soa.fws.qa.nt.ctripcorp.com/SOA.ESB/Ctrip.SOA.ESB.asmx</CardInfo.REST.URL.Prefix>
+        <Configs.URL>http://10.2.10.76:8080/configsws/rest/loadconfig</Configs.URL>
+        <Configs.Trace.URL>http://10.2.10.76:8080/configsws/rest/trace</Configs.Trace.URL>
 	</test>
 	<fws>
 		<DBDataCenter></DBDataCenter>
@@ -60,6 +76,14 @@
 		<CLogging.serverPort>63100</CLogging.serverPort>
 		<Configs.Caches.url>http://10.2.10.76:8080/configsws/rest/loadconfig</Configs.Caches.url>
 		<EventWS>http://10.2.10.77:8080/eventws/execute</EventWS>
+        <!--预处理-->
+        <ESB.serviceUrl>http://soa.fws.qa.nt.ctripcorp.com/SOA.ESB/Ctrip.SOA.ESB.asmx?WSDL</ESB.serviceUrl>
+        <DataProxy.REST.URL.Prefix>http://ws.userprofile.infosec.fat70.qa.nt.ctripcorp.com:8080/userprofilews</DataProxy.REST.URL.Prefix>
+        <DataProxy.Venus.ipAddressList>10.2.9.130:16800</DataProxy.Venus.ipAddressList>
+
+        <CardInfo.REST.URL.Prefix>http://soa.fws.qa.nt.ctripcorp.com/SOA.ESB/Ctrip.SOA.ESB.asmx</CardInfo.REST.URL.Prefix>
+        <Configs.URL>http://10.2.10.76:8080/configsws/rest/loadconfig</Configs.URL>
+        <Configs.Trace.URL>http://10.2.10.76:8080/configsws/rest/trace</Configs.Trace.URL>
 	</fws>
 	<fat>
 		<DBDataCenter></DBDataCenter>
@@ -74,6 +98,14 @@
 		<CLogging.serverPort>63100</CLogging.serverPort>
 		<Configs.Caches.url>http://10.2.10.76:8080/configsws/rest/loadconfig</Configs.Caches.url>
 		<EventWS>http://10.2.10.77:8080/eventws/execute</EventWS>
+        <!--预处理-->
+        <ESB.serviceUrl>http://soa.fws.qa.nt.ctripcorp.com/SOA.ESB/Ctrip.SOA.ESB.asmx?WSDL</ESB.serviceUrl>
+        <DataProxy.REST.URL.Prefix>http://ws.userprofile.infosec.fat70.qa.nt.ctripcorp.com:8080/userprofilews</DataProxy.REST.URL.Prefix>
+        <DataProxy.Venus.ipAddressList>10.2.9.130:16800</DataProxy.Venus.ipAddressList>
+
+        <CardInfo.REST.URL.Prefix>http://soa.fws.qa.nt.ctripcorp.com/SOA.ESB/Ctrip.SOA.ESB.asmx</CardInfo.REST.URL.Prefix>
+        <Configs.URL>http://10.2.10.76:8080/configsws/rest/loadconfig</Configs.URL>
+        <Configs.Trace.URL>http://10.2.10.76:8080/configsws/rest/trace</Configs.Trace.URL>
 	</fat>
 	<lpt>
 		<DBDataCenter></DBDataCenter>
@@ -88,8 +120,15 @@
 		<CLogging.serverPort>63100</CLogging.serverPort>
 		<Configs.Caches.url>http://10.2.25.54:8080/configsws/rest/loadconfig</Configs.Caches.url>
 		<EventWS>http://10.2.10.77:8080/eventws/execute</EventWS>
-	</lpt
-			>
+        <!--预处理-->
+        <ESB.serviceUrl>http://soa.fws.qa.nt.ctripcorp.com/SOA.ESB/Ctrip.SOA.ESB.asmx?WSDL</ESB.serviceUrl>
+        <DataProxy.REST.URL.Prefix>http://ws.userprofile.infosec.fat70.qa.nt.ctripcorp.com:8080/userprofilews</DataProxy.REST.URL.Prefix>
+        <DataProxy.Venus.ipAddressList>10.2.9.130:16800</DataProxy.Venus.ipAddressList>
+
+        <CardInfo.REST.URL.Prefix>http://soa.fws.qa.nt.ctripcorp.com/SOA.ESB/Ctrip.SOA.ESB.asmx</CardInfo.REST.URL.Prefix>
+        <Configs.URL>http://10.2.10.76:8080/configsws/rest/loadconfig</Configs.URL>
+        <Configs.Trace.URL>http://10.2.10.76:8080/configsws/rest/trace</Configs.Trace.URL>
+	</lpt>
 	<uat>
 		<DBDataCenter></DBDataCenter>
 		<AppID>100000807</AppID>
@@ -103,6 +142,14 @@
 		<CLogging.serverPort>63100</CLogging.serverPort>
 		<Configs.Caches.url>http://10.2.25.54:8080/configsws/rest/loadconfig</Configs.Caches.url>
 		<EventWS>http://10.2.25.54:8080/eventws/execute</EventWS>
+        <!--预处理-->
+        <ESB.serviceUrl>http://soa.uat.qa.nt.ctripcorp.com/SOA.ESB/Ctrip.SOA.ESB.asmx?WSDL</ESB.serviceUrl>
+        <DataProxy.REST.URL.Prefix>http://ws.userprofile.infosec.uat.qa.nt.ctripcorp.com:8081/userprofilews</DataProxy.REST.URL.Prefix>
+        <DataProxy.Venus.ipAddressList>10.2.24.244:16800</DataProxy.Venus.ipAddressList>
+
+        <CardInfo.REST.URL.Prefix>http://soa.uat.qa.nt.ctripcorp.com/SOA.ESB/Ctrip.SOA.ESB.asmx</CardInfo.REST.URL.Prefix>
+        <Configs.URL>http://10.2.25.53:8080/configsws/rest/loadconfig</Configs.URL>
+        <Configs.Trace.URL>http://10.2.25.53:8080/configsws/rest/trace</Configs.Trace.URL>
 	</uat>
 	<uat_nt>
 		<DBDataCenter></DBDataCenter>
@@ -117,6 +164,14 @@
 		<CLogging.serverPort>63100</CLogging.serverPort>
 		<Configs.Caches.url>http://10.2.25.54:8080/configsws/rest/loadconfig</Configs.Caches.url>
 		<EventWS>http://10.2.25.54:8080/eventws/execute</EventWS>
+        <!--预处理-->
+        <ESB.serviceUrl>http://soa.uat.qa.nt.ctripcorp.com/SOA.ESB/Ctrip.SOA.ESB.asmx?WSDL</ESB.serviceUrl>
+        <DataProxy.REST.URL.Prefix>http://ws.userprofile.infosec.uat.qa.nt.ctripcorp.com:8081/userprofilews</DataProxy.REST.URL.Prefix>
+        <DataProxy.Venus.ipAddressList>10.2.24.244:16800</DataProxy.Venus.ipAddressList>
+
+        <CardInfo.REST.URL.Prefix>http://soa.uat.qa.nt.ctripcorp.com/SOA.ESB/Ctrip.SOA.ESB.asmx</CardInfo.REST.URL.Prefix>
+        <Configs.URL>http://10.2.25.53:8080/configsws/rest/loadconfig</Configs.URL>
+        <Configs.Trace.URL>http://10.2.25.53:8080/configsws/rest/trace</Configs.Trace.URL>
 	</uat_nt>
 	<prd>
 		<DBDataCenter>_SH</DBDataCenter>
@@ -131,5 +186,13 @@
 		<CLogging.serverPort>63100</CLogging.serverPort>
 		<Configs.Caches.url>http://ws.configs.infosec.ctripcorp.com/configsws/rest/loadconfig</Configs.Caches.url>
 		<EventWS>http://ws.event.infosec.ctripcorp.com/eventws/execute</EventWS>
+        <!--预处理-->
+        <ESB.serviceUrl>http://soa.sh.ctriptravel.com/SOA.ESB/Ctrip.SOA.ESB.asmx?WSDL</ESB.serviceUrl>
+        <DataProxy.REST.URL.Prefix>http://ws.userprofile.infosec.ctripcorp.com/userprofilews</DataProxy.REST.URL.Prefix>
+        <DataProxy.Venus.ipAddressList>10.8.68.222:16800,10.8.68.223:16800,10.8.68.224:16800,10.8.68.225:16800</DataProxy.Venus.ipAddressList>
+
+        <CardInfo.REST.URL.Prefix>http://soa.sh.ctriptravel.com/SOA.ESB/Ctrip.SOA.ESB.asmx</CardInfo.REST.URL.Prefix>
+        <Configs.URL>http://ws.configs.infosec.ctripcorp.com/configsws/rest/loadconfig</Configs.URL>
+        <Configs.Trace.URL>http://ws.configs.infosec.ctripcorp.com/configsws/rest/trace</Configs.Trace.URL>
 	</prd>
 </profile>

@@ -30,8 +30,9 @@ import static com.ctrip.infosec.flowtable4j.translate.common.Utils.getValue;
 public class CommonExecutor
 {
     private Logger logger = LoggerFactory.getLogger(HotelGroupExecutor.class);
-    private ThreadPoolExecutor excutor = new ThreadPoolExecutor(25, 50, 60, TimeUnit.SECONDS, new SynchronousQueue(), new ThreadPoolExecutor.CallerRunsPolicy());
+    private ThreadPoolExecutor excutor = new ThreadPoolExecutor(10,30, 60, TimeUnit.SECONDS, new SynchronousQueue(), new ThreadPoolExecutor.CallerRunsPolicy());
     List<Callable<DataFact>> runs = Lists.newArrayList();
+    List<Callable<Map>> runsF = Lists.newArrayList();
     @Autowired
     CommonSources commonSources;
     @Autowired
@@ -48,6 +49,9 @@ public class CommonExecutor
         beforeInvoke();
         try{
             logger.info("开始补充"+data.get("OrderID")+"数据");
+            runs.clear();
+            runsF.clear();
+
             int checkType = Integer.parseInt(getValue(data, Common.CheckType));
             switch (checkType)
             {
@@ -107,7 +111,7 @@ public class CommonExecutor
             long t1 = System.currentTimeMillis();
             List<DataFact> rawResult = new ArrayList<DataFact>();
             try {
-                List<Future<DataFact>> result = excutor.invokeAll(runs, 1L, TimeUnit.SECONDS);
+                List<Future<DataFact>> result = excutor.invokeAll(runs, 500, TimeUnit.MILLISECONDS);
                 for (Future f : result) {
                     try {
                         if (f.isDone()) {
@@ -245,18 +249,17 @@ public class CommonExecutor
         //补充主要支付方式                                           自己添加的以便于后面使用
         commonOperation.fillMainOrderType(data);//这里面加一个字段 “OrderPrepayType”
 
-
         //FIXME 这里检查
         //并发执行
-        final DataFact dataFactCopy = BeanMapper.copy(dataFact, DataFact.class);
+        final DataFact dataFactCopy01 = BeanMapper.copy(dataFact, DataFact.class);
         final String mobilePhone = getValue(data,Common.MobilePhone);
         runs.add(new Callable<DataFact>() {
             @Override
             public DataFact call() throws Exception {
                 try {
                     long start = System.currentTimeMillis();
-                    commonOperation.fillMobilePhone(dataFactCopy,mobilePhone);//补充联系人手机对应的省
-                    return dataFactCopy;
+                    commonOperation.fillMobilePhone(dataFactCopy01,mobilePhone);//补充联系人手机对应的省
+                    return dataFactCopy01;
                 } catch (Exception e) {
                     logger.warn("invoke commonOperation fillMobilePhone failed.: ", e);
                 }
@@ -264,17 +267,18 @@ public class CommonExecutor
             }
         });
 
+        final DataFact dataFactCopy02 = BeanMapper.copy(dataFact, DataFact.class);
         final String uid = getValue(data,Common.Uid);
         runs.add(new Callable<DataFact>() {
             @Override
             public DataFact call() throws Exception {
                 try {
-                    commonOperation.fillUserInfo(dataFactCopy,uid);
-                    if(!getValue(dataFactCopy.userInfo,"Vip").toUpperCase().equals("T"))//如果UID信息中没有标明是VIP用户，则需要从CustomerInfo中获取//fixme 确认vip是不是每个产品都是这样
+                    commonOperation.fillUserInfo(dataFactCopy02,uid);
+                    if(!getValue(dataFactCopy02.userInfo,"Vip").toUpperCase().equals("T"))//如果UID信息中没有标明是VIP用户，则需要从CustomerInfo中获取//fixme 确认vip是不是每个产品都是这样
                     {
-                        commonOperation.fillUserCusCharacter(dataFactCopy,uid);//这里获取用户的用户属性（NEW,REPEAT,VIP） 这里有两个方法：1，直接调用esb，2，调用郁伟新增加的DataProxy
+                        commonOperation.fillUserCusCharacter(dataFactCopy02,uid);//这里获取用户的用户属性（NEW,REPEAT,VIP） 这里有两个方法：1，直接调用esb，2，调用郁伟新增加的DataProxy
                     }
-                    return dataFactCopy;
+                    return dataFactCopy02;
                 } catch (Exception e) {
                     logger.warn("invoke commonOperation fillUserInfo failed.: ", e);
                 }
@@ -282,14 +286,15 @@ public class CommonExecutor
             }
         });
 
+        final DataFact dataFactCopy03 = BeanMapper.copy(dataFact, DataFact.class);
         final String userIp = getValue(data,Common.UserIP);
         runs.add(new Callable<DataFact>() {
             @Override
             public DataFact call() throws Exception {
                 try {
                     long start = System.currentTimeMillis();
-                    commonOperation.fillIpInfo(dataFactCopy, userIp);
-                    return dataFactCopy;
+                    commonOperation.fillIpInfo(dataFactCopy03, userIp);
+                    return dataFactCopy03;
                 } catch (Exception e) {
                     logger.warn("invoke commonOperation fillIpInfo failed.: ", e);
                 }
@@ -297,6 +302,7 @@ public class CommonExecutor
             }
         });
 
+        final DataFact dataFactCopy04 = BeanMapper.copy(dataFact, DataFact.class);
         final String orderId = getValue(data,Common.OrderID);
         final String orderType = getValue(data,Common.OrderType);
         runs.add(new Callable<DataFact>() {
@@ -304,8 +310,8 @@ public class CommonExecutor
             public DataFact call() throws Exception {
                 try {
                     long start = System.currentTimeMillis();
-                    commonOperation.getDIDInfo(dataFactCopy, orderId, orderType);
-                    return dataFactCopy;
+                    commonOperation.getDIDInfo(dataFactCopy04, orderId, orderType);
+                    return dataFactCopy04;
                 } catch (Exception e) {
                     logger.warn("invoke commonOperation getDIDInfo failed.: ", e);
                 }
@@ -417,13 +423,11 @@ public class CommonExecutor
     public Map<String,Object> convertToFlowRuleCheckItem(DataFact dataFact,Map data)
     {
         beforeInvoke();
-        List<Callable<Map>> runsF = Lists.newArrayList();
         Map<String,Object> flowData = new HashMap();
         try{
             logger.info("开始构造"+data.get("OrderID")+"流量表数据");
             //InfoSecurity_MainInfo
             flowData.putAll(dataFact.mainInfo);
-
             SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.sss");
             String orderDateStr = getValue(dataFact.mainInfo,Common.OrderDate);
             try
@@ -505,32 +509,24 @@ public class CommonExecutor
 
             //并发执行
             runs.clear();
-            final DataFact dataFactCopy = BeanMapper.copy(dataFact, DataFact.class);
-            final Map flowDataCopy = BeanMapper.copy(flowData,Map.class);
-            final Map dataCopy = BeanMapper.copy(data,Map.class);
-
+            final String bindedMobiePhone = getValue(dataFact.userInfo,Common.BindedMobilePhone);
+            final String relatedMobiePhone = getValue(data,Common.RelatedMobilephone);
+            final Map flowDataCopy01 = BeanMapper.copy(flowData,Map.class);
             runsF.add(new Callable<Map>() {
                 @Override
                 public Map call() throws Exception {
                     try {
-                        long start = System.currentTimeMillis();
-                       if(dataFactCopy.userInfo.get(Common.BindedMobilePhone) != null && dataFactCopy.userInfo.get(Common.BindedMobilePhone).toString().length()>7)
+                        Map cityInfo = commonSources.getCityAndProv(bindedMobiePhone);
+                        if(cityInfo != null)
                         {
-                            Map cityInfo = commonSources.getCityAndProv(dataFactCopy.userInfo.get(Common.BindedMobilePhone).toString());
-                            if(cityInfo != null)
-                            {
-                                flowDataCopy.putAll(cityInfo);
-                            }
+                            flowDataCopy01.putAll(cityInfo);
                         }
-                        if(dataFactCopy.userInfo.get(Common.RelatedMobilephone) != null && dataFactCopy.userInfo.get(Common.RelatedMobilephone).toString().length()>7)
+                        Map cityInfo1 = commonSources.getCityAndProv(relatedMobiePhone);
+                        if(cityInfo1 != null)
                         {
-                            Map cityInfo = commonSources.getCityAndProv(dataCopy.get(Common.RelatedMobilephone).toString());
-                            if(cityInfo != null)
-                            {
-                                flowDataCopy.putAll(cityInfo);
-                            }
+                            flowDataCopy01.putAll(cityInfo1);
                         }
-                        return flowDataCopy;
+                        return flowDataCopy01;
                     } catch (Exception e) {
                         logger.warn("invoke commonOperation fillMobilePhone failed.: ", e);
                     }
@@ -538,17 +534,19 @@ public class CommonExecutor
                 }
             });
 
+            final String uid = getValue(dataFact.userInfo,Common.Uid);
+            final Map flowDataCopy02 = BeanMapper.copy(flowData,Map.class);
             runsF.add(new Callable<Map>() {
                 @Override
                 public Map call() throws Exception {
                     try {
                         long start = System.currentTimeMillis();
-                        Map leakInfo = commonSources.getLeakedInfo(getValue(dataFactCopy.userInfo, Common.Uid));
+                        Map leakInfo = commonSources.getLeakedInfo(uid);
                         if(leakInfo != null && leakInfo.size()>0)
                         {
-                            flowDataCopy.put(Common.UidActive,leakInfo.get("Active"));
+                            flowDataCopy02.put(Common.UidActive,leakInfo.get("Active"));
                         }
-                        return flowDataCopy;
+                        return flowDataCopy02;
                     } catch (Exception e) {
                         logger.warn("invoke commonOperation fillMobilePhone failed.: ", e);
                     }
@@ -556,17 +554,17 @@ public class CommonExecutor
                 }
             });
 
+            final Map flowDataCopy03 = BeanMapper.copy(flowData,Map.class);
+            final Map<String,Object> temp = new HashMap();
+            temp.put("Uid",getValue(dataFact.userInfo,Common.Uid));
+            temp.put("ContactEMail",getValue(dataFact.contactInfo,Common.ContactEMail));
+            temp.put("MobilePhone",getValue(dataFact.contactInfo, Common.MobilePhone));
+            temp.put("CCardNoCode",getValue(flowDataCopy03,Common.CCardNoCode));
             runsF.add(new Callable<Map>() {
                 @Override
                 public Map call() throws Exception {
                     try {
                         long toCompute = System.currentTimeMillis();
-                        Map<String,Object> temp = new HashMap();
-                        temp.put("Uid",getValue(dataFactCopy.userInfo,Common.Uid));
-                        temp.put("ContactEMail",getValue(dataFactCopy.contactInfo,Common.ContactEMail));
-                        temp.put("MobilePhone",getValue(dataFactCopy.contactInfo, Common.MobilePhone));
-                        temp.put("CCardNoCode",getValue(flowDataCopy,Common.CCardNoCode));
-
                         Date date = new Date(System.currentTimeMillis());
                         SimpleDateFormat format1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.sss");
                         String nowTimeStr = format1.format(date);
@@ -577,8 +575,8 @@ public class CommonExecutor
                         String timeLimitStr = format1.format(calendar.getTime());
 
                         int count = commonSources.getOriginalRisklevel(temp,timeLimitStr,nowTimeStr);
-                        flowDataCopy.put(Common.OriginalRisklevelCount,count);
-                        return flowDataCopy;
+                        flowDataCopy03.put(Common.OriginalRisklevelCount,count);
+                        return flowDataCopy03;
                     } catch (Exception e) {
                         logger.warn("invoke commonOperation fillMobilePhone failed.: ", e);
                     }
@@ -589,7 +587,7 @@ public class CommonExecutor
             long t2 = System.currentTimeMillis();
             List<Map> rawResult = new ArrayList<Map>();
             try {
-                List<Future<Map>> result = excutor.invokeAll(runsF, 1L, TimeUnit.SECONDS);
+                List<Future<Map>> result = excutor.invokeAll(runsF, 500, TimeUnit.MILLISECONDS);
                 for (Future f : result) {
                     try {
                         if (f.isDone()) {

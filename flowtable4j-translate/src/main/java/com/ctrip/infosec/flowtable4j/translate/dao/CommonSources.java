@@ -52,7 +52,7 @@ public class CommonSources
             mobileInfo = cardRiskDBTemplate.queryForMap(sqlCommand);
         }catch(Exception exp)
         {
-            logger.warn("从sql查询手机号对应的城市信息异常:",exp);
+            logger.warn("从sql查询手机号对应的城市信息异常:"+exp.getMessage());
         }
         logger.info("getCityAndProv的查询sqlServer的时间是："+(System.currentTimeMillis()-now));
         return mobileInfo;//这里取出里面的是 CityName 和 ProvinceName 这两个字段
@@ -84,7 +84,7 @@ public class CommonSources
             DIDInfo = riskCtrlPreProcDBTemplate.queryForMap(sqlCommand);
         }catch (Exception exp)
         {
-            logger.warn("查询DID信息异常:",exp);
+            logger.warn("查询DID信息异常:"+exp.getMessage());
         }
         logger.info("getDIDInfo的查询sqlServer的时间是："+(System.currentTimeMillis()-now));
         return DIDInfo;
@@ -267,7 +267,7 @@ public class CommonSources
             cityInfo = cardRiskDBTemplate.queryForMap(commandText);
         }catch (Exception exp)
         {
-            logger.warn("查询CityInfo信息异常:",exp);
+            logger.warn("查询CityInfo信息异常:"+exp.getMessage());
         }
         logger.info("getCityInfo的查询sqlServer的时间是："+(System.currentTimeMillis()-now));
         return cityInfo;
