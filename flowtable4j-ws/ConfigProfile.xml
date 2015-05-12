@@ -58,8 +58,9 @@
 		<!-- CLogging -->
 		<CLogging.serverIp>collector.logging.uat.qa.nt.ctripcorp.com</CLogging.serverIp>
 		<CLogging.serverPort>63100</CLogging.serverPort>
-		<Configs.Caches.url>http://10.2.10.76:8080/configsws/rest/loadconfig</Configs.Caches.url></fws>
+		<Configs.Caches.url>http://10.2.10.76:8080/configsws/rest/loadconfig</Configs.Caches.url>
 		<EventWS>http://10.2.10.77:8080/eventws/execute</EventWS>
+	</fws>
 	<fat>
 		<DBDataCenter></DBDataCenter>
 		<AppID>100000807</AppID>
@@ -73,7 +74,6 @@
 		<CLogging.serverPort>63100</CLogging.serverPort>
 		<Configs.Caches.url>http://10.2.10.76:8080/configsws/rest/loadconfig</Configs.Caches.url>
 		<EventWS>http://10.2.10.77:8080/eventws/execute</EventWS>
-
 	</fat>
 	<lpt>
 		<DBDataCenter></DBDataCenter>
@@ -114,8 +114,9 @@
 		<!-- CLogging -->
 		<CLogging.serverIp>collector.logging.uat.qa.nt.ctripcorp.com</CLogging.serverIp>
 		<CLogging.serverPort>63100</CLogging.serverPort>
-		<Configs.Caches.url>http://10.2.25.54:8080/configsws/rest/loadconfig</Configs.Caches.url></uat_nt>
+		<Configs.Caches.url>http://10.2.25.54:8080/configsws/rest/loadconfig</Configs.Caches.url>
 		<EventWS>http://10.2.25.54:8080/eventws/execute</EventWS>
+	</uat_nt>
 	<prd>
 		<DBDataCenter>_SH</DBDataCenter>
 		<AppID>100000807</AppID>
