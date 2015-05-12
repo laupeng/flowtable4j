@@ -88,7 +88,8 @@
 		<CLogging.serverPort>63100</CLogging.serverPort>
 		<Configs.Caches.url>http://10.2.25.54:8080/configsws/rest/loadconfig</Configs.Caches.url>
 		<EventWS>http://10.2.10.77:8080/eventws/execute</EventWS>
-	</lpt>
+	</lpt
+			>
 	<uat>
 		<DBDataCenter></DBDataCenter>
 		<AppID>100000807</AppID>

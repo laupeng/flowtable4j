@@ -90,7 +90,7 @@ public class PaymentViaAccount {
      * @param dic_allRules
      * @param response
      */
-    public void MergeRedisRules(Map<String, List<RedisStoreItem>> dic_allRules, Map<String, Integer> response) {
+    protected void MergeRedisRules(Map<String, List<RedisStoreItem>> dic_allRules, Map<String, Integer> response) {
         /**
          * 所有有效黑白名单
          */
@@ -144,7 +144,7 @@ public class PaymentViaAccount {
      * @param currentDate
      * @param ruleInfo
      */
-    private void getRuleByKey(Map<String, List<RedisStoreItem>> dic_allRules, String currentDate, Object ruleInfo) {
+    protected void getRuleByKey(Map<String, List<RedisStoreItem>> dic_allRules, String currentDate, Object ruleInfo) {
         if (ruleInfo instanceof KeyValue) {
             KeyValue val = (KeyValue) ruleInfo;
             List<RedisStoreItem> redisStoreItems = redisProvider.GetBWGFromRedis(val.getRuleKey());
