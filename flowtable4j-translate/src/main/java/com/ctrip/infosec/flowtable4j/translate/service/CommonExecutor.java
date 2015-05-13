@@ -177,7 +177,7 @@ public class CommonExecutor
             long t1 = System.currentTimeMillis();
             List<DataFact> rawResult = new ArrayList<DataFact>();
             try {
-                List<Future<DataFact>> result = excutor.invokeAll(runs, 500, TimeUnit.MILLISECONDS);
+                List<Future<DataFact>> result = excutor.invokeAll(runs, 1000, TimeUnit.MILLISECONDS);
                 for (Future f : result) {
                     try {
                         if (f.isDone()) {
@@ -187,7 +187,7 @@ public class CommonExecutor
                             f.cancel(true);
                         }
                     } catch (Exception e) {
-                        logger.warn("f.get()执行异常");
+                        logger.warn("runs....f.get()执行异常",e);
                     }
                 }
             } catch (Exception e) {
@@ -520,6 +520,8 @@ public class CommonExecutor
 
             //InfoSecurity_ContactInfo
             flowData.putAll(dataFact.contactInfo);
+            flowData.put(Common.RelatedMobilePhoneCity,getValue(dataFact.contactInfo,Common.MobilePhoneCity));
+            flowData.put(Common.RelatedMobilePhoneProvince,getValue(dataFact.contactInfo,Common.MobilePhoneProvince));
 
             //InfoSecurity_OtherInfo
             flowData.putAll(dataFact.otherInfo);
@@ -539,9 +541,9 @@ public class CommonExecutor
             //DID
             flowData.put(Common.DID, getValue(dataFact.DIDInfo,Common.DID));
 
+
             //并发执行
             final String bindedMobiePhone = getValue(dataFact.userInfo,Common.BindedMobilePhone);
-            final String relatedMobiePhone = getValue(dataFact.userInfo,Common.RelatedMobilephone);
             final Map flowDataCopy01 = BeanMapper.copy(flowData,Map.class);
             runsF.add(new Callable<Map>() {
                 @Override
@@ -550,27 +552,10 @@ public class CommonExecutor
                         Map cityInfo = commonSources.getCityAndProv(bindedMobiePhone);
                         if(cityInfo != null)
                         {
-                            flowDataCopy01.putAll(cityInfo);
+                            flowDataCopy01.put(Common.RelatedMobilePhoneCity,getValue(cityInfo,Common.BindedMobilePhoneCity));
+                            flowDataCopy01.put(Common.RelatedMobilePhoneProvince,getValue(cityInfo,Common.BindedMobilePhoneProvince));
                         }
                         return flowDataCopy01;
-                    } catch (Exception e) {
-                        logger.warn("invoke commonOperation fillMobilePhone failed.: ", e);
-                    }
-                    return null;
-                }
-            });
-
-            final Map flowDataCopy001 = BeanMapper.copy(flowData,Map.class);
-            runsF.add(new Callable<Map>() {
-                @Override
-                public Map call() throws Exception {
-                    try {
-                        Map cityInfo = commonSources.getCityAndProv(relatedMobiePhone);
-                        if(cityInfo != null)
-                        {
-                            flowDataCopy001.putAll(cityInfo);
-                        }
-                        return flowDataCopy001;
                     } catch (Exception e) {
                         logger.warn("invoke commonOperation fillMobilePhone failed.: ", e);
                     }
@@ -630,7 +615,7 @@ public class CommonExecutor
             long t2 = System.currentTimeMillis();
             List<Map> rawResult = new ArrayList<Map>();
             try {
-                List<Future<Map>> result = excutor.invokeAll(runsF, 500, TimeUnit.MILLISECONDS);
+                List<Future<Map>> result = excutor.invokeAll(runsF, 1000, TimeUnit.MILLISECONDS);
                 for (Future f : result) {
                     try {
                         if (f.isDone()) {
@@ -640,7 +625,7 @@ public class CommonExecutor
                             f.cancel(true);
                         }
                     } catch (Exception e) {
-
+                        logger.warn("runsF...f.get()执行异常",e);
                     }
                 }
             } catch (Exception e) {

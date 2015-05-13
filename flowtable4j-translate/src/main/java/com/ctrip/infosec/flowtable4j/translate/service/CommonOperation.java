@@ -40,18 +40,14 @@ public class CommonOperation
      */
     public void fillMobilePhone(DataFact dataFact,String mobilePhone)
     {
-//        logger.info(data.get("OrderID")+"获取手机相关信息");
         if(mobilePhone == null || mobilePhone.length() <= 6)
             return;
         Map mobileInfo = commonSources.getCityAndProv(mobilePhone);
         if(mobileInfo != null && mobileInfo.size()>0)
         {
-//            dataFact.contactInfo.putAll(mobileInfo);
-            dataFact.contactInfo.put(Common.MobilePhoneCity,getValue(mobileInfo,"CityNam"));
+            dataFact.contactInfo.put(Common.MobilePhoneCity,getValue(mobileInfo,"CityName"));
             dataFact.contactInfo.put(Common.MobilePhoneProvince,getValue(mobileInfo,"ProvinceName"));
         }
-
-
     }
 
     /**
@@ -60,7 +56,6 @@ public class CommonOperation
      */
     public void fillUserCusCharacter(DataFact dataFact,String uid)//fixme  这里的获取用户等级信息的代码有点问题
     {
-//        logger.info(data.get("OrderID")+"获取用户等级相关信息");
         String serviceName = "UserProfileService";
         String operationName = "DataQuery";
         List tagContents = new ArrayList();
@@ -81,8 +76,6 @@ public class CommonOperation
      */
     public void fillIpInfo(DataFact dataFact,String userIp)
     {
-//        logger.info(data.get("OrderID")+"获取ip相关信息");
-//        String userIp = getValue(data,Common.UserIP);
         dataFact.ipInfo.put(Common.UserIPAdd, userIp);
         Long userIPValue = IpConvert.ipConvertTo10(userIp);
         dataFact.ipInfo.put(Common.UserIPValue,userIPValue);
@@ -184,8 +177,6 @@ public class CommonOperation
     //同上解释
     public void fillPaymentInfo1(DataFact dataFact,String lastReqID)//reqId :7186418
     {
-//        logger.info(data.get("OrderID")+"通过LastReqID获取支付信息");
-//        long lastReqID = Long.parseLong(getValue(data, Common.ReqID));
         List<Map<String, Object>> paymentInfos = commonSources.getListPaymentInfo(lastReqID);
         for(Map payment : paymentInfos)
         {
