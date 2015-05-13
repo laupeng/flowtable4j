@@ -178,6 +178,8 @@ public class CommonOperation
     public void fillPaymentInfo1(DataFact dataFact,String lastReqID)//reqId :7186418
     {
         List<Map<String, Object>> paymentInfos = commonSources.getListPaymentInfo(lastReqID);
+        if(paymentInfos == null || paymentInfos.size()<1)
+            return;
         for(Map payment : paymentInfos)
         {
             Map subPayInfo = new HashMap();

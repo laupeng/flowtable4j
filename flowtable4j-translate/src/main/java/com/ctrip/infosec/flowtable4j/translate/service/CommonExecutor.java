@@ -30,7 +30,7 @@ import static com.ctrip.infosec.flowtable4j.translate.common.Utils.getValue;
 public class CommonExecutor
 {
     private Logger logger = LoggerFactory.getLogger(HotelGroupExecutor.class);
-    private ThreadPoolExecutor excutor = new ThreadPoolExecutor(10,30, 60, TimeUnit.SECONDS, new SynchronousQueue(), new ThreadPoolExecutor.CallerRunsPolicy());
+    private ThreadPoolExecutor excutor = new ThreadPoolExecutor(64, 512, 60, TimeUnit.SECONDS, new SynchronousQueue(), new ThreadPoolExecutor.CallerRunsPolicy());
     List<Callable<DataFact>> runs = Lists.newArrayList();
     List<Callable<Map>> runsF = Lists.newArrayList();
     @Autowired
@@ -51,7 +51,7 @@ public class CommonExecutor
             logger.info("开始补充"+data.get("OrderID")+"数据");
             runs.clear();
             runsF.clear();
-
+            long test = System.currentTimeMillis();
             int checkType = Integer.parseInt(getValue(data, Common.CheckType));
             switch (checkType)
             {
@@ -172,6 +172,8 @@ public class CommonExecutor
                 default:
                     break;
             }
+
+            logger.info("执行第一个线程池的之前的时间是："+(System.currentTimeMillis()-test));
             //这里执行并发操作
             //并发执行
             long t1 = System.currentTimeMillis();
@@ -194,7 +196,6 @@ public class CommonExecutor
 
             }
             logger.info("第一个线程池的时间是："+(System.currentTimeMillis()-t1));
-            long tt1 = System.currentTimeMillis();
             if (rawResult.size() > 0){
                 //region Description          合并里面的所有信息 注意这里面没有产品信息
                 for(DataFact item : rawResult)
@@ -247,7 +248,6 @@ public class CommonExecutor
                 }
                 //endregion
             }
-            logger.info("遍历rawResult的时间是:"+(System.currentTimeMillis()-tt1));
             logger.info("补充"+data.get("OrderID")+"数据完毕");
         }catch (Exception exp)
         {
@@ -582,7 +582,8 @@ public class CommonExecutor
                 }
             });
 
-            final Map flowDataCopy03 = BeanMapper.copy(flowData,Map.class);
+            //region Description    这里面是计算一些属性的风险值 这个操作比较耗时，所以改进执行方式
+/*final Map flowDataCopy03 = BeanMapper.copy(flowData,Map.class);
             final Map<String,Object> temp = new HashMap();
             temp.put("Uid",getValue(dataFact.userInfo,Common.Uid));
             temp.put("ContactEMail",getValue(dataFact.contactInfo,Common.ContactEMail));
@@ -609,7 +610,8 @@ public class CommonExecutor
                     }
                     return null;
                 }
-            });
+            });*/
+            //endregion
 
             //并发执行
             long t2 = System.currentTimeMillis();

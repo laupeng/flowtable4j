@@ -54,11 +54,10 @@ public class HotelGroupExecutor implements Executor
         CheckFact checkFact = new CheckFact();
         try{
             logger.info("开始处理酒店团购 "+data.get("OrderID").toString()+" 数据");
-            long now = System.currentTimeMillis();
             //一：补充数据
             long now5 = System.currentTimeMillis();
             commonExecutor.complementData(dataFact,data);
-            logger.info("公共补充数据的时间是:"+(System.currentTimeMillis()-now5));
+            logger.info("complementData公共补充数据的时间是:"+(System.currentTimeMillis()-now5));
 
             //这里分checkType 0、1和2两种情况
             int checkType = Integer.parseInt(getValue(data, Common.CheckType));
@@ -71,12 +70,13 @@ public class HotelGroupExecutor implements Executor
                 getOtherInfo1(dataFact, data);
                 getHotelGroupProductInfo1(dataFact, data);
             }
-            logger.info("补充数据的时间是："+(System.currentTimeMillis()-now));
+            logger.info("一：公共补充数据的时间是:"+(System.currentTimeMillis()-now5));
             //二：黑白名单数据
             long now1 = System.currentTimeMillis();
             Map<String,Object> bwList = commonExecutor.convertToBlackCheckItem(dataFact,data);
             bwList.putAll(dataFact.productInfoM);
-            logger.info("补充数据的时间是："+(System.currentTimeMillis()-now1));
+            logger.info("补充黑白名单数据的时间是："+(System.currentTimeMillis()-now1));
+            logger.info("二：到黑白名单数据的时间是："+(System.currentTimeMillis()-now5));
             //三：流量实体数据
             long now2 = System.currentTimeMillis();
             Map<String,Object> flowData = commonExecutor.convertToFlowRuleCheckItem(dataFact,data);
@@ -100,7 +100,7 @@ public class HotelGroupExecutor implements Executor
                 }
                 break;
             }
-            logger.info("补充数据的时间是："+(System.currentTimeMillis()-now2));
+
             //产品信息加到流量实体
             flowData.putAll(dataFact.productInfoM);
 
@@ -117,6 +117,7 @@ public class HotelGroupExecutor implements Executor
             checkFact.setCheckTypes(checkTypes);
             if(data.get(HotelGroup.ReqID)!=null)
                 checkFact.setReqId(Long.parseLong(data.get(HotelGroup.ReqID).toString()));//reqId如何获取
+            logger.info("三：到补充流量数据的时间是："+(System.currentTimeMillis()-now5));
             logger.info(data.get("OrderID").toString()+" 数据处理完毕");
         }catch (Exception exp)
         {
@@ -150,7 +151,9 @@ public class HotelGroupExecutor implements Executor
     public void getOtherInfo1(DataFact dataFact,Map data)
     {
         String reqIdStr = getValue(data,Common.ReqID);
-        dataFact.otherInfo.putAll(commonSources.getOtherInfo(reqIdStr));
+        Map otherInfo = commonSources.getOtherInfo(reqIdStr);
+        if(otherInfo != null && otherInfo.size()>0)
+            dataFact.otherInfo.putAll(otherInfo);
     }
     /**
      * 获取铁友产品信息当checkType是0或1的时候

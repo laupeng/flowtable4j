@@ -101,7 +101,7 @@ public class CommonSources
             mainInfo = cardRiskDBTemplate.queryForMap(commandText);
         }catch (Exception exp)
         {
-            logger.warn("查询MainInfo信息异常:",exp);
+            logger.warn("查询MainInfo信息异常:"+exp.getMessage());
         }
         logger.info("getMainInfo的查询sqlServer的时间是："+(System.currentTimeMillis()-now));
         return mainInfo;
@@ -117,7 +117,7 @@ public class CommonSources
             cardInfo = cardRiskDBTemplate.queryForMap(commandText);
         }catch(Exception exp)
         {
-            logger.warn("查询CardInfo信息异常:",exp);
+            logger.warn("查询CardInfo信息异常:"+exp.getMessage());
         }
         logger.info("getDIDInfo的查询sqlServer的时间是："+(System.currentTimeMillis()-now));
         return cardInfo;
@@ -128,8 +128,8 @@ public class CommonSources
         long now = System.currentTimeMillis();
         List<Map<String, Object>> paymentInfoList = null;//这里的泛型类型到时根据数据库的数据来确定
         try{
-            String commandText = "select * from InfoSecurity_PaymentInfo with (nolock) where [InfoSecurity_PaymentInfo].[ReqID] = " +
-                    lastReqID;
+            String commandText = "select * from InfoSecurity_PaymentInfo with (nolock) where [InfoSecurity_PaymentInfo].[ReqID] = '" +
+                    lastReqID+"'";
             paymentInfoList = cardRiskDBTemplate.queryForList(commandText);
         }catch(Exception exp)
         {
@@ -162,12 +162,12 @@ public class CommonSources
         long now = System.currentTimeMillis();
         Map paymentMainInfo = null;
         try{
-            String commandText = "select * from InfoSecurity_PaymentMainInfo with (nolock) where [InfoSecurity_PaymentMainInfo].[ReqID] = " +
-                    reqId;
+            String commandText = "select * from InfoSecurity_PaymentMainInfo with (nolock) where [InfoSecurity_PaymentMainInfo].[ReqID] = '" +
+                    reqId+"'";
             paymentMainInfo = cardRiskDBTemplate.queryForMap(commandText);
         }catch(Exception exp)
         {
-            logger.warn("查询PaymentMainInfo信息异常:",exp);
+            logger.warn("查询PaymentMainInfo信息异常:"+exp.getMessage());
         }
         logger.info("getPaymentMainInfo的查询sqlServer的时间是："+(System.currentTimeMillis()-now));
         return paymentMainInfo;
@@ -179,12 +179,12 @@ public class CommonSources
         long now = System.currentTimeMillis();
         Map contactInfo = null;
         try{
-            String commandText = "select * from CardRiskDB..InfoSecurity_ContactInfo with (nolock) where [InfoSecurity_ContactInfo].[ReqID] = " +
-                    reqId;
+            String commandText = "select * from CardRiskDB..InfoSecurity_ContactInfo with (nolock) where [InfoSecurity_ContactInfo].[ReqID] = '" +
+                    reqId+"'";
             contactInfo = cardRiskDBTemplate.queryForMap(commandText);
         }catch(Exception exp)
         {
-            logger.warn("查询ContactInfo信息异常:",exp);
+            logger.warn("查询ContactInfo信息异常:"+exp.getMessage());
         }
         logger.info("getContactInfo的查询sqlServer的时间是："+(System.currentTimeMillis()-now));
         return contactInfo;
@@ -196,12 +196,12 @@ public class CommonSources
         long now = System.currentTimeMillis();
         Map userInfo = null;
         try{
-            String commandText = "select * from InfoSecurity_UserInfo with (nolock) where [InfoSecurity_UserInfo].[ReqID] = " +
-                    reqId;
+            String commandText = "select * from InfoSecurity_UserInfo with (nolock) where [InfoSecurity_UserInfo].[ReqID] = '" +
+                    reqId+"'";
             userInfo = cardRiskDBTemplate.queryForMap(commandText);
         }catch(Exception exp)
         {
-            logger.warn("查询UserInfo信息异常:",exp);
+            logger.warn("查询UserInfo信息异常:"+exp.getMessage());
         }
         logger.info("getUserInfo的查询sqlServer的时间是："+(System.currentTimeMillis()-now));
         return userInfo;
@@ -212,12 +212,12 @@ public class CommonSources
         long now = System.currentTimeMillis();
         Map ipInfo = null;
         try{
-            String commandText = "select * from InfoSecurity_IPInfo with (nolock) where [InfoSecurity_IPInfo].[ReqID] = " +
-                    reqId;
+            String commandText = "select * from InfoSecurity_IPInfo with (nolock) where [InfoSecurity_IPInfo].[ReqID] = '" +
+                    reqId+"'";
             ipInfo = cardRiskDBTemplate.queryForMap(commandText);
         }catch(Exception exp)
         {
-            logger.warn("查询IpInfo信息异常:",exp);
+            logger.warn("查询IpInfo信息异常:"+exp.getMessage());
         }
         logger.info("getIpInfo的查询sqlServer的时间是："+(System.currentTimeMillis()-now));
         return ipInfo;
@@ -229,12 +229,12 @@ public class CommonSources
         long now = System.currentTimeMillis();
         Map otherInfo = null;
         try{
-            String commandText = "select * from InfoSecurity_OtherInfo with (nolock) where [InfoSecurity_OtherInfo].[ReqID] = " +
-                    reqId;
+            String commandText = "select * from InfoSecurity_OtherInfo with (nolock) where [InfoSecurity_OtherInfo].[ReqID] = '" +
+                    reqId+"'";
             otherInfo = cardRiskDBTemplate.queryForMap(commandText);
         }catch(Exception exp)
         {
-            logger.warn("查询OtherInfo信息异常:",exp);
+            logger.warn("查询OtherInfo信息异常:"+exp.getMessage());
         }
         logger.info("getOtherInfo的查询sqlServer的时间是："+(System.currentTimeMillis()-now));
         return otherInfo;
@@ -251,7 +251,7 @@ public class CommonSources
             payInfo = cardRiskDBTemplate.queryForMap(commandText);
         }catch(Exception exp)
         {
-            logger.warn("查询MainPrepayType信息异常:",exp);
+            logger.warn("查询MainPrepayType信息异常:"+exp.getMessage());
         }
         logger.info("getMainPrepayType的查询sqlServer的时间是："+(System.currentTimeMillis()-now));
         return payInfo;
@@ -318,8 +318,9 @@ public class CommonSources
                         "join Def_RuleMatchField f1 (nolock) on t.KeyFieldID1 = f1.FieldID " +
                         "join Def_RuleMatchField f2 (nolock) on t.KeyFieldID2 = f2.FieldID " +
                         "where f2.ColumnName='OriginalRisklevel' and  f1.ColumnName= '"+key+"'";//添加key来关联字段
+                long test = System.currentTimeMillis();
                 allTableNames = cardRiskDBTemplate.queryForList(commandText);
-
+                logger.info("。。。。。。。。。。。。。。allTableNames时间："+(System.currentTimeMillis()-test));
                 Iterator iterator1 = allTableNames.iterator();
                 while(iterator1.hasNext())
                 {
@@ -334,7 +335,9 @@ public class CommonSources
 
                         String commandText1 = "select count(distinct originalrisklevel) from RiskCtrlPreProcDB.."+tableName +
                                 " with (nolock) where "+key +" = '"+value+"' and originalrisklevel>=195 and CreateDate>= '"+timeLimitStr+"' and CreateDate<= '"+nowTimeStr+"'";
+                        long test1 = System.currentTimeMillis();
                         countValue = riskCtrlPreProcDBTemplate.queryForObject(commandText1, Integer.class);
+                        logger.info("。。。。。。。。。。。。。。riskCtrlPreProcDBTemplate时间："+(System.currentTimeMillis()-test1));
                         break;
                     }
                 }
@@ -351,13 +354,13 @@ public class CommonSources
     }
 
     //通过lastReqId获取酒店团购信息
-    public List<Map<String,Object>> getProductInfo(long reqId)
+    public List<Map<String,Object>> getProductInfo(String reqId)
     {
         long now = System.currentTimeMillis();
         List<Map<String,Object>> productInfo = null;
         try{
-            String commandText = "select * from InfoSecurity_HotelGroupInfo with (nolock) where [InfoSecurity_HotelGroupInfo].[ReqID] = " +
-                    reqId;
+            String commandText = "select * from InfoSecurity_HotelGroupInfo with (nolock) where [InfoSecurity_HotelGroupInfo].[ReqID] = '" +
+                    reqId+"'";
             productInfo = cardRiskDBTemplate.queryForList(commandText);
         }catch(Exception exp)
         {

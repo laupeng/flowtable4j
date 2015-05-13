@@ -30,13 +30,13 @@
         <level value="DEBUG" />
         <appender-ref ref="STDOUT" />
         <appender-ref ref="fileAppender" />
-        <appender-ref ref="CLoggingAppender" />
+        <!--<appender-ref ref="CLoggingAppender" />-->
     </logger>
 
     <root level="ERROR">
         <appender-ref ref="STDOUT" />
         <appender-ref ref="fileAppender" />
-        <appender-ref ref="CLoggingAppender" />
+        <!--<appender-ref ref="CLoggingAppender" />-->
     </root>
 
 </configuration>

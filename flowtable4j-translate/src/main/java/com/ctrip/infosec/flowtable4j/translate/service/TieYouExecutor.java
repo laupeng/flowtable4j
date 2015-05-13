@@ -222,7 +222,7 @@ public class TieYouExecutor implements Executor
     public void getTieYouProductInfo1(DataFact dataFact,Map data)
     {
         //通过lastReqID查询所有订单相关的信息
-        long lastReqID = Long.parseLong(getValue(data,Common.ReqID));
+        String lastReqID = getValue(data,Common.ReqID);
         List<Map<String,Object>> tieYouOrderInfos = commonSources.getProductInfo(lastReqID);
         if(tieYouOrderInfos == null || tieYouOrderInfos.isEmpty())
             return;
