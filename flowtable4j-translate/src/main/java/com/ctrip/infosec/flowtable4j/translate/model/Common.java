@@ -168,9 +168,9 @@ public class Common
 
     //通过uid获取的用户的crm的信息
     public static String BindedEmail= "BindedEmail";
-    public static String BindedMobilePhone= "BindedMobilePhone";
+    public static String BindedMobilePhone= "BindedMobilePhone";//fixme 这从郁伟的服务查询出来是小写的
     public static String RelatedEMail= "RelatedEMail";
-    public static String RelatedMobilephone= "RelatedMobilephone";
+    public static String RelatedMobilephone= "RelatedMobilephone";//fixme 这从郁伟的服务查询出来是小写的
 
     //添加了UserIPAdd这个字段 值和userIp是一样的
     public static String UserIPAdd = "UserIPAdd";

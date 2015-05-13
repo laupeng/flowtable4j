@@ -103,7 +103,7 @@ public class CommonSources
         {
             logger.warn("查询MainInfo信息异常:",exp);
         }
-        logger.info("getDIDInfo的查询sqlServer的时间是："+(System.currentTimeMillis()-now));
+        logger.info("getMainInfo的查询sqlServer的时间是："+(System.currentTimeMillis()-now));
         return mainInfo;
     }
 
@@ -123,7 +123,7 @@ public class CommonSources
         return cardInfo;
     }
 
-    public List<Map<String, Object>> getListPaymentInfo(long lastReqID)
+    public List<Map<String, Object>> getListPaymentInfo(String lastReqID)
     {
         long now = System.currentTimeMillis();
         List<Map<String, Object>> paymentInfoList = null;//这里的泛型类型到时根据数据库的数据来确定
@@ -157,7 +157,7 @@ public class CommonSources
     }
 
     //获取mainInfo信息
-    public Map getPaymentMainInfo(long reqId)
+    public Map getPaymentMainInfo(String reqId)
     {
         long now = System.currentTimeMillis();
         Map paymentMainInfo = null;
@@ -174,7 +174,7 @@ public class CommonSources
     }
 
     //通过lastReqId获取联系人信息
-    public Map getContactInfo(long reqId)
+    public Map getContactInfo(String reqId)
     {
         long now = System.currentTimeMillis();
         Map contactInfo = null;
@@ -191,7 +191,7 @@ public class CommonSources
     }
 
     //通过lastReqId获取用户信息
-    public Map getUserInfo(long reqId)
+    public Map getUserInfo(String reqId)
     {
         long now = System.currentTimeMillis();
         Map userInfo = null;
@@ -207,7 +207,7 @@ public class CommonSources
         return userInfo;
     }
     //通过lastReqId获取ip信息
-    public Map getIpInfo(long reqId)
+    public Map getIpInfo(String reqId)
     {
         long now = System.currentTimeMillis();
         Map ipInfo = null;
@@ -224,7 +224,7 @@ public class CommonSources
     }
 
     //通过lastReqId获取其他信息
-    public Map getOtherInfo(long reqId)
+    public Map getOtherInfo(String reqId)
     {
         long now = System.currentTimeMillis();
         Map otherInfo = null;

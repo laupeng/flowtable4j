@@ -48,6 +48,6 @@ public class DataFact
 
 
     //七：临时信息
-
+    public Map<String,Object> tempInfo = new HashMap<String, Object>();
 
 }

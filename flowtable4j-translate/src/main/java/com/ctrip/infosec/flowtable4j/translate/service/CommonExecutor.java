@@ -26,7 +26,7 @@ import static com.ctrip.infosec.flowtable4j.translate.common.Utils.getValue;
 /**
  * Created by lpxie on 15-5-7.
  */
-@Component
+//@Component
 public class CommonExecutor
 {
     private Logger logger = LoggerFactory.getLogger(HotelGroupExecutor.class);
@@ -60,7 +60,7 @@ public class CommonExecutor
                     fillCommonInfo(dataFact,data);
                     //补充paymentInfoList(支付信息)
                     commonOperation.fillPaymentInfo0(dataFact,data);//支付信息（兼容混合支付）  这里是根据CardInfoID来取出相关的信息
-                    //补充PaymentMainInfo（预付信息）
+                    //region Description  补充PaymentMainInfo（预付信息）
                     dataFact.paymentMainInfo.put(Common.BankValidationMethod,getValue(data,Common.BankValidationMethod));
                     dataFact.paymentMainInfo.put(Common.ClientIDOrIP,getValue(data,Common.ClientIDOrIP));
                     dataFact.paymentMainInfo.put(Common.ClientOS,getValue(data,Common.ClientOS));
@@ -69,37 +69,103 @@ public class CommonExecutor
                     dataFact.paymentMainInfo.put(Common.PayMethod,getValue(data,Common.PayMethod));
                     dataFact.paymentMainInfo.put(Common.PayValidationMethod,getValue(data,Common.PayValidationMethod));
                     dataFact.paymentMainInfo.put(Common.ValidationFailsReason,getValue(data,Common.ValidationFailsReason));
+                    //endregion
+
                     break;
                 case 1:
                     //补充公共属性信息
                     fillCommonInfo(dataFact,data);
                     //补充支付信息 从数据库获取支付信息
                     //并发执行
-                    final DataFact dataFactCopy = BeanMapper.copy(dataFact, DataFact.class);
-                    final String mobilePhone = getValue(data,Common.MobilePhone);
+                    final DataFact dataFactCopy01 = new DataFact();
+                    final String lastReq = getValue(data, Common.ReqID);
                     runs.add(new Callable<DataFact>() {
                         @Override
                         public DataFact call() throws Exception {
                             try {
-                                long start = System.currentTimeMillis();
-                                commonOperation.fillMobilePhone(dataFactCopy,mobilePhone);//补充联系人手机对应的省
-                                return dataFactCopy;
+                                commonOperation.fillPaymentInfo1(dataFactCopy01, lastReq);
+                                return dataFactCopy01;
                             } catch (Exception e) {
                                 logger.warn("invoke commonOperation fillMobilePhone failed.: ", e);
                             }
                             return null;
                         }
                     });
-                    commonOperation.fillPaymentInfo1(dataFact,data);
+
+                    final DataFact dataFactCopy02 = new DataFact();
+                    runs.add(new Callable<DataFact>() {
+                        @Override
+                        public DataFact call() throws Exception {
+                            try {
+                                commonOperation.fillPaymentMainInfo(dataFactCopy02, lastReq);
+                                return dataFactCopy02;
+                            } catch (Exception e) {
+                                logger.warn("invoke commonOperation fillMobilePhone failed.: ", e);
+                            }
+                            return null;
+                        }
+                    });
                     break;
+
                 case 2:
-                    //补充产品
-                    String reqIdStr = getValue(data,Common.ReqID);
-                    if(!reqIdStr.isEmpty())
-                    {
-                        Long reqId = Long.parseLong(reqIdStr);
-                        commonOperation.fillProductInfo(data,reqId);
-                    }
+                    //region Description       补充产品
+                    final String reqIdStr = getValue(data,Common.ReqID);
+                    final DataFact dataFactCopy001 = new DataFact();
+                    runs.add(new Callable<DataFact>() {
+                        @Override
+                        public DataFact call() throws Exception {
+                            try {
+                                commonOperation.fillProductContact(dataFactCopy001, reqIdStr);
+                                return dataFactCopy001;
+                            } catch (Exception e) {
+                                logger.warn("invoke commonOperation fillMobilePhone failed.: ", e);
+                            }
+                            return null;
+                        }
+                    });
+
+                    final DataFact dataFactCopy002 = new DataFact();
+                    runs.add(new Callable<DataFact>() {
+                        @Override
+                        public DataFact call() throws Exception {
+                            try {
+                                commonOperation.fillProductUser(dataFactCopy002, reqIdStr);
+                                return dataFactCopy002;
+                            } catch (Exception e) {
+                                logger.warn("invoke commonOperation fillMobilePhone failed.: ", e);
+                            }
+                            return null;
+                        }
+                    });
+
+                    final DataFact dataFactCopy003 = new DataFact();
+                    runs.add(new Callable<DataFact>() {
+                        @Override
+                        public DataFact call() throws Exception {
+                            try {
+                                commonOperation.fillProductIp(dataFactCopy003, reqIdStr);
+                                return dataFactCopy003;
+                            } catch (Exception e) {
+                                logger.warn("invoke commonOperation fillMobilePhone failed.: ", e);
+                            }
+                            return null;
+                        }
+                    });
+
+                    final DataFact dataFactCopy004 = new DataFact();
+                    runs.add(new Callable<DataFact>() {
+                        @Override
+                        public DataFact call() throws Exception {
+                            try {
+                                commonOperation.fillProductOther(dataFactCopy004, reqIdStr);
+                                return dataFactCopy004;
+                            } catch (Exception e) {
+                                logger.warn("invoke commonOperation fillMobilePhone failed.: ", e);
+                            }
+                            return null;
+                        }
+                    });
+                    //endregion
                     //补充支付信息
                     commonOperation.fillPaymentInfo0(dataFact,data);//和checkType = 0的补充支付信息一样
                     break;
@@ -121,20 +187,21 @@ public class CommonExecutor
                             f.cancel(true);
                         }
                     } catch (Exception e) {
-
+                        logger.warn("f.get()执行异常");
                     }
                 }
             } catch (Exception e) {
 
             }
             logger.info("第一个线程池的时间是："+(System.currentTimeMillis()-t1));
+            long tt1 = System.currentTimeMillis();
             if (rawResult.size() > 0){
+                //region Description          合并里面的所有信息 注意这里面没有产品信息
                 for(DataFact item : rawResult)
                 {
-                    //合并里面的所有信息 注意这里面没有产品信息
-                    if(item.paymentInfoList != null &&item.paymentInfoList.size()>0)
+                    if(item.paymentInfoList != null &&item.paymentInfoList.size()>0)//fixme 调试这里
                     {
-                        dataFact.paymentInfoList.addAll(item.paymentInfoList);//fixme 调试这里
+                        dataFact.paymentInfoList.addAll(item.paymentInfoList);
                     }
                     if(item.contactInfo != null &&item.contactInfo.size()>0)
                     {
@@ -172,9 +239,15 @@ public class CommonExecutor
                     {
                         dataFact.DIDInfo.putAll(item.DIDInfo);
                     }
-                }
-            }
+                    if(item.tempInfo != null &&item.tempInfo.size()>0)
+                    {
+                        dataFact.tempInfo.putAll(item.tempInfo);
+                    }
 
+                }
+                //endregion
+            }
+            logger.info("遍历rawResult的时间是:"+(System.currentTimeMillis()-tt1));
             logger.info("补充"+data.get("OrderID")+"数据完毕");
         }catch (Exception exp)
         {
@@ -191,7 +264,7 @@ public class CommonExecutor
         //这里面没有绝对的顺序
         long nowTime = System.currentTimeMillis();
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        long lastReqID = -1;
+        //long lastReqID = -1;
         dataFact.dealInfo.put(Common.LastCheck,"T");
         dataFact.dealInfo.put(Common.CorporationID,"");
         //mainInfo
@@ -210,8 +283,7 @@ public class CommonExecutor
         dataFact.mainInfo.put(Common.MerchantOrderID,getValue(data,Common.MerchantOrderID));
         dataFact.mainInfo.put(Common.ClientID,getValue(data,Common.ClientID));
         //得到lastReqId
-        lastReqID = commonOperation.getLastReqID(data);
-        data.put(Common.ReqID,lastReqID);//这里暂时存储起来 在后面从data里面取出来
+        commonOperation.getLastReqID(data);//这里暂时存储起来 在后面从data里面取出来
         //公共属性的值补充
         //补充mainInfo信息
         dataFact.mainInfo.put(Common.Amount,getValue(data,Common.Amount));
@@ -225,33 +297,18 @@ public class CommonExecutor
         dataFact.contactInfo.put(Common.ContactTel,getValue(data,Common.ContactTel));
         dataFact.contactInfo.put(Common.ContactEMail,getValue(data,Common.ContactEMail));
         dataFact.contactInfo.put(Common.SendTickerAddr,getValue(data,Common.SendTickerAddr));
-//        commonOperation.fillMobilePhone(dataFact,data);//补充联系人手机对应的省市 //fixme 01
-        //补充userInfo  fixme 02
-        /*String serviceName = "CRMService";
-        String operationName = "getMemberInfo";
-        String uid = data.get(Common.Uid) == null ? "" : data.get(Common.Uid).toString();
-        Map params = ImmutableMap.of("uid", uid);//根据uid取值
-        Map crmInfo = DataProxySources.queryForMap(serviceName, operationName, params);
-        if(crmInfo !=null && crmInfo.size()>0)
-            dataFact.userInfo.putAll(crmInfo);*/
-        /*if(!getValue(dataFact.userInfo,"Vip").toUpperCase().equals("T"))//如果UID信息中没有标明是VIP用户，则需要从CustomerInfo中获取//fixme 确认vip是不是每个产品都是这样
-        {
-            commonOperation.fillUserCusCharacter(dataFact,data);//这里获取用户的用户属性（NEW,REPEAT,VIP） 这里有两个方法：1，直接调用esb，2，调用郁伟新增加的DataProxy //fixme 05
-        }*/
-        //补充ipInfo
-//        commonOperation.fillIpInfo(dataFact, data);//fixme 03
         //补充corporationInfo
         dataFact.corporationInfo.put(Common.CanAccountPay,getValue(data,Common.CanAccountPay));
         dataFact.corporationInfo.put(Common.CompanyType,getValue(data,Common.CompanyType));
         dataFact.corporationInfo.put(Common.Corp_PayType,getValue(data,Common.Corp_PayType));
-         //补充DIDInfo
-        //commonOperation.getDIDInfo(dataFact, data);//通过订单id和订单类型来获取 fixme 04
+        //补充userInfo
+        dataFact.userInfo.put(Common.Uid,getValue(data,Common.Uid));
         //补充主要支付方式                                           自己添加的以便于后面使用
         commonOperation.fillMainOrderType(data);//这里面加一个字段 “OrderPrepayType”
 
         //FIXME 这里检查
         //并发执行
-        final DataFact dataFactCopy01 = BeanMapper.copy(dataFact, DataFact.class);
+        final DataFact dataFactCopy01 = new DataFact();
         final String mobilePhone = getValue(data,Common.MobilePhone);
         runs.add(new Callable<DataFact>() {
             @Override
@@ -267,7 +324,7 @@ public class CommonExecutor
             }
         });
 
-        final DataFact dataFactCopy02 = BeanMapper.copy(dataFact, DataFact.class);
+        final DataFact dataFactCopy02 = new DataFact();
         final String uid = getValue(data,Common.Uid);
         runs.add(new Callable<DataFact>() {
             @Override
@@ -286,7 +343,7 @@ public class CommonExecutor
             }
         });
 
-        final DataFact dataFactCopy03 = BeanMapper.copy(dataFact, DataFact.class);
+        final DataFact dataFactCopy03 = new DataFact();
         final String userIp = getValue(data,Common.UserIP);
         runs.add(new Callable<DataFact>() {
             @Override
@@ -302,7 +359,7 @@ public class CommonExecutor
             }
         });
 
-        final DataFact dataFactCopy04 = BeanMapper.copy(dataFact, DataFact.class);
+        final DataFact dataFactCopy04 = new DataFact();
         final String orderId = getValue(data,Common.OrderID);
         final String orderType = getValue(data,Common.OrderType);
         runs.add(new Callable<DataFact>() {
@@ -332,11 +389,8 @@ public class CommonExecutor
 
             bwList.put(Common.OrderToSignUpDate,getValue(dataFact.otherInfo,Common.OrderToSignUpDate)); //预定距注册日期小时数
 
-            //支付信息处理
-            //paymentInfo
-            //     PaymentInfoList
-            //PaymentInfo(Map) ; CardInfoList(List)
-           // if(dataFact.paymentInfoList != null)
+
+            //region Description   支付信息处理paymentInfo   PaymentInfoList   PaymentInfo(Map) ; CardInfoList(List)
             {
                 List<Map> paymentInfos = dataFact.paymentInfoList;
                 for(Map paymentInfo : paymentInfos)
@@ -384,6 +438,7 @@ public class CommonExecutor
                     bwList.put(Common.PrepayTypeDetails,"D");
                 }
             }
+            //endregion
 
             //ContactInfo
             bwList.putAll(dataFact.contactInfo);
@@ -471,23 +526,6 @@ public class CommonExecutor
 
             //InfoSecurity_UserInfo
             flowData.putAll(dataFact.userInfo);
-            //fixme 06
-            /*if(dataFact.userInfo.get(Common.BindedMobilePhone) != null && dataFact.userInfo.get(Common.BindedMobilePhone).toString().length()>7)
-            {
-                Map cityInfo = commonSources.getCityAndProv(dataFact.userInfo.get(Common.BindedMobilePhone).toString());
-                if(cityInfo != null)
-                {
-                    flowData.putAll(cityInfo);
-                }
-            }
-            if(dataFact.userInfo.get(Common.RelatedMobilephone) != null && dataFact.userInfo.get(Common.RelatedMobilephone).toString().length()>7)
-            {
-                Map cityInfo = commonSources.getCityAndProv(data.get(Common.RelatedMobilephone).toString());
-                if(cityInfo != null)
-                {
-                    flowData.putAll(cityInfo);
-                }
-            }*/
 
             //InfoSecurity_IPInfo
             flowData.putAll(dataFact.ipInfo);
@@ -500,17 +538,10 @@ public class CommonExecutor
 
             //DID
             flowData.put(Common.DID, getValue(dataFact.DIDInfo,Common.DID));
-            //fixme 07
-            /*Map leakInfo = commonSources.getLeakedInfo(getValue(dataFact.userInfo, Common.Uid));
-            if(leakInfo != null && leakInfo.size()>0)
-            {
-                flowData.put(Common.UidActive,leakInfo.get("Active"));
-            }*/
 
             //并发执行
-            runs.clear();
             final String bindedMobiePhone = getValue(dataFact.userInfo,Common.BindedMobilePhone);
-            final String relatedMobiePhone = getValue(data,Common.RelatedMobilephone);
+            final String relatedMobiePhone = getValue(dataFact.userInfo,Common.RelatedMobilephone);
             final Map flowDataCopy01 = BeanMapper.copy(flowData,Map.class);
             runsF.add(new Callable<Map>() {
                 @Override
@@ -521,12 +552,25 @@ public class CommonExecutor
                         {
                             flowDataCopy01.putAll(cityInfo);
                         }
-                        Map cityInfo1 = commonSources.getCityAndProv(relatedMobiePhone);
-                        if(cityInfo1 != null)
-                        {
-                            flowDataCopy01.putAll(cityInfo1);
-                        }
                         return flowDataCopy01;
+                    } catch (Exception e) {
+                        logger.warn("invoke commonOperation fillMobilePhone failed.: ", e);
+                    }
+                    return null;
+                }
+            });
+
+            final Map flowDataCopy001 = BeanMapper.copy(flowData,Map.class);
+            runsF.add(new Callable<Map>() {
+                @Override
+                public Map call() throws Exception {
+                    try {
+                        Map cityInfo = commonSources.getCityAndProv(relatedMobiePhone);
+                        if(cityInfo != null)
+                        {
+                            flowDataCopy001.putAll(cityInfo);
+                        }
+                        return flowDataCopy001;
                     } catch (Exception e) {
                         logger.warn("invoke commonOperation fillMobilePhone failed.: ", e);
                     }
@@ -540,7 +584,6 @@ public class CommonExecutor
                 @Override
                 public Map call() throws Exception {
                     try {
-                        long start = System.currentTimeMillis();
                         Map leakInfo = commonSources.getLeakedInfo(uid);
                         if(leakInfo != null && leakInfo.size()>0)
                         {
@@ -564,7 +607,6 @@ public class CommonExecutor
                 @Override
                 public Map call() throws Exception {
                     try {
-                        long toCompute = System.currentTimeMillis();
                         Date date = new Date(System.currentTimeMillis());
                         SimpleDateFormat format1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.sss");
                         String nowTimeStr = format1.format(date);
@@ -583,6 +625,7 @@ public class CommonExecutor
                     return null;
                 }
             });
+
             //并发执行
             long t2 = System.currentTimeMillis();
             List<Map> rawResult = new ArrayList<Map>();
@@ -610,27 +653,6 @@ public class CommonExecutor
                     flowData.putAll(item);//fixme 调试这里的
                 }
             }
-
-            //统计分值大于195的数据 fixme 08
-            /*long toCompute = System.currentTimeMillis();
-            Map<String,Object> temp = new HashMap();
-            temp.put("Uid",getValue(dataFact.userInfo,Common.Uid));
-            temp.put("ContactEMail",getValue(dataFact.contactInfo,Common.ContactEMail));
-            temp.put("MobilePhone",getValue(dataFact.contactInfo, Common.MobilePhone));
-            temp.put("CCardNoCode",getValue(flowData,Common.CCardNoCode));
-
-            Date date = new Date(System.currentTimeMillis());
-            SimpleDateFormat format1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.sss");
-            String nowTimeStr = format1.format(date);
-
-            Calendar calendar = new GregorianCalendar();
-            calendar.setTime(date);
-            calendar.add(calendar.MINUTE,-720);//往前720分钟
-            String timeLimitStr = format1.format(calendar.getTime());
-
-            int count = commonSources.getOriginalRisklevel(temp,timeLimitStr,nowTimeStr);
-            flowData.put(Common.OriginalRisklevelCount,count);
-            logger.info("统计分值大于195的时间是："+(System.currentTimeMillis()-toCompute));*/
             logger.info("构造"+data.get("OrderID")+"流量表数据完毕");
         }catch (Exception exp)
         {

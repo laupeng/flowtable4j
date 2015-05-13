@@ -14,7 +14,7 @@ import java.util.*;
 /**
  * Created by lpxie on 15-4-20.
  */
-@Repository
+//@Repository
 public class HotelGroupSources
 {
     private static Logger logger = LoggerFactory.getLogger(HotelGroupSources.class);

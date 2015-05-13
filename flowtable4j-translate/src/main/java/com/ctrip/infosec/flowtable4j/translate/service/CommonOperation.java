@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 import java.text.ParseException;
 import java.util.*;
+import java.util.concurrent.Callable;
 
 import static com.ctrip.infosec.flowtable4j.translate.common.MyDateUtil.getDateAbs;
 import static com.ctrip.infosec.flowtable4j.translate.common.Utils.getValue;
@@ -20,7 +21,7 @@ import static com.ctrip.infosec.flowtable4j.translate.common.Utils.getValue;
 /**
  * Created by lpxie on 15-5-7.
  */
-@Component
+//@Component
 public class CommonOperation
 {
     private Logger logger = LoggerFactory.getLogger(CommonOperation.class);
@@ -44,7 +45,13 @@ public class CommonOperation
             return;
         Map mobileInfo = commonSources.getCityAndProv(mobilePhone);
         if(mobileInfo != null && mobileInfo.size()>0)
-            dataFact.contactInfo.putAll(mobileInfo);
+        {
+//            dataFact.contactInfo.putAll(mobileInfo);
+            dataFact.contactInfo.put(Common.MobilePhoneCity,getValue(mobileInfo,"CityNam"));
+            dataFact.contactInfo.put(Common.MobilePhoneProvince,getValue(mobileInfo,"ProvinceName"));
+        }
+
+
     }
 
     /**
@@ -99,25 +106,21 @@ public class CommonOperation
             dataFact.DIDInfo.put(Common.DID,getValue(DIDInfo,"Did"));
     }
 
-    public long getLastReqID(Map data)
+    public void getLastReqID(Map data)
     {
-        logger.info(data.get("OrderID")+"获取lastReqID");
         String orderId = getValue(data,Common.OrderID);
         String orderType = getValue(data,Common.OrderType);
         Map mainInfo = commonSources.getMainInfo(orderType, orderId);
         if(mainInfo!=null)
         {
             try{
-                long reqId = Long.parseLong(mainInfo.get(Common.ReqID).toString());
-                return reqId;
+                long reqId = Long.parseLong(getValue(mainInfo, Common.ReqID));
+                data.put(Common.ReqID,reqId);
             }catch (Exception exp)
             {
                 logger.warn("getLastReqID获取lastReqID异常:",exp);
-                return 0;
             }
         }
-        else
-            return 0;
     }
 
     /**
@@ -179,10 +182,10 @@ public class CommonOperation
     }
 
     //同上解释
-    public void fillPaymentInfo1(DataFact dataFact,Map data)//reqId :7186418
+    public void fillPaymentInfo1(DataFact dataFact,String lastReqID)//reqId :7186418
     {
-        logger.info(data.get("OrderID")+"通过LastReqID获取支付信息");
-        long lastReqID = Long.parseLong(getValue(data, Common.ReqID));
+//        logger.info(data.get("OrderID")+"通过LastReqID获取支付信息");
+//        long lastReqID = Long.parseLong(getValue(data, Common.ReqID));
         List<Map<String, Object>> paymentInfos = commonSources.getListPaymentInfo(lastReqID);
         for(Map payment : paymentInfos)
         {
@@ -192,7 +195,11 @@ public class CommonOperation
             subPayInfo.put(Common.CardInfoList, commonSources.getListCardInfo(paymentInfoId));
             dataFact.paymentInfoList.add(subPayInfo);
         }
-        Map paymentMainInfo = commonSources.getPaymentMainInfo(lastReqID);
+    }
+
+    public void fillPaymentMainInfo(DataFact dataFact,String lastReq)
+    {
+        Map paymentMainInfo = commonSources.getPaymentMainInfo(lastReq);
         if(paymentMainInfo != null && paymentMainInfo.size()>0)
             dataFact.paymentMainInfo.putAll(paymentMainInfo);
     }
@@ -219,25 +226,32 @@ public class CommonOperation
         }
     }
 
-    //补充产品信息
-    public void fillProductInfo(Map data,long lastReqID)
+    //补充产品信息  fixme 这里是要并发的
+    public void fillProductContact(DataFact dataFact,String lastReqID)
     {
-        if(lastReqID>0)
-        {
-            Map contactInfo = commonSources.getContactInfo(lastReqID);
-            Map userInfo = commonSources.getContactInfo(lastReqID);
-            Map ipInfo = commonSources.getContactInfo(lastReqID);
-            Map otherInfo = commonSources.getContactInfo(lastReqID);
-            if(contactInfo!=null)
-                data.putAll(contactInfo);
-            if(userInfo!=null)
-                data.putAll(userInfo);
-            if(ipInfo!=null)
-                data.putAll(ipInfo);
-            if(otherInfo!=null)
-                data.putAll(otherInfo);
-        }
+        Map contactInfo = commonSources.getContactInfo(lastReqID);
+        if(contactInfo!=null)
+            dataFact.contactInfo.putAll(contactInfo);
     }
+    public void fillProductUser(DataFact dataFact,String lastReqID)
+    {
+        Map userInfo = commonSources.getUserInfo(lastReqID);
+        if(userInfo!=null)
+            dataFact.userInfo.putAll(userInfo);
+    }
+    public void fillProductIp(DataFact dataFact,String lastReqID)
+    {
+        Map ipInfo = commonSources.getIpInfo(lastReqID);
+        if(ipInfo!=null)
+            dataFact.ipInfo.putAll(ipInfo);
+    }
+    public void fillProductOther(DataFact dataFact,String lastReqID)
+    {
+        Map otherInfo = commonSources.getOtherInfo(lastReqID);
+        if(otherInfo!=null)
+            dataFact.otherInfo.putAll(otherInfo);
+    }
+
     //补充主要支付方式
     public void fillMainOrderType(Map data)
     {
@@ -287,6 +301,16 @@ public class CommonOperation
         Map params = ImmutableMap.of("uid", uid);//根据uid取值
         Map crmInfo = DataProxySources.queryForMap(serviceName, operationName, params);
         if(crmInfo !=null && crmInfo.size()>0)
-            dataFact.userInfo.putAll(crmInfo);
+        {
+            dataFact.userInfo.put(Common.RelatedEMail,getValue(crmInfo,"email"));
+            dataFact.userInfo.put(Common.RelatedMobilephone,getValue(crmInfo,"mobilePhone"));
+            dataFact.userInfo.put(Common.BindedEmail,getValue(crmInfo,"bindedEmail"));
+            dataFact.userInfo.put(Common.BindedMobilePhone,getValue(crmInfo,"bindedMobilePhone"));
+            dataFact.userInfo.put(Common.Experience,getValue(crmInfo,"experience"));
+            dataFact.userInfo.put(Common.SignUpDate,getValue(crmInfo,"signupdate"));
+            dataFact.userInfo.put(Common.UserPassword,getValue(crmInfo,"mD5Password"));
+            dataFact.userInfo.put(Common.VipGrade,getValue(crmInfo,"vipGrade"));
+            dataFact.userInfo.put("Vip",getValue(crmInfo,"vip"));
+        }
     }
 }

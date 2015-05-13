@@ -5,6 +5,7 @@ import org.dom4j.DocumentException;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -103,5 +104,11 @@ public class ESBSourcesTest
             e.printStackTrace();
         }
 
+    }
+
+    @Test
+    public void testMapMerge()
+    {
+        final long lastReq = Long.parseLong("55555");
     }
 }

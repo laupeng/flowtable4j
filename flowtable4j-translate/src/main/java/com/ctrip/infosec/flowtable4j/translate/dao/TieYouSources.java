@@ -12,7 +12,7 @@ import java.util.Map;
 /**
  * Created by lpxie on 15-5-8.
  */
-@Repository
+//@Repository
 public class TieYouSources
 {
     private static Logger logger = LoggerFactory.getLogger(TieYouSources.class);

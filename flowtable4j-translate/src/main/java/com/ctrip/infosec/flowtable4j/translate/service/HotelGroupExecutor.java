@@ -150,12 +150,7 @@ public class HotelGroupExecutor implements Executor
     public void getOtherInfo1(DataFact dataFact,Map data)
     {
         String reqIdStr = getValue(data,Common.ReqID);
-        if(reqIdStr.isEmpty())
-        {
-            return;
-        }
-        long lastReqID= Long.parseLong(reqIdStr);
-        dataFact.otherInfo.putAll(commonSources.getOtherInfo(lastReqID));
+        dataFact.otherInfo.putAll(commonSources.getOtherInfo(reqIdStr));
     }
     /**
      * 获取铁友产品信息当checkType是0或1的时候
