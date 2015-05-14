@@ -2,6 +2,7 @@ package com.ctrip.infosec.flowtable4j.rest;
 
 import com.ctrip.infosec.common.model.RiskFact;
 import com.ctrip.infosec.flowtable4j.accountsecurity.PaymentViaAccount;
+import com.ctrip.infosec.flowtable4j.accountsecurity.RuleContent;
 import com.ctrip.infosec.flowtable4j.bwlist.BWManager;
 import com.ctrip.infosec.flowtable4j.core.utils.SimpleStaticThreadPool;
 import com.ctrip.infosec.flowtable4j.dal.PayAdaptService;
@@ -497,5 +498,13 @@ public class Processor {
             }
         }
         results.addAll(groupByScene.values());
+    }
+
+    public void setBWGRule(List<RuleContent> rules){
+        paymentViaAccount.setBWGRule(rules);
+    }
+
+    public void removeBWGRule(Map<String,List<String>> rules){
+        paymentViaAccount.removeBWGRule(rules);
     }
 }

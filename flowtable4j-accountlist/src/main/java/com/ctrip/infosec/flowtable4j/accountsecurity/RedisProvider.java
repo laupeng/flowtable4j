@@ -28,17 +28,21 @@ public class RedisProvider {
         cache = CacheFactory.GetProvider(redisCluster);
     }
 
-    public List<RedisStoreItem> GetBWGFromRedis(String key) {
-        List<RedisStoreItem> listOfResult = new ArrayList<RedisStoreItem>();
+    public<T> List<T> getBWGValue(String key,Class<T> classType) {
+        List<T> listOfResult = new ArrayList<T>();
         if (cache != null) {
             Set<String> rules = cache.zrange(key, 0, -1);
             if (rules != null) {
                 for (String str : rules) {
-                    RedisStoreItem item = mapper.fromJson(str, RedisStoreItem.class);
+                    T item = mapper.fromJson(str, classType);
                     listOfResult.add(item);
                 }
             }
         }
         return listOfResult;
+    }
+
+    public CacheProvider getCache() {
+        return this.cache;
     }
 }
