@@ -2,6 +2,8 @@ package com.ctrip.infosec.flowtable4j.translate.dao.Jndi;
 
 import com.ctrip.datasource.AllInOneConfigParser;
 import org.apache.tomcat.jdbc.pool.PoolProperties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
@@ -17,6 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Repository
 public class LocalDataSourceProvider
 {
+    private static Logger logger = LoggerFactory.getLogger(LocalDataSourceProvider.class);
     private static final ConcurrentHashMap<String,DataSource> dataSourcePool = new ConcurrentHashMap<String,DataSource>();
 
     private static Map<String,String[]> props =null;

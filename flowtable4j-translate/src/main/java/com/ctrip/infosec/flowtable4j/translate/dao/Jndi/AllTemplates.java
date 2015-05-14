@@ -35,8 +35,9 @@ public class AllTemplates
 
     private void init() throws SQLException
     {
-        check();
         logger.info("开始初始化JNDI模板");
+        long time = System.currentTimeMillis();
+        check();
         //加载一次AllInOne配置文件
         AllInOneConfigParser.newInstance().reloadAllInOneConfig();
         cardRiskDBTemplate = new JdbcTemplate(LocalDataSourceProvider.getDataSource(cardRiskDBName));
