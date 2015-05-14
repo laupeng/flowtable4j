@@ -64,7 +64,8 @@ public class DataProxySources
                 if(request.getParams().get("tagName") != null)
                 {
                     Map newResult = getNewResult(response.getResult());
-                    response.setResult(newResult);
+                    if(newResult!=null)
+                        response.setResult(newResult);
                 }else if(request.getParams().get("tagNames") != null)
                 {
                     Object[] oldResults = (Object[])response.getResult().get("tagNames");
@@ -72,7 +73,10 @@ public class DataProxySources
                     for(int j=0;j<oldResults.length;j++)
                     {
                         Map oneResult = (Map)oldResults[j];
-                        newResults.putAll(getNewResult(oneResult));
+                        Map newResult = getNewResult(oneResult);
+
+                        if(newResult != null && newResult.size()>0)
+                            newResults.putAll(newResult);
                     }
                     response.setResult(newResults);
                 }

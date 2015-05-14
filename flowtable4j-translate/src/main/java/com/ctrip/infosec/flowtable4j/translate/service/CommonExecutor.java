@@ -196,7 +196,7 @@ public class CommonExecutor
 
             }
             logger.info("第一个线程池的时间是："+(System.currentTimeMillis()-t1));
-            if (rawResult.size() > 0){
+            if (rawResult!=null && rawResult.size() > 0){
                 //region Description          合并里面的所有信息 注意这里面没有产品信息
                 for(DataFact item : rawResult)
                 {
