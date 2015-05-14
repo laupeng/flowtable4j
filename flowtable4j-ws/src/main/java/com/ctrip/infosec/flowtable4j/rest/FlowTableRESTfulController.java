@@ -30,9 +30,9 @@ public class FlowTableRESTfulController {
 
     @Autowired
     Processor processor;
-
-    @Autowired
-    PreProcessor preProcessor;
+//
+//    @Autowired
+//    PreProcessor preProcessor;
 
     private static Logger logger = LoggerFactory.getLogger(FlowTableRESTfulController.class);
 
@@ -43,28 +43,28 @@ public class FlowTableRESTfulController {
         return processor.handle(checkEntity);
     }
 
-    @RequestMapping(value = "/checkRiskAdd")
-    public @ResponseBody
-    RiskResult checkRisk(@RequestBody Map data) {
-        long now = System.currentTimeMillis();
-        CheckFact checkFact =preProcessor.execute(data);
-        logger.info("---------------------------执行预处理的时间是："+(System.currentTimeMillis()-now));
-        long now1 = System.currentTimeMillis();
-        checkFact.processOrderTypes();
-        RiskResult riskResult = processor.handle(checkFact);
-        logger.info("---------------------------执行规则引擎的时间是："+(System.currentTimeMillis()-now1));
-        return riskResult;
-    }
+//    @RequestMapping(value = "/checkRiskAdd")
+//    public @ResponseBody
+//    RiskResult checkRisk(@RequestBody Map data) {
+//        long now = System.currentTimeMillis();
+//        CheckFact checkFact =preProcessor.execute(data);
+//        logger.info("---------------------------执行预处理的时间是："+(System.currentTimeMillis()-now));
+//        long now1 = System.currentTimeMillis();
+//        checkFact.processOrderTypes();
+//        RiskResult riskResult = processor.handle(checkFact);
+//        logger.info("---------------------------执行规则引擎的时间是："+(System.currentTimeMillis()-now1));
+//        return riskResult;
+//    }
 
-    @RequestMapping(value = "/preProcess")
-    public @ResponseBody
-    CheckFact preProcess(@RequestBody Map data)
-    {
-        long now  = System.currentTimeMillis();
-        CheckFact checkFact =preProcessor.execute(data);
-        logger.info("总的执行时间是;"+(System.currentTimeMillis()-now));
-        return checkFact;
-    }
+//    @RequestMapping(value = "/preProcess")
+//    public @ResponseBody
+//    CheckFact preProcess(@RequestBody Map data)
+//    {
+//        long now  = System.currentTimeMillis();
+//        CheckFact checkFact =preProcessor.execute(data);
+//        logger.info("总的执行时间是;"+(System.currentTimeMillis()-now));
+//        return checkFact;
+//    }
 
     @RequestMapping(value="/checkPayAdapt")
     public @ResponseBody

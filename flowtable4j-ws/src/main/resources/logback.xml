@@ -27,17 +27,17 @@
     </appender>
 
     <logger name="com.ctrip.infosec.flowtable4j" additivity="false">
-        <level value="DEBUG" />
-        <appender-ref ref="STDOUT" />
-        <appender-ref ref="fileAppender" />
-        <appender-ref ref="CLoggingAppender" />
-    </logger>
+            <level value="DEBUG" />
+            <appender-ref ref="STDOUT" />
+            <appender-ref ref="fileAppender" />
+            <appender-ref ref="CLoggingAppender" />
+        </logger>
 
-    <root level="ERROR">
-        <appender-ref ref="STDOUT" />
-        <appender-ref ref="fileAppender" />
-        <appender-ref ref="CLoggingAppender" />
-    </root>
+        <root level="ERROR">
+            <appender-ref ref="STDOUT" />
+            <appender-ref ref="fileAppender" />
+            <appender-ref ref="CLoggingAppender" />
+        </root>
 
 </configuration>
 

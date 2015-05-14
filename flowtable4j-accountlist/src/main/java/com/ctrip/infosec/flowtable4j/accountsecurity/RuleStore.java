@@ -6,7 +6,7 @@ package com.ctrip.infosec.flowtable4j.accountsecurity;
 public class RuleStore {
     private String s;
 
-    private String v;
+    private int r;
 
     private String e;
 
@@ -24,12 +24,12 @@ public class RuleStore {
     /**
      * Result Level
      */
-    public String getV() {
-        return v;
+    public int getR() {
+        return r;
     }
 
-    public void setV(String v) {
-        this.v = v;
+    public void setR(int r) {
+        this.r = r;
     }
 
     /**

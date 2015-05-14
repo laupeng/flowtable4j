@@ -37,7 +37,7 @@ public class JedisTest {
         v1.add(i1);
         dic_allRules.put("K2", v1);
         Map<String, Integer> response = new HashMap<String, Integer>();
-        new PaymentViaAccount().MergeRedisRules(dic_allRules,response);
+        new PaymentViaAccount().mergeRedisRules(dic_allRules,response);
         for(String key :response.keySet()){
             System.out.println(key +" " + response.get(key));
         }

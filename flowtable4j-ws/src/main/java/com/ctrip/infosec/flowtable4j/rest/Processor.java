@@ -143,7 +143,7 @@ public class Processor {
                         long now = System.currentTimeMillis();
                         AccountFact item = checkEntity.getAccountFact();
                         if (item != null && item.getCheckItems() != null && item.getCheckItems().size() > 0) {
-                            paymentViaAccount.CheckBWGRule(item, mapAccount);
+                            paymentViaAccount.checkBWGRule(item, mapAccount);
                         }
                         long eps = System.currentTimeMillis() - now;
                         String info = String.format("ReqId:%d,CheckBWGRule elapse %d ms", checkEntity.getReqId(), eps);
@@ -402,7 +402,7 @@ public class Processor {
             }
         }
         // 账户风控校验
-        paymentViaAccount.CheckBWGRule(accountFact, accountResults);
+        paymentViaAccount.checkBWGRule(accountFact, accountResults);
     }
 
     private void mergeResult(RiskResult bwResults, List<PayAdaptResultItem> bwResults4j,
