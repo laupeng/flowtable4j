@@ -39,6 +39,6 @@ venus.socket.receiveBufferSize=64
 venus.socket.sendBufferSize=64
 
 #SqlDBName
-CardRiskDB=CardRiskDB_SELECT_1
-RiskCtrlPreProcDB=RiskCtrlPreProcDB_SELECT_1
-CUSRATDB=CUSRATDB_SELECT_1
+CardRiskDB={$CardRiskDB}
+RiskCtrlPreProcDB={$RiskCtrlPreProcDB}
+CUSRATDB={$CUSRATDB}
