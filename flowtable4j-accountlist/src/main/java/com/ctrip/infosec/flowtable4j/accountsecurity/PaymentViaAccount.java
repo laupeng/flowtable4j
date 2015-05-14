@@ -45,10 +45,9 @@ public class PaymentViaAccount {
                         ruleStore.setS( item.getSceneType());
                         ruleStore.setR(item.getResultLevel());
 
-                        String key = String.format("BW|%s|%s", checkType, checkValue).toUpperCase();
+                        String key = String.format("BW|%s|%s", checkType, checkValue);
                         String value = Utils.JSON.toJSONString(ruleStore);
 
-                        redisProvider.getCache().sadd(key, value);
                     }
                     return null;
                 }
@@ -114,11 +113,11 @@ public class PaymentViaAccount {
 
         final String date = format.format(System.currentTimeMillis());
         final Map<String, List<RuleStore>> dic_allrules = new ConcurrentHashMap<String, List<RuleStore>>();
-        for (final Iterator<String> it= keys.iterator();it.hasNext();) {
+        for (final String key:keys) {
             tasks.add(new Callable<Object>() {
                 @Override
                 public Object call() throws Exception {
-                    getRuleByKey(dic_allrules, date, it.next().toUpperCase(),sceneTypes);
+                    getRuleByKey(dic_allrules, date, key,sceneTypes);
                     return null;
                 }
             });
@@ -148,7 +147,7 @@ public class PaymentViaAccount {
             public int compare(RuleStore o1, RuleStore o2) {
                 int cmp = o1.getS().compareToIgnoreCase(o2.getS());
                 if (cmp == 0) {
-                    cmp = o1.getR() - o2.getR();
+                    cmp = o2.getR() - o1.getR();
                 }
                 return cmp;
             }
@@ -191,7 +190,7 @@ public class PaymentViaAccount {
             for (int i = redisStoreItems.size() - 1; i >= 0; i--) {
                 RuleStore item = redisStoreItems.get(i);
                 String exp = item.getE();
-                if (exp.compareTo(currentDate) > 0 || currentDate.compareTo(exp) > 0 || !sceneTypes.contains(item.getS())) {
+                if (exp.compareTo(currentDate) < 0 || !sceneTypes.contains(item.getS())) {
                     redisStoreItems.remove(i);
                 } else {
                     item.setS(item.getS().toUpperCase());
