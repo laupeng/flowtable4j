@@ -47,8 +47,8 @@ public class PaymentViaAccount {
                     ruleStore.setE(expiryDate);
                     ruleStore.setS(sceneType);
                     ruleStore.setR(resultLevel);
-
-                    String key = String.format("{%s}|{%s}", checkType, checkValue);
+                    //Skip checkType,checkValue null/empty
+                    String key = String.format("BW|%s|%s", checkType, checkValue).toUpperCase();
                     String value = Utils.JSON.toJSONString(ruleStore);
 
                     redisProvider.getCache().sadd(key, value);
@@ -96,13 +96,19 @@ public class PaymentViaAccount {
         }
 
         List<Callable<Object>> tasks = new ArrayList<Callable<Object>>();
+
+        final Map<String,String> keys=new HashMap<String, String>();
+        List<String> sceneTypes = new ArrayList<String>();
+
+        //foreach find unique CheckType:checkValue; SceneType
+
         final String date = format.format(System.currentTimeMillis());
         final Map<String, List<RuleStore>> dic_allrules = new ConcurrentHashMap<String, List<RuleStore>>();
-        for (final AccountItem item : fact.getCheckItems()) {
+        for (final String item : keys.keySet()) {
             tasks.add(new Callable<Object>() {
                 @Override
                 public Object call() throws Exception {
-                    String key = String.format("{%s}|{%s}", item.getCheckType(), item.getCheckValue());
+                    String key = String.format("BW|%s|%s", item, keys.get(item)).toUpperCase();
                     getRuleByKey(dic_allrules, date, key);
                     return null;
                 }
@@ -113,8 +119,9 @@ public class PaymentViaAccount {
         } catch (InterruptedException e) {
             logger.error("be interrupted", e);
         }
-
         mergeRedisRule(dic_allrules, result);
+
+        //remove SceneType not exist
     }
 
 
@@ -176,9 +183,11 @@ public class PaymentViaAccount {
         if (redisStoreItems != null && redisStoreItems.size() > 0) {
             for (int i = redisStoreItems.size() - 1; i >= 0; i--) {
                 RuleStore item = redisStoreItems.get(i);
-                item.setS(item.getS().toUpperCase());
-                if (item.getE().compareTo(currentDate) > 0 || currentDate.compareTo(item.getE()) > 0) {
+                String exp = item.getE();
+                if (exp.compareTo(currentDate) > 0 || currentDate.compareTo(exp) > 0) {
                     redisStoreItems.remove(i);
+                } else {
+                    item.setS(item.getS().toUpperCase());
                 }
             }
             if (redisStoreItems.size() > 0) {
