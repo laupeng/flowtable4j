@@ -27,31 +27,40 @@ public class PaymentViaAccount {
     //超时 ms
     final int TIMEOUT = 200;
     @Autowired
-    private ParameterDeamon parameterDeamon;
-    @Autowired
     private RedisProvider redisProvider;
     private FastDateFormat format = FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ss");
     private Logger logger = LoggerFactory.getLogger(PaymentViaAccount.class);
 
-    public int setBWGRule(List<RuleContent> rules) {
-        for (RuleContent item : rules) {
-            int resultLevel = item.getResultLevel();
-            String checkType = item.getCheckType();
-            String checkValue = item.getCheckValue();
-            String expiryDate = item.getExpiryDate();
-            String sceneType = item.getSceneType();
+    public void setBWGRule(List<RuleContent> rules) {
+        List<Callable<Object>> tasks = new ArrayList<Callable<Object>>();
+        for (final RuleContent item : rules) {
+            tasks.add(new Callable<Object>() {
+                @Override
+                public Object call() throws Exception {
+                    int resultLevel = item.getResultLevel();
+                    String checkType = item.getCheckType();
+                    String checkValue = item.getCheckValue();
+                    String expiryDate = item.getExpiryDate();
+                    String sceneType = item.getSceneType();
 
-            RuleStore ruleStore = new RuleStore();
-            ruleStore.setE(expiryDate);
-            ruleStore.setS(sceneType);
-            ruleStore.setR(resultLevel);
+                    RuleStore ruleStore = new RuleStore();
+                    ruleStore.setE(expiryDate);
+                    ruleStore.setS(sceneType);
+                    ruleStore.setR(resultLevel);
 
-            String key = String.format("{%s}|{%s}", checkType, checkValue);
-            String value = Utils.JSON.toJSONString(ruleStore);
+                    String key = String.format("{%s}|{%s}", checkType, checkValue);
+                    String value = Utils.JSON.toJSONString(ruleStore);
 
-            redisProvider.getCache().sadd(key, value);
+                    redisProvider.getCache().sadd(key, value);
+                    return null;
+                }
+            });
         }
-        return 0;
+        try {
+            SimpleStaticThreadPool.getInstance().invokeAll(tasks, TIMEOUT, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            logger.error("be interrupted", e);
+        }
     }
 
     public void removeBWGRule(final Map<String, List<String>> rules) {
