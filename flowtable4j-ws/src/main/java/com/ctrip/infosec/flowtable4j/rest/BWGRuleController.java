@@ -24,8 +24,7 @@ public class BWGRuleController {
     }
 
     @RequestMapping("/removeBWGRule")
-    public void removeBWGRule(@RequestBody Map<String,List<String>> rules){
+    public void removeBWGRule(@RequestBody List<RuleContent> rules){
         processor.removeBWGRule(rules);
     }
-
 }

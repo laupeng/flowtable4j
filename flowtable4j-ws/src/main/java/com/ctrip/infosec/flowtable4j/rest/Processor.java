@@ -504,7 +504,7 @@ public class Processor {
         paymentViaAccount.setBWGRule(rules);
     }
 
-    public void removeBWGRule(Map<String,List<String>> rules){
+    public void removeBWGRule(List<RuleContent> rules){
         paymentViaAccount.removeBWGRule(rules);
     }
 }

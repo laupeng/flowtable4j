@@ -16,7 +16,7 @@ import java.util.Set;
  */
 @Component
 public class RedisProvider {
-    private final String redisCluster = "AccountRiskControl";
+    private final String redisCluster = "CounterServer_03";
     private CacheProvider cache;
     JsonMapper mapper = new JsonMapper();
     public RedisProvider() {

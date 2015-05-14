@@ -37,21 +37,19 @@ public class PaymentViaAccount {
             tasks.add(new Callable<Object>() {
                 @Override
                 public Object call() throws Exception {
-                    int resultLevel = item.getResultLevel();
                     String checkType = item.getCheckType();
                     String checkValue = item.getCheckValue();
-                    String expiryDate = item.getExpiryDate();
-                    String sceneType = item.getSceneType();
+                    if(!(Strings.isNullOrEmpty(checkType)||Strings.isNullOrEmpty(checkValue))){
+                        RuleStore ruleStore = new RuleStore();
+                        ruleStore.setE(item.getExpiryDate());
+                        ruleStore.setS( item.getSceneType());
+                        ruleStore.setR(item.getResultLevel());
 
-                    RuleStore ruleStore = new RuleStore();
-                    ruleStore.setE(expiryDate);
-                    ruleStore.setS(sceneType);
-                    ruleStore.setR(resultLevel);
-                    //Skip checkType,checkValue null/empty
-                    String key = String.format("BW|%s|%s", checkType, checkValue).toUpperCase();
-                    String value = Utils.JSON.toJSONString(ruleStore);
+                        String key = String.format("BW|%s|%s", checkType, checkValue).toUpperCase();
+                        String value = Utils.JSON.toJSONString(ruleStore);
 
-                    redisProvider.getCache().sadd(key, value);
+                        redisProvider.getCache().sadd(key, value);
+                    }
                     return null;
                 }
             });
@@ -63,15 +61,24 @@ public class PaymentViaAccount {
         }
     }
 
-    public void removeBWGRule(final Map<String, List<String>> rules) {
+    public void removeBWGRule(List<RuleContent> rules) {
         List<Callable<Object>> tasks = new ArrayList<Callable<Object>>();
-        for (final Iterator<String> it = rules.keySet().iterator(); it.hasNext(); ) {
+        for (final RuleContent item : rules) {
             tasks.add(new Callable<Object>() {
                 @Override
                 public Object call() throws Exception {
-                    String key = it.next();
-                    List<String> values = rules.get(key);
-                    redisProvider.getCache().srem(key, (String[]) values.toArray());
+                    String checkType = item.getCheckType();
+                    String checkValue = item.getCheckValue();
+                    if(!(Strings.isNullOrEmpty(checkType)||Strings.isNullOrEmpty(checkValue))){
+                        RuleStore ruleStore = new RuleStore();
+                        ruleStore.setE(item.getExpiryDate());
+                        ruleStore.setS( item.getSceneType());
+                        ruleStore.setR(item.getResultLevel());
+
+                        String key = String.format("BW|%s|%s", checkType, checkValue).toUpperCase();
+                        String value = Utils.JSON.toJSONString(ruleStore);
+                        redisProvider.getCache().srem(key, value);
+                    }
                     return null;
                 }
             });
@@ -97,19 +104,21 @@ public class PaymentViaAccount {
 
         List<Callable<Object>> tasks = new ArrayList<Callable<Object>>();
 
-        final Map<String,String> keys=new HashMap<String, String>();
-        List<String> sceneTypes = new ArrayList<String>();
+        final Set<String> keys=new HashSet<String>();
+        final Set<String> sceneTypes = new HashSet<String>();
 
-        //foreach find unique CheckType:checkValue; SceneType
+        for(AccountItem item:fact.getCheckItems()){
+            keys.add(String.format("BW|%s|%s",item.getCheckType(),item.getCheckValue()));
+            sceneTypes.add(item.getSceneType());
+        }
 
         final String date = format.format(System.currentTimeMillis());
         final Map<String, List<RuleStore>> dic_allrules = new ConcurrentHashMap<String, List<RuleStore>>();
-        for (final String item : keys.keySet()) {
+        for (final Iterator<String> it= keys.iterator();it.hasNext();) {
             tasks.add(new Callable<Object>() {
                 @Override
                 public Object call() throws Exception {
-                    String key = String.format("BW|%s|%s", item, keys.get(item)).toUpperCase();
-                    getRuleByKey(dic_allrules, date, key);
+                    getRuleByKey(dic_allrules, date, it.next().toUpperCase(),sceneTypes);
                     return null;
                 }
             });
@@ -120,8 +129,6 @@ public class PaymentViaAccount {
             logger.error("be interrupted", e);
         }
         mergeRedisRule(dic_allrules, result);
-
-        //remove SceneType not exist
     }
 
 
@@ -178,13 +185,13 @@ public class PaymentViaAccount {
      * @param currentDate
      * @param key
      */
-    protected void getRuleByKey(Map<String, List<RuleStore>> dic_allRules, String currentDate, String key) {
+    protected void getRuleByKey(Map<String, List<RuleStore>> dic_allRules, String currentDate, String key,Set<String> sceneTypes) {
         List<RuleStore> redisStoreItems = redisProvider.getBWGValue(key, RuleStore.class);
         if (redisStoreItems != null && redisStoreItems.size() > 0) {
             for (int i = redisStoreItems.size() - 1; i >= 0; i--) {
                 RuleStore item = redisStoreItems.get(i);
                 String exp = item.getE();
-                if (exp.compareTo(currentDate) > 0 || currentDate.compareTo(exp) > 0) {
+                if (exp.compareTo(currentDate) > 0 || currentDate.compareTo(exp) > 0 || !sceneTypes.contains(item.getS())) {
                     redisStoreItems.remove(i);
                 } else {
                     item.setS(item.getS().toUpperCase());
