@@ -20,9 +20,10 @@ public class ESBSourcesTest
     @Test
     public void testConstructXml()
     {
+        //30075005
         ESBSources esbSources = new ESBSources();
         String contentType = "AccCash.CreditCard.GetCreditCardInfo";
-        String cardInfoId = "30075005";
+        String cardInfoId = "218417646";
         String contentBody = "<GetCreditCardInfoRequest><CardInfoId>" + cardInfoId + "</CardInfoId></GetCreditCardInfoRequest>";
         String requestContentXml = esbSources.constructXml(contentBody,contentType);
         Assert.assertNotNull(requestContentXml);
@@ -37,7 +38,7 @@ public class ESBSourcesTest
                 "<Request>\n" +
                 "  <Header UserID=\"670203\" RequestType=\"AccCash.CreditCard.GetCreditCardInfo\"/>\n" +
                 "  <GetCreditCardInfoRequest>\n" +
-                "    <CardInfoId>30075005</CardInfoId>\n" +
+                "    <CardInfoId>218417646</CardInfoId>\n" +
                 "  </GetCreditCardInfoRequest>\n" +
                 "</Request>";
         ESBSources esbSources = new ESBSources();
