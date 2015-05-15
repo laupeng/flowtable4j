@@ -3,6 +3,7 @@ package com.ctrip.infosec.flowtable4j.accountsecurity;
 import com.ctrip.infosec.flowtable4j.core.utils.SimpleStaticThreadPool;
 import com.ctrip.infosec.flowtable4j.model.AccountFact;
 import com.ctrip.infosec.flowtable4j.model.AccountItem;
+import com.ctrip.infosec.sars.monitor.util.Utils;
 import com.google.common.base.Strings;
 import org.apache.commons.lang.time.FastDateFormat;
 import org.slf4j.Logger;
@@ -30,17 +31,35 @@ public class PaymentViaAccount {
     private FastDateFormat format = FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ss");
     private Logger logger = LoggerFactory.getLogger(PaymentViaAccount.class);
 
-    public int SetBWGRule(List<RuleContent> rules)
+    public int setBWGRule(List<RuleContent> rules)
     {
+        for(RuleContent item: rules){
+            int resultLevel = item.getResultLevel();
+            String checkType = item.getCheckType();
+            String checkValue = item.getCheckValue();
+            String expiryDate = item.getExpiryDate();
+            String sceneType = item.getSceneType();
+
+            RuleStore ruleStore = new RuleStore();
+            ruleStore.setE(expiryDate);
+            ruleStore.setS(sceneType);
+            ruleStore.setR(resultLevel);
+
+            String key = String.format("{%s}|{%s}",checkType,checkValue);
+            String value = Utils.JSON.toJSONString(ruleStore);
+
+            //TODO  redis op
+        }
         return  0;
     }
+
     /**
      * 验证黑白灰名单
      *
      * @param fact
      * @return
      */
-    public void CheckBWGRule(AccountFact fact, Map<String, Integer> result) {
+    public void checkBWGRule(AccountFact fact, Map<String, Integer> result) {
         if (fact == null || fact.getCheckItems() == null || fact.getCheckItems().size() == 0) {
             throw new RuntimeException("数据格式错误，请求内容为空");
         }
@@ -81,7 +100,7 @@ public class PaymentViaAccount {
         } catch (InterruptedException e) {
             logger.error("InterruptedException.", e);
         }
-        MergeRedisRules(dic_allRules, result);
+        mergeRedisRules(dic_allRules, result);
     }
 
     /**
@@ -90,7 +109,7 @@ public class PaymentViaAccount {
      * @param dic_allRules
      * @param response
      */
-    protected void MergeRedisRules(Map<String, List<RedisStoreItem>> dic_allRules, Map<String, Integer> response) {
+    protected void mergeRedisRules(Map<String, List<RedisStoreItem>> dic_allRules, Map<String, Integer> response) {
         /**
          * 所有有效黑白名单
          */
