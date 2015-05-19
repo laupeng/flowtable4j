@@ -34,7 +34,7 @@ public class RedisProvider {
         cache = CacheFactory.GetProvider(redisCluster);
     }
 
-    public<T> List<T> getBWGValue(String key,Class<T> classType) {
+    public <T> List<T> getBWGValue(String key,Class<T> classType) {
         List<T> listOfResult = new ArrayList<T>();
         if (cache != null) {
             Set<String> rules = cache.smembers(key);

@@ -2,10 +2,7 @@ package com.ctrip.infosec.flowtable4j.bwlist;
 
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by thyang on 2015/3/24 0024.
@@ -24,7 +21,10 @@ public class GTest {
 //        printStrings(src.replaceAll("@", ":"));
 //        printStrings(null, "BB");
 //        printStrings();
-        match("BBC ABCDAB ABCDABCDABDE","BBC");
+         Map<String, Integer> ss= new HashMap<String, Integer>();
+         ss.put("AA",11);
+         ss.put("AA",22);
+         System.out.println(ss.get("AA"));
     }
 
     public void match(String source, String pattern) {

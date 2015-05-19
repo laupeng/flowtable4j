@@ -21,7 +21,7 @@ public class BWGRuleController {
 
     @RequestMapping("/setBWGRule")
     public @ResponseBody String setBWGRule(@RequestBody BWRequest request){
-        if(request!=null&&request.getRules()!=null){
+        if(request!=null && request.getRules()!=null){
             processor.setBWGRule(request.getRules());
         }
         return "ok";
@@ -29,7 +29,7 @@ public class BWGRuleController {
 
     @RequestMapping("/removeBWGRule")
     public @ResponseBody String removeBWGRule(@RequestBody BWRequest request){
-        if(request!=null&&request.getRules()!=null) {
+        if(request!=null && request.getRules()!=null) {
             processor.removeBWGRule(request.getRules());
         }
         return "ok";
