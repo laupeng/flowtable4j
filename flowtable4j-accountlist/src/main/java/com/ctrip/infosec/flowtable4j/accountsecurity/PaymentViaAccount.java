@@ -3,20 +3,19 @@ package com.ctrip.infosec.flowtable4j.accountsecurity;
 import com.ctrip.infosec.flowtable4j.core.utils.SimpleStaticThreadPool;
 import com.ctrip.infosec.flowtable4j.model.AccountFact;
 import com.ctrip.infosec.flowtable4j.model.AccountItem;
+import com.ctrip.infosec.flowtable4j.model.RuleContent;
 import com.ctrip.infosec.sars.monitor.util.Utils;
 import com.google.common.base.Strings;
-import org.apache.commons.digester.RulesBase;
 import org.apache.commons.lang.time.FastDateFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.ResponseBody;
 
-import javax.swing.text.StyledEditorKit;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -25,7 +24,7 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class PaymentViaAccount {
     //超时 ms
-    final int TIMEOUT = 200;
+    final int TIMEOUT = 2000;
     @Autowired
     private RedisProvider redisProvider;
     private FastDateFormat format = FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ss");
@@ -39,15 +38,16 @@ public class PaymentViaAccount {
                 public Object call() throws Exception {
                     String checkType = item.getCheckType();
                     String checkValue = item.getCheckValue();
-                    if(!(Strings.isNullOrEmpty(checkType)||Strings.isNullOrEmpty(checkValue))){
+                    if (!(Strings.isNullOrEmpty(checkType) || Strings.isNullOrEmpty(checkValue))) {
                         RuleStore ruleStore = new RuleStore();
                         ruleStore.setE(item.getExpiryDate());
-                        ruleStore.setS( item.getSceneType());
+                        ruleStore.setS(item.getSceneType());
                         ruleStore.setR(item.getResultLevel());
 
                         String key = String.format("BW|%s|%s", checkType, checkValue);
                         String value = Utils.JSON.toJSONString(ruleStore);
 
+                        redisProvider.getCache().sadd(key, value);
                     }
                     return null;
                 }
@@ -68,10 +68,10 @@ public class PaymentViaAccount {
                 public Object call() throws Exception {
                     String checkType = item.getCheckType();
                     String checkValue = item.getCheckValue();
-                    if(!(Strings.isNullOrEmpty(checkType)||Strings.isNullOrEmpty(checkValue))){
+                    if (!(Strings.isNullOrEmpty(checkType) || Strings.isNullOrEmpty(checkValue))) {
                         RuleStore ruleStore = new RuleStore();
                         ruleStore.setE(item.getExpiryDate());
-                        ruleStore.setS( item.getSceneType());
+                        ruleStore.setS(item.getSceneType());
                         ruleStore.setR(item.getResultLevel());
 
                         String key = String.format("BW|%s|%s", checkType, checkValue).toUpperCase();
@@ -103,21 +103,21 @@ public class PaymentViaAccount {
 
         List<Callable<Object>> tasks = new ArrayList<Callable<Object>>();
 
-        final Set<String> keys=new HashSet<String>();
+        final Set<String> keys = new HashSet<String>();
         final Set<String> sceneTypes = new HashSet<String>();
 
-        for(AccountItem item:fact.getCheckItems()){
-            keys.add(String.format("BW|%s|%s",item.getCheckType(),item.getCheckValue()));
+        for (AccountItem item : fact.getCheckItems()) {
+            keys.add(String.format("BW|%s|%s", item.getCheckType(), item.getCheckValue()));
             sceneTypes.add(item.getSceneType());
         }
 
         final String date = format.format(System.currentTimeMillis());
         final Map<String, List<RuleStore>> dic_allrules = new ConcurrentHashMap<String, List<RuleStore>>();
-        for (final String key:keys) {
+        for (final String key : keys) {
             tasks.add(new Callable<Object>() {
                 @Override
                 public Object call() throws Exception {
-                    getRuleByKey(dic_allrules, date, key,sceneTypes);
+                    getRuleByKey(dic_allrules, date, key, sceneTypes);
                     return null;
                 }
             });
@@ -139,42 +139,65 @@ public class PaymentViaAccount {
         for (List<RuleStore> items : map.values()) {
             allRules.addAll(items);
         }
+
+        for (RuleStore item : allRules) {
+            String key = item.getS();
+            int value = item.getR();
+            if (response.containsKey(key)) {
+                int oldValue = response.get(key);
+                if (oldValue < 99) {//原值是白名单 取最小值
+                    if (value < oldValue) {
+                        response.put(key, value);
+                    }
+                } else {//原值是黑名 1.新值是白名单取新值 2.新值是黑名单取最大值
+                    if (value < 99) {
+                        response.put(key, value);
+                    } else {
+                        if (value>oldValue){
+                            response.put(key, value);
+                        }
+                    }
+                }
+            } else {
+                response.put(key, value);
+            }
+        }
         /**
          * 按SceneType + ResultLevel 排序
          */
-        Collections.sort(allRules, new Comparator<RuleStore>() {
-            @Override
-            public int compare(RuleStore o1, RuleStore o2) {
-                int cmp = o1.getS().compareToIgnoreCase(o2.getS());
-                if (cmp == 0) {
-                    cmp = o2.getR() - o1.getR();
-                }
-                return cmp;
-            }
-        });
-
-        String currentSceneType = "";
-        int currentResultLevel = 0;
-        /**
-         * 按SceneType遍历规则，如果有<99的取最小，否则取最大
-         */
-        for (Iterator<RuleStore> it = allRules.iterator(); it.hasNext(); ) {
-            RuleStore item = it.next();
-            if (item.getS().compareToIgnoreCase(currentSceneType) == 0) {
-                if (currentResultLevel > 99) {
-                    currentResultLevel = item.getR();
-                }
-            } else {
-                if (!currentSceneType.equals("")) {
-                    response.put(currentSceneType, currentResultLevel);
-                }
-                currentSceneType = item.getS().toUpperCase();
-                currentResultLevel = item.getR();
-            }
-        }
-        if (!currentSceneType.equals("")) {
-            response.put(currentSceneType, currentResultLevel);
-        }
+//        Collections.sort(allRules, new Comparator<RuleStore>() {
+//            @Override
+//            public int compare(RuleStore o1, RuleStore o2) {
+//                int cmp = o1.getS().compareToIgnoreCase(o2.getS());
+//                if (cmp == 0) {
+//                    cmp = o1.getR() - o2.getR();
+//                }
+//                return cmp;
+//            }
+//        });
+//
+//        String currentSceneType = "";
+//        int currentResultLevel = 0;
+//        /**
+//         * 按SceneType遍历规则，如果有<99的取最小，否则取最大
+//         */
+//        for (Iterator<RuleStore> it = allRules.iterator(); it.hasNext(); ) {
+//            RuleStore item = it.next();
+//            if (item.getS().compareToIgnoreCase(currentSceneType) == 0) {
+//                if (currentResultLevel > 99) {
+//                    currentResultLevel = item.getR();
+//                }
+//            } else {
+//                if (!currentSceneType.equals("")) {
+//                    response.put(currentSceneType, currentResultLevel);
+//                }
+//                currentSceneType = item.getS().toUpperCase();
+//                currentResultLevel = item.getR();
+//            }
+//        }
+//        if (!currentSceneType.equals("")) {
+//            response.put(currentSceneType, currentResultLevel);
+//        }
     }
 
     /**
@@ -184,7 +207,7 @@ public class PaymentViaAccount {
      * @param currentDate
      * @param key
      */
-    protected void getRuleByKey(Map<String, List<RuleStore>> dic_allRules, String currentDate, String key,Set<String> sceneTypes) {
+    protected void getRuleByKey(Map<String, List<RuleStore>> dic_allRules, String currentDate, String key, Set<String> sceneTypes) {
         List<RuleStore> redisStoreItems = redisProvider.getBWGValue(key, RuleStore.class);
         if (redisStoreItems != null && redisStoreItems.size() > 0) {
             for (int i = redisStoreItems.size() - 1; i >= 0; i--) {

@@ -2,7 +2,7 @@ package com.ctrip.infosec.flowtable4j.rest;
 
 import com.ctrip.infosec.common.model.RiskFact;
 import com.ctrip.infosec.flowtable4j.accountsecurity.PaymentViaAccount;
-import com.ctrip.infosec.flowtable4j.accountsecurity.RuleContent;
+import com.ctrip.infosec.flowtable4j.model.RuleContent;
 import com.ctrip.infosec.flowtable4j.bwlist.BWManager;
 import com.ctrip.infosec.flowtable4j.core.utils.SimpleStaticThreadPool;
 import com.ctrip.infosec.flowtable4j.dal.PayAdaptService;
@@ -24,7 +24,6 @@ import org.springframework.jdbc.core.CallableStatementCreator;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
-import javax.validation.constraints.Size;
 import java.io.IOException;
 import java.sql.*;
 import java.text.SimpleDateFormat;
