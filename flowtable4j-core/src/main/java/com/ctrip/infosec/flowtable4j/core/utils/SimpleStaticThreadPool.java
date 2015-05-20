@@ -2,11 +2,7 @@ package com.ctrip.infosec.flowtable4j.core.utils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 import java.util.concurrent.*;
 
 /**

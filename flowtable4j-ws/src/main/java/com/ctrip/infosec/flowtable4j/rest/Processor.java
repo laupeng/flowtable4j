@@ -2,6 +2,7 @@ package com.ctrip.infosec.flowtable4j.rest;
 
 import com.ctrip.infosec.common.model.RiskFact;
 import com.ctrip.infosec.flowtable4j.accountsecurity.PaymentViaAccount;
+import com.ctrip.infosec.flowtable4j.model.RuleContent;
 import com.ctrip.infosec.flowtable4j.bwlist.BWManager;
 import com.ctrip.infosec.flowtable4j.core.utils.SimpleStaticThreadPool;
 import com.ctrip.infosec.flowtable4j.dal.PayAdaptService;
@@ -23,7 +24,6 @@ import org.springframework.jdbc.core.CallableStatementCreator;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
-import javax.validation.constraints.Size;
 import java.io.IOException;
 import java.sql.*;
 import java.text.SimpleDateFormat;
@@ -47,25 +47,24 @@ public class Processor {
     private JdbcTemplate cardRiskDBTemplate;
 
     private static final long FLOWTIMEOUT = 10000;
-    private static List<String> sceneTypes = new ArrayList<String>();
+    private static String[] sceneTypes = {
+            "PAYMENT-CONF-LIPIN",
+            "PAYMENT-CONF-CC",
+            "PAYMENT-CONF-CCC",
+            "PAYMENT-CONF-CTRIPAY",
+            "CREDIT-EXCHANGE",
+            "CTRIPAY-CASHOUT",
+            "CASH-EXCHANGE",
+            "PAYMENT-CONF-DCARD",
+            "PAYMENT-CONF-ALIPAY",
+            "PAYMENT-CONF-CASH",
+            "PAYMENT-CONF-WEIXIN",
+            "PAYMENT-CONF-EBANK",
+            "CREDIT-GUARANTEE"
+    };
     private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
     private static final String EVENTWS = GlobalConfig.getString("EventWS");
     private static final String APPID = GlobalConfig.getString("APPID");
-    static {
-        sceneTypes.add("PAYMENT-CONF-LIPIN");
-        sceneTypes.add("PAYMENT-CONF-CC");
-        sceneTypes.add("PAYMENT-CONF-CCC");
-        sceneTypes.add("PAYMENT-CONF-CTRIPAY");
-        sceneTypes.add("CREDIT-EXCHANGE");
-        sceneTypes.add("CTRIPAY-CASHOUT");
-        sceneTypes.add("CASH-EXCHANGE");
-        sceneTypes.add("PAYMENT-CONF-DCARD");
-        sceneTypes.add("PAYMENT-CONF-ALIPAY");
-        sceneTypes.add("PAYMENT-CONF-CASH");
-        sceneTypes.add("PAYMENT-CONF-WEIXIN");
-        sceneTypes.add("PAYMENT-CONF-EBANK");
-        sceneTypes.add("CREDIT-GUARANTEE");
-    }
 
     /**
      * 支付校验
@@ -497,5 +496,13 @@ public class Processor {
             }
         }
         results.addAll(groupByScene.values());
+    }
+
+    public void setBWGRule(List<RuleContent> rules){
+        paymentViaAccount.setBWGRule(rules);
+    }
+
+    public void removeBWGRule(List<RuleContent> rules){
+        paymentViaAccount.removeBWGRule(rules);
     }
 }

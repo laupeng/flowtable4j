@@ -2,7 +2,6 @@ package com.ctrip.infosec.flowtable4j.payAdapt;
 
 import com.ctrip.infosec.flowtable4j.model.FlowFact;
 import com.ctrip.infosec.flowtable4j.model.PayAdaptRuleResult;
-import com.ctrip.infosec.flowtable4j.model.RiskResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,27 +10,27 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * 流量规则按 订单类型、支付类型区分
+ * 流量规则按订单类型区分
  * Created by thyang on 2015/3/13 0013.
  */
-public abstract class BaseRule {
+public class PayAdaptRule {
 
-    final Logger logger = LoggerFactory.getLogger(BaseRule.class);
+    final Logger logger = LoggerFactory.getLogger(PayAdaptRule.class);
 
     /**
      * 订单类型区分
      */
     private HashMap<Integer, List<PayAdaptStatement>> byOrderType = new HashMap<Integer, List<PayAdaptStatement>>();
 
-
     /**
-     * 黑白名单校验不同逻辑
-     *
+     * 规则校验
      * @param fact
      * @param results
      * @return
      */
-    public abstract boolean check(FlowFact fact, List<PayAdaptRuleResult> results);
+    public boolean check(FlowFact fact, List<PayAdaptRuleResult> results) {
+        return checkByOrderTypeMap(fact, results);
+    }
 
     /**
      * 按订单类型校验
@@ -41,12 +40,23 @@ public abstract class BaseRule {
      * @param results
      * @return
      */
-    public abstract boolean checkByOrderType(HashMap<Integer,List<PayAdaptStatement>> byOrderType, FlowFact fact, List<PayAdaptRuleResult> results);
-
+    public boolean checkByOrderType(HashMap<Integer, List<PayAdaptStatement>> byOrderType, FlowFact fact, List<PayAdaptRuleResult> results) {
+        int matched = 0;
+        for(Integer orderType:fact.getOrderTypes()){
+            if (byOrderType.containsKey(orderType)) {
+                List<PayAdaptStatement> orderTypeRules = byOrderType.get(orderType);
+                for (PayAdaptStatement rule : orderTypeRules) {
+                    if (rule.check(fact, results)) {
+                        matched++;
+                    }
+                }
+            }
+        }
+        return matched > 0;
+    } 
 
     /**
      * 优先校验按订单类型区分的规则
-     *
      * @param fact
      * @param results
      * @return
@@ -67,10 +77,11 @@ public abstract class BaseRule {
      * @return
      */
     public boolean addRule(List<PayAdaptStatement> rules) {
-
-        if (rules != null && rules.size() > 0) {
+        if (rules != null) {
             HashMap<Integer, List<PayAdaptStatement>> orderTypeMapTemp = new HashMap<Integer, List<PayAdaptStatement>>();
-            buildRuleTree(rules, orderTypeMapTemp);
+            if (rules.size() > 0) {
+                buildRuleTree(rules, orderTypeMapTemp);
+            }
             byOrderType = orderTypeMapTemp;
         }
         return true;
@@ -79,34 +90,18 @@ public abstract class BaseRule {
     /**
      * 构造规则树，按订单类型、支付类型
      */
-    private void buildRuleTree(List<PayAdaptStatement> rules, HashMap<Integer,  List<PayAdaptStatement>> orderTypeMapTemp) {
+    private void buildRuleTree(List<PayAdaptStatement> rules, HashMap<Integer, List<PayAdaptStatement>> orderTypeMapTemp) {
         Integer orderType = 0;
-        String prepayType = "";
         for (PayAdaptStatement rule : rules) {
             orderType = rule.getOrderType();
-//            prepayType = rule.getPrepayType();
             List<PayAdaptStatement> orderTypeRule = null;
             if (orderTypeMapTemp.containsKey(orderType)) {
                 orderTypeRule = orderTypeMapTemp.get(orderType);
             } else {
                 orderTypeRule = new ArrayList<PayAdaptStatement>();
             }
-//            addRuleByPrepayType(orderTypeRule, prepayType, rule);
             orderTypeRule.add(rule);
             orderTypeMapTemp.put(orderType, orderTypeRule);
         }
     }
-
-//    private void addRuleByPrepayType(HashMap<String, List<PayAdaptStatement>> orderTypeRule, String prepayType, PayAdaptStatement rule) {
-//        List<PayAdaptStatement> prepayRules;
-//        if (orderTypeRule.containsKey(prepayType)) {
-//            prepayRules = orderTypeRule.get(prepayType);
-//        } else {
-//            prepayRules = new ArrayList<PayAdaptStatement>();
-//        }
-//        if (!prepayRules.contains(rule)) {
-//            prepayRules.add(rule);
-//        }
-//        orderTypeRule.put(prepayType, prepayRules);
-//    }
 }
