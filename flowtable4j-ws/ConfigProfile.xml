@@ -40,9 +40,9 @@
         <CardInfo.REST.URL.Prefix>http://soa.fws.qa.nt.ctripcorp.com/SOA.ESB/Ctrip.SOA.ESB.asmx</CardInfo.REST.URL.Prefix>
         <Configs.URL>http://10.2.10.76:8080/configsws/rest/loadconfig</Configs.URL>
         <Configs.Trace.URL>http://10.2.10.76:8080/configsws/rest/trace</Configs.Trace.URL>
-        <CardRiskDB>CardRiskDB_SELECT_1</CardRiskDB>
-        <RiskCtrlPreProcDB>RiskCtrlPreProcDB_SELECT_1</RiskCtrlPreProcDB>
-        <CUSRATDB>CUSRATDB_SELECT_1</CUSRATDB>
+        <CardRiskDB>CardRiskDB_INSERT_1</CardRiskDB>
+        <RiskCtrlPreProcDB>RiskCtrlPreProcDB_INSERT_1</RiskCtrlPreProcDB>
+        <CUSRATDB>CUSRATDB_INSERT_1</CUSRATDB>
 	</dev>
 	<test>
 		<DBDataCenter></DBDataCenter>
@@ -65,9 +65,9 @@
         <CardInfo.REST.URL.Prefix>http://soa.fws.qa.nt.ctripcorp.com/SOA.ESB/Ctrip.SOA.ESB.asmx</CardInfo.REST.URL.Prefix>
         <Configs.URL>http://10.2.10.76:8080/configsws/rest/loadconfig</Configs.URL>
         <Configs.Trace.URL>http://10.2.10.76:8080/configsws/rest/trace</Configs.Trace.URL>
-        <CardRiskDB>CardRiskDB_SELECT_1</CardRiskDB>
-        <RiskCtrlPreProcDB>RiskCtrlPreProcDB_SELECT_1</RiskCtrlPreProcDB>
-        <CUSRATDB>CUSRATDB_SELECT_1</CUSRATDB>
+        <CardRiskDB>CardRiskDB_INSERT_1</CardRiskDB>
+        <RiskCtrlPreProcDB>RiskCtrlPreProcDB_INSERT_1</RiskCtrlPreProcDB>
+        <CUSRATDB>CUSRATDB_INSERT_1</CUSRATDB>
 	</test>
 	<fws>
 		<DBDataCenter></DBDataCenter>
@@ -90,9 +90,9 @@
         <CardInfo.REST.URL.Prefix>http://soa.fws.qa.nt.ctripcorp.com/SOA.ESB/Ctrip.SOA.ESB.asmx</CardInfo.REST.URL.Prefix>
         <Configs.URL>http://10.2.10.76:8080/configsws/rest/loadconfig</Configs.URL>
         <Configs.Trace.URL>http://10.2.10.76:8080/configsws/rest/trace</Configs.Trace.URL>
-        <CardRiskDB>CardRiskDB_SELECT_1</CardRiskDB>
-        <RiskCtrlPreProcDB>RiskCtrlPreProcDB_SELECT_1</RiskCtrlPreProcDB>
-        <CUSRATDB>CUSRATDB_SELECT_1</CUSRATDB>
+        <CardRiskDB>CardRiskDB_INSERT_1</CardRiskDB>
+        <RiskCtrlPreProcDB>RiskCtrlPreProcDB_INSERT_1</RiskCtrlPreProcDB>
+        <CUSRATDB>CUSRATDB_INSERT_1</CUSRATDB>
 	</fws>
 	<fat>
 		<DBDataCenter></DBDataCenter>
@@ -115,9 +115,9 @@
         <CardInfo.REST.URL.Prefix>http://soa.fws.qa.nt.ctripcorp.com/SOA.ESB/Ctrip.SOA.ESB.asmx</CardInfo.REST.URL.Prefix>
         <Configs.URL>http://10.2.10.76:8080/configsws/rest/loadconfig</Configs.URL>
         <Configs.Trace.URL>http://10.2.10.76:8080/configsws/rest/trace</Configs.Trace.URL>
-        <CardRiskDB>CardRiskDB_SELECT_1</CardRiskDB>
-        <RiskCtrlPreProcDB>RiskCtrlPreProcDB_SELECT_1</RiskCtrlPreProcDB>
-        <CUSRATDB>CUSRATDB_SELECT_1</CUSRATDB>
+        <CardRiskDB>CardRiskDB_INSERT_1</CardRiskDB>
+        <RiskCtrlPreProcDB>RiskCtrlPreProcDB_INSERT_1</RiskCtrlPreProcDB>
+        <CUSRATDB>CUSRATDB_INSERT_1</CUSRATDB>
 	</fat>
 	<lpt>
 		<DBDataCenter></DBDataCenter>
@@ -140,9 +140,9 @@
         <CardInfo.REST.URL.Prefix>http://soa.fws.qa.nt.ctripcorp.com/SOA.ESB/Ctrip.SOA.ESB.asmx</CardInfo.REST.URL.Prefix>
         <Configs.URL>http://10.2.10.76:8080/configsws/rest/loadconfig</Configs.URL>
         <Configs.Trace.URL>http://10.2.10.76:8080/configsws/rest/trace</Configs.Trace.URL>
-        <CardRiskDB>CardRiskDB_SELECT_1</CardRiskDB>
-        <RiskCtrlPreProcDB>RiskCtrlPreProcDB_SELECT_1</RiskCtrlPreProcDB>
-        <CUSRATDB>CUSRATDB_SELECT_1</CUSRATDB>
+        <CardRiskDB>CardRiskDB_INSERT_1</CardRiskDB>
+        <RiskCtrlPreProcDB>RiskCtrlPreProcDB_INSERT_1</RiskCtrlPreProcDB>
+        <CUSRATDB>CUSRATDB_INSERT_1</CUSRATDB>
 	</lpt>
 	<uat>
 		<DBDataCenter></DBDataCenter>
@@ -165,9 +165,9 @@
         <CardInfo.REST.URL.Prefix>http://soa.uat.qa.nt.ctripcorp.com/SOA.ESB/Ctrip.SOA.ESB.asmx</CardInfo.REST.URL.Prefix>
         <Configs.URL>http://10.2.25.53:8080/configsws/rest/loadconfig</Configs.URL>
         <Configs.Trace.URL>http://10.2.25.53:8080/configsws/rest/trace</Configs.Trace.URL>
-        <CardRiskDB>CardRiskDB_SELECT_1</CardRiskDB>
-        <RiskCtrlPreProcDB>RiskCtrlPreProcDB_SELECT_1</RiskCtrlPreProcDB>
-        <CUSRATDB>CUSRATDB_SELECT_1</CUSRATDB>
+        <CardRiskDB>CardRiskDB_INSERT_1</CardRiskDB>
+        <RiskCtrlPreProcDB>RiskCtrlPreProcDB_INSERT_1</RiskCtrlPreProcDB>
+        <CUSRATDB>CUSRATDB_INSERT_1</CUSRATDB>
 	</uat>
 	<uat_nt>
 		<DBDataCenter></DBDataCenter>
@@ -190,9 +190,9 @@
         <CardInfo.REST.URL.Prefix>http://soa.uat.qa.nt.ctripcorp.com/SOA.ESB/Ctrip.SOA.ESB.asmx</CardInfo.REST.URL.Prefix>
         <Configs.URL>http://10.2.25.53:8080/configsws/rest/loadconfig</Configs.URL>
         <Configs.Trace.URL>http://10.2.25.53:8080/configsws/rest/trace</Configs.Trace.URL>
-        <CardRiskDB>CardRiskDB_SELECT_1</CardRiskDB>
-        <RiskCtrlPreProcDB>RiskCtrlPreProcDB_SELECT_1</RiskCtrlPreProcDB>
-        <CUSRATDB>CUSRATDB_SELECT_1</CUSRATDB>
+        <CardRiskDB>CardRiskDB_INSERT_1</CardRiskDB>
+        <RiskCtrlPreProcDB>RiskCtrlPreProcDB_INSERT_1</RiskCtrlPreProcDB>
+        <CUSRATDB>CUSRATDB_INSERT_1</CUSRATDB>
 	</uat_nt>
 	<prd>
 		<DBDataCenter>_SH</DBDataCenter>
@@ -215,8 +215,8 @@
         <CardInfo.REST.URL.Prefix>http://soa.sh.ctriptravel.com/SOA.ESB/Ctrip.SOA.ESB.asmx</CardInfo.REST.URL.Prefix>
         <Configs.URL>http://ws.configs.infosec.ctripcorp.com/configsws/rest/loadconfig</Configs.URL>
         <Configs.Trace.URL>http://ws.configs.infosec.ctripcorp.com/configsws/rest/trace</Configs.Trace.URL>
-        <CardRiskDB>CardRiskDB_SELECT_1_SH</CardRiskDB>
-        <RiskCtrlPreProcDB>RiskCtrlPreProcDB_SELECT_1_SH</RiskCtrlPreProcDB>
-        <CUSRATDB>CUSRATDB_SELECT_1_SH</CUSRATDB>
+        <CardRiskDB>CardRiskDB_INSERT_1_SH</CardRiskDB>
+        <RiskCtrlPreProcDB>RiskCtrlPreProcDB_INSERT_1_SH</RiskCtrlPreProcDB>
+        <CUSRATDB>CUSRATDB_INSERT_1_SH</CUSRATDB>
 	</prd>
 </profile>
