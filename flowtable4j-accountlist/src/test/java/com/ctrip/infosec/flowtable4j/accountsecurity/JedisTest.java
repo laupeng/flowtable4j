@@ -67,14 +67,14 @@ public class JedisTest {
 //        paymentViaAccount.setBWGRule(list);
 
         AccountFact fact = new AccountFact();
-        AccountItem item = new AccountItem("UID","CREDIT-EXCHANGE","t3");
+        AccountItem item = new AccountItem("UID","CREDIT-EXCHANGE","zsx");
         AccountItem item1 = new AccountItem("UID","CREDIT-EXCHANGE","t2");
         AccountItem item2 = new AccountItem("UID","CREDIT-EXCHANGE","t1");
 //        AccountItem item2 = new AccountItem("UID","PAYMENT-CONF-WEIXIN","D00026295");
         List<AccountItem> items = new ArrayList<AccountItem>();
         items.add(item);
-        items.add(item1);
-        items.add(item2);
+//        items.add(item1);
+//        items.add(item2);
 //        items.add(item1);
         fact.setCheckItems(items);
         Map<String,Integer> map = new HashMap<String, Integer>();
