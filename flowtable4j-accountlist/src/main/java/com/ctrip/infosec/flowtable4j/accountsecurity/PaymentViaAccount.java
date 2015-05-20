@@ -59,6 +59,24 @@ public class PaymentViaAccount {
         }
     }
 
+    public void setBWGRule4Job(List<RuleContent> rules){
+        for (final RuleContent item : rules) {
+            String checkType = item.getCheckType();
+            String checkValue = item.getCheckValue();
+            if (!(Strings.isNullOrEmpty(checkType) || Strings.isNullOrEmpty(checkValue))) {
+                RuleStore ruleStore = new RuleStore();
+                ruleStore.setE(item.getExpiryDate());
+                ruleStore.setS(item.getSceneType().toUpperCase());
+                ruleStore.setR(item.getResultLevel());
+                //CheckValue,CheckType,SceneType should be uppercase
+                String key = String.format("BW|%s|%s", checkType, checkValue).toUpperCase();
+                String value = Utils.JSON.toJSONString(ruleStore);
+                redisProvider.getCache().sadd(key, value);
+            }
+        }
+    }
+
+
     public void removeBWGRule(List<RuleContent> rules) {
         List<Callable<Object>> tasks = new ArrayList<Callable<Object>>();
         for (final RuleContent item : rules) {
@@ -99,13 +117,14 @@ public class PaymentViaAccount {
         if (fact == null || fact.getCheckItems() == null || fact.getCheckItems().size() == 0) {
             throw new RuntimeException("数据格式错误，请求内容为空");
         }
+
         List<Callable<Object>> tasks = new ArrayList<Callable<Object>>();
 
         final Set<String> redisKeys = new HashSet<String>();
         final Set<String> sceneTypes = new HashSet<String>();
 
         for (AccountItem item : fact.getCheckItems()) {
-            redisKeys.add(String.format("BW|%s|%s", item.getCheckType(), item.getCheckValue()).toUpperCase());
+            redisKeys.add(String.format("BW|%s|%s", item.getCheckType().toUpperCase(), item.getCheckValue()).toUpperCase());
             sceneTypes.add(item.getSceneType().toUpperCase());
         }
 
@@ -131,6 +150,7 @@ public class PaymentViaAccount {
     /**
      * 合并黑白名单
      * 白者最白，黑者最黑
+     *
      * @param dicAllRules
      * @param results
      */
@@ -149,9 +169,8 @@ public class PaymentViaAccount {
             if (results.containsKey(sceneType)) {
                 int oldValue = results.get(sceneType);
                 if (oldValue < 99) {//原值是白名单 取最小值
-                    value = Math.min(oldValue,value);
-                } else //原值>=100
-                {
+                    value = Math.min(oldValue, value);
+                } else {//原值>=100
                     if (value > 99) {
                         value = Math.max(value, oldValue);
                     }
@@ -163,6 +182,7 @@ public class PaymentViaAccount {
 
     /**
      * 根据Key从Redis获取黑白名单
+     *
      * @param dic_allRules
      * @param currentDate
      * @param searchKey

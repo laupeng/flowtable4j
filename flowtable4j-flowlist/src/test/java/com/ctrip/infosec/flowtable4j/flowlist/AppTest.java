@@ -46,7 +46,10 @@ public class AppTest
     public void testApp()
     {
         System.out.println(F1()||F2());
-        assertTrue( true );
+        assertTrue(true);
 
     }
+
+
+
 }

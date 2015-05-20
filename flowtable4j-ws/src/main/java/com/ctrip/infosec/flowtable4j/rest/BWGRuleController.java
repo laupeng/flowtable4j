@@ -1,5 +1,6 @@
 package com.ctrip.infosec.flowtable4j.rest;
 
+import com.ctrip.infosec.flowtable4j.biz.BWGProcessor;
 import com.ctrip.infosec.flowtable4j.model.BWRequest;
 import com.ctrip.infosec.flowtable4j.model.RuleContent;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,7 +9,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by zhangsx on 2015/5/14.
@@ -17,7 +21,7 @@ import java.util.List;
 public class BWGRuleController {
 
     @Autowired
-    Processor processor;
+    BWGProcessor processor;
 
     @RequestMapping("/setBWGRule")
     public @ResponseBody String setBWGRule(@RequestBody BWRequest request){
@@ -34,4 +38,12 @@ public class BWGRuleController {
         }
         return "ok";
     }
+    @RequestMapping("/syncBWG")
+    public @ResponseBody String syncBWG(@RequestBody Map<String,String> req){
+        if(req.containsKey("datetime")){
+            processor.syncBWG(req.get("datetime").toString());
+        }
+        return "ok";
+    }
+
 }
