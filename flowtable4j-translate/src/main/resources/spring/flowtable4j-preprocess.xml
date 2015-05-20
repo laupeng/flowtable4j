@@ -19,10 +19,12 @@
           depends-on="allTemplates" init-method="init">
     </bean>
 
+    <bean id="hotelGroupWriteSources" class="com.ctrip.infosec.flowtable4j.translate.dao.HotelGroupWriteSources" init-method="init" depends-on="allTemplates"/>
+
     <bean id="tieYouSources" class="com.ctrip.infosec.flowtable4j.translate.dao.TieYouSources" depends-on="allTemplates"
           init-method="init"/>
 
-    <bean id="commonWriteSources" class="com.ctrip.infosec.flowtable4j.translate.dao.CommonWriteSources" depends-on="allTemplates"/>
+    <bean id="commonWriteSources" class="com.ctrip.infosec.flowtable4j.translate.dao.CommonWriteSources" init-method="init" depends-on="allTemplates"/>
 
     <bean id="commonSources" class="com.ctrip.infosec.flowtable4j.translate.dao.CommonSources"
           depends-on="allTemplates" init-method="init">
@@ -30,7 +32,8 @@
 
     <bean id="commonOperation" class="com.ctrip.infosec.flowtable4j.translate.service.CommonOperation" depends-on="commonSources"/>
 
-    <bean id="commonExecutor" class="com.ctrip.infosec.flowtable4j.translate.service.CommonExecutor" depends-on="commonOperation"></bean>
+    <bean id="commonExecutor" class="com.ctrip.infosec.flowtable4j.translate.service.CommonExecutor" depends-on="commonOperation"
+          ></bean>
 
     <bean id="redisSources" class="com.ctrip.infosec.flowtable4j.translate.dao.RedisSources" init-method="init"/>
 

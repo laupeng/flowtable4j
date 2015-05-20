@@ -369,4 +369,45 @@ public class CommonSources
         logger.info("getProductInfo的时间是"+(System.currentTimeMillis()-now));
         return productInfo;
     }
+
+    public List<Map<String,Object>> getFlowRules(String orderType)
+    {
+        long now = System.currentTimeMillis();
+        List<Map<String,Object>> flowRules = null;
+        try{
+            String commandText = "select t.StatisticTableId, t.StatisticTableName ,f1.ColumnName as KeyFieldID1," +
+                    "f2.ColumnName as KeyFieldID2,t.OrderType,t.Active,t.[TableType] " +
+                    "from cardriskdb..Def_RuleStatisticTable t (nolock) " +
+                    "join cardriskdb..Def_RuleMatchField f1 (nolock) on t.KeyFieldID1 = f1.FieldID " +
+                    "join cardriskdb..Def_RuleMatchField f2 (nolock) on t.KeyFieldID2 = f2.FieldID " +
+                    "where TableType = "+0+"  and t.Active = 'T' and (orderType = "+orderType+" or orderType = 0) ";
+            flowRules = cardRiskDBTemplate.queryForList(commandText);
+        }catch (Exception exp)
+        {
+            logger.warn("查询流量规则集异常:"+exp.getMessage());
+        }
+
+        logger.info("getFlowRules的时间是"+(System.currentTimeMillis()-now));
+        return flowRules;
+    }
+
+    public List<Map<String,Object>> getFlowRuleFilter()
+    {
+        long now = System.currentTimeMillis();
+        List<Map<String,Object>> flowRuleFilter = null;
+        try{
+            String commandText = "select f.StatisticTableID," +
+                    "m.ColumnName as KeyColumnName," +
+                    "f.MatchType," +
+                    "f.MatchValue " +
+                    "FROM cardriskdb..Def_RuleStatisticTableFilter f (nolock) join " +
+                    "cardriskdb..Def_RuleMatchField m (nolock) on f.FieldID=m.FieldID  order by f.MatchIndex";
+            flowRuleFilter = cardRiskDBTemplate.queryForList(commandText);
+        }catch (Exception exp)
+        {
+            logger.warn("查询流量规则过滤集异常:"+exp.getMessage());
+        }
+        logger.info("getFlowRuleFilter的时间是"+(System.currentTimeMillis()-now));
+        return flowRuleFilter;
+    }
 }

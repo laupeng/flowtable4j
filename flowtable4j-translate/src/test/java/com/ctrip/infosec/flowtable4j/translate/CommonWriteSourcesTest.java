@@ -18,6 +18,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import static com.ctrip.infosec.flowtable4j.translate.common.Utils.getValue;
+
 /**
  * Created by lpxie on 15-5-15.
  */
@@ -31,35 +33,36 @@ public class CommonWriteSourcesTest
     public void testWrite()
     {
         JdbcTemplate cardRiskDBTemplate = allTemplates.getCardRiskDBTemplate();
-        final Map<String,Object> mainInfo = new HashMap();
-        mainInfo.put(Common.ReqID,"1005");
-        //mainInfo.put(Common.OrderType,"1003");
-        Object result = cardRiskDBTemplate.execute(new CallableStatementCreator() {
-               public CallableStatement createCallableStatement(Connection con) throws SQLException
+        final Map<String,Object> ipInfo = new HashMap();
+        ipInfo.put("CheckStatus","7788121");
+        ipInfo.put("CheckNum","");
+        ipInfo.put("ReferenceID",null);
+        ipInfo.put("DataChange_LastTime","");
+        final String  reqId = "888800";
+        cardRiskDBTemplate.execute(new CallableStatementCreator() {
+           public CallableStatement createCallableStatement(Connection con) throws SQLException
+           {
+               String params = "";
+               for(int i=0;i<5-1;i++)
                {
-                   String params = "";
-                   for(int i=0;i<mainInfo.size()-1;i++)
-                   {
-                       params += "?,";
-                   }
-                   params += "?";
-                   String storedProc = "{call sp3_InfoSecurity_MainInfo_i("+params+")}";// 调用的sqldbo.sp3_InfoSecurity_MainInfo_i
-//                   String storedProc = "{call sp3_InfoSecurity_MainInfo_i(?,?)}";// 调用的sqldbo.sp3_InfoSecurity_MainInfo_i
-                   CallableStatement cs = con.prepareCall(storedProc);
-                   Set<Map.Entry<String, Object>> entries = mainInfo.entrySet();
-                   for(Map.Entry<String, Object> entry  : entries)
-                   {
-                       cs.setString(entry.getKey(),entry.getValue().toString());
-                   }
-                   return cs;
+                   params += "?,";
                }
-           }, new CallableStatementCallback() {
-               public Object doInCallableStatement(CallableStatement cs) throws SQLException, DataAccessException
-               {
-                   boolean isSuccess = cs.execute();
-                   return isSuccess;
-               }
-           });
-        System.out.print("结果："+result.toString());
+               params += "?";
+               String storedProc = "{call spA_InfoSecurity_DealInfo_i("+params+")}";//dbo.sp3_InfoSecurity_DealInfo_i
+               CallableStatement cs = con.prepareCall(storedProc);
+               cs.setString(Common.ReqID,"");
+               cs.setString("CheckStatus","");
+               cs.setString("CheckNum","999911");//
+               cs.setString("ReferenceID","xieliuping de shuju");
+               cs.setString("DataChange_LastTime","");
+               return cs;
+           }
+       }, new CallableStatementCallback() {
+           public Object doInCallableStatement(CallableStatement cs) throws SQLException, DataAccessException
+           {
+               boolean isSuccess = cs.execute();
+               return isSuccess;
+           }
+       });
     }
 }

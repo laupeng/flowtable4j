@@ -7,6 +7,8 @@ import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by lpxie on 15-4-7.
@@ -28,6 +30,21 @@ public class ESBSourcesTest
         String requestContentXml = esbSources.constructXml(contentBody,contentType);
         Assert.assertNotNull(requestContentXml);
         Assert.assertTrue(!requestContentXml.isEmpty());
+    }
+
+    @Test
+    public void testJavaRegex()
+    {
+        String str = "aaaaaaaaaaaaaaaaaaaa,fffffffffffffffffffffffffffffffff,gsgdsgsg";
+        String reg = "[0-9A-Za-z]{24,}";
+        Pattern pattern = Pattern.compile(reg);
+        Matcher matcher = pattern.matcher(str);
+        if(matcher.find())
+        {
+            String result = matcher.group();
+            System.out.print(result);
+        }
+
     }
 
     @Test

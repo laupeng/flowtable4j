@@ -17,7 +17,7 @@ public class Common
     public static String SendTickerAddr = "SendTickerAddr";
     public static String PostAddress = "PostAddress";
     public static String MobilePhone = "MobilePhone";
-    public static String ForeignMobilePhone = "ForeignMobilePhone";
+    public static String ForeignMobilePhone = "ForignMobilePhone";
     public static String ZipCode = "ZipCode";
     public static String TelCall = "TelCall";
     public static String DAirPort = "DAirPort";

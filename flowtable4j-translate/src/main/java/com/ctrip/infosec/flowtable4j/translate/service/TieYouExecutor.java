@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
 
 import java.text.ParseException;
 import java.util.*;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import static com.ctrip.infosec.common.SarsMonitorWrapper.afterInvoke;
 import static com.ctrip.infosec.common.SarsMonitorWrapper.beforeInvoke;
@@ -33,7 +34,7 @@ import static com.ctrip.infosec.flowtable4j.translate.common.Utils.getValueMap;
 public class TieYouExecutor implements Executor
 {
     private Logger logger = LoggerFactory.getLogger(TieYouExecutor.class);
-
+    private ThreadPoolExecutor writeExcutor = null;
     @Autowired
     CommonExecutor commonExecutor;
     @Autowired
@@ -41,8 +42,9 @@ public class TieYouExecutor implements Executor
     @Autowired
     TieYouSources tieYouSources;
 
-    public CheckFact executeTieYou(Map data)
+    public CheckFact executeTieYou(Map data,ThreadPoolExecutor excutor,ThreadPoolExecutor writeExcutor)
     {
+        this.writeExcutor = writeExcutor;
         beforeInvoke();
         DataFact dataFact = new DataFact();
         CheckFact checkFact = new CheckFact();
@@ -50,7 +52,7 @@ public class TieYouExecutor implements Executor
             logger.info("开始处理铁友 "+data.get("OrderID").toString()+" 数据");
 
             //一：补充数据
-            commonExecutor.complementData(dataFact,data);
+            commonExecutor.complementData(dataFact,data,excutor);
             dataFact.mainInfo.put(Common.OrderType,18);//添加订单类型 铁友是18
             getOtherInfo(dataFact, data);
             //这里分checkType 0、1和2两种情况

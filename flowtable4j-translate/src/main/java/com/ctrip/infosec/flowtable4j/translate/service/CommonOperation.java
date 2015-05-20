@@ -14,6 +14,8 @@ import org.springframework.stereotype.Component;
 import java.text.ParseException;
 import java.util.*;
 import java.util.concurrent.Callable;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.ctrip.infosec.flowtable4j.translate.common.MyDateUtil.getDateAbs;
 import static com.ctrip.infosec.flowtable4j.translate.common.Utils.getValue;
@@ -28,6 +30,8 @@ public class CommonOperation
 
     @Autowired
     CommonSources commonSources;
+    @Autowired
+    CommonWriteSources commonWriteSources;
     @Autowired
     RedisSources redisSources;
     @Autowired
@@ -101,6 +105,8 @@ public class CommonOperation
 
     public void getLastReqID(Map data)
     {
+        if(data.containsKey(Common.ReqID))
+            return;
         String orderId = getValue(data,Common.OrderID);
         String orderType = getValue(data,Common.OrderType);
         Map mainInfo = commonSources.getMainInfo(orderType, orderId);
@@ -305,5 +311,169 @@ public class CommonOperation
             dataFact.userInfo.put(Common.VipGrade,getValue(crmInfo,"vipGrade"));
             dataFact.userInfo.put("Vip",getValue(crmInfo,"vip"));
         }
+    }
+
+    //写流量数据到数据库
+    public void writeFlowData(final Map flowData)
+    {
+        final String orderType = getValue(flowData,Common.OrderType);
+        if(orderType.isEmpty())
+            return;
+        List<Map<String,Object>> flowRules = CacheFlowRuleData.getFlowRules();
+        if(flowRules == null || flowRules.size()<1)
+        {
+            flowRules = commonSources.getFlowRules(orderType);
+            CacheFlowRuleData.setFlowRules(flowRules);//添加到缓存中
+        }
+        List<Map<String,Object>> flowFilters = CacheFlowRuleData.getFlowFilters();
+        if(flowFilters == null || flowFilters.size()<1)
+        {
+            flowFilters = commonSources.getFlowRuleFilter();
+            CacheFlowRuleData.setFlowFilters(flowFilters);//添加到缓存中
+        }
+        String KeyFieldName1 = "", KeyFieldName2 = "", StatisticTableName = "", StatisticTableId = "";
+        for(Map flowRule : flowRules)
+        {
+            StatisticTableId = flowRule.get("StatisticTableId").toString();
+            if(isInsertToStaticTable(flowRule,StatisticTableId,flowFilters))
+            {
+                //写到数据库
+                StatisticTableName = flowRule.get("StatisticTableName").toString();
+                KeyFieldName1 = flowRule.get("KeyFieldID1").toString();
+                KeyFieldName2 = flowRule.get("KeyFieldID2").toString();
+                logger.info("写入流量表："+StatisticTableName);
+                commonWriteSources.insertFlowInfo(flowData, KeyFieldName1, KeyFieldName2, StatisticTableName);
+            }
+        }
+    }
+
+    //判断是否需要写流量表数据
+    public boolean isInsertToStaticTable(Map flowData,String id,List<Map<String,Object>> flowFilters)
+    {
+        List<Map<String,Object>> newFlowFilters = new ArrayList<Map<String, Object>>();
+        boolean isInsert = true;
+        for(Map flowFilter:flowFilters)
+        {
+            if(flowFilter.get("StatisticTableID").toString().equals(id))
+                newFlowFilters.add(flowFilter);
+        }
+        if(newFlowFilters == null || newFlowFilters.size()<1)
+            return false;
+        String currentValue = "";
+        for(Map flowFilter:newFlowFilters)
+        {
+            currentValue = getValue(flowFilter,"KeyColumnName");
+            String tempMatchValue = "", tempMatchType = "";
+            String matchType = getValue(flowFilter,"MatchType");
+            if(matchType.toUpperCase().equals("FEQ")||matchType.toUpperCase().equals("FNE")
+                    ||matchType.toUpperCase().equals("FIN")||matchType.toUpperCase().equals("FNA"))
+            {
+                tempMatchType = matchType.substring(1,2);
+                tempMatchValue = getValue(flowFilter,"MatchValue");
+            }else
+            {
+                tempMatchType = matchType;
+                tempMatchValue = getValue(flowFilter,"MatchValue");
+            }
+            if(!isMatch(tempMatchType,currentValue,tempMatchValue))
+                return false;
+        }
+        return isInsert;
+    }
+
+    //匹配值是否
+    public boolean isMatch(String matchType,String currentValue,String matchValue)
+    {
+        matchValue = convertValueToRegValue(matchType,matchValue);
+        if(currentValue.isEmpty() && !matchType.toUpperCase().equals("REGEX"))
+        {
+            return false;
+        }
+
+        if(matchType.toUpperCase().equals("EQ"))
+        {
+            return currentValue.equalsIgnoreCase(matchValue);
+        }else if(matchType.toUpperCase().equals("NE"))
+        {
+            return !currentValue.equalsIgnoreCase(matchValue);
+        }else if(matchType.toUpperCase().equals("GE"))
+        {
+            try
+            {
+                long longCurrent = Long.parseLong(currentValue);
+                long longMatch = Long.parseLong(matchValue);
+                if(longCurrent>longMatch)
+                    return true;
+                return false;
+            }catch (Exception exp)
+            {
+                return false;
+            }
+        }else if(matchType.toUpperCase().equals("LE"))
+        {
+            try
+            {
+                long longCurrent = Long.parseLong(currentValue);
+                long longMatch = Long.parseLong(matchValue);
+                if(longCurrent <= longMatch)
+                    return true;
+                return false;
+            }catch (Exception exp)
+            {
+                return false;
+            }
+        }else if(matchType.toUpperCase().equals("LESS"))
+        {
+            try
+            {
+                long longCurrent = Long.parseLong(currentValue);
+                long longMatch = Long.parseLong(matchValue);
+                if(longCurrent < longMatch)
+                    return true;
+                return false;
+            }catch (Exception exp)
+            {
+                return false;
+            }
+        }
+        else
+        {
+            Pattern pattern = Pattern.compile(matchValue);
+            Matcher matcher = pattern.matcher(currentValue);
+            if(matchType.toUpperCase().equals("IN")||matchType.toUpperCase().equals("LLIKE")||matchType.toUpperCase().equals("RLIKE"))
+            {
+                return matcher.find();
+            }
+            else if(matchType.toUpperCase().equals("NA"))
+            {
+                return !matcher.find();
+            }
+        }
+        //fixme 明天完善这里的代码
+        return true;
+    }
+    public String convertValueToRegValue(String checkType,String checkValue)
+    {
+        String regexValue = "";
+        if(checkType.toUpperCase().equals("EQ") || checkType.toUpperCase().equals("NE"))
+        {
+            regexValue = checkValue;
+        }else if(checkType.toUpperCase().equals("IN") || checkType.toUpperCase().equals("NA"))
+        {
+            regexValue = "("+checkValue.toUpperCase()+")+";
+        }else if(checkType.toUpperCase().equals("LLIKE"))
+        {
+            regexValue = "^("+checkValue.toUpperCase()+")";
+        }else if(checkType.toUpperCase().equals("RLIKE"))
+        {
+            regexValue = "("+checkValue.toUpperCase()+")+$";
+        }else if(checkType.toUpperCase().equals("REGEX"))
+        {
+            regexValue = checkValue;
+        }else
+        {
+            regexValue = checkValue;
+        }
+        return regexValue;
     }
 }

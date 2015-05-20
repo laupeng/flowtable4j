@@ -10,6 +10,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by lpxie on 15-3-31.
@@ -18,7 +21,8 @@ import java.util.Map;
 public class PreProcessor
 {
     private Logger logger = LoggerFactory.getLogger(PreProcessor.class);
-
+    private ThreadPoolExecutor excutor = new ThreadPoolExecutor(64, 507, 60, TimeUnit.SECONDS, new SynchronousQueue(), new ThreadPoolExecutor.CallerRunsPolicy());
+    private ThreadPoolExecutor writeExcutor = new ThreadPoolExecutor(2, 5, 60, TimeUnit.SECONDS, new SynchronousQueue(), new ThreadPoolExecutor.CallerRunsPolicy());
     @Autowired
     HotelGroupExecutor hotelGroupExecutor;
     @Autowired
@@ -40,9 +44,9 @@ public class PreProcessor
             case 2:
                 break;
             case 14:
-                return hotelGroupExecutor.executeHotelGroup(data);
+                return hotelGroupExecutor.executeHotelGroup(data,excutor,writeExcutor);
             case 18:
-                return tieYouExecutor.executeTieYou(data);
+                return tieYouExecutor.executeTieYou(data,excutor,writeExcutor);
             //...14-24
             default:
                 logger.info("没有找到相关的订单类型 : "+orderType);

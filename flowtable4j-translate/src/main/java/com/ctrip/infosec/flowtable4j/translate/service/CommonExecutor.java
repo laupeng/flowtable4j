@@ -30,7 +30,7 @@ import static com.ctrip.infosec.flowtable4j.translate.common.Utils.getValue;
 public class CommonExecutor
 {
     private Logger logger = LoggerFactory.getLogger(HotelGroupExecutor.class);
-    private ThreadPoolExecutor excutor = new ThreadPoolExecutor(64, 512, 60, TimeUnit.SECONDS, new SynchronousQueue(), new ThreadPoolExecutor.CallerRunsPolicy());
+    private ThreadPoolExecutor excutor = null;
     List<Callable<DataFact>> runs = Lists.newArrayList();
     List<Callable<Map>> runsF = Lists.newArrayList();
     @Autowired
@@ -44,8 +44,9 @@ public class CommonExecutor
     @Autowired
     CommonOperation commonOperation;
 
-    public void complementData(DataFact dataFact,Map data)
+    public void complementData(DataFact dataFact,Map data,ThreadPoolExecutor excutor)
     {
+        this.excutor = excutor;
         beforeInvoke();
         try{
             logger.info("开始补充"+data.get("OrderID")+"数据");

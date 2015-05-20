@@ -4,11 +4,14 @@ import com.ctrip.infosec.flowtable4j.model.BWFact;
 import com.ctrip.infosec.flowtable4j.model.CheckFact;
 import com.ctrip.infosec.flowtable4j.model.CheckType;
 import com.ctrip.infosec.flowtable4j.model.FlowFact;
+import com.ctrip.infosec.flowtable4j.translate.common.BeanMapper;
+import com.ctrip.infosec.flowtable4j.translate.common.MyJSON;
 import com.ctrip.infosec.flowtable4j.translate.dao.*;
 import com.ctrip.infosec.flowtable4j.translate.model.Common;
 import com.ctrip.infosec.flowtable4j.translate.model.DataFact;
 import com.ctrip.infosec.flowtable4j.translate.model.HotelGroup;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,11 +22,15 @@ import javax.print.attribute.standard.OrientationRequested;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import static com.ctrip.infosec.common.SarsMonitorWrapper.afterInvoke;
 import static com.ctrip.infosec.common.SarsMonitorWrapper.beforeInvoke;
 import static com.ctrip.infosec.common.SarsMonitorWrapper.fault;
 import static com.ctrip.infosec.flowtable4j.translate.common.MyDateUtil.getDateAbs;
+import static com.ctrip.infosec.flowtable4j.translate.common.Utils.Json;
 import static com.ctrip.infosec.flowtable4j.translate.common.Utils.getValue;
 import static com.ctrip.infosec.flowtable4j.translate.common.Utils.getValueMap;
 
@@ -34,10 +41,15 @@ import static com.ctrip.infosec.flowtable4j.translate.common.Utils.getValueMap;
 public class HotelGroupExecutor implements Executor
 {
     private Logger logger = LoggerFactory.getLogger(HotelGroupExecutor.class);
+    private ThreadPoolExecutor writeExcutor = null;
     @Autowired
     HotelGroupSources hotelGroupSources;
     @Autowired
+    HotelGroupWriteSources hotelGroupWriteSources;
+    @Autowired
     CommonSources commonSources;
+    @Autowired
+    CommonWriteSources commonWriteSources;
     @Autowired
     RedisSources redisSources;
     @Autowired
@@ -46,9 +58,12 @@ public class HotelGroupExecutor implements Executor
     DataProxySources dataProxySources;
     @Autowired
     CommonExecutor commonExecutor;
+    @Autowired
+    CommonOperation commonOperation;
 
-    public CheckFact executeHotelGroup(Map data)
+    public CheckFact executeHotelGroup(Map data,ThreadPoolExecutor excutor,ThreadPoolExecutor writeExcutor)
     {
+        this.writeExcutor = writeExcutor;
         beforeInvoke();
         DataFact dataFact = new DataFact();
         CheckFact checkFact = new CheckFact();
@@ -56,7 +71,7 @@ public class HotelGroupExecutor implements Executor
             logger.info("开始处理酒店团购 "+data.get("OrderID").toString()+" 数据");
             //一：补充数据
             long now5 = System.currentTimeMillis();
-            commonExecutor.complementData(dataFact,data);
+            commonExecutor.complementData(dataFact,data,excutor);
             logger.info("complementData公共补充数据的时间是:"+(System.currentTimeMillis()-now5));
 
             //这里分checkType 0、1和2两种情况
@@ -119,6 +134,11 @@ public class HotelGroupExecutor implements Executor
                 checkFact.setReqId(Long.parseLong(data.get(HotelGroup.ReqID).toString()));//reqId如何获取
             logger.info("三：到补充流量数据的时间是："+(System.currentTimeMillis()-now5));
             logger.info(data.get("OrderID").toString()+" 数据处理完毕");
+
+            //预处理数据写到数据库
+            flowData.put(Common.OrderType,data.get(Common.OrderType));
+            writeDB(data,dataFact, flowData);
+
         }catch (Exception exp)
         {
             fault();
@@ -189,6 +209,185 @@ public class HotelGroupExecutor implements Executor
         }catch (Exception exp)
         {
             logger.warn("获取HotelGroupProductInfo1异常:",exp);
+        }
+    }
+
+    public void writeDB(Map data,DataFact dataFact,Map flowData)
+    {
+        logger.info(getValue(dataFact.mainInfo,Common.OrderID)+"开始写预处理数据和流量表数据到数据库");
+        //下面输出当前订单的预处理数据到日志 给测试用 方便他们做对比
+        final String reqId = getValue(data,Common.ReqID);
+        flowData.put(Common.ReqID,reqId);
+        logger.info("mainInfo\t"+ Json.toPrettyJSONString(dataFact.mainInfo));
+        logger.info("contactInfo\t"+ Json.toPrettyJSONString(dataFact.contactInfo));
+        logger.info("dealInfo\t"+ Json.toPrettyJSONString(dataFact.dealInfo));
+        logger.info("corporationInfo\t"+ Json.toPrettyJSONString(dataFact.corporationInfo));
+        logger.info("DIDInfo\t"+ Json.toPrettyJSONString(dataFact.DIDInfo));
+        logger.info("ipInfo\t"+ Json.toPrettyJSONString(dataFact.ipInfo));
+        logger.info("otherInfo\t"+ Json.toPrettyJSONString(dataFact.otherInfo));
+        logger.info("hotelGroupInfo\t"+ Json.toPrettyJSONString(dataFact.productInfoM));
+        logger.info("DIDInfo\t"+ Json.toPrettyJSONString(dataFact.DIDInfo));
+        logger.info("paymentMainInfo\t"+ Json.toPrettyJSONString(dataFact.paymentMainInfo));
+        for(int i=0;i<dataFact.paymentInfoList.size();i++)
+        {
+            Map<String,Object> paymentInfo = dataFact.paymentInfoList.get(i);
+            logger.info(i + "paymentInfo\t" + Json.toPrettyJSONString(paymentInfo));
+            List<Map<String,Object>> cardInfos = (List<Map<String,Object>>)paymentInfo.get(Common.CardInfoList);
+            for(int j=0;j<cardInfos.size();j++)
+            {
+                logger.info(i + "\t" + j + "cardInfo\t" + Json.toPrettyJSONString(cardInfos.get(j)));
+            }
+        }
+        logger.info("流量表数据\t"+ Json.toPrettyJSONString(flowData));
+
+
+        final DataFact dataFactCopy = BeanMapper.copy(dataFact,DataFact.class);
+        List<Callable<DataFact>> runs = Lists.newArrayList();
+
+        /*runs.add(new Callable<DataFact>() {
+            @Override
+            public DataFact call() throws Exception {
+                try {
+                    commonWriteSources.insertDealInfo(dataFactCopy.dealInfo,reqId);
+                } catch (Exception e) {
+                    logger.warn("invoke commonWriteSources.insertDealInfo failed.: ", e);
+                }
+                return null;
+            }
+        });
+
+        runs.add(new Callable<DataFact>() {
+            @Override
+            public DataFact call() throws Exception {
+                try {
+                    commonWriteSources.insertMainInfo(dataFactCopy.mainInfo,reqId);
+                } catch (Exception e) {
+                    logger.warn("invoke commonWriteSources.insertMainInfo failed.: ", e);
+                }
+                return null;
+            }
+        });
+
+        runs.add(new Callable<DataFact>() {
+            @Override
+            public DataFact call() throws Exception {
+                try {
+                    commonWriteSources.insertContactInfo(dataFactCopy.contactInfo,reqId);
+                } catch (Exception e) {
+                    logger.warn("invoke commonWriteSources.insertContactInfo failed.: ", e);
+                }
+                return null;
+            }
+        });
+
+        runs.add(new Callable<DataFact>() {
+            @Override
+            public DataFact call() throws Exception {
+                try {
+                    commonWriteSources.insertUserInfo(dataFactCopy.userInfo, reqId);
+                } catch (Exception e) {
+                    logger.warn("invoke commonWriteSources.insertContactInfo failed.: ", e);
+                }
+                return null;
+            }
+        });
+
+        runs.add(new Callable<DataFact>() {
+            @Override
+            public DataFact call() throws Exception {
+                try {
+                    commonWriteSources.insertIpInfo(dataFactCopy.ipInfo,reqId);
+                } catch (Exception e) {
+                    logger.warn("invoke commonWriteSources.insertIpInfo failed.: ", e);
+                }
+                return null;
+            }
+        });
+
+        runs.add(new Callable<DataFact>() {
+            @Override
+            public DataFact call() throws Exception {
+                try {
+                    hotelGroupWriteSources.insertHotelGroupInfo(dataFactCopy.productInfoM,reqId);
+                } catch (Exception e) {
+                    logger.warn("invoke commonWriteSources.insertIpInfo failed.: ", e);
+                }
+                return null;
+            }
+        });
+        runs.add(new Callable<DataFact>() {
+            @Override
+            public DataFact call() throws Exception {
+                try {
+                    commonWriteSources.insertOtherInfo(dataFactCopy.otherInfo,reqId);
+                } catch (Exception e) {
+                    logger.warn("invoke commonWriteSources.insertIpInfo failed.: ", e);
+                }
+                return null;
+            }
+        });
+
+        runs.add(new Callable<DataFact>() {
+        @Override
+        public DataFact call() throws Exception {
+            try {
+                commonWriteSources.insertDeviceIDInfo(dataFactCopy.DIDInfo, reqId);
+            } catch (Exception e) {
+                logger.warn("invoke commonWriteSources.insertIpInfo failed.: ", e);
+            }
+            return null;
+        }
+    });
+
+        runs.add(new Callable<DataFact>() {
+            @Override
+            public DataFact call() throws Exception {
+                try {
+                    commonWriteSources.insertPaymentMainInfo(dataFactCopy.paymentMainInfo, reqId);
+                } catch (Exception e) {
+                    logger.warn("invoke commonWriteSources.insertIpInfo failed.: ", e);
+                }
+                return null;
+            }
+        });
+
+        runs.add(new Callable<DataFact>() {
+            @Override
+            public DataFact call() throws Exception {
+                try {
+                    for(int i=0;i<dataFactCopy.paymentInfoList.size();i++)
+                    {
+                        Map<String,Object> paymentInfo = dataFactCopy.paymentInfoList.get(i);
+                        final String paymentInfoID = commonWriteSources.insertPaymentInfo(getValueMap(paymentInfo,Common.PaymentInfo),reqId);
+                        List<Map<String,Object>> cardInfos = (List<Map<String,Object>>)paymentInfo.get(Common.CardInfoList);
+                        for(int j=0;j<cardInfos.size();j++)
+                        {
+                            commonWriteSources.insertCardInfo(cardInfos.get(j),reqId,paymentInfoID);
+                        }
+                    }
+                } catch (Exception e) {
+                    logger.warn("invoke  commonWriteSources.insertCardInfo failed.: ", e);
+                }
+                return null;
+            }
+        });*/
+
+        //流量数据
+        final Map flowDataCopy = BeanMapper.copy(flowData,Map.class);
+        runs.add(new Callable<DataFact>() {
+            @Override
+            public DataFact call() throws Exception {
+                commonOperation.writeFlowData(flowDataCopy);
+                return null;
+            }
+        });
+
+        try
+        {
+            this.writeExcutor.invokeAll(runs, 2000, TimeUnit.MILLISECONDS);//这里的时间设定
+        } catch (InterruptedException e)
+        {
+            logger.warn("在writeExcutor线程池中执行写数据异常"+e.getMessage());
         }
     }
 }
