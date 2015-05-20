@@ -21,10 +21,12 @@ public class GTest {
 //        printStrings(src.replaceAll("@", ":"));
 //        printStrings(null, "BB");
 //        printStrings();
-         Map<String, Integer> ss= new HashMap<String, Integer>();
-         ss.put("AA",11);
-         ss.put("AA",22);
-         System.out.println(ss.get("AA"));
+         Map<Integer, Integer> ss= new HashMap<Integer, Integer>();
+         ss.put(11,11);
+         ss.put(22, 22);
+        Integer j=11;
+         System.out.println(ss.get(j));
+        System.out.println(ss.containsKey(j));
     }
 
     public void match(String source, String pattern) {

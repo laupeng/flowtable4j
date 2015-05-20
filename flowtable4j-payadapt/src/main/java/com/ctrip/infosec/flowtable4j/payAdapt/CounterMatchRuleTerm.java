@@ -72,7 +72,7 @@ public class CounterMatchRuleTerm extends PayAdaptRuleTerm {
                         if (fact.requestCache.containsKey(key)) {
                             matched = executor.match(fact.requestCache.get(key), matchValue);
                         } else {
-                            String count = Counter.getCounter(countType, sqlStatement, fieldName, startOffset,
+                            String count = Counter.getCounter(countType, sqlStatement, keyFieldName, startOffset,
                                     endOffset, getString(row, countField), keyFieldValue);
                             fact.requestCache.put(key, count);
                             matched = executor.match(count, matchValue);
