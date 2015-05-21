@@ -163,8 +163,8 @@ public class Common
     public static String LastCheck = "LastCheck";
 
     //通过手机号取出对应的城市和省名称
-    public static String MobilePhoneCity = "CityName";
-    public static String MobilePhoneProvince = "ProvinceName";
+    public static String MobilePhoneCity = "MobilePhoneCity";
+    public static String MobilePhoneProvince = "MobilePhoneProvince";
 
     //通过uid获取的用户的crm的信息
     public static String BindedEmail= "BindedEmail";

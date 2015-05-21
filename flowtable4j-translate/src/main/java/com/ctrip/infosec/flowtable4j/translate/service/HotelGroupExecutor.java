@@ -76,11 +76,15 @@ public class HotelGroupExecutor implements Executor
 
             //这里分checkType 0、1和2两种情况
             int checkType = Integer.parseInt(getValue(data, Common.CheckType));
-            if(checkType == 0 ||checkType == 1)
+            if(checkType == 0 )
+            {
+                getOtherInfo0(dataFact, data);
+            }else if(checkType == 1)
             {
                 getOtherInfo0(dataFact, data);
                 getHotelGroupProductInfo0(dataFact, data);
-            }else if(checkType == 2)
+            }
+            else if(checkType == 2)
             {
                 getOtherInfo1(dataFact, data);
                 getHotelGroupProductInfo1(dataFact, data);
@@ -104,6 +108,7 @@ public class HotelGroupExecutor implements Executor
                 List<Map> cardInfoList = (List<Map>)paymentInfo.get(Common.CardInfoList);
                 Map cardInfoFirst = cardInfoList.get(0);
 
+                flowData.put(HotelGroup.CardBinOrderID,getValue(cardInfoFirst,Common.CardBin)+getValue(dataFact.mainInfo,Common.OrderID));
                 flowData.put(HotelGroup.CardBinUID,getValue(cardInfoFirst,Common.CardBin)+getValue(dataFact.userInfo,Common.Uid));
                 flowData.put(HotelGroup.CardBinMobilePhone,getValue(cardInfoFirst,Common.CardBin)+getValue(dataFact.contactInfo,Common.MobilePhone));
                 flowData.put(HotelGroup.CardBinUserIPAdd,getValue(cardInfoFirst,Common.CardBin)+getValue(dataFact.ipInfo,Common.UserIPAdd));

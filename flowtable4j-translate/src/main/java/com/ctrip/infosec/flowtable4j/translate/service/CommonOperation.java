@@ -150,7 +150,7 @@ public class CommonOperation
             String prepayType = getValue(payment,Common.PrepayType);
             PaymentInfo.put(Common.PrepayType, prepayType);
             PaymentInfo.put(Common.Amount,getValue(payment, Common.Amount));
-            if(prepayType.equals("CCARD") || prepayType.equals("DCARD"))
+            if(prepayType.toUpperCase().equals("CCARD") || prepayType.toUpperCase().equals("DCARD"))
             {
                 cardInfo.put(Common.CardInfoID,getValue(payment, Common.CardInfoID));
                 cardInfo.put(Common.InfoID,"0");
@@ -162,7 +162,21 @@ public class CommonOperation
                 Map cardInfoResult = getCardInfo(cardInfoId);
                 if(cardInfoResult != null && cardInfoResult.size()>0)
                 {
-                    cardInfo.putAll(cardInfoResult);
+                    cardInfo.put(Common.BillingAddress,getValue(cardInfoResult,Common.BillingAddress));
+                    cardInfo.put(Common.CardBin,getValue(cardInfoResult,Common.CardBin));
+                    cardInfo.put(Common.CardHolder,getValue(cardInfoResult,Common.CardHolder));
+                    cardInfo.put(Common.CCardLastNoCode,getValue(cardInfoResult,Common.CCardLastNoCode));
+
+                    cardInfo.put(Common.CCardNoCode,getValue(cardInfoResult,Common.CCardNoCode));
+                    cardInfo.put(Common.CCardPreNoCode,getValue(cardInfoResult,Common.CCardPreNoCode));
+                    cardInfo.put(Common.CreditCardType,getValue(cardInfoResult,Common.CreditCardType));
+                    cardInfo.put(Common.CValidityCode,getValue(cardInfoResult,Common.CValidityCode));
+                    cardInfo.put(Common.IsForigenCard,getValue(cardInfoResult,Common.IsForeignCard));
+                    cardInfo.put(Common.Nationality,getValue(cardInfoResult,Common.Nationality));
+
+                    cardInfo.put(Common.Nationalityofisuue,getValue(cardInfoResult,Common.Nationalityofisuue));
+                    cardInfo.put(Common.BankOfCardIssue,getValue(cardInfoResult,Common.BankOfCardIssue));
+                    cardInfo.put(Common.StateName,getValue(cardInfoResult,Common.StateName));
                 }
                 //通过卡种和卡BIN获取系统中维护的信用卡信息
                 String cardTypeId = getValue(cardInfoResult,Common.CreditCardType);
@@ -170,7 +184,8 @@ public class CommonOperation
                 Map subCardInfo = commonSources.getCardInfo(cardTypeId,cardBin);
                 if(subCardInfo != null && subCardInfo.size()>0)
                 {
-                    cardInfo.putAll(subCardInfo);
+                    cardInfo.put(Common.CardBinIssue,getValue(subCardInfo,Common.CardBinIssue));
+                    cardInfo.put(Common.CardBinBankOfCardIssue,getValue(subCardInfo,Common.CardBinBankOfCardIssue));
                 }
                 CardInfoList.add(cardInfo);
             }
