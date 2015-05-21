@@ -137,7 +137,7 @@ public class HotelGroupExecutor implements Executor
 
             //预处理数据写到数据库
             flowData.put(Common.OrderType,data.get(Common.OrderType));
-            writeDB(data,dataFact, flowData);
+            //writeDB(data,dataFact, flowData);//fixme 第一次测试先不写数据库
 
         }catch (Exception exp)
         {
