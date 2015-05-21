@@ -320,7 +320,10 @@ public class CommonOperation
             dataFact.userInfo.put(Common.RelatedMobilephone,getValue(crmInfo,"mobilePhone"));
             dataFact.userInfo.put(Common.BindedEmail,getValue(crmInfo,"bindedEmail"));
             dataFact.userInfo.put(Common.BindedMobilePhone,getValue(crmInfo,"bindedMobilePhone"));
-            dataFact.userInfo.put(Common.Experience,getValue(crmInfo,"experience"));
+            String experience = getValue(crmInfo,"experience");
+            if(experience.isEmpty())
+                experience = "0";
+            dataFact.userInfo.put(Common.Experience,experience);
             dataFact.userInfo.put(Common.SignUpDate,getValue(crmInfo,"signupdate"));
             dataFact.userInfo.put(Common.UserPassword,getValue(crmInfo,"mD5Password"));
             dataFact.userInfo.put(Common.VipGrade,getValue(crmInfo,"vipGrade"));

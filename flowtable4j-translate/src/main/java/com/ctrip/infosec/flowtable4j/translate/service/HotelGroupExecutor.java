@@ -192,6 +192,8 @@ public class HotelGroupExecutor implements Executor
         String signUpDateStr = getValue(data,Common.SignUpDate);
         Date signUpDate = DateUtils.parseDate(signUpDateStr,"yyyy-MM-dd HH:mm:ss","yyyy-MM-dd HH:mm:ss.SSS");
         dataFact.otherInfo.put(Common.OrderToSignUpDate,getDateAbs(signUpDate, orderDate,1));
+
+        dataFact.otherInfo.put(Common.TakeOffToOrderDate,"0");
     }
 
     public void getOtherInfo1(DataFact dataFact,Map data)

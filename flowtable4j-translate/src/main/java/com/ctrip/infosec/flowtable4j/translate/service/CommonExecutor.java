@@ -306,9 +306,14 @@ public class CommonExecutor
         commonOperation.getLastReqID(data);//这里暂时存储起来 在后面从data里面取出来
         //公共属性的值补充
         //补充mainInfo信息
-        dataFact.mainInfo.put(Common.Amount,getValue(data,Common.Amount));
+        dataFact.mainInfo.put(Common.Amount,getValue(data,"OrderAmount"));
+        String subOrderType = getValue(data,Common.SubOrderType);
+        if(subOrderType.isEmpty())
+            subOrderType = "0";
+        dataFact.mainInfo.put(Common.SubOrderType,subOrderType);
         dataFact.mainInfo.put(Common.OrderDate,getValue(data,Common.OrderDate));
         dataFact.mainInfo.put(Common.IsOnline,getValue(data,Common.IsOnline));
+        dataFact.mainInfo.put(Common.OrderType,getValue(data,Common.OrderType));
         dataFact.mainInfo.put(Common.Serverfrom,getValue(data,Common.Serverfrom));
         dataFact.mainInfo.put(Common.CorporationID,getValue(data,Common.CorporationID));
         //补充contactInfo
