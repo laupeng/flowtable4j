@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.ctrip.infosec.flowtable4j</groupId>
+        <artifactId>flowtable4j-parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+
+    <groupId>com.ctrip.infosec.flowtable4j</groupId>
+    <artifactId>flowtable4j-biz</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+    <name>${project.artifactId} v${project.version}</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.ctrip.infosec.flowtable4j</groupId>
+            <artifactId>flowtable4j-accountlist</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.ctrip.infosec.flowtable4j</groupId>
+            <artifactId>flowtable4j-core</artifactId>
+        </dependency>
+
+        <!--预处理-->
+        <dependency>
+            <groupId>com.ctrip.infosec.flowtable4j</groupId>
+            <artifactId>flowtable4j-translate</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.ctrip.infosec.flowtable4j</groupId>
+            <artifactId>flowtable4j-jobws</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.ctrip.infosec.flowtable4j</groupId>
+            <artifactId>flowtable4j-bwlist</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.ctrip.infosec.flowtable4j</groupId>
+            <artifactId>flowtable4j-flowlist</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.ctrip.infosec.flowtable4j</groupId>
+            <artifactId>flowtable4j-dal</artifactId>
+        </dependency>
+        <!-- RabbitMQ -->
+        <dependency>
+            <groupId>org.springframework.amqp</groupId>
+            <artifactId>spring-rabbit</artifactId>
+        </dependency>
+
+        <!-- servlet -->
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet.jsp</groupId>
+            <artifactId>javax.servlet.jsp-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jstl</groupId>
+            <artifactId>jstl</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>taglibs</groupId>
+            <artifactId>standard</artifactId>
+        </dependency>
+
+        <!-- test -->
+        <dependency>
+            <groupId>com.ctrip.infosec.sars</groupId>
+            <artifactId>sars-util-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- JSON -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.module</groupId>
+            <artifactId>jackson-module-jaxb-annotations</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.jaxrs</groupId>
+            <artifactId>jackson-jaxrs-json-provider</artifactId>
+        </dependency>
+
+        <!-- Clogging -->
+        <dependency>
+            <groupId>com.ctrip.framework.clogging</groupId>
+            <artifactId>clogging-agent</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.ctrip.framework.clogging</groupId>
+            <artifactId>clogging-domain</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.ctrip.framework.clogging</groupId>
+            <artifactId>clogging-domain-thrift</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.ctrip.infosec</groupId>
+            <artifactId>infosec-monitor-client</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+        </plugins>
+        <finalName>${project.artifactId}</finalName>
+    </build>
+
+</project>

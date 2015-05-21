@@ -7,12 +7,10 @@ import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
- * Created by lpxie on 15-4-7.
- */
+* Created by lpxie on 15-4-7.
+*/
 public class ESBSourcesTest
 {
     /**
@@ -22,29 +20,14 @@ public class ESBSourcesTest
     @Test
     public void testConstructXml()
     {
-        //30075005
         ESBSources esbSources = new ESBSources();
+
         String contentType = "AccCash.CreditCard.GetCreditCardInfo";
-        String cardInfoId = "218417646";
+        String cardInfoId = "30075005";
         String contentBody = "<GetCreditCardInfoRequest><CardInfoId>" + cardInfoId + "</CardInfoId></GetCreditCardInfoRequest>";
         String requestContentXml = esbSources.constructXml(contentBody,contentType);
         Assert.assertNotNull(requestContentXml);
         Assert.assertTrue(!requestContentXml.isEmpty());
-    }
-
-    @Test
-    public void testJavaRegex()
-    {
-        String str = "aaaaaaaaaaaaaaaaaaaa,fffffffffffffffffffffffffffffffff,gsgdsgsg";
-        String reg = "[0-9A-Za-z]{24,}";
-        Pattern pattern = Pattern.compile(reg);
-        Matcher matcher = pattern.matcher(str);
-        if(matcher.find())
-        {
-            String result = matcher.group();
-            System.out.print(result);
-        }
-
     }
 
     @Test
@@ -55,7 +38,7 @@ public class ESBSourcesTest
                 "<Request>\n" +
                 "  <Header UserID=\"670203\" RequestType=\"AccCash.CreditCard.GetCreditCardInfo\"/>\n" +
                 "  <GetCreditCardInfoRequest>\n" +
-                "    <CardInfoId>218417646</CardInfoId>\n" +
+                "    <CardInfoId>30075005</CardInfoId>\n" +
                 "  </GetCreditCardInfoRequest>\n" +
                 "</Request>";
         ESBSources esbSources = new ESBSources();

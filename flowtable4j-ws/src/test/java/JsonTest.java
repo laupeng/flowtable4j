@@ -38,7 +38,7 @@ public class JsonTest {
                 "}", CheckFact.class);
         System.out.println(fact);
     }
-    @Test
+//    @Test
     public void testSQLType() {
         MapSqlParameterSource sqlParameterSource = new MapSqlParameterSource();
         sqlParameterSource.addValue("aa", 1, Types.NVARCHAR);

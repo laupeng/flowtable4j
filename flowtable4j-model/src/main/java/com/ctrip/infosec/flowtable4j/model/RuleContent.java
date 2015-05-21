@@ -1,15 +1,22 @@
-package com.ctrip.infosec.flowtable4j.accountsecurity;
+package com.ctrip.infosec.flowtable4j.model;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Created by thyang on 2015-05-12.
  */
 public class RuleContent {
 
+    @JsonProperty("CheckType")
     private String checkType;
+    @JsonProperty("SceneType")
     private String sceneType;
+    @JsonProperty("CheckValue")
     private String checkValue;
+    @JsonProperty("ExpiryDate")
     private String expiryDate;
-    private int resultLevel;
+    @JsonProperty("ResultLevel")
+    private Integer resultLevel;
 
     public String getCheckType() {
         return checkType;
@@ -43,11 +50,11 @@ public class RuleContent {
         this.expiryDate = expiryDate;
     }
 
-    public int getResultLevel() {
+    public Integer getResultLevel() {
         return resultLevel;
     }
 
-    public void setResultLevel(int resultLevel) {
+    public void setResultLevel(Integer resultLevel) {
         this.resultLevel = resultLevel;
     }
 }

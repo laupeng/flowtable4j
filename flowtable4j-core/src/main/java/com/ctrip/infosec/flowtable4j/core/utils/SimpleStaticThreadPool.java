@@ -2,11 +2,7 @@ package com.ctrip.infosec.flowtable4j.core.utils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 import java.util.concurrent.*;
 
 /**
@@ -23,17 +19,15 @@ public class SimpleStaticThreadPool extends ThreadPoolExecutor{
     public static SimpleStaticThreadPool getInstance(){
         return instance;
     }
-    protected void afterExecute(Runnable r, Throwable t) {
-        super.afterExecute(r, t);
-        Future<?> f = (Future<?>) r;
-        try {
-            f.get();
-        } catch (InterruptedException e) {
-            logger.error("线程池中发现异常，被中断 ,InterruptedException");
-        } catch (ExecutionException e) {
-            logger.error("线程池中发现异常", e);
-        }
-    }
-
-
+//    protected void afterExecute(Runnable r, Throwable t) {
+//        super.afterExecute(r, t);
+//        Future<?> f = (Future<?>) r;
+//        try {
+//            f.get();
+//        } catch (InterruptedException e) {
+//            logger.error("线程池中发现异常，被中断 ,InterruptedException");
+//        } catch (ExecutionException e) {
+//            logger.error("线程池中发现异常", e);
+//        }
+//    }
 }

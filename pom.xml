@@ -162,6 +162,11 @@
             </dependency>
 			<dependency>
 				<groupId>com.ctrip.infosec.flowtable4j</groupId>
+				<artifactId>flowtable4j-biz</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.ctrip.infosec.flowtable4j</groupId>
 				<artifactId>flowtable4j-core</artifactId>
 				<version>${project.version}</version>
 			</dependency>
@@ -629,5 +634,6 @@
         <module>flowtable4j-flowlist</module>
         <module>flowtable4j-translate</module>
     	<module>flowtable4j-payadapt</module>
-  </modules>
+		<module>flowtable4j-biz</module>
+	</modules>
 </project>
