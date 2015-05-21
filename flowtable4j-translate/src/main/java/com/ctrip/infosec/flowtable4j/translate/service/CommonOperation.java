@@ -341,7 +341,7 @@ public class CommonOperation
                 StatisticTableName = flowRule.get("StatisticTableName").toString();
                 KeyFieldName1 = flowRule.get("KeyFieldID1").toString();
                 KeyFieldName2 = flowRule.get("KeyFieldID2").toString();
-                logger.info("写入流量表："+StatisticTableName);
+                logger.info("写入流量表："+StatisticTableName+"\t"+KeyFieldName1+"\t"+KeyFieldName2);
                 commonWriteSources.insertFlowInfo(flowData, KeyFieldName1, KeyFieldName2, StatisticTableName);
             }
         }

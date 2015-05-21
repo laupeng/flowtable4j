@@ -218,33 +218,33 @@ public class HotelGroupExecutor implements Executor
         //下面输出当前订单的预处理数据到日志 给测试用 方便他们做对比
         final String reqId = getValue(data,Common.ReqID);
         flowData.put(Common.ReqID,reqId);
+        logger.info("dealInfo\t"+ Json.toPrettyJSONString(dataFact.dealInfo));
         logger.info("mainInfo\t"+ Json.toPrettyJSONString(dataFact.mainInfo));
         logger.info("contactInfo\t"+ Json.toPrettyJSONString(dataFact.contactInfo));
-        logger.info("dealInfo\t"+ Json.toPrettyJSONString(dataFact.dealInfo));
-        logger.info("corporationInfo\t"+ Json.toPrettyJSONString(dataFact.corporationInfo));
-        logger.info("DIDInfo\t"+ Json.toPrettyJSONString(dataFact.DIDInfo));
+        logger.info("userInfo\t"+ Json.toPrettyJSONString(dataFact.userInfo));
         logger.info("ipInfo\t"+ Json.toPrettyJSONString(dataFact.ipInfo));
-        logger.info("otherInfo\t"+ Json.toPrettyJSONString(dataFact.otherInfo));
         logger.info("hotelGroupInfo\t"+ Json.toPrettyJSONString(dataFact.productInfoM));
+        logger.info("otherInfo\t"+ Json.toPrettyJSONString(dataFact.otherInfo));
         logger.info("DIDInfo\t"+ Json.toPrettyJSONString(dataFact.DIDInfo));
-        logger.info("paymentMainInfo\t"+ Json.toPrettyJSONString(dataFact.paymentMainInfo));
         for(int i=0;i<dataFact.paymentInfoList.size();i++)
         {
             Map<String,Object> paymentInfo = dataFact.paymentInfoList.get(i);
-            logger.info(i + "paymentInfo\t" + Json.toPrettyJSONString(paymentInfo));
+            logger.info(i + "\tpaymentInfo\t" + Json.toPrettyJSONString(paymentInfo));
             List<Map<String,Object>> cardInfos = (List<Map<String,Object>>)paymentInfo.get(Common.CardInfoList);
             for(int j=0;j<cardInfos.size();j++)
             {
-                logger.info(i + "\t" + j + "cardInfo\t" + Json.toPrettyJSONString(cardInfos.get(j)));
+                logger.info(i + "\t" + j + "\tcardInfo\t" + Json.toPrettyJSONString(cardInfos.get(j)));
             }
         }
+        logger.info("paymentMainInfo\t"+ Json.toPrettyJSONString(dataFact.paymentMainInfo));
+
         logger.info("流量表数据\t"+ Json.toPrettyJSONString(flowData));
 
 
         final DataFact dataFactCopy = BeanMapper.copy(dataFact,DataFact.class);
         List<Callable<DataFact>> runs = Lists.newArrayList();
 
-        /*runs.add(new Callable<DataFact>() {
+        runs.add(new Callable<DataFact>() {
             @Override
             public DataFact call() throws Exception {
                 try {
@@ -370,7 +370,7 @@ public class HotelGroupExecutor implements Executor
                 }
                 return null;
             }
-        });*/
+        });
 
         //流量数据
         final Map flowDataCopy = BeanMapper.copy(flowData,Map.class);
