@@ -141,7 +141,7 @@ public class CommonOperation
         {
             try{
                 long reqId = Long.parseLong(getValue(mainInfo, Common.ReqID));
-                data.put(Common.ReqID,reqId);
+                data.put("OldReqID",reqId);
             }catch (Exception exp)
             {
                 logger.warn("getLastReqID获取lastReqID异常:",exp);
@@ -402,8 +402,8 @@ public class CommonOperation
             if(flowFilter.get("StatisticTableID").toString().equals(id))
                 newFlowFilters.add(flowFilter);
         }
-        if(newFlowFilters == null || newFlowFilters.size()<1)
-            return false;
+        if(newFlowFilters == null || newFlowFilters.size()<1)//没有过滤条件直接落地
+            return true;
         String currentValue = "";
         for(Map flowFilter:newFlowFilters)
         {
