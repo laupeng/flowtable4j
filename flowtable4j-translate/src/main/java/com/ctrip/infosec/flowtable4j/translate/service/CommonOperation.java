@@ -364,11 +364,11 @@ public class CommonOperation
         final String orderType = getValue(flowData,Common.OrderType);
         if(orderType.isEmpty())
             return;
-        List<Map<String,Object>> flowRules = CacheFlowRuleData.getFlowRules();//fixme 这里有bug 每个订单的订单类型是不一样的
+        List<Map<String,Object>> flowRules = (List<Map<String,Object>>)CacheFlowRuleData.flowRules.get(orderType);//fixme 这里有bug 每个订单的订单类型是不一样的
         if(flowRules == null || flowRules.size()<1)
         {
             flowRules = commonSources.getFlowRules(orderType);
-            CacheFlowRuleData.setFlowRules(flowRules);//添加到缓存中
+            CacheFlowRuleData.flowRules.put(orderType,flowRules);//添加到缓存中
         }
         List<Map<String,Object>> flowFilters = CacheFlowRuleData.getFlowFilters();
         if(flowFilters == null || flowFilters.size()<1)

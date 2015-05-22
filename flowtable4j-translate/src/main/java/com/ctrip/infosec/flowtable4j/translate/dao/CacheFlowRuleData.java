@@ -13,20 +13,11 @@ public class CacheFlowRuleData
     public static final String FlowRuleAllStatisticTable = "20001";
     public static final String StatisticTableFilter = "30001";
 
-    private static List<Map<String,Object>> flowRules = null;
+    //private static List<Map<String,Object>> flowRules = null;
     private static List<Map<String,Object>> flowFilters = null;
 
+    public static Map<String,Object> flowRules = new HashMap<String, Object>();
     public static Map<String,Object> originalRisklevel = new HashMap<String, Object>();
-
-    public static List<Map<String, Object>> getFlowRules()
-    {
-        return flowRules;
-    }
-
-    public static void setFlowRules(List<Map<String, Object>> flowRules)
-    {
-        CacheFlowRuleData.flowRules = flowRules;
-    }
 
     public static List<Map<String, Object>> getFlowFilters()
     {
