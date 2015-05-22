@@ -250,7 +250,7 @@ public class HotelGroupExecutor implements Executor
         final DataFact dataFactCopy = BeanMapper.copy(dataFact,DataFact.class);
         List<Callable<DataFact>> runs = Lists.newArrayList();
 
-        runs.add(new Callable<DataFact>() {
+        /*runs.add(new Callable<DataFact>() {
             @Override
             public DataFact call() throws Exception {
                 try {
@@ -260,7 +260,7 @@ public class HotelGroupExecutor implements Executor
                 }
                 return null;
             }
-        });
+        });*/
 
         runs.add(new Callable<DataFact>() {
             @Override
