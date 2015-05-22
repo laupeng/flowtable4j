@@ -38,22 +38,24 @@ public class CommonWriteSourcesTest
         ipInfo.put("CheckNum","");
         ipInfo.put("ReferenceID",null);
         ipInfo.put("DataChange_LastTime","");
-        final String  reqId = "888800";
+        final String  reqId = "888812";
         cardRiskDBTemplate.execute(new CallableStatementCreator() {
            public CallableStatement createCallableStatement(Connection con) throws SQLException
            {
                String params = "";
-               for(int i=0;i<5-1;i++)
+               for(int i=0;i<7-1;i++)
                {
                    params += "?,";
                }
                params += "?";
-               String storedProc = "{call spA_InfoSecurity_DealInfo_i("+params+")}";//dbo.sp3_InfoSecurity_DealInfo_i
+               String storedProc = "{call spA_InfoSecurity_IPInfo_i("+params+")}";//dbo.sp3_InfoSecurity_DealInfo_i
                CallableStatement cs = con.prepareCall(storedProc);
-               cs.setString(Common.ReqID,"");
-               cs.setString("CheckStatus","");
-               cs.setString("CheckNum","999911");//
-               cs.setString("ReferenceID","xieliuping de shuju");
+               cs.setString(Common.ReqID,reqId);
+               cs.setString("UserIPValue","555");
+               cs.setString("UserIPAdd","999911");//
+               cs.setString("IPCountry","xieliuping de shuju");
+               cs.setString("IPCity","1");
+               cs.setString("Continent","");
                cs.setString("DataChange_LastTime","");
                return cs;
            }

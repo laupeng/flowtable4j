@@ -163,7 +163,7 @@ public class HotelGroupExecutor implements Executor
             logger.info("paymentMainInfo\t"+ Json.toPrettyJSONString(dataFact.paymentMainInfo));
 
             logger.info("流量表数据\t"+ Json.toPrettyJSONString(flowData));
-//            writeDB(data,dataFact, flowData);//fixme 第一次测试先不写数据库
+            writeDB(data,dataFact, flowData);//fixme 第一次测试先不写数据库
 
         }catch (Exception exp)
         {
@@ -316,7 +316,7 @@ public class HotelGroupExecutor implements Executor
                 try {
                     hotelGroupWriteSources.insertHotelGroupInfo(dataFactCopy.productInfoM,reqId);
                 } catch (Exception e) {
-                    logger.warn("invoke commonWriteSources.insertIpInfo failed.: ", e);
+                    logger.warn("invoke commonWriteSources.insertHotelGroupInfo failed.: ", e);
                 }
                 return null;
             }
@@ -327,7 +327,7 @@ public class HotelGroupExecutor implements Executor
                 try {
                     commonWriteSources.insertOtherInfo(dataFactCopy.otherInfo,reqId);
                 } catch (Exception e) {
-                    logger.warn("invoke commonWriteSources.insertIpInfo failed.: ", e);
+                    logger.warn("invoke commonWriteSources.insertOtherInfo failed.: ", e);
                 }
                 return null;
             }
@@ -339,7 +339,7 @@ public class HotelGroupExecutor implements Executor
             try {
                 commonWriteSources.insertDeviceIDInfo(dataFactCopy.DIDInfo, reqId);
             } catch (Exception e) {
-                logger.warn("invoke commonWriteSources.insertIpInfo failed.: ", e);
+                logger.warn("invoke commonWriteSources.insertDeviceIDInfo failed.: ", e);
             }
             return null;
         }
