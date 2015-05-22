@@ -297,7 +297,7 @@ public class CommonExecutor
             logger.warn("fillCommonInfo解析时间格式异常");
         }
         dataFact.mainInfo.put(Common.LastCheck,"T");
-        dataFact.mainInfo.put("OrderId",getValue(data,Common.OrderID));
+        dataFact.mainInfo.put(Common.OrderID,getValue(data,Common.OrderID));//OrderId
         dataFact.mainInfo.put(Common.MerchantID,getValue(data,Common.MerchantID));
         dataFact.mainInfo.put(Common.SubOrderType,getValue(data,Common.SubOrderType));
         dataFact.mainInfo.put(Common.MerchantOrderID,getValue(data,Common.MerchantOrderID));
@@ -307,7 +307,7 @@ public class CommonExecutor
         //公共属性的值补充
         //补充mainInfo信息
         dataFact.mainInfo.put(Common.Amount,getValue(data,"OrderAmount"));
-        String subOrderType = getValue(data,Common.SubOrderType);
+        String subOrderType = getValue(data, Common.SubOrderType);
         if(subOrderType.isEmpty())
             subOrderType = "0";
         dataFact.mainInfo.put(Common.SubOrderType,subOrderType);
@@ -356,13 +356,14 @@ public class CommonExecutor
             public DataFact call() throws Exception {
                 try {
                     commonOperation.fillUserInfo(dataFactCopy02,uid);
-                    if(!getValue(dataFactCopy02.userInfo,"Vip").toUpperCase().equals("T"))//如果UID信息中没有标明是VIP用户，则需要从CustomerInfo中获取//fixme 确认vip是不是每个产品都是这样
+                    String vip = getValue(dataFactCopy02.userInfo,"vip");
+                    if(!vip.toUpperCase().equals("T"))//如果UID信息中没有标明是VIP用户，则需要从CustomerInfo中获取//fixme 确认vip是不是每个产品都是这样
                     {
-                        commonOperation.fillUserCusCharacter(dataFactCopy02, uid);//这里获取用户的用户属性（NEW,REPEAT,VIP） 这里有两个方法：1，直接调用esb，2，调用郁伟新增加的DataProxy
+                        commonOperation.fillUserCusCharacter(dataFactCopy02, uid,vip);//这里获取用户的用户属性（NEW,REPEAT,VIP） 这里有两个方法：1，直接调用esb，2，调用郁伟新增加的DataProxy
                     }
                     return dataFactCopy02;
                 } catch (Exception e) {
-                    logger.warn("invoke commonOperation fillUserInfo failed.: ", e);
+                    logger.warn("invoke commonOperation fillUserInfo and fillUserCusCharacter failed.: ", e);
                 }
                 return null;
             }

@@ -257,9 +257,6 @@ public class CommonWriteSources
 
     public void insertDealInfo(final Map dealInfo,final String reqId)
     {
-        /*if(dealInfo == null || dealInfo.size()<1)
-            return;*/
-
         cardRiskDBTemplate.execute(new CallableStatementCreator() {
                public CallableStatement createCallableStatement(Connection con) throws SQLException
                {

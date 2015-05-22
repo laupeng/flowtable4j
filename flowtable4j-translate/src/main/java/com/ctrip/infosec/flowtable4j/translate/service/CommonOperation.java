@@ -6,6 +6,7 @@ import com.ctrip.infosec.flowtable4j.translate.model.Common;
 import com.ctrip.infosec.flowtable4j.translate.model.DataFact;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang3.time.DateUtils;
+import org.dom4j.DocumentException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,8 +59,37 @@ public class CommonOperation
      * 添加用户的用户等级信息
      * @param uid
      */
-    public void fillUserCusCharacter(DataFact dataFact,String uid)//fixme  这里的获取用户等级信息的代码有点问题
+    public void fillUserCusCharacter(DataFact dataFact,String uid,String vip)//fixme  这里的获取用户等级信息的代码有点问题
     {
+        String cuscharacter = "";
+        String contentType = "Customer.User.GetCustomerInfo";
+        String contentBody = "<GetCustomerInfoRequest><UID>" + uid + "</UID></GetCustomerInfoRequest>";
+        String xpath = "/Response/GetCustomerInfoResponse";
+        Map customerInfo = null;
+        try
+        {
+            customerInfo = esbSources.getResponse(contentBody,contentType,xpath);
+        } catch (DocumentException e)
+        {
+            logger.warn("查询用户"+uid+"的Customer的信息异常"+e.getMessage());
+        }
+        String FirstPkgOrderDate = customerInfo.get("FirstPkgOrderDate") == null ? "" : customerInfo.get("FirstPkgOrderDate").toString();
+        String FirstHotelOrderDate = customerInfo.get("FirstHotelOrderDate") == null ? "" : customerInfo.get("FirstHotelOrderDate").toString();
+        String FirstFlightOrderDate = customerInfo.get("FirstFlightOrderDate") == null ? "" : customerInfo.get("FirstFlightOrderDate").toString();
+        if(FirstPkgOrderDate.equals("0001-01-01T00:00:00") && FirstHotelOrderDate.equals("0001-01-01T00:00:00") && FirstFlightOrderDate.equals("0001-01-01T00:00:00"))
+        {
+            cuscharacter = "NEW";
+        }else
+        {
+            if(vip.equals("T"))
+            {
+                cuscharacter = "VIP";
+            }else if(vip.equals("F"))
+            {
+                cuscharacter = "REPEAT";
+            }
+        }
+
         String serviceName = "UserProfileService";
         String operationName = "DataQuery";
         List tagContents = new ArrayList();
@@ -68,10 +98,7 @@ public class CommonOperation
         params.put("uid",uid);
         params.put("tagNames",tagContents);
 
-        Map uidInfo = dataProxySources.queryForMap(serviceName, operationName, params);
-
-        String CusCharacter = getValue(uidInfo,"CUSCHARACTER");
-        dataFact.userInfo.put(Common.CusCharacter, CusCharacter);
+        dataFact.userInfo.put(Common.CusCharacter, cuscharacter);
     }
 
     /**
@@ -320,14 +347,14 @@ public class CommonOperation
             dataFact.userInfo.put(Common.RelatedMobilephone,getValue(crmInfo,"mobilePhone"));
             dataFact.userInfo.put(Common.BindedEmail,getValue(crmInfo,"bindedEmail"));
             dataFact.userInfo.put(Common.BindedMobilePhone,getValue(crmInfo,"bindedMobilePhone"));
-            String experience = getValue(crmInfo,"experience");
+            String experience = getValue(crmInfo, "experience");
             if(experience.isEmpty())
                 experience = "0";
             dataFact.userInfo.put(Common.Experience,experience);
             dataFact.userInfo.put(Common.SignUpDate,getValue(crmInfo,"signupdate"));
             dataFact.userInfo.put(Common.UserPassword,getValue(crmInfo,"mD5Password"));
             dataFact.userInfo.put(Common.VipGrade,getValue(crmInfo,"vipGrade"));
-            dataFact.userInfo.put("Vip",getValue(crmInfo,"vip"));
+            dataFact.userInfo.put("vip",getValue(crmInfo,"vip"));
         }
     }
 
@@ -337,7 +364,7 @@ public class CommonOperation
         final String orderType = getValue(flowData,Common.OrderType);
         if(orderType.isEmpty())
             return;
-        List<Map<String,Object>> flowRules = CacheFlowRuleData.getFlowRules();
+        List<Map<String,Object>> flowRules = CacheFlowRuleData.getFlowRules();//fixme 这里有bug 每个订单的订单类型是不一样的
         if(flowRules == null || flowRules.size()<1)
         {
             flowRules = commonSources.getFlowRules(orderType);
