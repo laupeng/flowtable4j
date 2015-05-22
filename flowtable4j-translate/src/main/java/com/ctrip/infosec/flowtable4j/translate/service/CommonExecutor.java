@@ -112,8 +112,8 @@ public class CommonExecutor
 
                 case 2:
                     //region Description       补充产品
+                    dataFact.mainInfo.putAll(commonOperation.getLastReqID(data));//这里暂时存储起来 在后面从data里面取出来
                     dataFact.mainInfo.put(Common.CheckType,getValue(data,Common.CheckType));
-                    commonOperation.getLastReqID(data);//这里暂时存储起来 在后面从data里面取出来
                     final String reqIdStr = getValue(data,"OldReqID");
                     final DataFact dataFactCopy001 = new DataFact();
                     runs.add(new Callable<DataFact>() {

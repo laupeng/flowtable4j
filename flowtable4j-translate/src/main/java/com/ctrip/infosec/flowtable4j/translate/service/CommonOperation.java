@@ -130,7 +130,7 @@ public class CommonOperation
             dataFact.DIDInfo.put(Common.DID,getValue(DIDInfo,"Did"));
     }
 
-    public void getLastReqID(Map data)
+    public Map getLastReqID(Map data)
     {
         /*if(data.containsKey(Common.ReqID))
             return;*/
@@ -141,12 +141,14 @@ public class CommonOperation
         {
             try{
                 long reqId = Long.parseLong(getValue(mainInfo, Common.ReqID));
+
                 data.put("OldReqID",reqId);
             }catch (Exception exp)
             {
                 logger.warn("getLastReqID获取lastReqID异常:",exp);
             }
         }
+        return mainInfo;
     }
 
     /**
