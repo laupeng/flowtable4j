@@ -16,6 +16,8 @@ public class CacheFlowRuleData
     private static List<Map<String,Object>> flowRules = null;
     private static List<Map<String,Object>> flowFilters = null;
 
+    public static Map<String,Object> originalRisklevel = new HashMap<String, Object>();
+
     public static List<Map<String, Object>> getFlowRules()
     {
         return flowRules;

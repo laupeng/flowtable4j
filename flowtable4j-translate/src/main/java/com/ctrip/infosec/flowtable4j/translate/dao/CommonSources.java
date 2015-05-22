@@ -313,17 +313,26 @@ public class CommonSources
             if(value.isEmpty())
                 continue;
             try{
-                List<Map<String,Object>> allTableNames = CacheFlowRuleData.getFlowRules();
+                List<Map<String,Object>> allTableNames = (List<Map<String,Object>>)CacheFlowRuleData.originalRisklevel.get(key);
                 if(allTableNames == null || allTableNames.size()<1)
                 {
-                    allTableNames = getFlowRules(orderType);
+                    String commandText = "select t.StatisticTableId, t.StatisticTableName ,f1.ColumnName as KeyFieldID1,f2.ColumnName as " +
+                            "KeyFieldID2,t.OrderType,t.Active,t.[TableType]" +
+                            "from Def_RuleStatisticTable t with (nolock)" +
+                            "join Def_RuleMatchField f1 (nolock) on t.KeyFieldID1 = f1.FieldID " +
+                            "join Def_RuleMatchField f2 (nolock) on t.KeyFieldID2 = f2.FieldID " +
+                            "where f2.ColumnName='OriginalRisklevel' and  f1.ColumnName= '"+key+"'" +
+                            "and TableType =1 and t.Active = 'T' and  orderType = 0 ";//添加key来关联字段
+                    long test = System.currentTimeMillis();
+                    allTableNames = cardRiskDBTemplate.queryForList(commandText);
+                    CacheFlowRuleData.originalRisklevel.put(key,allTableNames);//添加到缓存
                 }
-
+                //先取出出所有的表名称
                 Iterator iterator1 = allTableNames.iterator();
                 while(iterator1.hasNext())
                 {
                     Map<String,Object> columnValue = (Map)iterator1.next();
-
+                    {
                     //固定的值195分
                     String tableName = getValue(columnValue,"StatisticTableName");//columnValue.get("StatisticTableName") == null ? "" : columnValue.get("StatisticTableName").toString();
 
@@ -334,6 +343,7 @@ public class CommonSources
                     logger.info("。。。。。。。。。。。。。。riskCtrlPreProcDBTemplate时间："+(System.currentTimeMillis()-test1));
                     if(countValue>0)
                         return  countValue;
+                    }
                 }
             }catch (Exception exp)
             {
