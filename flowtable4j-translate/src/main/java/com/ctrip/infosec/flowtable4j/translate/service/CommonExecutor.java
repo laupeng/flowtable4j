@@ -113,6 +113,7 @@ public class CommonExecutor
                 case 2:
                     //region Description       补充产品
                     dataFact.mainInfo.put(Common.CheckType,getValue(data,Common.CheckType));
+                    commonOperation.getLastReqID(data);//这里暂时存储起来 在后面从data里面取出来
                     final String reqIdStr = getValue(data,Common.ReqID);
                     final DataFact dataFactCopy001 = new DataFact();
                     runs.add(new Callable<DataFact>() {
@@ -303,7 +304,7 @@ public class CommonExecutor
         dataFact.mainInfo.put(Common.MerchantOrderID,getValue(data,Common.MerchantOrderID));
         dataFact.mainInfo.put(Common.ClientID,getValue(data,Common.ClientID));
         //得到lastReqId
-        commonOperation.getLastReqID(data);//这里暂时存储起来 在后面从data里面取出来
+       // commonOperation.getLastReqID(data);//这里暂时存储起来 在后面从data里面取出来
         //公共属性的值补充
         //补充mainInfo信息
         dataFact.mainInfo.put(Common.Amount,getValue(data,"OrderAmount"));

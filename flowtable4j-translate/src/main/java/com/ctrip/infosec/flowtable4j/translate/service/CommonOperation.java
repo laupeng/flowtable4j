@@ -132,8 +132,8 @@ public class CommonOperation
 
     public void getLastReqID(Map data)
     {
-        if(data.containsKey(Common.ReqID))
-            return;
+        /*if(data.containsKey(Common.ReqID))
+            return;*/
         String orderId = getValue(data,Common.OrderID);
         String orderType = getValue(data,Common.OrderType);
         Map mainInfo = commonSources.getMainInfo(orderType, orderId);
