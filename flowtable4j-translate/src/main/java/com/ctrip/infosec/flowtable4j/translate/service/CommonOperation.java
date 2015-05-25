@@ -6,6 +6,7 @@ import com.ctrip.infosec.flowtable4j.translate.model.Common;
 import com.ctrip.infosec.flowtable4j.translate.model.DataFact;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang3.time.DateUtils;
+import org.dom4j.DocumentException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,8 +59,37 @@ public class CommonOperation
      * 添加用户的用户等级信息
      * @param uid
      */
-    public void fillUserCusCharacter(DataFact dataFact,String uid)//fixme  这里的获取用户等级信息的代码有点问题
+    public void fillUserCusCharacter(DataFact dataFact,String uid,String vip)//fixme  这里的获取用户等级信息的代码有点问题
     {
+        String cuscharacter = "";
+        String contentType = "Customer.User.GetCustomerInfo";
+        String contentBody = "<GetCustomerInfoRequest><UID>" + uid + "</UID></GetCustomerInfoRequest>";
+        String xpath = "/Response/GetCustomerInfoResponse";
+        Map customerInfo = null;
+        try
+        {
+            customerInfo = esbSources.getResponse(contentBody,contentType,xpath);
+        } catch (DocumentException e)
+        {
+            logger.warn("查询用户"+uid+"的Customer的信息异常"+e.getMessage());
+        }
+        String FirstPkgOrderDate = customerInfo.get("FirstPkgOrderDate") == null ? "" : customerInfo.get("FirstPkgOrderDate").toString();
+        String FirstHotelOrderDate = customerInfo.get("FirstHotelOrderDate") == null ? "" : customerInfo.get("FirstHotelOrderDate").toString();
+        String FirstFlightOrderDate = customerInfo.get("FirstFlightOrderDate") == null ? "" : customerInfo.get("FirstFlightOrderDate").toString();
+        if(FirstPkgOrderDate.equals("0001-01-01T00:00:00") && FirstHotelOrderDate.equals("0001-01-01T00:00:00") && FirstFlightOrderDate.equals("0001-01-01T00:00:00"))
+        {
+            cuscharacter = "NEW";
+        }else
+        {
+            if(vip.equals("T"))
+            {
+                cuscharacter = "VIP";
+            }else if(vip.equals("F"))
+            {
+                cuscharacter = "REPEAT";
+            }
+        }
+
         String serviceName = "UserProfileService";
         String operationName = "DataQuery";
         List tagContents = new ArrayList();
@@ -68,10 +98,7 @@ public class CommonOperation
         params.put("uid",uid);
         params.put("tagNames",tagContents);
 
-        Map uidInfo = dataProxySources.queryForMap(serviceName, operationName, params);
-
-        String CusCharacter = getValue(uidInfo,"CUSCHARACTER");
-        dataFact.userInfo.put(Common.CusCharacter, CusCharacter);
+        dataFact.userInfo.put(Common.CusCharacter, cuscharacter);
     }
 
     /**
@@ -103,10 +130,10 @@ public class CommonOperation
             dataFact.DIDInfo.put(Common.DID,getValue(DIDInfo,"Did"));
     }
 
-    public void getLastReqID(Map data)
+    public Map getLastReqID(Map data)
     {
-        if(data.containsKey(Common.ReqID))
-            return;
+        /*if(data.containsKey(Common.ReqID))
+            return;*/
         String orderId = getValue(data,Common.OrderID);
         String orderType = getValue(data,Common.OrderType);
         Map mainInfo = commonSources.getMainInfo(orderType, orderId);
@@ -114,12 +141,14 @@ public class CommonOperation
         {
             try{
                 long reqId = Long.parseLong(getValue(mainInfo, Common.ReqID));
-                data.put(Common.ReqID,reqId);
+
+                data.put("OldReqID",reqId);
             }catch (Exception exp)
             {
                 logger.warn("getLastReqID获取lastReqID异常:",exp);
             }
         }
+        return mainInfo;
     }
 
     /**
@@ -150,7 +179,7 @@ public class CommonOperation
             String prepayType = getValue(payment,Common.PrepayType);
             PaymentInfo.put(Common.PrepayType, prepayType);
             PaymentInfo.put(Common.Amount,getValue(payment, Common.Amount));
-            if(prepayType.equals("CCARD") || prepayType.equals("DCARD"))
+            if(prepayType.toUpperCase().equals("CCARD") || prepayType.toUpperCase().equals("DCARD"))
             {
                 cardInfo.put(Common.CardInfoID,getValue(payment, Common.CardInfoID));
                 cardInfo.put(Common.InfoID,"0");
@@ -162,7 +191,21 @@ public class CommonOperation
                 Map cardInfoResult = getCardInfo(cardInfoId);
                 if(cardInfoResult != null && cardInfoResult.size()>0)
                 {
-                    cardInfo.putAll(cardInfoResult);
+                    cardInfo.put(Common.BillingAddress,getValue(cardInfoResult,Common.BillingAddress));
+                    cardInfo.put(Common.CardBin,getValue(cardInfoResult,Common.CardBin));
+                    cardInfo.put(Common.CardHolder,getValue(cardInfoResult,Common.CardHolder));
+                    cardInfo.put(Common.CCardLastNoCode,getValue(cardInfoResult,Common.CCardLastNoCode));
+
+                    cardInfo.put(Common.CCardNoCode,getValue(cardInfoResult,Common.CCardNoCode));
+                    cardInfo.put(Common.CCardPreNoCode,getValue(cardInfoResult,Common.CCardPreNoCode));
+                    cardInfo.put(Common.CreditCardType,getValue(cardInfoResult,Common.CreditCardType));
+                    cardInfo.put(Common.CValidityCode,getValue(cardInfoResult,Common.CValidityCode));
+                    cardInfo.put(Common.IsForigenCard,getValue(cardInfoResult,Common.IsForeignCard));
+                    cardInfo.put(Common.Nationality,getValue(cardInfoResult,Common.Nationality));
+
+                    cardInfo.put(Common.Nationalityofisuue,getValue(cardInfoResult,Common.Nationalityofisuue));
+                    cardInfo.put(Common.BankOfCardIssue,getValue(cardInfoResult,Common.BankOfCardIssue));
+                    cardInfo.put(Common.StateName,getValue(cardInfoResult,Common.StateName));
                 }
                 //通过卡种和卡BIN获取系统中维护的信用卡信息
                 String cardTypeId = getValue(cardInfoResult,Common.CreditCardType);
@@ -170,7 +213,8 @@ public class CommonOperation
                 Map subCardInfo = commonSources.getCardInfo(cardTypeId,cardBin);
                 if(subCardInfo != null && subCardInfo.size()>0)
                 {
-                    cardInfo.putAll(subCardInfo);
+                    cardInfo.put(Common.CardBinIssue,getValue(subCardInfo,Common.CardBinIssue));
+                    cardInfo.put(Common.CardBinBankOfCardIssue,getValue(subCardInfo,Common.CardBinBankOfCardIssue));
                 }
                 CardInfoList.add(cardInfo);
             }
@@ -305,25 +349,28 @@ public class CommonOperation
             dataFact.userInfo.put(Common.RelatedMobilephone,getValue(crmInfo,"mobilePhone"));
             dataFact.userInfo.put(Common.BindedEmail,getValue(crmInfo,"bindedEmail"));
             dataFact.userInfo.put(Common.BindedMobilePhone,getValue(crmInfo,"bindedMobilePhone"));
-            dataFact.userInfo.put(Common.Experience,getValue(crmInfo,"experience"));
+            String experience = getValue(crmInfo, "experience");
+            if(experience.isEmpty())
+                experience = "0";
+            dataFact.userInfo.put(Common.Experience,experience);
             dataFact.userInfo.put(Common.SignUpDate,getValue(crmInfo,"signupdate"));
             dataFact.userInfo.put(Common.UserPassword,getValue(crmInfo,"mD5Password"));
             dataFact.userInfo.put(Common.VipGrade,getValue(crmInfo,"vipGrade"));
-            dataFact.userInfo.put("Vip",getValue(crmInfo,"vip"));
+            dataFact.userInfo.put("vip",getValue(crmInfo,"vip"));
         }
     }
 
     //写流量数据到数据库
-    public void writeFlowData(final Map flowData)
+    public void writeFlowData(final Map flowData,List<Callable<DataFact>> runs)
     {
         final String orderType = getValue(flowData,Common.OrderType);
         if(orderType.isEmpty())
             return;
-        List<Map<String,Object>> flowRules = CacheFlowRuleData.getFlowRules();
+        List<Map<String,Object>> flowRules = (List<Map<String,Object>>)CacheFlowRuleData.flowRules.get(orderType);//fixme 这里有bug 每个订单的订单类型是不一样的
         if(flowRules == null || flowRules.size()<1)
         {
             flowRules = commonSources.getFlowRules(orderType);
-            CacheFlowRuleData.setFlowRules(flowRules);//添加到缓存中
+            CacheFlowRuleData.flowRules.put(orderType,flowRules);//添加到缓存中
         }
         List<Map<String,Object>> flowFilters = CacheFlowRuleData.getFlowFilters();
         if(flowFilters == null || flowFilters.size()<1)
@@ -331,18 +378,24 @@ public class CommonOperation
             flowFilters = commonSources.getFlowRuleFilter();
             CacheFlowRuleData.setFlowFilters(flowFilters);//添加到缓存中
         }
-        String KeyFieldName1 = "", KeyFieldName2 = "", StatisticTableName = "", StatisticTableId = "";
+         String StatisticTableId = "";
         for(Map flowRule : flowRules)
         {
             StatisticTableId = flowRule.get("StatisticTableId").toString();
             if(isInsertToStaticTable(flowRule,StatisticTableId,flowFilters))
             {
                 //写到数据库
-                StatisticTableName = flowRule.get("StatisticTableName").toString();
-                KeyFieldName1 = flowRule.get("KeyFieldID1").toString();
-                KeyFieldName2 = flowRule.get("KeyFieldID2").toString();
+                final String StatisticTableName = flowRule.get("StatisticTableName").toString();
+                final String KeyFieldName1 = flowRule.get("KeyFieldID1").toString();
+                final String KeyFieldName2 = flowRule.get("KeyFieldID2").toString();
                 logger.info("写入流量表："+StatisticTableName+"\t"+KeyFieldName1+"\t"+KeyFieldName2);
-                commonWriteSources.insertFlowInfo(flowData, KeyFieldName1, KeyFieldName2, StatisticTableName);
+                runs.add(new Callable<DataFact>() {
+                @Override
+                public DataFact call() throws Exception {
+                    commonWriteSources.insertFlowInfo(flowData, KeyFieldName1, KeyFieldName2, StatisticTableName);
+                    return null;
+                }
+                });
             }
         }
     }
@@ -357,8 +410,8 @@ public class CommonOperation
             if(flowFilter.get("StatisticTableID").toString().equals(id))
                 newFlowFilters.add(flowFilter);
         }
-        if(newFlowFilters == null || newFlowFilters.size()<1)
-            return false;
+        if(newFlowFilters == null || newFlowFilters.size()<1)//没有过滤条件直接落地
+            return true;
         String currentValue = "";
         for(Map flowFilter:newFlowFilters)
         {

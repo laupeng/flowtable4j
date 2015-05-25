@@ -38,7 +38,7 @@ public class CommonWriteSourcesTest
         ipInfo.put("CheckNum","");
         ipInfo.put("ReferenceID",null);
         ipInfo.put("DataChange_LastTime","");
-        final String  reqId = "888800";
+        final String  reqId = "888821";
         cardRiskDBTemplate.execute(new CallableStatementCreator() {
            public CallableStatement createCallableStatement(Connection con) throws SQLException
            {
@@ -51,7 +51,7 @@ public class CommonWriteSourcesTest
                String storedProc = "{call spA_InfoSecurity_DealInfo_i("+params+")}";//dbo.sp3_InfoSecurity_DealInfo_i
                CallableStatement cs = con.prepareCall(storedProc);
                cs.setString(Common.ReqID,"");
-               cs.setString("CheckStatus","");
+               cs.setString("CheckStatus","5");
                cs.setString("CheckNum","999911");//
                cs.setString("ReferenceID","xieliuping de shuju");
                cs.setString("DataChange_LastTime","");

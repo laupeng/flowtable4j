@@ -50,8 +50,8 @@ public class CommonWriteSources
 
     public void insertMainInfo(final Map mainInfo,final String reqId)
     {
-        if(mainInfo == null || mainInfo.size()<1)
-            return;
+        /*if(mainInfo == null || mainInfo.size()<1)
+            return;*/
         Object result = cardRiskDBTemplate.execute(new CallableStatementCreator() {
                public CallableStatement createCallableStatement(Connection con) throws SQLException
                {
@@ -105,8 +105,8 @@ public class CommonWriteSources
 
     public void insertContactInfo(final Map contactInfo,final String reqId)
     {
-        if(contactInfo == null || contactInfo.size()<1)
-            return;
+        /*if(contactInfo == null || contactInfo.size()<1)
+            return;*/
         Object result = cardRiskDBTemplate.execute(new CallableStatementCreator() {
                public CallableStatement createCallableStatement(Connection con) throws SQLException
                {
@@ -146,8 +146,8 @@ public class CommonWriteSources
 
     public void insertUserInfo(final Map userInfo,final String reqId)
     {
-        if(userInfo == null || userInfo.size()<1)
-            return;
+        /*if(userInfo == null || userInfo.size()<1)
+            return;*/
         Object result = cardRiskDBTemplate.execute(new CallableStatementCreator() {
                public CallableStatement createCallableStatement(Connection con) throws SQLException
                {
@@ -192,8 +192,8 @@ public class CommonWriteSources
 
     public void insertIpInfo(final Map ipInfo,final String reqId)
     {
-        if(ipInfo == null || ipInfo.size()<1)
-            return;
+        /*if(ipInfo == null || ipInfo.size()<1)
+            return;*/
         Object result = cardRiskDBTemplate.execute(new CallableStatementCreator() {
                public CallableStatement createCallableStatement(Connection con) throws SQLException
                {
@@ -225,8 +225,8 @@ public class CommonWriteSources
 
     public void insertOtherInfo(final Map otherInfo,final String reqId)
     {
-        if(otherInfo == null || otherInfo.size()<1)
-            return;
+        /*if(otherInfo == null || otherInfo.size()<1)
+            return;*/
         Object result = cardRiskDBTemplate.execute(new CallableStatementCreator() {
                public CallableStatement createCallableStatement(Connection con) throws SQLException
                {
@@ -257,9 +257,6 @@ public class CommonWriteSources
 
     public void insertDealInfo(final Map dealInfo,final String reqId)
     {
-        if(dealInfo == null || dealInfo.size()<1)
-            return;
-
         cardRiskDBTemplate.execute(new CallableStatementCreator() {
                public CallableStatement createCallableStatement(Connection con) throws SQLException
                {
@@ -271,7 +268,7 @@ public class CommonWriteSources
                    params += "?";
                    String storedProc = "{call sp3_InfoSecurity_DealInfo_i("+params+")}";//dbo.sp3_InfoSecurity_DealInfo_i
                    CallableStatement cs = con.prepareCall(storedProc);
-                   cs.setString(Common.ReqID,getValue(dealInfo,Common.ReqID));//reqId是自增 这个不是真实值 只是占位符
+                   cs.setString(Common.ReqID,"");//reqId是自增 这个不是真实值 只是占位符
                    cs.setString("CheckStatus",getValue(dealInfo,"CheckStatus"));
                    cs.setString("CheckNum",getValue(dealInfo,"CheckNum"));//
                    cs.setString("ReferenceID",getValue(dealInfo,Common.ReferenceNo));
@@ -335,6 +332,9 @@ public class CommonWriteSources
                CallableStatement cs = con.prepareCall(storedProc);
                cs.setString(Common.ReqID,reqId);
                cs.setString(Common.DID,getValue(deviceIDInfo,Common.DID));
+ /*              Date now = new Date(System.currentTimeMillis());
+               SimpleDateFormat format = new SimpleDateFormat("yyyy:HH:DD");
+               String nowStr = format.format(now);*/
                cs.setString("DataChange_LastTime","");
                return cs;
            }
@@ -478,6 +478,7 @@ public class CommonWriteSources
             return;
         final String fieldValue1 = getValue(flowInfo,field1);
         final String fieldValue2 = getValue(flowInfo,field2);
+        logger.info("写入流量表："+tableName+"\t"+field1+"\t"+fieldValue1+"\t"+field2+"\t"+fieldValue2);
         final String reqId = getValue(flowInfo, Common.ReqID);
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         final String nowTime = format.format(new Date(System.currentTimeMillis()));

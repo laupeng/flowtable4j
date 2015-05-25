@@ -76,11 +76,15 @@ public class HotelGroupExecutor implements Executor
 
             //这里分checkType 0、1和2两种情况
             int checkType = Integer.parseInt(getValue(data, Common.CheckType));
-            if(checkType == 0 ||checkType == 1)
+            if(checkType == 0 )
+            {
+                getOtherInfo0(dataFact, data);
+            }else if(checkType == 1)
             {
                 getOtherInfo0(dataFact, data);
                 getHotelGroupProductInfo0(dataFact, data);
-            }else if(checkType == 2)
+            }
+            else if(checkType == 2)
             {
                 getOtherInfo1(dataFact, data);
                 getHotelGroupProductInfo1(dataFact, data);
@@ -103,7 +107,7 @@ public class HotelGroupExecutor implements Executor
                 Map subPaymentInfo = (Map)paymentInfo.get(Common.PaymentInfo);
                 List<Map> cardInfoList = (List<Map>)paymentInfo.get(Common.CardInfoList);
                 Map cardInfoFirst = cardInfoList.get(0);
-
+//                flowData.put(HotelGroup.CardBinOrderID,getValue(cardInfoFirst,Common.CardBin)+getValue(dataFact.mainInfo,Common.OrderID));
                 flowData.put(HotelGroup.CardBinUID,getValue(cardInfoFirst,Common.CardBin)+getValue(dataFact.userInfo,Common.Uid));
                 flowData.put(HotelGroup.CardBinMobilePhone,getValue(cardInfoFirst,Common.CardBin)+getValue(dataFact.contactInfo,Common.MobilePhone));
                 flowData.put(HotelGroup.CardBinUserIPAdd,getValue(cardInfoFirst,Common.CardBin)+getValue(dataFact.ipInfo,Common.UserIPAdd));
@@ -117,7 +121,13 @@ public class HotelGroupExecutor implements Executor
             }
 
             //产品信息加到流量实体
-            flowData.putAll(dataFact.productInfoM);
+//            flowData.putAll(dataFact.productInfoM);
+            flowData.put("Quantity",getValue(dataFact.productInfoM,Common.Quantity));
+            flowData.put("City",getValue(dataFact.productInfoM,Common.City));
+            flowData.put("ProductID",getValue(dataFact.productInfoM,Common.ProductID));
+            flowData.put("ProductName",getValue(dataFact.productInfoM,Common.ProductName));
+            flowData.put("ProductType",getValue(dataFact.productInfoM,Common.ProductType));
+            flowData.put("Price",getValue(dataFact.productInfoM,Common.Price));
 
             //构造规则引擎的数据类型CheckFact
             CheckType[] checkTypes = {CheckType.BW,CheckType.FLOWRULE};
@@ -158,7 +168,7 @@ public class HotelGroupExecutor implements Executor
             logger.info("paymentMainInfo\t"+ Json.toPrettyJSONString(dataFact.paymentMainInfo));
 
             logger.info("流量表数据\t"+ Json.toPrettyJSONString(flowData));
-//            writeDB(data,dataFact, flowData);//fixme 第一次测试先不写数据库
+            writeDB(data,dataFact, flowData);//fixme 第一次测试先不写数据库
 
         }catch (Exception exp)
         {
@@ -187,6 +197,8 @@ public class HotelGroupExecutor implements Executor
         String signUpDateStr = getValue(data,Common.SignUpDate);
         Date signUpDate = DateUtils.parseDate(signUpDateStr,"yyyy-MM-dd HH:mm:ss","yyyy-MM-dd HH:mm:ss.SSS");
         dataFact.otherInfo.put(Common.OrderToSignUpDate,getDateAbs(signUpDate, orderDate,1));
+
+        dataFact.otherInfo.put(Common.TakeOffToOrderDate,"0");
     }
 
     public void getOtherInfo1(DataFact dataFact,Map data)
@@ -247,18 +259,6 @@ public class HotelGroupExecutor implements Executor
             @Override
             public DataFact call() throws Exception {
                 try {
-                    commonWriteSources.insertDealInfo(dataFactCopy.dealInfo,reqId);
-                } catch (Exception e) {
-                    logger.warn("invoke commonWriteSources.insertDealInfo failed.: ", e);
-                }
-                return null;
-            }
-        });
-
-        runs.add(new Callable<DataFact>() {
-            @Override
-            public DataFact call() throws Exception {
-                try {
                     commonWriteSources.insertMainInfo(dataFactCopy.mainInfo,reqId);
                 } catch (Exception e) {
                     logger.warn("invoke commonWriteSources.insertMainInfo failed.: ", e);
@@ -309,7 +309,7 @@ public class HotelGroupExecutor implements Executor
                 try {
                     hotelGroupWriteSources.insertHotelGroupInfo(dataFactCopy.productInfoM,reqId);
                 } catch (Exception e) {
-                    logger.warn("invoke commonWriteSources.insertIpInfo failed.: ", e);
+                    logger.warn("invoke commonWriteSources.insertHotelGroupInfo failed.: ", e);
                 }
                 return null;
             }
@@ -320,7 +320,7 @@ public class HotelGroupExecutor implements Executor
                 try {
                     commonWriteSources.insertOtherInfo(dataFactCopy.otherInfo,reqId);
                 } catch (Exception e) {
-                    logger.warn("invoke commonWriteSources.insertIpInfo failed.: ", e);
+                    logger.warn("invoke commonWriteSources.insertOtherInfo failed.: ", e);
                 }
                 return null;
             }
@@ -332,7 +332,7 @@ public class HotelGroupExecutor implements Executor
             try {
                 commonWriteSources.insertDeviceIDInfo(dataFactCopy.DIDInfo, reqId);
             } catch (Exception e) {
-                logger.warn("invoke commonWriteSources.insertIpInfo failed.: ", e);
+                logger.warn("invoke commonWriteSources.insertDeviceIDInfo failed.: ", e);
             }
             return null;
         }
@@ -373,13 +373,7 @@ public class HotelGroupExecutor implements Executor
 
         //流量数据
         final Map flowDataCopy = BeanMapper.copy(flowData,Map.class);
-        runs.add(new Callable<DataFact>() {
-            @Override
-            public DataFact call() throws Exception {
-                commonOperation.writeFlowData(flowDataCopy);
-                return null;
-            }
-        });
+        commonOperation.writeFlowData(flowDataCopy,runs);
 
         try
         {
