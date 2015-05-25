@@ -478,6 +478,7 @@ public class CommonWriteSources
             return;
         final String fieldValue1 = getValue(flowInfo,field1);
         final String fieldValue2 = getValue(flowInfo,field2);
+        logger.info("写入流量表："+tableName+"\t"+field1+"\t"+fieldValue1+"\t"+field2+"\t"+fieldValue2);
         final String reqId = getValue(flowInfo, Common.ReqID);
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         final String nowTime = format.format(new Date(System.currentTimeMillis()));
