@@ -80,33 +80,37 @@ public class CommonExecutor
                     fillCommonInfo(dataFact,data);
                     //补充支付信息 从数据库获取支付信息
                     //并发执行
-                    /*final DataFact dataFactCopy01 = new DataFact();
-                    final String lastReq = getValue(data, Common.ReqID);
-                    runs.add(new Callable<DataFact>() {
-                        @Override
-                        public DataFact call() throws Exception {
-                            try {
-                                commonOperation.fillPaymentInfo1(dataFactCopy01, lastReq);
-                                return dataFactCopy01;
-                            } catch (Exception e) {
-                                logger.warn("invoke commonOperation fillMobilePhone failed.: ", e);
+                    final DataFact dataFactCopy01 = new DataFact();
+                    commonOperation.getLastReqID(data);
+                    final String lastReq = getValue(data, "OldReqID");
+                    if(!lastReq.isEmpty())
+                    {
+                        runs.add(new Callable<DataFact>() {
+                            @Override
+                            public DataFact call() throws Exception {
+                                try {
+                                    commonOperation.fillPaymentInfo1(dataFactCopy01, lastReq);
+                                    return dataFactCopy01;
+                                } catch (Exception e) {
+                                    logger.warn("invoke commonOperation fillMobilePhone failed.: ", e);
+                                }
+                                return null;
                             }
-                            return null;
-                        }
-                    });
-                    final DataFact dataFactCopy02 = new DataFact();
-                    runs.add(new Callable<DataFact>() {
-                        @Override
-                        public DataFact call() throws Exception {
-                            try {
-                                commonOperation.fillPaymentMainInfo(dataFactCopy02, lastReq);
-                                return dataFactCopy02;
-                            } catch (Exception e) {
-                                logger.warn("invoke commonOperation.fillPaymentMainInfo failed.: ", e);
+                        });
+                        final DataFact dataFactCopy02 = new DataFact();
+                        runs.add(new Callable<DataFact>() {
+                            @Override
+                            public DataFact call() throws Exception {
+                                try {
+                                    commonOperation.fillPaymentMainInfo(dataFactCopy02, lastReq);
+                                    return dataFactCopy02;
+                                } catch (Exception e) {
+                                    logger.warn("invoke commonOperation.fillPaymentMainInfo failed.: ", e);
+                                }
+                                return null;
                             }
-                            return null;
-                        }
-                    });*/
+                        });
+                    }
                     break;
 
                 case 2:
@@ -174,6 +178,7 @@ public class CommonExecutor
 
                     //补充支付信息
                     commonOperation.fillPaymentInfo0(dataFact,data);//和checkType = 0的补充支付信息一样
+                    
                     //paymentMainInfo
                     final String lastReq_m = getValue(data, Common.ReqID);
                     final DataFact dataFactCopy_M = new DataFact();

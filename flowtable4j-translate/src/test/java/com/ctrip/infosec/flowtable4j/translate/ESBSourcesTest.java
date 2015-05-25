@@ -32,13 +32,13 @@ public class ESBSourcesTest
 
     @Test
     public void testGetResponse()
-    {
+    {//30075005
         String xmlContent = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
                 "\n" +
                 "<Request>\n" +
                 "  <Header UserID=\"670203\" RequestType=\"AccCash.CreditCard.GetCreditCardInfo\"/>\n" +
                 "  <GetCreditCardInfoRequest>\n" +
-                "    <CardInfoId>30075005</CardInfoId>\n" +
+                "    <CardInfoId>30091142</CardInfoId>\n" +
                 "  </GetCreditCardInfoRequest>\n" +
                 "</Request>";
         ESBSources esbSources = new ESBSources();

@@ -187,16 +187,16 @@ public class CommonOperation
                 String cardInfoId = getValue(payment,Common.CardInfoID);
                 if(cardInfoId.isEmpty())
                     continue;
-                Map cardInfoResult = getCardInfo(cardInfoId);
+                Map cardInfoResult = getCardInfo(cardInfoId);//从esb取出相关数据
                 if(cardInfoResult != null && cardInfoResult.size()>0)
                 {
                     cardInfo.put(Common.BillingAddress,getValue(cardInfoResult,Common.BillingAddress));
                     cardInfo.put(Common.CardBin,getValue(cardInfoResult,Common.CardBin));
                     cardInfo.put(Common.CardHolder,getValue(cardInfoResult,Common.CardHolder));
-                    cardInfo.put(Common.CCardLastNoCode,getValue(cardInfoResult,Common.CCardLastNoCode));
+                    cardInfo.put(Common.CCardLastNoCode,getValue(cardInfoResult,"CardRiskNoLastCode"));
 
                     cardInfo.put(Common.CCardNoCode,getValue(cardInfoResult,Common.CCardNoCode));
-                    cardInfo.put(Common.CCardPreNoCode,getValue(cardInfoResult,Common.CCardPreNoCode));
+                    cardInfo.put(Common.CCardPreNoCode,getValue(cardInfoResult,"CardRiskNoPreCode"));
                     cardInfo.put(Common.CreditCardType,getValue(cardInfoResult,Common.CreditCardType));
                     cardInfo.put(Common.CValidityCode,getValue(cardInfoResult,Common.CValidityCode));
                     cardInfo.put(Common.IsForigenCard,getValue(cardInfoResult,Common.IsForeignCard));
@@ -205,6 +205,7 @@ public class CommonOperation
                     cardInfo.put(Common.Nationalityofisuue,getValue(cardInfoResult,Common.Nationalityofisuue));
                     cardInfo.put(Common.BankOfCardIssue,getValue(cardInfoResult,Common.BankOfCardIssue));
                     cardInfo.put(Common.StateName,getValue(cardInfoResult,Common.StateName));
+                    cardInfo.put("CardNoRefID",getValue(cardInfoResult,"CardNoRefID"));
                 }
                 //通过卡种和卡BIN获取系统中维护的信用卡信息
                 String cardTypeId = getValue(cardInfoResult,Common.CreditCardType);
