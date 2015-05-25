@@ -385,13 +385,7 @@ public class HotelGroupExecutor implements Executor
 
         //流量数据
         final Map flowDataCopy = BeanMapper.copy(flowData,Map.class);
-        runs.add(new Callable<DataFact>() {
-            @Override
-            public DataFact call() throws Exception {
-                commonOperation.writeFlowData(flowDataCopy);
-                return null;
-            }
-        });
+        commonOperation.writeFlowData(flowDataCopy,runs);
 
         try
         {

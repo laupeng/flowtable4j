@@ -361,7 +361,7 @@ public class CommonOperation
     }
 
     //写流量数据到数据库
-    public void writeFlowData(final Map flowData)
+    public void writeFlowData(final Map flowData,List<Callable<DataFact>> runs)
     {
         final String orderType = getValue(flowData,Common.OrderType);
         if(orderType.isEmpty())
@@ -378,18 +378,24 @@ public class CommonOperation
             flowFilters = commonSources.getFlowRuleFilter();
             CacheFlowRuleData.setFlowFilters(flowFilters);//添加到缓存中
         }
-        String KeyFieldName1 = "", KeyFieldName2 = "", StatisticTableName = "", StatisticTableId = "";
+         String StatisticTableId = "";
         for(Map flowRule : flowRules)
         {
             StatisticTableId = flowRule.get("StatisticTableId").toString();
             if(isInsertToStaticTable(flowRule,StatisticTableId,flowFilters))
             {
                 //写到数据库
-                StatisticTableName = flowRule.get("StatisticTableName").toString();
-                KeyFieldName1 = flowRule.get("KeyFieldID1").toString();
-                KeyFieldName2 = flowRule.get("KeyFieldID2").toString();
+                final String StatisticTableName = flowRule.get("StatisticTableName").toString();
+                final String KeyFieldName1 = flowRule.get("KeyFieldID1").toString();
+                final String KeyFieldName2 = flowRule.get("KeyFieldID2").toString();
                 logger.info("写入流量表："+StatisticTableName+"\t"+KeyFieldName1+"\t"+KeyFieldName2);
-                commonWriteSources.insertFlowInfo(flowData, KeyFieldName1, KeyFieldName2, StatisticTableName);
+                runs.add(new Callable<DataFact>() {
+                @Override
+                public DataFact call() throws Exception {
+                    commonWriteSources.insertFlowInfo(flowData, KeyFieldName1, KeyFieldName2, StatisticTableName);
+                    return null;
+                }
+                });
             }
         }
     }
