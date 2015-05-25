@@ -141,8 +141,7 @@ public class CommonOperation
         {
             try{
                 long reqId = Long.parseLong(getValue(mainInfo, Common.ReqID));
-
-                data.put("OldReqID",reqId);
+                data.put("OldReqID",reqId);//上一次写入产品信息的reqId
             }catch (Exception exp)
             {
                 logger.warn("getLastReqID获取lastReqID异常:",exp);

@@ -155,6 +155,8 @@ public class HotelGroupExecutor implements Executor
             logger.info("hotelGroupInfo\t"+ Json.toPrettyJSONString(dataFact.productInfoM));
             logger.info("otherInfo\t"+ Json.toPrettyJSONString(dataFact.otherInfo));
             logger.info("DIDInfo\t"+ Json.toPrettyJSONString(dataFact.DIDInfo));
+
+            if(dataFact.paymentInfoList != null && dataFact.paymentInfoList.size()>0)
             for(int i=0;i<dataFact.paymentInfoList.size();i++)
             {
                 Map<String,Object> paymentInfo = dataFact.paymentInfoList.get(i);

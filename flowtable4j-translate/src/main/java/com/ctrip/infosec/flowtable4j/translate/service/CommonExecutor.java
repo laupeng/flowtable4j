@@ -80,7 +80,7 @@ public class CommonExecutor
                     fillCommonInfo(dataFact,data);
                     //补充支付信息 从数据库获取支付信息
                     //并发执行
-                    final DataFact dataFactCopy01 = new DataFact();
+                    /*final DataFact dataFactCopy01 = new DataFact();
                     final String lastReq = getValue(data, Common.ReqID);
                     runs.add(new Callable<DataFact>() {
                         @Override
@@ -94,7 +94,6 @@ public class CommonExecutor
                             return null;
                         }
                     });
-
                     final DataFact dataFactCopy02 = new DataFact();
                     runs.add(new Callable<DataFact>() {
                         @Override
@@ -107,13 +106,14 @@ public class CommonExecutor
                             }
                             return null;
                         }
-                    });
+                    });*/
                     break;
 
                 case 2:
                     //region Description       补充产品
                     dataFact.mainInfo.putAll(commonOperation.getLastReqID(data));//这里暂时存储起来 在后面从data里面取出来
-                    dataFact.mainInfo.put(Common.CheckType,getValue(data,Common.CheckType));
+                    dataFact.mainInfo.put(Common.OrderID,getValue(data,Common.OrderID));//添加订单id
+                    dataFact.mainInfo.put(Common.CheckType,getValue(data,Common.CheckType));//要改成2
                     final String reqIdStr = getValue(data,"OldReqID");
                     final DataFact dataFactCopy001 = new DataFact();
                     runs.add(new Callable<DataFact>() {
