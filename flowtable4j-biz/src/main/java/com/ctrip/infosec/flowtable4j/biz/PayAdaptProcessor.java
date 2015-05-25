@@ -283,7 +283,7 @@ public class PayAdaptProcessor {
                     continue;
                 }
             }
-            groupByScene.put(item.getSceneType(), item);
+            groupByScene.put(sceneType, item);
         }
         results.addAll(groupByScene.values());
     }
