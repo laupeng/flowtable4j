@@ -6,6 +6,7 @@ import java.util.List;
  * Created by zhangsx on 2015/5/6.
  */
 public class PayAdaptResultItem {
+
     private int resultLevel;
 
     private List<String> resultList;
@@ -15,6 +16,8 @@ public class PayAdaptResultItem {
     private String sceneType;
 
     private String ruleRemark;
+
+    private String paymentStatus;
 
     public int getResultLevel() {
         return resultLevel;
@@ -54,5 +57,13 @@ public class PayAdaptResultItem {
 
     public void setRuleRemark(String ruleRemark) {
         this.ruleRemark = ruleRemark;
+    }
+
+    public String getPaymentStatus() {
+        return paymentStatus;
+    }
+
+    public void setPaymentStatus(String paymentStatus) {
+        this.paymentStatus = paymentStatus;
     }
 }

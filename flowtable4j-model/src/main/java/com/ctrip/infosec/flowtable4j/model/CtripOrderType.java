@@ -86,7 +86,6 @@ public enum CtripOrderType {
             codes.add(item.getCode());
         }
     }
-
     private int code;
 
     private CtripOrderType(int code) {

@@ -1,7 +1,7 @@
 package com.ctrip.infosec.flowtable4j.biz;
 
 import com.ctrip.infosec.common.model.RiskFact;
-import com.ctrip.infosec.flowtable4j.accountsecurity.PaymentViaAccount;
+import com.ctrip.infosec.flowtable4j.accountsecurity.AccountBWGRuleHandle;
 import com.ctrip.infosec.flowtable4j.bwlist.BWManager;
 import com.ctrip.infosec.flowtable4j.core.utils.SimpleStaticThreadPool;
 import com.ctrip.infosec.flowtable4j.dal.PayAdaptService;
@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class PayAdaptProcessor {
     @Autowired
-    private PaymentViaAccount paymentViaAccount;
+    private AccountBWGRuleHandle accountBWGRuleHandle;
     private static Logger logger = LoggerFactory.getLogger(PayAdaptProcessor.class);
     private static final String EVENTWS = GlobalConfig.getString("EventWS");
     private static final String APPID = GlobalConfig.getString("APPID");
@@ -61,22 +61,37 @@ public class PayAdaptProcessor {
 
         PayAdaptResult result = new PayAdaptResult();
         result.setRetCode(200);
+
         List<PayAdaptResultItem> results = new ArrayList<PayAdaptResultItem>();
 
         final List<PayAdaptResultItem> bwResults4j = new ArrayList<PayAdaptResultItem>();
         final RiskResult bwResults = new RiskResult();
-        final List<PayAdaptRuleResult> payRuleResults = new ArrayList<PayAdaptRuleResult>();
+        final List<PayAdaptResultItem> payRuleResults = new ArrayList<PayAdaptResultItem>();
         final Map<String, Integer> accountResults = new HashMap<String, Integer>();
 
         List<Callable<Object>> tasks = new ArrayList<Callable<Object>>();
-        if (shouldBeChecked(checkEntity)) {
+
+        //支付适配流量规则是否开启
+        if (isPayAdaptFlowRuleDefined(checkEntity)) {
             tasks.add(new Callable<Object>() {
                 @Override
                 public Object call() throws Exception {
+                    //调用反欺诈平台
                     long start = System.currentTimeMillis();
-                    getRiskFromDroolsRest(checkEntity, bwResults4j);
+                    checkRiskByDroolsEngine(checkEntity, bwResults4j);
                     long end = System.currentTimeMillis();
-                    logger.debug("callRiskFromDroolsRest costs "+(end-start)+"ms");
+                    logger.debug("get RiskResult by Drools Engine costs "+(end-start)+"ms");
+                    return null;
+                }
+            });
+            tasks.add(new Callable<Object>() {
+                @Override
+                public Object call() throws Exception {
+                    //调用黑白名单模块
+                    long start = System.currentTimeMillis();
+                    checkPaymentBWGRule(checkEntity, bwResults);
+                    long end = System.currentTimeMillis();
+                    logger.debug("check Payment BWG Rule costs " + (end - start) + "ms");
                     return null;
                 }
             });
@@ -84,19 +99,10 @@ public class PayAdaptProcessor {
                 @Override
                 public Object call() throws Exception {
                     long start = System.currentTimeMillis();
-                    callBWService(checkEntity, bwResults);
+                    //调用支付适配流量规则
+                    checkPayAdaptFlowRule(checkEntity, payRuleResults);
                     long end = System.currentTimeMillis();
-                    logger.debug("callBWService costs " + (end - start) + "ms");
-                    return null;
-                }
-            });
-            tasks.add(new Callable<Object>() {
-                @Override
-                public Object call() throws Exception {
-                    long start = System.currentTimeMillis();
-                    callPayadaptService(checkEntity, payRuleResults);
-                    long end = System.currentTimeMillis();
-                    logger.debug("callPayadaptService costs " + (end - start) + "ms");
+                    logger.debug("check PayAdapt FlowRule costs " + (end - start) + "ms");
                     return null;
                 }
             });
@@ -105,9 +111,10 @@ public class PayAdaptProcessor {
             @Override
             public Object call() throws Exception {
                 long start = System.currentTimeMillis();
-                callAccountService(checkEntity, accountResults);
+                //调用账户风控黑白名单
+                checkAccountBWGService(checkEntity, accountResults);
                 long end = System.currentTimeMillis();
-                logger.debug("callAccountService costs " + (end - start) + "ms");
+                logger.debug("check AccountBWG Service costs " + (end - start) + "ms");
                 return null;
             }
         });
@@ -120,25 +127,32 @@ public class PayAdaptProcessor {
                 }
             }
         } catch (InterruptedException e) {
-            logger.error("error.", e);
+            logger.error("payment adapt error.", e);
         }
 
         long start = System.currentTimeMillis();
+        //合并结果
         mergeResult(bwResults, bwResults4j, payRuleResults, accountResults, results);
         long end = System.currentTimeMillis();
-        logger.debug("mergeResult costs " + (end - start) + "ms");
+        logger.debug("merge pay adapt result costs " + (end - start) + "ms");
         result.setPayAdaptResultItems(results);
         return result;
     }
 
-    private boolean shouldBeChecked(PayAdaptFact checkEntity) {
-        return checkEntity.getOrderID() > 0 && CtripOrderType.contain(checkEntity.getOrderType()) && PayAdaptService.shouldBeChecked();
+    private boolean isPayAdaptFlowRuleDefined(PayAdaptFact checkEntity) {
+        return checkEntity.getOrderID() > 0 && CtripOrderType.contain(checkEntity.getOrderType()) && PayAdaptService.isPayAdapatFlowRuleOpen();
     }
 
-    private void getRiskFromDroolsRest(PayAdaptFact checkEntity, List<PayAdaptResultItem> bwResults4j) throws IOException {
+    /**
+     * 调用佰云的反欺诈平台
+     * @param checkEntity
+     * @param bwResults4j
+     * @throws IOException
+     */
+    private void checkRiskByDroolsEngine(PayAdaptFact checkEntity, List<PayAdaptResultItem> bwResults4j) throws IOException {
         RiskFact req = new RiskFact();
         req.setAppId(APPID);
-        req.setEventPoint("CP0001001");
+        req.setEventPoint("CP0001001"); //支付适配固定值
         req.setRequestTime(sdf.format(new Date()));
         req.setEventBody(new HashMap<String, Object>());
         req.getEventBody().put("OrderID", checkEntity.getOrderID());
@@ -148,8 +162,6 @@ public class PayAdaptProcessor {
         req.getEventBody().put("IPAddr", checkEntity.getIpAddr());
         req.getEventBody().put("DID", checkEntity.getDid());
 
-
-
         RiskFact resp = Utils.JSON.parseObject(Request.Post(EVENTWS).body(new StringEntity(Utils.JSON.toJSONString(req), "UTF-8")).connectTimeout(1000).socketTimeout(2000).addHeader("Accept-Language", "zh-cn,en-us;")
                 .addHeader("Accept-Encoding", "utf-8").addHeader("ContentType", "application/json").execute().returnContent().asString(), RiskFact.class);
         if(resp!=null&&resp.getFinalResultGroupByScene()!=null){
@@ -157,7 +169,7 @@ public class PayAdaptProcessor {
                 String scene = it.next();
                 Map<String,Object> groupByScene = resp.getFinalResultGroupByScene().get(scene);
                 int resultLevel = Integer.parseInt(Objects.toString(groupByScene.get("riskLevel"), "0"));
-                String resultType = resultLevel>=200?"B":(resultLevel>99?"M":"W");
+                String resultType = resultLevel>=200? "B":(resultLevel>99? "M":"W");
                 PayAdaptResultItem item = new PayAdaptResultItem();
                 item.setResultLevel(resultLevel);
                 item.setSceneType(scene);
@@ -169,64 +181,71 @@ public class PayAdaptProcessor {
         }
     }
 
-    private void callBWService(PayAdaptFact checkEntity, RiskResult riskResult) {
-        MainInfoOfPayadapt mainInfoOfPayadapt = PayAdaptService.getMainInfoByTypeAndId(checkEntity.getOrderType(), checkEntity.getOrderID());
+    private void checkPaymentBWGRule(PayAdaptFact checkEntity, RiskResult riskResult) {
         BWFact fact = new BWFact();
         fact.setOrderTypes(new ArrayList<Integer>());
         fact.setContent(new HashMap<String, Object>());
         fact.getOrderTypes().add(checkEntity.getOrderType());
         fact.getOrderTypes().add(0);
-        fact.getContent().put("Uid", mainInfoOfPayadapt.getUid());
-        fact.getContent().put("MobilePhone", mainInfoOfPayadapt.getMobilePhone());
-        fact.getContent().put("ContactEmail", mainInfoOfPayadapt.getContactEmail());
-        fact.getContent().put("DID", mainInfoOfPayadapt.getDid());
-
+        fact.setContent(PayAdaptService.fillBWGCheckEntity(checkEntity.getOrderType(), checkEntity.getOrderID()));
         if (!BWManager.checkWhite(fact, riskResult)) {
             BWManager.checkBlack(fact, riskResult);
         }
     }
 
-    private void callPayadaptService(PayAdaptFact checkEntity, List<PayAdaptRuleResult> payRuleResults) {
-        Map<String, Object> data2Check = PayAdaptService.getAdapterData(checkEntity.getOrderType(), checkEntity.getOrderID());
+    private void checkPayAdaptFlowRule(PayAdaptFact checkEntity, List<PayAdaptResultItem> payRuleResults) {
+
+        Map<String, Object> data2Check = PayAdaptService.fillPayAdaptCheckEntity(checkEntity.getOrderType(), checkEntity.getOrderID());
+
         //补充ip信息
-        PayAdaptService.addIpInfo(checkEntity.getOrderType(), data2Check);
+        PayAdaptService.getIPInfo(checkEntity.getOrderType(), data2Check);
+
         //补充补充OptionName信息
-        PayAdaptService.addOptionName(checkEntity.getOrderType(), data2Check);
+        PayAdaptService.getOptions(checkEntity.getOrderType(), data2Check);
+
         FlowFact fact = new FlowFact();
         fact.setOrderTypes(new ArrayList<Integer>());
-        fact.setContent(data2Check);
         fact.getOrderTypes().add(checkEntity.getOrderType());
         fact.getOrderTypes().add(0);
+        fact.setContent(data2Check);
         PayAdaptManager.check(fact, payRuleResults);
     }
 
-    private void callAccountService(PayAdaptFact checkEntity, Map<String, Integer> accountResults) {
+    private void checkAccountBWGService(PayAdaptFact checkEntity, Map<String, Integer> accountResults) {
         AccountFact accountFact = new AccountFact();
         accountFact.setCheckItems(new ArrayList<AccountItem>());
+        String uid="";
+        String userIp="";
+        if (checkEntity != null)
+        {
+            uid = checkEntity.getUid();
+            userIp = checkEntity.getIpAddr();
+        }
         for (String scene : sceneTypes) {
-            if (checkEntity != null && !Strings.isNullOrEmpty(checkEntity.getUid())) {
+            if (!Strings.isNullOrEmpty(uid)) {
                 AccountItem item = new AccountItem();
                 item.setSceneType(scene);
                 item.setCheckType("UID");
-                item.setCheckValue(checkEntity.getUid());
+                item.setCheckValue(uid);
                 accountFact.getCheckItems().add(item);
             }
-            if (checkEntity != null && !Strings.isNullOrEmpty(checkEntity.getIpAddr())) {
+            if (!Strings.isNullOrEmpty(userIp)) {
                 AccountItem item = new AccountItem();
                 item.setSceneType(scene);
                 item.setCheckType("IP");
-                item.setCheckValue(checkEntity.getIpAddr());
+                item.setCheckValue(userIp);
                 accountFact.getCheckItems().add(item);
             }
         }
         // 账户风控校验
-        paymentViaAccount.checkBWGRule(accountFact, accountResults);
+        accountBWGRuleHandle.checkBWGRule(accountFact, accountResults);
     }
 
     private void mergeResult(RiskResult bwResults, List<PayAdaptResultItem> bwResults4j,
-                             List<PayAdaptRuleResult> payAdaptRuleResults, Map<String, Integer> accountResults, List<PayAdaptResultItem> results) {
-        //黑名单中分值超过100的 记入下次需要合并的列表中。
-        List<PayAdaptResultItem> blackResults = new ArrayList<PayAdaptResultItem>();
+                             List<PayAdaptResultItem> payAdaptRuleResults, Map<String, Integer> accountResults, List<PayAdaptResultItem> results) {
+
+        //支付风控黑白名单中，如命中计入礼品卡黑名单
+        List<PayAdaptResultItem> allResults = new ArrayList<PayAdaptResultItem>();
         for (CheckResultLog item : bwResults.getResults()) {
             if (item.getRiskLevel() > 100) {
                 PayAdaptResultItem payAdaptResultItem = new PayAdaptResultItem();
@@ -236,85 +255,36 @@ public class PayAdaptProcessor {
                 payAdaptResultItem.getResultList().add("unable to pay");
                 payAdaptResultItem.setResultType("B");
                 payAdaptResultItem.setRuleRemark("支付适配黑名单规则");
-                blackResults.add(payAdaptResultItem);
+                allResults.add(payAdaptResultItem);
                 break;
             }
         }
-        Map<String, PayAdaptResultItem> groupByScene = new HashMap<String, PayAdaptResultItem>();
-        //对 blackResults，payAdaptRuleResults，accountResults，bwResults4j按scene 分组，取每组分值最大相
-        for (PayAdaptResultItem item : blackResults) {
-            if (groupByScene.containsKey(item.getSceneType())) {
-                if (groupByScene.get(item.getSceneType()).getResultLevel() < item.getResultLevel()) {
-                    //更新该场景下的分值
-                    groupByScene.get(item.getSceneType()).setResultLevel(item.getResultLevel());
-                    groupByScene.get(item.getSceneType()).setSceneType(item.getSceneType());
-                    groupByScene.get(item.getSceneType()).setResultList(item.getResultList());
-                    groupByScene.get(item.getSceneType()).setResultType(item.getResultType());
-                    groupByScene.get(item.getSceneType()).setRuleRemark(item.getRuleRemark());
 
-                }
-            } else {
-                groupByScene.put(item.getSceneType(), item);
-            }
-        }
-
-        for (PayAdaptRuleResult item : payAdaptRuleResults) {
-            if (groupByScene.containsKey(item.getSceneType())) {
-                if (groupByScene.get(item.getSceneType()).getResultLevel() < item.getRiskLevel()) {
-                    groupByScene.get(item.getSceneType()).setResultLevel(item.getRiskLevel());
-                    groupByScene.get(item.getSceneType()).setResultType("F");
-                    if (groupByScene.get(item.getSceneType()).getResultList() == null) {
-                        groupByScene.get(item.getSceneType()).setResultList(new ArrayList<String>());
-                    }
-                    groupByScene.get(item.getSceneType()).getResultList().add(item.getPaymentStatus());
-                    groupByScene.get(item.getSceneType()).setRuleRemark(item.getRuleDesc());
-                }
-            } else {
-                PayAdaptResultItem payAdaptResultItem = new PayAdaptResultItem();
-                payAdaptResultItem.setRuleRemark(item.getRuleDesc());
-                payAdaptResultItem.setResultList(new ArrayList<String>());
-                payAdaptResultItem.getResultList().add(item.getPaymentStatus());
-                payAdaptResultItem.setResultType("F");
-                payAdaptResultItem.setResultLevel(item.getRiskLevel());
-                payAdaptResultItem.setSceneType(item.getSceneType());
-
-                groupByScene.put(item.getSceneType(), payAdaptResultItem);
-            }
-        }
-
+        allResults.addAll(bwResults4j);
+        allResults.addAll(payAdaptRuleResults);
         for (Iterator<String> it = accountResults.keySet().iterator(); it.hasNext(); ) {
             String scene = it.next();
             if (accountResults.get(scene).intValue() > 0) {
-                if (groupByScene.containsKey(scene)) {
-                    if (groupByScene.get(scene).getResultLevel() < accountResults.get(scene).intValue()) {
-                        groupByScene.get(scene).setSceneType(scene);
-                        groupByScene.get(scene).setResultLevel(accountResults.get(scene).intValue());
-                    }
-                } else {
                     PayAdaptResultItem payAdaptResultItem = new PayAdaptResultItem();
                     payAdaptResultItem.setResultLevel(accountResults.get(scene).intValue());
                     payAdaptResultItem.setSceneType(scene);
-                    groupByScene.put(scene, payAdaptResultItem);
+                    payAdaptResultItem.setResultType("R");
+                    payAdaptResultItem.setResultList(new ArrayList<String>());
+                    allResults.add(payAdaptResultItem);
                 }
-            }
         }
 
-        for (PayAdaptResultItem item : bwResults4j) {
-            if (groupByScene.containsKey(item.getSceneType())) {
-                if (groupByScene.get(item.getSceneType()).getResultLevel() < item.getResultLevel()) {
-                    //更新该场景下的分值
-                    groupByScene.get(item.getSceneType()).setResultLevel(item.getResultLevel());
-                    groupByScene.get(item.getSceneType()).setRuleRemark(item.getRuleRemark());
-                    groupByScene.get(item.getSceneType()).setResultList(item.getResultList());
-                    groupByScene.get(item.getSceneType()).setSceneType(item.getSceneType());
-                    groupByScene.get(item.getSceneType()).setResultType(item.getResultType());
-
+        Map<String, PayAdaptResultItem> groupByScene = new HashMap<String, PayAdaptResultItem>();
+        //对 blackResults，payAdaptRuleResults，accountResults，bwResults4j按scene 分组，取每组分值最大相
+        for (PayAdaptResultItem item:allResults) {
+            String sceneType = item.getSceneType().toUpperCase();
+            if (groupByScene.containsKey(sceneType)) {
+                if (groupByScene.get(sceneType).getResultLevel() > item.getResultLevel()) {
+                    continue;
                 }
-            } else {
-                groupByScene.put(item.getSceneType(), item);
             }
+            groupByScene.put(sceneType, item);
         }
         results.addAll(groupByScene.values());
     }
-
 }

@@ -1,7 +1,7 @@
 package com.ctrip.infosec.flowtable4j.payAdapt;
 
 import com.ctrip.infosec.flowtable4j.model.FlowFact;
-import com.ctrip.infosec.flowtable4j.model.PayAdaptRuleResult;
+import com.ctrip.infosec.flowtable4j.model.PayAdaptResultItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +28,7 @@ public class PayAdaptRule {
      * @param results
      * @return
      */
-    public boolean check(FlowFact fact, List<PayAdaptRuleResult> results) {
+    public boolean check(FlowFact fact, List<PayAdaptResultItem> results) {
         return checkByOrderTypeMap(fact, results);
     }
 
@@ -40,7 +40,7 @@ public class PayAdaptRule {
      * @param results
      * @return
      */
-    public boolean checkByOrderType(HashMap<Integer, List<PayAdaptStatement>> byOrderType, FlowFact fact, List<PayAdaptRuleResult> results) {
+    public boolean checkByOrderType(HashMap<Integer, List<PayAdaptStatement>> byOrderType, FlowFact fact, List<PayAdaptResultItem> results) {
         int matched = 0;
         for(Integer orderType:fact.getOrderTypes()){
             if (byOrderType.containsKey(orderType)) {
@@ -61,7 +61,7 @@ public class PayAdaptRule {
      * @param results
      * @return
      */
-    protected boolean checkByOrderTypeMap(FlowFact fact, List<PayAdaptRuleResult> results) {
+    protected boolean checkByOrderTypeMap(FlowFact fact, List<PayAdaptResultItem> results) {
         try {
             checkByOrderType(byOrderType, fact, results);
         } catch (Throwable ex) {

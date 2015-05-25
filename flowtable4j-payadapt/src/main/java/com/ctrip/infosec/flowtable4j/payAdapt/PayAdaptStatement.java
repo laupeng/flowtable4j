@@ -1,9 +1,10 @@
 package com.ctrip.infosec.flowtable4j.payAdapt;
-
-import com.ctrip.infosec.flowtable4j.model.*;
+import com.ctrip.infosec.flowtable4j.model.FlowFact;
+import com.ctrip.infosec.flowtable4j.model.PayAdaptResultItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -54,7 +55,7 @@ public class PayAdaptStatement {
         this.flowRuleTerms = flowRuleTerms;
     }
 
-    public boolean check(FlowFact fact, List<PayAdaptRuleResult> results) {
+    public boolean check(FlowFact fact, List<PayAdaptResultItem> results) {
         boolean match = true;
         try {
             if (flowRuleTerms != null && flowRuleTerms.size() > 0) {
@@ -67,15 +68,18 @@ public class PayAdaptStatement {
                 }
             }
             if (match) {
-                PayAdaptRuleResult result = new PayAdaptRuleResult();
+                PayAdaptResultItem result = new PayAdaptResultItem();
                 result.setPaymentStatus(this.paymentStatus);
-                result.setRiskLevel(this.riskLevel);
-                result.setRuleDesc(this.ruleDesc);
+                result.setResultLevel(this.riskLevel);
+                result.setRuleRemark(this.ruleDesc);
                 result.setSceneType(this.sceneType);
+                result.setResultList(new ArrayList<String>());
+                result.getResultList().add(this.paymentStatus);
+                result.setResultType("F");
                 results.add(result);
             }
         } catch (Throwable ex) {
-            logger.error("error", ex);
+            logger.error("PayAdapt check error", ex);
         }
         return match;
     }
