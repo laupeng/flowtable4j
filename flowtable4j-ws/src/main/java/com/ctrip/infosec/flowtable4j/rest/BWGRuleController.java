@@ -38,12 +38,10 @@ public class BWGRuleController {
         }
         return "ok";
     }
-    @RequestMapping("/syncBWG")
-    public @ResponseBody String syncBWG(@RequestBody Map<String,String> req){
-        if(req.containsKey("datetime")){
-            processor.syncBWG(req.get("datetime").toString());
-        }
-        return "ok";
+    @RequestMapping("/loadBWGRule")
+    public @ResponseBody String loadBWGRule(long reqId){
+          processor.loadExistBWGRule(reqId);
+          return "ok";
     }
 
 }

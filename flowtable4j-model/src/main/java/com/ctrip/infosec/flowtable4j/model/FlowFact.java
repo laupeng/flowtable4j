@@ -87,6 +87,15 @@ public class FlowFact {
                 {
                     return obj.toString();
                 }
+                return null;
+            }
+            if (parentMap.containsKey(key.toUpperCase())) {
+                Object obj = parentMap.get(key.toUpperCase());
+                if(obj != null)
+                {
+                    return obj.toString();
+                }
+                return null;
             }
         }
         return null;
@@ -103,6 +112,9 @@ public class FlowFact {
     private Map<String, Object> getChildMap(Map<String, Object> parentMapNode, String childNode) {
         if (parentMapNode.containsKey(childNode)) {
             return (Map<String, Object>) parentMapNode.get(childNode);
+        }
+        if(parentMapNode.containsKey(childNode.toUpperCase())){
+            return (Map<String, Object>) parentMapNode.get(childNode.toUpperCase());
         }
         return null;
     }

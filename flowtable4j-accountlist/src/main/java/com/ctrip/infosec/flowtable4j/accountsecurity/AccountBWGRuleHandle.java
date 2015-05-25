@@ -18,17 +18,23 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 /**
+ * 按SceneType、CheckType组装的黑白名单
  * Created by zhangsx on 2015/3/17.
  */
 @Component
-public class PaymentViaAccount {
+public class AccountBWGRuleHandle {
     //超时 ms
     final int TIMEOUT = 2000;
+
     @Autowired
     private RedisProvider redisProvider;
     private FastDateFormat format = FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ss");
-    private Logger logger = LoggerFactory.getLogger(PaymentViaAccount.class);
+    private Logger logger = LoggerFactory.getLogger(AccountBWGRuleHandle.class);
 
+    /**
+     * 保存黑白名单到Redis
+     * @param rules
+     */
     public void setBWGRule(List<RuleContent> rules) {
         List<Callable<Object>> tasks = new ArrayList<Callable<Object>>();
         for (final RuleContent item : rules) {
@@ -45,7 +51,6 @@ public class PaymentViaAccount {
                         //CheckValue,CheckType,SceneType should be uppercase
                         String key = String.format("BW|%s|%s", checkType, checkValue).toUpperCase();
                         String value = Utils.JSON.toJSONString(ruleStore);
-
                         redisProvider.getCache().sadd(key, value);
                     }
                     return null;
@@ -59,6 +64,10 @@ public class PaymentViaAccount {
         }
     }
 
+    /**
+     * 批量增加黑白名单，单线程
+     * @param rules
+     */
     public void setBWGRule4Job(List<RuleContent> rules){
         for (final RuleContent item : rules) {
             String checkType = item.getCheckType();
@@ -76,7 +85,10 @@ public class PaymentViaAccount {
         }
     }
 
-
+    /**
+     * 从Redis中移除黑白名单
+     * @param rules
+     */
     public void removeBWGRule(List<RuleContent> rules) {
         List<Callable<Object>> tasks = new ArrayList<Callable<Object>>();
         for (final RuleContent item : rules) {
@@ -115,7 +127,8 @@ public class PaymentViaAccount {
      */
     public void checkBWGRule(AccountFact fact, Map<String, Integer> result) {
         if (fact == null || fact.getCheckItems() == null || fact.getCheckItems().size() == 0) {
-            throw new RuntimeException("数据格式错误，请求内容为空");
+            logger.warn("数据格式错误，请求内容为空");
+            return;
         }
 
         List<Callable<Object>> tasks = new ArrayList<Callable<Object>>();
@@ -182,7 +195,6 @@ public class PaymentViaAccount {
 
     /**
      * 根据Key从Redis获取黑白名单
-     *
      * @param dic_allRules
      * @param currentDate
      * @param searchKey

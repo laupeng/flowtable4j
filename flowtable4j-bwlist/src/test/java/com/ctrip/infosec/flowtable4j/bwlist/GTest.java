@@ -17,16 +17,34 @@ public class GTest {
 
     @Test
     public void main() {
-//        String src = "select UserIPValue from CTRIP_FLT_UserIPValue_Uid(nolock)  Where Uid = @Uid and CreateDate>=@StartTimeLimit and CreateDate<=@TimeLimit";
-//        printStrings(src.replaceAll("@", ":"));
-//        printStrings(null, "BB");
-//        printStrings();
-         Map<Integer, Integer> ss= new HashMap<Integer, Integer>();
-         ss.put(11,11);
-         ss.put(22, 22);
-        Integer j=11;
-         System.out.println(ss.get(j));
-        System.out.println(ss.containsKey(j));
+//        long Ip = 1033410193;
+//        long a =  (Ip & 0xFF000000)>>24;
+//        long b =  (Ip & 0x00FF0000)>>16;
+//        long c =  (Ip & 0x0000FF00)>> 8;
+//        long d =   Ip & 0x000000FF;
+//
+//        System.out.println(a + "." + b + "." + c + "." + d);
+//
+//        String ipS ="192.168.11.22";
+//        String[] ss= ipS.split("[.]|[:]");
+//        for(String s:ss)
+//        {
+//            System.out.println(s);
+//        }
+        String ip="61.152.150.145";
+        long n_Ip = 0;
+        if (ip != null && ip.length()>7) {
+            String[] arr = ip.split("[.]|[:]");
+            if (arr.length >= 4) {
+                long a = Long.parseLong(arr[0].toString());
+                long b = Long.parseLong(arr[1].toString());
+                long c = Long.parseLong(arr[2].toString());
+                long d = Long.parseLong(arr[3].toString());
+                n_Ip = (((((a << 8) | b) << 8) |c)<<8) | d;
+            }
+        }
+        System.out.println(n_Ip);
+
     }
 
     public void match(String source, String pattern) {

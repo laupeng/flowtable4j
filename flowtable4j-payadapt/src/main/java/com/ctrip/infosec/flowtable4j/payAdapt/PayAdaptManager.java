@@ -1,7 +1,7 @@
 package com.ctrip.infosec.flowtable4j.payAdapt;
 
 import com.ctrip.infosec.flowtable4j.model.FlowFact;
-import com.ctrip.infosec.flowtable4j.model.PayAdaptRuleResult;
+import com.ctrip.infosec.flowtable4j.model.PayAdaptResultItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.List;
@@ -27,7 +27,7 @@ public class PayAdaptManager {
      * @param results
      * @return
      */
-    public static boolean check(FlowFact fact, List<PayAdaptRuleResult> results) {
+    public static boolean check(FlowFact fact, List<PayAdaptResultItem> results) {
         try {
             if (payAdaptRule != null) {
                 return payAdaptRule.check(fact, results);

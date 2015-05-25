@@ -1,6 +1,6 @@
 package com.ctrip.infosec.flowtable4j.biz;
 
-import com.ctrip.infosec.flowtable4j.accountsecurity.PaymentViaAccount;
+import com.ctrip.infosec.flowtable4j.accountsecurity.AccountBWGRuleHandle;
 import com.ctrip.infosec.flowtable4j.bwlist.BWManager;
 import com.ctrip.infosec.flowtable4j.core.utils.SimpleStaticThreadPool;
 import com.ctrip.infosec.flowtable4j.flowlist.FlowRuleManager;
@@ -31,7 +31,7 @@ public class FlowtableProcessor {
     private static Logger logger = LoggerFactory.getLogger(FlowtableProcessor.class);
 
     @Autowired
-    private PaymentViaAccount paymentViaAccount;
+    private AccountBWGRuleHandle accountBWGRuleHandle;
     @Autowired
     @Qualifier("cardRiskDBInsertTemplate")
     private JdbcTemplate cardRiskDBTemplate;
@@ -56,7 +56,7 @@ public class FlowtableProcessor {
 
         boolean isWhite = false;
         /**
-         * 1. 检测是否是白名单，是就直接返回，否则继续check黑名单，账户和flowrule
+         * 1. 检测是否是白名单，是就直接返回，否则继续check黑名单，账户和 Flow Rule
          */
         for (CheckType type : checkEntity.getCheckTypes()) {
             if (type == CheckType.BW) {
@@ -115,7 +115,7 @@ public class FlowtableProcessor {
                         long now = System.currentTimeMillis();
                         AccountFact item = checkEntity.getAccountFact();
                         if (item != null && item.getCheckItems() != null && item.getCheckItems().size() > 0) {
-                            paymentViaAccount.checkBWGRule(item, mapAccount);
+                            accountBWGRuleHandle.checkBWGRule(item, mapAccount);
                         }
                         long eps = System.currentTimeMillis() - now;
                         String info = String.format("ReqId:%d,CheckBWGRule elapse %d ms", checkEntity.getReqId(), eps);

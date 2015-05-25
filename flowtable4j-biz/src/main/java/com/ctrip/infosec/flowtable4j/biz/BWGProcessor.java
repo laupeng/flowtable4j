@@ -1,7 +1,6 @@
 package com.ctrip.infosec.flowtable4j.biz;
 
-import com.ctrip.infosec.flowtable4j.accountsecurity.PaymentViaAccount;
-import com.ctrip.infosec.flowtable4j.core.utils.SimpleStaticThreadPool;
+import com.ctrip.infosec.flowtable4j.accountsecurity.AccountBWGRuleHandle;
 import com.ctrip.infosec.flowtable4j.model.RuleContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,18 +8,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.stereotype.Component;
 
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -32,82 +25,73 @@ public class BWGProcessor {
     @Autowired
     @Qualifier("pciAccountRiskDetailDBTemplate")
     private JdbcTemplate pciTemplate;
+
     @Autowired
-    private PaymentViaAccount paymentViaAccount;
+    private AccountBWGRuleHandle accountBWGRuleHandle;
+
     private static Logger logger = LoggerFactory.getLogger(BWGProcessor.class);
-    public void setBWGRule(List<RuleContent> rules){
-        paymentViaAccount.setBWGRule(rules);
+
+    /**
+     * 新增黑白名单
+     * @param rules
+     */
+    public void setBWGRule(List<RuleContent> rules) {
+        accountBWGRuleHandle.setBWGRule(rules);
     }
 
-    public void removeBWGRule(List<RuleContent> rules){
-        paymentViaAccount.removeBWGRule(rules);
+    /**
+     * 删除黑白名单
+     * @param rules
+     */
+    public void removeBWGRule(List<RuleContent> rules) {
+        accountBWGRuleHandle.removeBWGRule(rules);
     }
 
-    public void syncBWG(final String datetime){
-        final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-        final int pageSize = 500;
-        for(int page=0;;page++){
-            final int size = page*pageSize;
-            final List<RuleContent> results = pciTemplate.query("SELECT RecId, RuleKey, ExpiryDate, DataChange_LastTime, IsActive, CreateDate, RuleContent, LastOper, CheckType, SceneType, CheckValue, RuleRemark, ResultLevel, RuleID\n" +
-                    "FROM (\n" +
-                    "\t\tSELECT ROW_NUMBER() OVER(ORDER BY RecId DESC) rownum,*\n" +
-                    "\t\tFROM AccountSecurity_BWGList WHERE IsActive=1 AND CreateDate<? AND SceneType NOT IN \n" +
-                    "('LOGIN-SITE',\n" +
-                    "'LOGIN-CLIENT',\n" +
-                    "'BRANDS-USE',\n" +
-                    "'BRANDS-LOGIN',\n" +
-                    "'CFX-BLOCKIP',\n" +
-                    "'LOGIN-SITE-TRAIN',\n" +
-                    "'LOGIN-SITE-EBK',\n" +
-                    "'LOGIN-SITE-MICE',\n" +
-                    "'CFX-BLOCKCLIENT',\n" +
-                    "'XGW',\n" +
-                    "'GOLF-GW',\n" +
-                    "'LOGIN-SITE-WELFARE',\n" +
-                    "'REGIST-SITE',\n" +
-                    "'LOGIN-SITE-KZT',\n" +
-                    "'LOGIN-SITE-SKYSEA',\n" +
-                    "'SKYSEA_REGIST_APPLY',\n" +
-                    "'OFFLINE-LOGIN')\n" +
-                    "\t) a\n" +
-                    "\tWHERE a.rownum>"+size+" AND a.rownum<"+(size+500), new PreparedStatementSetter() {
-                @Override
-                public void setValues(PreparedStatement preparedStatement) throws SQLException {
-                    try {
-                        preparedStatement.setTimestamp(1, new Timestamp(sdf.parse(datetime).getTime()));
-                    } catch (ParseException e) {
-                        logger.error("时间转换失败");
-                        throw new RuntimeException("ParseException");
-                    }
-                }
-            }, new ResultSetExtractor<List<RuleContent>>() {
-                @Override
-                public List<RuleContent> extractData(ResultSet resultSet) throws SQLException, DataAccessException {
-                    List<RuleContent> results = new ArrayList<RuleContent>();
-                    while (resultSet.next()) {
-                        RuleContent content = new RuleContent();
-                        content.setCheckType(resultSet.getString("CheckType"));
-                        content.setCheckValue(resultSet.getString("CheckValue"));
-                        content.setExpiryDate(resultSet.getString("ExpiryDate"));
-                        content.setResultLevel(resultSet.getInt("ResultLevel"));
-                        content.setSceneType(resultSet.getString("SceneType"));
-                        logger.info("sync bwg recid:" + String.valueOf(resultSet.getInt("RecId")) + "success");
-                        results.add(content);
-                    }
-                    return results;
-                }
-            });
-            if(results==null||results.size()==0){
-                return;
+    /**
+     * 加载数据库中黑白名单到Redis中
+     * @param recId
+     */
+    public void loadExistBWGRule(final long recId) {
+        Long maxRecId = new Long(recId);
+        int totalRecs = 0;
+        final List<Long> list = new ArrayList<Long>(1);
+        list.add(maxRecId);
+        while (true) {
+            List<RuleContent> results = pciTemplate.query(
+                    "SELECT top 1000 RecId, ExpiryDate,CheckType,SceneType, CheckValue,ResultLevel " +
+                            "FROM   AccountSecurity_BWGList (nolock) " +
+                            "WHERE  RecID < ? AND IsActive=1  " +
+                            "AND SceneType IN ('PAYMENT-CONF-LIPIN','PAYMENT-CONF-CC','PAYMENT-CONF-CCC','PAYMENT-CONF-CTRIPAY'," +
+                            "'CREDIT-EXCHANGE','CTRIPAY-CASHOUT','CASH-EXCHANGE','PAYMENT-CONF-DCARD','PAYMENT-CONF-ALIPAY'," +
+                            "'PAYMENT-CONF-CASH','PAYMENT-CONF-WEIXIN','PAYMENT-CONF-EBANK','CREDIT-GUARANTEE')" +
+                            " ORDER by RecID desc",
+                    new ResultSetExtractor<List<RuleContent>>() {
+                        @Override
+                        public List<RuleContent> extractData(ResultSet resultSet) throws SQLException, DataAccessException {
+                            List<RuleContent> results = new ArrayList<RuleContent>();
+                            while (resultSet.next()) {
+                                RuleContent content = new RuleContent();
+                                content.setCheckType(resultSet.getString("CheckType"));
+                                content.setCheckValue(resultSet.getString("CheckValue"));
+                                content.setExpiryDate(resultSet.getString("ExpiryDate"));
+                                content.setResultLevel(resultSet.getInt("ResultLevel"));
+                                content.setSceneType(resultSet.getString("SceneType"));
+                                results.add(content);
+                                list.set(0, resultSet.getLong("RecId"));
+                            }
+                            return results;
+                        }
+                    },
+                    maxRecId);
+
+            if (results != null && results.size() > 0) {
+                totalRecs += results.size();
+                accountBWGRuleHandle.setBWGRule4Job(results);
+                maxRecId = list.get(0);
+            } else {
+                break;
             }
-            SimpleStaticThreadPool.getInstance().execute(new Runnable() {
-                @Override
-                public void run() {
-                    paymentViaAccount.setBWGRule4Job(results);
-                }
-            });
-            logger.info("sync bwg size:"+results.size());
         }
+        logger.info("Total load BWGRule from accountRiskControl:" + totalRecs);
     }
-
 }

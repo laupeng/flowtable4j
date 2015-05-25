@@ -17,7 +17,6 @@ import java.util.Set;
 @Component
 public class RedisProvider {
     private final String redisCluster = "CounterServer_03";
-    private CacheProvider cache;
     JsonMapper mapper = new JsonMapper();
     public RedisProvider() {
         RAppSetting.setAppID(GlobalConfig.getString("APPID"));
@@ -25,17 +24,11 @@ public class RedisProvider {
         RAppSetting.setLoggingServerPort(GlobalConfig.getString("CLogging.serverPort"));
         RAppSetting.setLogging(true);
         RAppSetting.setCRedisServiceUrl(GlobalConfig.getString("CRedis.serviceUrl"));//"http://ws.config.framework.fws.qa.nt.ctripcorp.com/configws/"
-
-//        RAppSetting.setAppID("100000807");
-//        RAppSetting.setLoggingServerIP("collector.logging.uat.qa.nt.ctripcorp.com");//"collector.logging.uat.qa.nt.ctripcorp.com"
-//        RAppSetting.setLoggingServerPort("63100");
-//        RAppSetting.setLogging(true);
-//        RAppSetting.setCRedisServiceUrl("http://ws.config.framework.fws.qa.nt.ctripcorp.com/configws/");//"http://ws.config.framework.fws.qa.nt.ctripcorp.com/configws/"
-        cache = CacheFactory.GetProvider(redisCluster);
-    }
+     }
 
     public <T> List<T> getBWGValue(String key,Class<T> classType) {
         List<T> listOfResult = new ArrayList<T>();
+        CacheProvider cache = getCache();
         if (cache != null) {
             Set<String> rules = cache.smembers(key);
             if (rules != null) {
@@ -49,6 +42,6 @@ public class RedisProvider {
     }
 
     public CacheProvider getCache() {
-        return this.cache;
+        return CacheFactory.GetProvider(redisCluster);
     }
 }

@@ -1,6 +1,5 @@
 package com.ctrip.infosec.flowtable4j.accountsecurity;
 
-import com.ctrip.infosec.configs.utils.Utils;
 import com.ctrip.infosec.flowtable4j.model.AccountFact;
 import com.ctrip.infosec.flowtable4j.model.AccountItem;
 import com.ctrip.infosec.flowtable4j.model.RuleContent;
@@ -19,7 +18,7 @@ import java.util.*;
 @ContextConfiguration(locations = { "classpath:/spring/flowtable4j.xml"})
 public class JedisTest {
     @Autowired
-    private PaymentViaAccount paymentViaAccount;
+    private AccountBWGRuleHandle accountBWGRuleHandle;
     @Test
     public void testMerge(){
         List<RuleContent> list = new ArrayList<RuleContent>();
@@ -78,7 +77,7 @@ public class JedisTest {
 //        items.add(item1);
         fact.setCheckItems(items);
         Map<String,Integer> map = new HashMap<String, Integer>();
-        paymentViaAccount.checkBWGRule(fact, map);
+        accountBWGRuleHandle.checkBWGRule(fact, map);
 
         final int i=0;
 
