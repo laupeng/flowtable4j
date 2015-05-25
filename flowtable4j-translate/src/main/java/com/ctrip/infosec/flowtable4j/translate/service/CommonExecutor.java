@@ -509,8 +509,12 @@ public class CommonExecutor
         try{
             logger.info("开始构造"+data.get("OrderID")+"流量表数据");
             //InfoSecurity_MainInfo
-            flowData.putAll(dataFact.mainInfo);
-            //SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.sss");
+            flowData.put("OrderId",getValue(dataFact.mainInfo,Common.OrderID));
+            flowData.put("Amount",getValue(dataFact.mainInfo,Common.Amount));
+            flowData.put("CheckType",getValue(dataFact.mainInfo,Common.CheckType));
+            flowData.put("Serverfrom",getValue(dataFact.mainInfo,Common.Serverfrom));
+            flowData.put("OrderDate",getValue(dataFact.mainInfo,Common.OrderDate));
+//            flowData.putAll(dataFact.mainInfo);
             String orderDateStr = getValue(dataFact.mainInfo,Common.OrderDate);
             try
             {
@@ -540,29 +544,55 @@ public class CommonExecutor
                         cardInfoList.size()>0)
                 {
                     Map cardInfoFirst = cardInfoList.get(0);
-                    flowData.putAll(cardInfoFirst);
+                    flowData.put("CCardNoCode",getValue(cardInfoFirst,Common.CCardNoCode));
+                    flowData.put("CValidityCode",getValue(cardInfoFirst,Common.CValidityCode));
+                    flowData.put("CreditCardType",getValue(cardInfoFirst,Common.CreditCardType));
+                    flowData.put("IsForigenCard",getValue(cardInfoFirst,Common.IsForigenCard));
+                    flowData.put("CardBinIssue",getValue(cardInfoFirst,Common.CardBinIssue));
+                    flowData.put("CardBin",getValue(cardInfoFirst,Common.CardBin));
+                    flowData.put("CardHolder",getValue(cardInfoFirst,Common.CardHolder));
+//                    flowData.putAll(cardInfoFirst);
                     break;
                 }
             }
 
             //InfoSecurity_ContactInfo
-            flowData.putAll(dataFact.contactInfo);
+//            flowData.putAll(dataFact.contactInfo);
+            flowData.put("MobilePhone",getValue(dataFact.contactInfo,Common.MobilePhone));
+            flowData.put("MobilePhoneCity",getValue(dataFact.contactInfo,Common.MobilePhoneCity));
+            flowData.put("ContactEMail",getValue(dataFact.contactInfo,Common.ContactEMail));
+            flowData.put("MobilePhoneProvince",getValue(dataFact.contactInfo,Common.MobilePhoneProvince));
+
             flowData.put(Common.RelatedMobilePhoneCity,getValue(dataFact.contactInfo,Common.MobilePhoneCity));
             flowData.put(Common.RelatedMobilePhoneProvince,getValue(dataFact.contactInfo,Common.MobilePhoneProvince));
 
             //InfoSecurity_OtherInfo
-            flowData.putAll(dataFact.otherInfo);
+//            flowData.putAll(dataFact.otherInfo);
+            flowData.put("OrderToSignUpDate",getValue(dataFact.otherInfo,Common.OrderToSignUpDate));
 
             //InfoSecurity_UserInfo
-            flowData.putAll(dataFact.userInfo);
+//            flowData.putAll(dataFact.userInfo);
+            flowData.put("CusCharacter",getValue(dataFact.userInfo,Common.CusCharacter));
+            flowData.put("BindedMobilePhone",getValue(dataFact.userInfo,Common.BindedMobilePhone));
+            flowData.put("UserPassword",getValue(dataFact.userInfo,Common.UserPassword));
+            flowData.put("Experience",getValue(dataFact.userInfo,Common.Experience));
+            flowData.put("BindedEmail",getValue(dataFact.userInfo,Common.BindedEmail));
 
             //InfoSecurity_IPInfo
-            flowData.putAll(dataFact.ipInfo);
+//            flowData.putAll(dataFact.ipInfo);
+            flowData.put("UserIPAdd",getValue(dataFact.ipInfo,Common.UserIPAdd));
+            flowData.put("UserIPValue",getValue(dataFact.ipInfo,Common.UserIPValue));
+            flowData.put("IPCity",getValue(dataFact.ipInfo,Common.IPCity));
+            flowData.put("IPCountry",getValue(dataFact.ipInfo,Common.IPCountry));
             if(!getValue(dataFact.ipInfo,Common.IPCity).isEmpty())
             {
                 Map ipCityInfo = commonSources.getCityInfo(getValue(dataFact.ipInfo, Common.IPCity));
                 if(ipCityInfo != null && ipCityInfo.size()>0)
-                    flowData.putAll(ipCityInfo);
+                {
+                    flowData.put("IPCityName",getValue(ipCityInfo,"CityName"));
+                    flowData.put("IPProvince",getValue(ipCityInfo,"ProvinceName"));
+//                    flowData.putAll(ipCityInfo);
+                }
             }
 
             //DID

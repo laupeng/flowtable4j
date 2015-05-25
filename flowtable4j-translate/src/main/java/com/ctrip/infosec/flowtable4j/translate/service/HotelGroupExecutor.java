@@ -107,8 +107,7 @@ public class HotelGroupExecutor implements Executor
                 Map subPaymentInfo = (Map)paymentInfo.get(Common.PaymentInfo);
                 List<Map> cardInfoList = (List<Map>)paymentInfo.get(Common.CardInfoList);
                 Map cardInfoFirst = cardInfoList.get(0);
-
-                flowData.put(HotelGroup.CardBinOrderID,getValue(cardInfoFirst,Common.CardBin)+getValue(dataFact.mainInfo,Common.OrderID));
+//                flowData.put(HotelGroup.CardBinOrderID,getValue(cardInfoFirst,Common.CardBin)+getValue(dataFact.mainInfo,Common.OrderID));
                 flowData.put(HotelGroup.CardBinUID,getValue(cardInfoFirst,Common.CardBin)+getValue(dataFact.userInfo,Common.Uid));
                 flowData.put(HotelGroup.CardBinMobilePhone,getValue(cardInfoFirst,Common.CardBin)+getValue(dataFact.contactInfo,Common.MobilePhone));
                 flowData.put(HotelGroup.CardBinUserIPAdd,getValue(cardInfoFirst,Common.CardBin)+getValue(dataFact.ipInfo,Common.UserIPAdd));
@@ -122,7 +121,13 @@ public class HotelGroupExecutor implements Executor
             }
 
             //产品信息加到流量实体
-            flowData.putAll(dataFact.productInfoM);
+//            flowData.putAll(dataFact.productInfoM);
+            flowData.put("Quantity",getValue(dataFact.productInfoM,Common.Quantity));
+            flowData.put("City",getValue(dataFact.productInfoM,Common.City));
+            flowData.put("ProductID",getValue(dataFact.productInfoM,Common.ProductID));
+            flowData.put("ProductName",getValue(dataFact.productInfoM,Common.ProductName));
+            flowData.put("ProductType",getValue(dataFact.productInfoM,Common.ProductType));
+            flowData.put("Price",getValue(dataFact.productInfoM,Common.Price));
 
             //构造规则引擎的数据类型CheckFact
             CheckType[] checkTypes = {CheckType.BW,CheckType.FLOWRULE};
