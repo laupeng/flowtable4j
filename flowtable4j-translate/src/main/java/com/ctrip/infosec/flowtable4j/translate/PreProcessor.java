@@ -44,7 +44,7 @@ public class PreProcessor
             case 2:
                 break;
             case 14:
-                return hotelGroupExecutor.executeHotelGroup(data,excutor,writeExcutor,true,false);//fixme 注意这里要调整 在上线后的写入和检查
+                return hotelGroupExecutor.executeHotelGroup(data,excutor,writeExcutor,true,true);//fixme 注意这里要调整 在上线后的写入和检查
             case 18:
                 return tieYouExecutor.executeTieYou(data,excutor,writeExcutor);
             //...14-24

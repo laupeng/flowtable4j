@@ -42,10 +42,28 @@ public class HotelGroupWriteSources
         cUSRATDBTemplate = allTemplates.getcUSRATDBTemplate();
     }
 
-    public void insertHotelGroupInfo(final Map hotelGroupInfo,final String reqId)
+    public void insertHotelGroupInfo(final Map hotelGroupInfo,final String reqId,final boolean isWrite,final boolean isCheck)
     {
-        if(hotelGroupInfo == null || hotelGroupInfo.size()<1)
-            return;
+        try
+        {
+            if(isCheck)
+            {
+                Map oldMainInfo = cardRiskDBTemplate.queryForMap("select top 1 * from infosecurity_hotelGroupInfo where reqid=?",reqId);
+                Set<Map.Entry> entries = oldMainInfo.entrySet();
+                for(Map.Entry<String,Object> entry : entries)
+                {
+                    if(!entry.getValue().equals(getValue(hotelGroupInfo,entry.getKey())))
+                    {
+                        logger.info("hotelGroupInfo信息比对结果"+entry.getKey()+":"+"老系统的值"+entry.getValue()+"新系统的值"+getValue(hotelGroupInfo,entry.getKey()));
+                    }
+                }
+            }
+        }catch (Exception exp)
+        {
+            logger.warn("insertContactInfo比对数据的时候出现异常"+exp.getMessage());
+        }
+        if(!isWrite)
+            return;//如果不写入就直接返回
         Object result = cardRiskDBTemplate.execute(new CallableStatementCreator() {
            public CallableStatement createCallableStatement(Connection con) throws SQLException
            {

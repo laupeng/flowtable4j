@@ -180,13 +180,13 @@ public class CommonExecutor
                     commonOperation.fillPaymentInfo0(dataFact,data);//和checkType = 0的补充支付信息一样
                     
                     //paymentMainInfo
-                    final String lastReq_m = getValue(data, Common.ReqID);
+                    //final String lastReq_m = getValue(data, Common.ReqID);
                     final DataFact dataFactCopy_M = new DataFact();
                     runs.add(new Callable<DataFact>() {
                         @Override
                         public DataFact call() throws Exception {
                             try {
-                                commonOperation.fillPaymentMainInfo(dataFactCopy_M, lastReq_m);
+                                commonOperation.fillPaymentMainInfo(dataFactCopy_M, reqIdStr);
                                 return dataFactCopy_M;
                             } catch (Exception e) {
                                 logger.warn("invoke commonOperation.fillPaymentMainInfo failed.: ", e);
@@ -198,8 +198,6 @@ public class CommonExecutor
                 default:
                     break;
             }
-
-            logger.info("执行第一个线程池的之前的时间是："+(System.currentTimeMillis()-test));
             //这里执行并发操作
             //并发执行
             long t1 = System.currentTimeMillis();

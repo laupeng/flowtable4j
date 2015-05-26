@@ -312,7 +312,7 @@ public class HotelGroupExecutor implements Executor
             @Override
             public DataFact call() throws Exception {
                 try {
-                    hotelGroupWriteSources.insertHotelGroupInfo(dataFactCopy.productInfoM,reqId);
+                    hotelGroupWriteSources.insertHotelGroupInfo(dataFactCopy.productInfoM,reqId,isWrite,isCheck);
                 } catch (Exception e) {
                     logger.warn("invoke commonWriteSources.insertHotelGroupInfo failed.: ", e);
                 }

@@ -54,14 +54,20 @@ public class CommonWriteSources
         //查询老系统的值 用于比对
         if(isCheck)
         {
-            Map oldMainInfo = cardRiskDBTemplate.queryForMap("select top 1 * from infosecurity_maininfo where reqid=?",reqId);
-            Set<Map.Entry> entries = oldMainInfo.entrySet();
-            for(Map.Entry<String,Object> entry : entries)
+            try
             {
-                if(!entry.getValue().equals(getValue(mainInfo,entry.getKey())))
+                Map oldMainInfo = cardRiskDBTemplate.queryForMap("select top 1 * from infosecurity_maininfo where reqid=?",reqId);
+                Set<Map.Entry> entries = oldMainInfo.entrySet();
+                for(Map.Entry<String,Object> entry : entries)
                 {
-                    logger.info("mainInfo信息比对结果"+entry.getKey()+":"+"老系统的值"+entry.getValue()+"新系统的值"+getValue(mainInfo,entry.getKey()));
+                    if(!entry.getValue().equals(getValue(mainInfo,entry.getKey())))
+                    {
+                        logger.info("mainInfo信息比对结果"+entry.getKey()+":"+"老系统的值"+entry.getValue()+"新系统的值"+getValue(mainInfo,entry.getKey()));
+                    }
                 }
+            }catch (Exception exp)
+            {
+                logger.warn("insertMainInfo比对数据的时候出现异常"+exp.getMessage());
             }
         }
         if(!isWrite)
@@ -119,17 +125,23 @@ public class CommonWriteSources
 
     public void insertContactInfo(final Map contactInfo,final String reqId,boolean isWrite,boolean isCheck)
     {
-        if(isCheck)
+        try
         {
-            Map oldMainInfo = cardRiskDBTemplate.queryForMap("select top 1 * from infosecurity_contactinfo where reqid=?",reqId);
-            Set<Map.Entry> entries = oldMainInfo.entrySet();
-            for(Map.Entry<String,Object> entry : entries)
+            if(isCheck)
             {
-                if(!entry.getValue().equals(getValue(contactInfo,entry.getKey())))
+                Map oldMainInfo = cardRiskDBTemplate.queryForMap("select top 1 * from infosecurity_contactinfo where reqid=?",reqId);
+                Set<Map.Entry> entries = oldMainInfo.entrySet();
+                for(Map.Entry<String,Object> entry : entries)
                 {
-                    logger.info("contactInfo信息比对结果"+entry.getKey()+":"+"老系统的值"+entry.getValue()+"新系统的值"+getValue(contactInfo,entry.getKey()));
+                    if(!entry.getValue().equals(getValue(contactInfo,entry.getKey())))
+                    {
+                        logger.info("contactInfo信息比对结果"+entry.getKey()+":"+"老系统的值"+entry.getValue()+"新系统的值"+getValue(contactInfo,entry.getKey()));
+                    }
                 }
             }
+        }catch (Exception exp)
+        {
+            logger.warn("insertContactInfo比对数据的时候出现异常"+exp.getMessage());
         }
         if(!isWrite)
             return;//如果不写入就直接返回
@@ -172,18 +184,24 @@ public class CommonWriteSources
 
     public void insertUserInfo(final Map userInfo,final String reqId,boolean isWrite,boolean isCheck)
     {
-        if(isCheck)
-        {
-            Map oldMainInfo = cardRiskDBTemplate.queryForMap("select top 1 * from infosecurity_contactinfo where reqid=?",reqId);
-            Set<Map.Entry> entries = oldMainInfo.entrySet();
-            for(Map.Entry<String,Object> entry : entries)
+        try{
+            if(isCheck)
             {
-                if(!entry.getValue().equals(getValue(userInfo,entry.getKey())))
+                Map oldMainInfo = cardRiskDBTemplate.queryForMap("select top 1 * from infosecurity_contactinfo where reqid=?",reqId);
+                Set<Map.Entry> entries = oldMainInfo.entrySet();
+                for(Map.Entry<String,Object> entry : entries)
                 {
-                    logger.info("userInfo信息比对结果"+entry.getKey()+":"+"老系统的值"+entry.getValue()+"新系统的值"+getValue(userInfo,entry.getKey()));
+                    if(!entry.getValue().equals(getValue(userInfo,entry.getKey())))
+                    {
+                        logger.info("userInfo信息比对结果"+entry.getKey()+":"+"老系统的值"+entry.getValue()+"新系统的值"+getValue(userInfo,entry.getKey()));
+                    }
                 }
             }
+        }catch (Exception exp)
+        {
+            logger.warn("insertUserInfo比对数据的时候出现异常"+exp.getMessage());
         }
+
         if(!isWrite)
             return;//如果不写入就直接返回
         Object result = cardRiskDBTemplate.execute(new CallableStatementCreator() {
@@ -230,17 +248,22 @@ public class CommonWriteSources
 
     public void insertIpInfo(final Map ipInfo,final String reqId,boolean isWrite,boolean isCheck)
     {
-        if(isCheck)
-        {
-            Map oldMainInfo = cardRiskDBTemplate.queryForMap("select top 1 * from infosecurity_ipinfo where reqid=?",reqId);
-            Set<Map.Entry> entries = oldMainInfo.entrySet();
-            for(Map.Entry<String,Object> entry : entries)
+        try{
+            if(isCheck)
             {
-                if(!entry.getValue().equals(getValue(ipInfo,entry.getKey())))
+                Map oldMainInfo = cardRiskDBTemplate.queryForMap("select top 1 * from infosecurity_ipinfo where reqid=?",reqId);
+                Set<Map.Entry> entries = oldMainInfo.entrySet();
+                for(Map.Entry<String,Object> entry : entries)
                 {
-                    logger.info("ipInfo信息比对结果"+entry.getKey()+":"+"老系统的值"+entry.getValue()+"新系统的值"+getValue(ipInfo,entry.getKey()));
+                    if(!entry.getValue().equals(getValue(ipInfo,entry.getKey())))
+                    {
+                        logger.info("ipInfo信息比对结果"+entry.getKey()+":"+"老系统的值"+entry.getValue()+"新系统的值"+getValue(ipInfo,entry.getKey()));
+                    }
                 }
             }
+        }catch (Exception exp)
+        {
+            logger.warn("insertIpInfo比对数据的时候出现异常"+exp.getMessage());
         }
         if(!isWrite)
             return;//如果不写入就直接返回
@@ -275,17 +298,22 @@ public class CommonWriteSources
 
     public void insertOtherInfo(final Map otherInfo,final String reqId,boolean isWrite,boolean isCheck)
     {
-        if(isCheck)
-        {
-            Map oldMainInfo = cardRiskDBTemplate.queryForMap("select top 1 * from infosecurity_otherinfo where reqid=?",reqId);
-            Set<Map.Entry> entries = oldMainInfo.entrySet();
-            for(Map.Entry<String,Object> entry : entries)
+        try{
+            if(isCheck)
             {
-                if(!entry.getValue().equals(getValue(otherInfo,entry.getKey())))
+                Map oldMainInfo = cardRiskDBTemplate.queryForMap("select top 1 * from infosecurity_otherinfo where reqid=?",reqId);
+                Set<Map.Entry> entries = oldMainInfo.entrySet();
+                for(Map.Entry<String,Object> entry : entries)
                 {
-                    logger.info("otherInfo信息比对结果"+entry.getKey()+":"+"老系统的值"+entry.getValue()+"新系统的值"+getValue(otherInfo,entry.getKey()));
+                    if(!entry.getValue().equals(getValue(otherInfo,entry.getKey())))
+                    {
+                        logger.info("otherInfo信息比对结果"+entry.getKey()+":"+"老系统的值"+entry.getValue()+"新系统的值"+getValue(otherInfo,entry.getKey()));
+                    }
                 }
             }
+        }catch (Exception exp)
+        {
+            logger.warn("insertOtherInfo比对数据的时候出现异常"+exp.getMessage());
         }
         if(!isWrite)
             return;//如果不写入就直接返回
@@ -319,17 +347,22 @@ public class CommonWriteSources
 
     public void insertCorporationInfo(final Map corporationInfo,final  String reqId,boolean isWrite,boolean isCheck)
     {
-        if(isCheck)
-        {
-            Map oldMainInfo = cardRiskDBTemplate.queryForMap("select top 1 * from infosecurity_corporationInfo where reqid=?",reqId);
-            Set<Map.Entry> entries = oldMainInfo.entrySet();
-            for(Map.Entry<String,Object> entry : entries)
+        try{
+            if(isCheck)
             {
-                if(!entry.getValue().equals(getValue(corporationInfo,entry.getKey())))
+                Map oldMainInfo = cardRiskDBTemplate.queryForMap("select top 1 * from infosecurity_corporationInfo where reqid=?",reqId);
+                Set<Map.Entry> entries = oldMainInfo.entrySet();
+                for(Map.Entry<String,Object> entry : entries)
                 {
-                    logger.info("corporationInfo信息比对结果"+entry.getKey()+":"+"老系统的值"+entry.getValue()+"新系统的值"+getValue(corporationInfo,entry.getKey()));
+                    if(!entry.getValue().equals(getValue(corporationInfo,entry.getKey())))
+                    {
+                        logger.info("corporationInfo信息比对结果"+entry.getKey()+":"+"老系统的值"+entry.getValue()+"新系统的值"+getValue(corporationInfo,entry.getKey()));
+                    }
                 }
             }
+        }catch (Exception exp)
+        {
+            logger.warn("insertCorporationInfo比对数据的时候出现异常"+exp.getMessage());
         }
         if(!isWrite)
             return;//如果不写入就直接返回
@@ -362,17 +395,22 @@ public class CommonWriteSources
 
     public void insertDeviceIDInfo(final Map deviceIDInfo,final String reqId,boolean isWrite,boolean isCheck)
     {
-        if(isCheck)
-        {
-            Map oldMainInfo = cardRiskDBTemplate.queryForMap("select top 1 * from infosecurity_deviceIDInfo where reqid=?",reqId);
-            Set<Map.Entry> entries = oldMainInfo.entrySet();
-            for(Map.Entry<String,Object> entry : entries)
+        try{
+            if(isCheck)
             {
-                if(!entry.getValue().equals(getValue(deviceIDInfo,entry.getKey())))
+                Map oldMainInfo = cardRiskDBTemplate.queryForMap("select top 1 * from infosecurity_deviceIDInfo where reqid=?",reqId);
+                Set<Map.Entry> entries = oldMainInfo.entrySet();
+                for(Map.Entry<String,Object> entry : entries)
                 {
-                    logger.info("deviceIDInfo信息比对结果"+entry.getKey()+":"+"老系统的值"+entry.getValue()+"新系统的值"+getValue(deviceIDInfo,entry.getKey()));
+                    if(!entry.getValue().equals(getValue(deviceIDInfo,entry.getKey())))
+                    {
+                        logger.info("deviceIDInfo信息比对结果"+entry.getKey()+":"+"老系统的值"+entry.getValue()+"新系统的值"+getValue(deviceIDInfo,entry.getKey()));
+                    }
                 }
             }
+        }catch(Exception exp)
+        {
+            logger.warn("insertDeviceIDInfo比对数据的时候出现异常"+exp.getMessage());
         }
         if(!isWrite)
             return;//如果不写入就直接返回
@@ -407,17 +445,22 @@ public class CommonWriteSources
     //这里面的PaymentInfoID是主键，考虑是否添加这个字段，数据库的配置是自增
     public String insertPaymentInfo(final Map paymentInfo,final String reqId,boolean isWrite,boolean isCheck)
     {
-        if(isCheck)
-        {
-            Map oldMainInfo = cardRiskDBTemplate.queryForMap("select top 1 * from infosecurity_paymentInfo where reqid=?",reqId);
-            Set<Map.Entry> entries = oldMainInfo.entrySet();
-            for(Map.Entry<String,Object> entry : entries)
+        try{
+            if(isCheck)
             {
-                if(!entry.getValue().equals(getValue(paymentInfo,entry.getKey())))
+                Map oldMainInfo = cardRiskDBTemplate.queryForMap("select top 1 * from infosecurity_paymentInfo where reqid=?",reqId);
+                Set<Map.Entry> entries = oldMainInfo.entrySet();
+                for(Map.Entry<String,Object> entry : entries)
                 {
-                    logger.info("paymentInfo信息比对结果"+entry.getKey()+":"+"老系统的值"+entry.getValue()+"新系统的值"+getValue(paymentInfo,entry.getKey()));
+                    if(!entry.getValue().equals(getValue(paymentInfo,entry.getKey())))
+                    {
+                        logger.info("paymentInfo信息比对结果"+entry.getKey()+":"+"老系统的值"+entry.getValue()+"新系统的值"+getValue(paymentInfo,entry.getKey()));
+                    }
                 }
             }
+        }catch(Exception exp)
+        {
+            logger.warn("insertPaymentInfo比对数据的时候出现异常"+exp.getMessage());
         }
         if(!isWrite)
             return "";//如果不写入就直接返回
@@ -454,17 +497,22 @@ public class CommonWriteSources
 
     public void insertCardInfo(final Map cardInfo,final String reqId,final String paymentInfoID,boolean isWrite,boolean isCheck)
     {
-        if(isCheck)
-        {
-            Map oldMainInfo = cardRiskDBTemplate.queryForMap("select top 1 * from infosecurity_cardInfo where reqid=?",reqId);
-            Set<Map.Entry> entries = oldMainInfo.entrySet();
-            for(Map.Entry<String,Object> entry : entries)
+        try{
+            if(isCheck)
             {
-                if(!entry.getValue().equals(getValue(cardInfo,entry.getKey())))
+                Map oldMainInfo = cardRiskDBTemplate.queryForMap("select top 1 * from infosecurity_cardInfo where reqid=?",reqId);
+                Set<Map.Entry> entries = oldMainInfo.entrySet();
+                for(Map.Entry<String,Object> entry : entries)
                 {
-                    logger.info("cardInfo信息比对结果"+entry.getKey()+":"+"老系统的值"+entry.getValue()+"新系统的值"+getValue(cardInfo,entry.getKey()));
+                    if(!entry.getValue().equals(getValue(cardInfo,entry.getKey())))
+                    {
+                        logger.info("cardInfo信息比对结果"+entry.getKey()+":"+"老系统的值"+entry.getValue()+"新系统的值"+getValue(cardInfo,entry.getKey()));
+                    }
                 }
             }
+        }catch (Exception exp)
+        {
+            logger.warn("insertCardInfo比对数据的时候出现异常"+exp.getMessage());
         }
         if(!isWrite)
             return ;//如果不写入就直接返回
@@ -518,17 +566,23 @@ public class CommonWriteSources
 
     public void insertPaymentMainInfo(final Map paymentMainInfo,final String reqId,boolean isWrite,boolean isCheck)
     {
-        if(isCheck)
+        try
         {
-            Map oldMainInfo = cardRiskDBTemplate.queryForMap("select top 1 * from infosecurity_paymentMainInfo where reqid=?",reqId);
-            Set<Map.Entry> entries = oldMainInfo.entrySet();
-            for(Map.Entry<String,Object> entry : entries)
+            if(isCheck)
             {
-                if(!entry.getValue().equals(getValue(paymentMainInfo,entry.getKey())))
+                Map oldMainInfo = cardRiskDBTemplate.queryForMap("select top 1 * from infosecurity_paymentMainInfo where reqid=?",reqId);
+                Set<Map.Entry> entries = oldMainInfo.entrySet();
+                for(Map.Entry<String,Object> entry : entries)
                 {
-                    logger.info("cardInfo信息比对结果"+entry.getKey()+":"+"老系统的值"+entry.getValue()+"新系统的值"+getValue(paymentMainInfo,entry.getKey()));
+                    if(!entry.getValue().equals(getValue(paymentMainInfo,entry.getKey())))
+                    {
+                        logger.info("cardInfo信息比对结果"+entry.getKey()+":"+"老系统的值"+entry.getValue()+"新系统的值"+getValue(paymentMainInfo,entry.getKey()));
+                    }
                 }
             }
+        }catch (Exception exp)
+        {
+            logger.warn("insertPaymentMainInfo比对数据的时候出现异常"+exp.getMessage());
         }
         if(!isWrite)
             return ;//如果不写入就直接返回
@@ -570,7 +624,7 @@ public class CommonWriteSources
         final String reqId = getValue(flowInfo, Common.ReqID);
         final String fieldValue1 = getValue(flowInfo,field1);
         final String fieldValue2 = getValue(flowInfo,field2);
-
+        try{
         if(isCheck)
         {
             Map oldMainInfo = riskCtrlPreProcDBTemplate.queryForMap("select top 1 * from "+tableName+" where reqid=?",reqId);
@@ -584,6 +638,10 @@ public class CommonWriteSources
                     logger.info(tableName+"信息比对结果"+field2+":"+"老系统的值"+getValue(oldMainInfo,field2)+"新系统的值"+fieldValue2);
                 }
             }
+        }
+        }catch (Exception exp)
+        {
+            logger.warn("insertFlowInfo比对数据的时候出现异常"+exp.getMessage());
         }
         if(!isWrite)
             return ;//如果不写入就直接返回
