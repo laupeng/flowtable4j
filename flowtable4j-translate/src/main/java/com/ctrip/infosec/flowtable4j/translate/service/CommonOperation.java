@@ -196,8 +196,12 @@ public class CommonOperation
                     cardInfo.put(Common.CCardLastNoCode,getValue(cardInfoResult,"CardRiskNoLastCode"));
 
                     cardInfo.put(Common.CCardNoCode,getValue(cardInfoResult,Common.CCardNoCode));
+
+                    cardInfo.put("CardNoRefID",getValue(cardInfoResult,"CardNoRefID"));
+
                     cardInfo.put(Common.CCardPreNoCode,getValue(cardInfoResult,"CardRiskNoPreCode"));
                     cardInfo.put(Common.CreditCardType,getValue(cardInfoResult,Common.CreditCardType));
+
                     cardInfo.put(Common.CValidityCode,getValue(cardInfoResult,Common.CValidityCode));
                     cardInfo.put(Common.IsForigenCard,getValue(cardInfoResult,Common.IsForeignCard));
                     cardInfo.put(Common.Nationality,getValue(cardInfoResult,Common.Nationality));
@@ -207,14 +211,34 @@ public class CommonOperation
                     cardInfo.put(Common.StateName,getValue(cardInfoResult,Common.StateName));
                     cardInfo.put("CardNoRefID",getValue(cardInfoResult,"CardNoRefID"));
                 }
+                //取出branchCity 和 branchProvince
+                String creditCardType = getValue(cardInfoResult,Common.CreditCardType);
+                String creditCardNumber = getValue(cardInfoResult,"CreditCardNumber");
+                if(creditCardType.equals("3") && !creditCardNumber.isEmpty())//这里只针对类型为3的卡进行处理
+                {
+                    String decryptText = Crypto.decrypt(creditCardNumber);
+                    if(decryptText !=null && !decryptText.isEmpty()&&decryptText.length()>12)
+                    {
+                        String branchNo = decryptText.substring(6,9);
+                        if(!branchNo.isEmpty())
+                        {
+                            Map cardBankInfo = commonSources.getInfo(creditCardType,branchNo);
+                            if(cardBankInfo != null)
+                            {
+                                cardInfo.put("BranchCity",getValue(cardBankInfo,"BranchCity"));
+                                cardInfo.put("BranchProvince",getValue(cardBankInfo,"BranchProvince"));
+                            }
+                        }
+                    }
+                }
                 //通过卡种和卡BIN获取系统中维护的信用卡信息
                 String cardTypeId = getValue(cardInfoResult,Common.CreditCardType);
                 String cardBin = getValue(cardInfoResult,Common.CardBin);
                 Map subCardInfo = commonSources.getCardInfo(cardTypeId,cardBin);
                 if(subCardInfo != null && subCardInfo.size()>0)
                 {
-                    cardInfo.put(Common.CardBinIssue,getValue(subCardInfo,Common.CardBinIssue));
-                    cardInfo.put(Common.CardBinBankOfCardIssue,getValue(subCardInfo,Common.CardBinBankOfCardIssue));
+                    cardInfo.put(Common.CardBinIssue,getValue(subCardInfo,"Nationality"));
+                    cardInfo.put(Common.CardBinBankOfCardIssue,getValue(subCardInfo,"BankOfCardIssue"));
                 }
                 CardInfoList.add(cardInfo);
             }
@@ -392,7 +416,7 @@ public class CommonOperation
                 runs.add(new Callable<DataFact>() {
                 @Override
                 public DataFact call() throws Exception {
-                    commonWriteSources.insertFlowInfo(flowData, KeyFieldName1, KeyFieldName2, StatisticTableName);
+                    commonWriteSources.insertFlowInfo(flowData, KeyFieldName1, KeyFieldName2, StatisticTableName,false);
                     return null;
                 }
                 });

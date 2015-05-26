@@ -261,7 +261,7 @@ public class HotelGroupExecutor implements Executor
             @Override
             public DataFact call() throws Exception {
                 try {
-                    commonWriteSources.insertMainInfo(dataFactCopy.mainInfo,reqId);
+                    commonWriteSources.insertMainInfo(dataFactCopy.mainInfo,reqId,false);
                 } catch (Exception e) {
                     logger.warn("invoke commonWriteSources.insertMainInfo failed.: ", e);
                 }
@@ -273,7 +273,7 @@ public class HotelGroupExecutor implements Executor
             @Override
             public DataFact call() throws Exception {
                 try {
-                    commonWriteSources.insertContactInfo(dataFactCopy.contactInfo,reqId);
+                    commonWriteSources.insertContactInfo(dataFactCopy.contactInfo,reqId,false);
                 } catch (Exception e) {
                     logger.warn("invoke commonWriteSources.insertContactInfo failed.: ", e);
                 }
@@ -285,7 +285,7 @@ public class HotelGroupExecutor implements Executor
             @Override
             public DataFact call() throws Exception {
                 try {
-                    commonWriteSources.insertUserInfo(dataFactCopy.userInfo, reqId);
+                    commonWriteSources.insertUserInfo(dataFactCopy.userInfo, reqId,false);
                 } catch (Exception e) {
                     logger.warn("invoke commonWriteSources.insertContactInfo failed.: ", e);
                 }
@@ -297,7 +297,7 @@ public class HotelGroupExecutor implements Executor
             @Override
             public DataFact call() throws Exception {
                 try {
-                    commonWriteSources.insertIpInfo(dataFactCopy.ipInfo,reqId);
+                    commonWriteSources.insertIpInfo(dataFactCopy.ipInfo,reqId,false);
                 } catch (Exception e) {
                     logger.warn("invoke commonWriteSources.insertIpInfo failed.: ", e);
                 }
@@ -320,7 +320,7 @@ public class HotelGroupExecutor implements Executor
             @Override
             public DataFact call() throws Exception {
                 try {
-                    commonWriteSources.insertOtherInfo(dataFactCopy.otherInfo,reqId);
+                    commonWriteSources.insertOtherInfo(dataFactCopy.otherInfo,reqId,false);
                 } catch (Exception e) {
                     logger.warn("invoke commonWriteSources.insertOtherInfo failed.: ", e);
                 }
@@ -332,7 +332,7 @@ public class HotelGroupExecutor implements Executor
         @Override
         public DataFact call() throws Exception {
             try {
-                commonWriteSources.insertDeviceIDInfo(dataFactCopy.DIDInfo, reqId);
+                commonWriteSources.insertDeviceIDInfo(dataFactCopy.DIDInfo, reqId,false);
             } catch (Exception e) {
                 logger.warn("invoke commonWriteSources.insertDeviceIDInfo failed.: ", e);
             }
@@ -344,7 +344,7 @@ public class HotelGroupExecutor implements Executor
             @Override
             public DataFact call() throws Exception {
                 try {
-                    commonWriteSources.insertPaymentMainInfo(dataFactCopy.paymentMainInfo, reqId);
+                    commonWriteSources.insertPaymentMainInfo(dataFactCopy.paymentMainInfo, reqId,false);
                 } catch (Exception e) {
                     logger.warn("invoke commonWriteSources.insertIpInfo failed.: ", e);
                 }
@@ -359,11 +359,11 @@ public class HotelGroupExecutor implements Executor
                     for(int i=0;i<dataFactCopy.paymentInfoList.size();i++)
                     {
                         Map<String,Object> paymentInfo = dataFactCopy.paymentInfoList.get(i);
-                        final String paymentInfoID = commonWriteSources.insertPaymentInfo(getValueMap(paymentInfo,Common.PaymentInfo),reqId);
+                        final String paymentInfoID = commonWriteSources.insertPaymentInfo(getValueMap(paymentInfo,Common.PaymentInfo),reqId,false);
                         List<Map<String,Object>> cardInfos = (List<Map<String,Object>>)paymentInfo.get(Common.CardInfoList);
                         for(int j=0;j<cardInfos.size();j++)
                         {
-                            commonWriteSources.insertCardInfo(cardInfos.get(j),reqId,paymentInfoID);
+                            commonWriteSources.insertCardInfo(cardInfos.get(j),reqId,paymentInfoID,false);
                         }
                     }
                 } catch (Exception e) {

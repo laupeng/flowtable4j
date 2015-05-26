@@ -411,4 +411,20 @@ public class CommonSources
         logger.info("getFlowRuleFilter的时间是"+(System.currentTimeMillis()-now));
         return flowRuleFilter;
     }
+
+    public Map getInfo(String creditCardType,String branchNo)
+    {
+        long now = System.currentTimeMillis();
+        Map info = null;
+        try{
+            String commandText = "select top 1 * from CardRiskDB..BaseData_CardBankInfo with (nolock) where creditcardtype = "+creditCardType
+                    +" and branchNo = "+branchNo;
+            info = cardRiskDBTemplate.queryForMap(commandText);
+        }catch(Exception exp)
+        {
+            logger.warn("getInfo查询异常"+exp.getMessage());
+        }
+        logger.info("getInfo的时间是"+(System.currentTimeMillis()-now));
+        return info;
+    }
 }

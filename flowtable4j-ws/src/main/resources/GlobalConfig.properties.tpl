@@ -42,3 +42,8 @@ venus.socket.sendBufferSize=64
 CardRiskDB={$CardRiskDB}
 RiskCtrlPreProcDB={$RiskCtrlPreProcDB}
 CUSRATDB={$CUSRATDB}
+
+# CryptoGraphy
+CryptoGraphy.cscmUrl={$CryptoGraphy.cscmUrl}
+CryptoGraphy.sslcode={$CryptoGraphy.sslcode}
+CryptoGraphy.dependency.env={$CryptoGraphy.dependency.env}
