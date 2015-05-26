@@ -33,6 +33,8 @@ public class AllTemplatesTest
         String sqlCommand = "SELECT TOP 1 * FROM RiskCtrlPreProcDB.dbo.CacheData_DeviceIDInfo with (nolock) WHERE [CacheData_DeviceIDInfo].[Oid] = ?"+
                 " and [CacheData_DeviceIDInfo].[Payid] = ?" + " order by [CacheData_DeviceIDInfo].[RecordID] desc";
         Map DIDInfo = riskCtrlPreProcDBTemplate.queryForMap(sqlCommand,"299151369","28");
+
+
         Assert.assertNotNull(DIDInfo);
     }
 }

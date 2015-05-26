@@ -309,14 +309,13 @@ public class CommonSources
                 if(allTableNames == null || allTableNames.size()<1)
                 {
                     String commandText = "select t.StatisticTableId, t.StatisticTableName ,f1.ColumnName as KeyFieldID1,f2.ColumnName as " +
-                            "KeyFieldID2,t.OrderType,t.Active,t.[TableType]" +
-                            "from Def_RuleStatisticTable t with (nolock)" +
+                            "KeyFieldID2,t.OrderType,t.Active,t.[TableType] " +
+                            "from Def_RuleStatisticTable t with (nolock) " +
                             "join Def_RuleMatchField f1 (nolock) on t.KeyFieldID1 = f1.FieldID " +
                             "join Def_RuleMatchField f2 (nolock) on t.KeyFieldID2 = f2.FieldID " +
-                            "where f2.ColumnName='OriginalRisklevel' and  f1.ColumnName= ?" +
+                            "where f2.ColumnName='OriginalRisklevel' and  f1.ColumnName= "+key +
                             "and TableType =1 and t.Active = 'T' and  orderType = 0 ";//添加key来关联字段
-                    long test = System.currentTimeMillis();
-                    allTableNames = cardRiskDBTemplate.queryForList(commandText,key);
+                    allTableNames = cardRiskDBTemplate.queryForList(commandText);
                     CacheFlowRuleData.originalRisklevel.put(key,allTableNames);//添加到缓存
                 }
                 //先取出出所有的表名称

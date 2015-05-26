@@ -42,6 +42,10 @@
         <CardRiskDB>CardRiskDB_INSERT_1</CardRiskDB>
         <RiskCtrlPreProcDB>RiskCtrlPreProcDB_INSERT_1</RiskCtrlPreProcDB>
         <CUSRATDB>CUSRATDB_INSERT_1</CUSRATDB>
+        <!-- CryptoGraphy -->
+        <CryptoGraphy.cscmUrl>https://cscmws.infosec.fws.qa.nt.ctripcorp.com/cscmws/CertificateWS.asmx</CryptoGraphy.cscmUrl>
+        <CryptoGraphy.sslcode>EU00000000000118</CryptoGraphy.sslcode>
+        <CryptoGraphy.dependency.env>DEV</CryptoGraphy.dependency.env>
 	</dev>
 
 	<fws>
@@ -68,6 +72,10 @@
         <CardRiskDB>CardRiskDB_INSERT_1</CardRiskDB>
         <RiskCtrlPreProcDB>RiskCtrlPreProcDB_INSERT_1</RiskCtrlPreProcDB>
         <CUSRATDB>CUSRATDB_INSERT_1</CUSRATDB>
+        <!-- CryptoGraphy -->
+        <CryptoGraphy.cscmUrl>https://cscmws.infosec.fws.qa.nt.ctripcorp.com/cscmws/CertificateWS.asmx</CryptoGraphy.cscmUrl>
+        <CryptoGraphy.sslcode>EU00000000000118</CryptoGraphy.sslcode>
+        <CryptoGraphy.dependency.env>DEV</CryptoGraphy.dependency.env>
 	</fws>
 
 	<fat>
@@ -94,6 +102,10 @@
         <CardRiskDB>CardRiskDB_INSERT_1</CardRiskDB>
         <RiskCtrlPreProcDB>RiskCtrlPreProcDB_INSERT_1</RiskCtrlPreProcDB>
         <CUSRATDB>CUSRATDB_INSERT_1</CUSRATDB>
+        <!-- CryptoGraphy -->
+        <CryptoGraphy.cscmUrl>https://cscmws.infosec.fws.qa.nt.ctripcorp.com/cscmws/CertificateWS.asmx</CryptoGraphy.cscmUrl>
+        <CryptoGraphy.sslcode>EU00000000000118</CryptoGraphy.sslcode>
+        <CryptoGraphy.dependency.env>DEV</CryptoGraphy.dependency.env>
 	</fat>
 
 	<lpt>
@@ -120,6 +132,10 @@
         <CardRiskDB>CardRiskDB_INSERT_1</CardRiskDB>
         <RiskCtrlPreProcDB>RiskCtrlPreProcDB_INSERT_1</RiskCtrlPreProcDB>
         <CUSRATDB>CUSRATDB_INSERT_1</CUSRATDB>
+        <!-- CryptoGraphy -->
+        <CryptoGraphy.cscmUrl>https://cscmws.infosec.fws.qa.nt.ctripcorp.com/cscmws/CertificateWS.asmx</CryptoGraphy.cscmUrl>
+        <CryptoGraphy.sslcode>EU00000000000118</CryptoGraphy.sslcode>
+        <CryptoGraphy.dependency.env>DEV</CryptoGraphy.dependency.env>
 	</lpt>
 
 	<uat>
@@ -146,6 +162,10 @@
         <CardRiskDB>CardRiskDB_INSERT_1</CardRiskDB>
         <RiskCtrlPreProcDB>RiskCtrlPreProcDB_INSERT_1</RiskCtrlPreProcDB>
         <CUSRATDB>CUSRATDB_INSERT_1</CUSRATDB>
+        <!-- CryptoGraphy -->
+        <CryptoGraphy.cscmUrl>https://cscmws.infosec.uat.qa.nt.ctripcorp.com/cscmws/CertificateWS.asmx</CryptoGraphy.cscmUrl>
+        <CryptoGraphy.sslcode>PK00000000000086</CryptoGraphy.sslcode>
+        <CryptoGraphy.dependency.env>DEV</CryptoGraphy.dependency.env>
 	</uat>
 
 	<uat_nt>
@@ -172,6 +192,10 @@
         <CardRiskDB>CardRiskDB_INSERT_1</CardRiskDB>
         <RiskCtrlPreProcDB>RiskCtrlPreProcDB_INSERT_1</RiskCtrlPreProcDB>
         <CUSRATDB>CUSRATDB_INSERT_1</CUSRATDB>
+        <!-- CryptoGraphy -->
+        <CryptoGraphy.cscmUrl>https://cscmws.infosec.uat.qa.nt.ctripcorp.com/cscmws/CertificateWS.asmx</CryptoGraphy.cscmUrl>
+        <CryptoGraphy.sslcode>PK00000000000086</CryptoGraphy.sslcode>
+        <CryptoGraphy.dependency.env>DEV</CryptoGraphy.dependency.env>
 	</uat_nt>
 
 	<prd>
@@ -198,5 +222,9 @@
         <CardRiskDB>CardRiskDB_INSERT_1_SH</CardRiskDB>
         <RiskCtrlPreProcDB>RiskCtrlPreProcDB_INSERT_1_SH</RiskCtrlPreProcDB>
         <CUSRATDB>CUSRATDB_INSERT_1_SH</CUSRATDB>
+        <!-- CryptoGraphy -->
+        <CryptoGraphy.cscmUrl>https://cscmws.infosec.ctripcorp.com/cscmws/CertificateWS.asmx</CryptoGraphy.cscmUrl>
+        <CryptoGraphy.sslcode>UI00000000000131</CryptoGraphy.sslcode>
+        <CryptoGraphy.dependency.env>PROD</CryptoGraphy.dependency.env>
 	</prd>
 </profile>
