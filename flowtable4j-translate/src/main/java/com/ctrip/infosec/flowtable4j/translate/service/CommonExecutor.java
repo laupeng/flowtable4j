@@ -177,7 +177,8 @@ public class CommonExecutor
                     //endregion
 
                     //补充支付信息
-                    final DataFact dataFactCopy05 = new DataFact();
+                    commonOperation.fillPaymentInfo0(dataFact,data);//和checkType = 0的补充支付信息一样
+                   /* final DataFact dataFactCopy05 = new DataFact();
                     final Map dataCopy = BeanMapper.copy(data,Map.class);
                     runs.add(new Callable<DataFact>() {
                         @Override
@@ -190,7 +191,7 @@ public class CommonExecutor
                             }
                             return null;
                         }
-                    });
+                    });*/
 
                     
                     //paymentMainInfo
