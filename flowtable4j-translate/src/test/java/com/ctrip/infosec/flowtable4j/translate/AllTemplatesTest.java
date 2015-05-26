@@ -28,10 +28,11 @@ public class AllTemplatesTest
         JdbcTemplate riskCtrlPreProcDBTemplate = allTemplates.getRiskCtrlPreProcDBTemplate();
         String mobilePhone = "13917863756";//13482188219
         String subMobileNum = mobilePhone.substring(0,7);
-        String sqlCommand = "SELECT Top 1 *" + " FROM CardRiskDB..BaseData_MobilePhoneInfo with (nolock) WHERE MobileNumber = ?";
+        //String sqlCommand = "SELECT Top 1 *" + " FROM CardRiskDB..BaseData_MobilePhoneInfo with (nolock) WHERE MobileNumber = ?";
 
-        String commandText1 = "select top 1 Active from cardriskdb..CardRisk_AppFlag with (nolock) where nameType = ?";
-        Map mobileInfo = cardRiskDBTemplate.queryForMap(commandText1,"HotelGroupPreByNewSystem");
-        Assert.assertNotNull(mobileInfo);
+        String sqlCommand = "SELECT TOP 1 * FROM RiskCtrlPreProcDB.dbo.CacheData_DeviceIDInfo with (nolock) WHERE [CacheData_DeviceIDInfo].[Oid] = ?"+
+                " and [CacheData_DeviceIDInfo].[Payid] = ?" + " order by [CacheData_DeviceIDInfo].[RecordID] desc";
+        Map DIDInfo = riskCtrlPreProcDBTemplate.queryForMap(sqlCommand,"299151369","28");
+        Assert.assertNotNull(DIDInfo);
     }
 }

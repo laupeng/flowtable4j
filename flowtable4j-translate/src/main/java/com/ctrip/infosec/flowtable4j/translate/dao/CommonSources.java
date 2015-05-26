@@ -51,8 +51,8 @@ public class CommonSources
         try
         {
             String subMobileNum = mobilePhone.substring(0,7);
-            String sqlCommand = "SELECT Top 1 *" + " FROM BaseData_MobilePhoneInfo with (nolock) WHERE MobileNumber = "+subMobileNum;
-            mobileInfo = cardRiskDBTemplate.queryForMap(sqlCommand);
+            String sqlCommand = "SELECT Top 1 *" + " FROM BaseData_MobilePhoneInfo with (nolock) WHERE MobileNumber = ?";
+            mobileInfo = cardRiskDBTemplate.queryForMap(sqlCommand,subMobileNum);
         }catch(Exception exp)
         {
             logger.warn("从sql查询手机号对应的城市信息异常:"+exp.getMessage());
@@ -67,8 +67,8 @@ public class CommonSources
         long now = System.currentTimeMillis();
         Map ipInfo = null;
         try{
-            String sqlCommand = "SELECT Top 1 * FROM IpCountryCity with (nolock) WHERE IpStart <= "+ipValue +" ORDER BY IpStart DESC ";//FIXME 这里问徐洪修正
-            ipInfo = cardRiskDBTemplate.queryForMap(sqlCommand);
+            String sqlCommand = "SELECT Top 1 * FROM IpCountryCity with (nolock) WHERE IpStart <= ?" +" ORDER BY IpStart DESC ";//FIXME 这里问徐洪修正
+            ipInfo = cardRiskDBTemplate.queryForMap(sqlCommand,ipValue);
         }catch(Exception exp)
         {
             logger.warn("查询ip对应的城市信息异常:",exp);
@@ -82,9 +82,9 @@ public class CommonSources
         long now = System.currentTimeMillis();
         Map DIDInfo = null;
         try{
-            String sqlCommand = "SELECT TOP 1 * FROM RiskCtrlPreProcDB.dbo.CacheData_DeviceIDInfo with (nolock) WHERE [CacheData_DeviceIDInfo].[Oid] = "+"'"+orderId+"'" +
-                    " and [CacheData_DeviceIDInfo].[Payid] = "+"'"+orderType+"'" + " order by [CacheData_DeviceIDInfo].[RecordID] desc";
-            DIDInfo = riskCtrlPreProcDBTemplate.queryForMap(sqlCommand);
+            String sqlCommand = "SELECT TOP 1 * FROM RiskCtrlPreProcDB.dbo.CacheData_DeviceIDInfo with (nolock) WHERE [CacheData_DeviceIDInfo].[Oid] = ?"+
+                    " and [CacheData_DeviceIDInfo].[Payid] = ?" + " order by [CacheData_DeviceIDInfo].[RecordID] desc";
+            DIDInfo = riskCtrlPreProcDBTemplate.queryForMap(sqlCommand,orderId,orderType);
         }catch (Exception exp)
         {
             logger.warn("查询DID信息异常:"+exp.getMessage());
@@ -99,9 +99,9 @@ public class CommonSources
         long now = System.currentTimeMillis();
         Map mainInfo = null;
         try{
-            String commandText = "SELECT top 1 * from InfoSecurity_MainInfo with (nolock) where [InfoSecurity_MainInfo].[OrderType] = "
-                    +orderType +" and [InfoSecurity_MainInfo].[OrderId] = "+orderId+" order by [InfoSecurity_MainInfo].ReqID desc";
-            mainInfo = cardRiskDBTemplate.queryForMap(commandText);
+            String commandText = "SELECT top 1 * from InfoSecurity_MainInfo with (nolock) where [InfoSecurity_MainInfo].[OrderType] = ?"
+                    +" and [InfoSecurity_MainInfo].[OrderId] = ?"+" order by [InfoSecurity_MainInfo].ReqID desc";
+            mainInfo = cardRiskDBTemplate.queryForMap(commandText,orderType,orderId);
         }catch (Exception exp)
         {
             logger.warn("查询MainInfo信息异常:"+exp.getMessage());
@@ -115,9 +115,9 @@ public class CommonSources
         long now = System.currentTimeMillis();
         Map cardInfo = null;
         try{
-            String commandText = "SELECT * from CreditCardRule_ForeignCard with (nolock) where CardTypeID = "+cardTypeId
-                    +" and CardRule = "+cardBin;
-            cardInfo = cardRiskDBTemplate.queryForMap(commandText);
+            String commandText = "SELECT * from CreditCardRule_ForeignCard with (nolock) where CardTypeID = ?"
+                    +" and CardRule = ?";
+            cardInfo = cardRiskDBTemplate.queryForMap(commandText,cardTypeId,cardBin);
         }catch(Exception exp)
         {
             logger.warn("查询CardInfo信息异常:"+exp.getMessage());
@@ -131,9 +131,8 @@ public class CommonSources
         long now = System.currentTimeMillis();
         List<Map<String, Object>> paymentInfoList = null;//这里的泛型类型到时根据数据库的数据来确定
         try{
-            String commandText = "select * from InfoSecurity_PaymentInfo with (nolock) where [InfoSecurity_PaymentInfo].[ReqID] = '" +
-                    lastReqID+"'";
-            paymentInfoList = cardRiskDBTemplate.queryForList(commandText);
+            String commandText = "select * from InfoSecurity_PaymentInfo with (nolock) where [InfoSecurity_PaymentInfo].[ReqID] = ?";
+            paymentInfoList = cardRiskDBTemplate.queryForList(commandText,lastReqID);
         }catch(Exception exp)
         {
             logger.warn("查询PaymentInfo信息异常:",exp);
@@ -148,9 +147,8 @@ public class CommonSources
         List<Map<String, Object>> cardInfoList = null;
         try
         {
-            String commandText = "select * from InfoSecurity_CardInfo with (nolock) where [InfoSecurity_CardInfo].[PaymentInfoID] =" +
-                    paymentInfoId;
-            cardInfoList = cardRiskDBTemplate.queryForList(commandText);
+            String commandText = "select * from InfoSecurity_CardInfo with (nolock) where [InfoSecurity_CardInfo].[PaymentInfoID] = ?";
+            cardInfoList = cardRiskDBTemplate.queryForList(commandText,paymentInfoId);
         }catch(Exception exp)
         {
             logger.warn("查询ListCardInfo信息异常:",exp);
@@ -165,9 +163,8 @@ public class CommonSources
         long now = System.currentTimeMillis();
         Map paymentMainInfo = null;
         try{
-            String commandText = "select * from InfoSecurity_PaymentMainInfo with (nolock) where [InfoSecurity_PaymentMainInfo].[ReqID] = '" +
-                    reqId+"'";
-            paymentMainInfo = cardRiskDBTemplate.queryForMap(commandText);
+            String commandText = "select * from InfoSecurity_PaymentMainInfo with (nolock) where [InfoSecurity_PaymentMainInfo].[ReqID] = ?";
+            paymentMainInfo = cardRiskDBTemplate.queryForMap(commandText,reqId);
         }catch(Exception exp)
         {
             logger.warn("查询PaymentMainInfo信息异常:"+exp.getMessage());
@@ -182,9 +179,8 @@ public class CommonSources
         long now = System.currentTimeMillis();
         Map contactInfo = null;
         try{
-            String commandText = "select * from CardRiskDB..InfoSecurity_ContactInfo with (nolock) where [InfoSecurity_ContactInfo].[ReqID] = '" +
-                    reqId+"'";
-            contactInfo = cardRiskDBTemplate.queryForMap(commandText);
+            String commandText = "select * from CardRiskDB..InfoSecurity_ContactInfo with (nolock) where [InfoSecurity_ContactInfo].[ReqID] = ?";
+            contactInfo = cardRiskDBTemplate.queryForMap(commandText,reqId);
         }catch(Exception exp)
         {
             logger.warn("查询ContactInfo信息异常:"+exp.getMessage());
@@ -199,9 +195,8 @@ public class CommonSources
         long now = System.currentTimeMillis();
         Map userInfo = null;
         try{
-            String commandText = "select * from InfoSecurity_UserInfo with (nolock) where [InfoSecurity_UserInfo].[ReqID] = '" +
-                    reqId+"'";
-            userInfo = cardRiskDBTemplate.queryForMap(commandText);
+            String commandText = "select * from InfoSecurity_UserInfo with (nolock) where [InfoSecurity_UserInfo].[ReqID] = ?";
+            userInfo = cardRiskDBTemplate.queryForMap(commandText,reqId);
         }catch(Exception exp)
         {
             logger.warn("查询UserInfo信息异常:"+exp.getMessage());
@@ -215,9 +210,8 @@ public class CommonSources
         long now = System.currentTimeMillis();
         Map ipInfo = null;
         try{
-            String commandText = "select * from InfoSecurity_IPInfo with (nolock) where [InfoSecurity_IPInfo].[ReqID] = '" +
-                    reqId+"'";
-            ipInfo = cardRiskDBTemplate.queryForMap(commandText);
+            String commandText = "select * from InfoSecurity_IPInfo with (nolock) where [InfoSecurity_IPInfo].[ReqID] = ?";
+            ipInfo = cardRiskDBTemplate.queryForMap(commandText,reqId);
         }catch(Exception exp)
         {
             logger.warn("查询IpInfo信息异常:"+exp.getMessage());
@@ -232,9 +226,8 @@ public class CommonSources
         long now = System.currentTimeMillis();
         Map otherInfo = null;
         try{
-            String commandText = "select * from InfoSecurity_OtherInfo with (nolock) where [InfoSecurity_OtherInfo].[ReqID] = '" +
-                    reqId+"'";
-            otherInfo = cardRiskDBTemplate.queryForMap(commandText);
+            String commandText = "select * from InfoSecurity_OtherInfo with (nolock) where [InfoSecurity_OtherInfo].[ReqID] = ?";
+            otherInfo = cardRiskDBTemplate.queryForMap(commandText,reqId);
         }catch(Exception exp)
         {
             logger.warn("查询OtherInfo信息异常:"+exp.getMessage());
@@ -250,8 +243,8 @@ public class CommonSources
         Map payInfo = null;
         try{
             String commandText = "select top 1 * from CardRiskDB.dbo.InfoSecurity_RiskLevelData with (nolock) where [InfoSecurity_RiskLevelData].OrderType" +
-                    " = "+orderType+" and [InfoSecurity_RiskLevelData].OrderId = "+orderId +" ORDER BY [InfoSecurity_RiskLevelData].ReqID DESC";
-            payInfo = cardRiskDBTemplate.queryForMap(commandText);
+                    " = ?"+" and [InfoSecurity_RiskLevelData].OrderId = ?" +" ORDER BY [InfoSecurity_RiskLevelData].ReqID DESC";
+            payInfo = cardRiskDBTemplate.queryForMap(commandText,orderType,orderId);
         }catch(Exception exp)
         {
             logger.warn("查询MainPrepayType信息异常:"+exp.getMessage());
@@ -266,8 +259,8 @@ public class CommonSources
         long now = System.currentTimeMillis();
         Map cityInfo = null;
         try{
-            String commandText = "select top 1 * from BaseData_City with (nolock) where city = "+city;
-            cityInfo = cardRiskDBTemplate.queryForMap(commandText);
+            String commandText = "select top 1 * from BaseData_City with (nolock) where city = ?";
+            cityInfo = cardRiskDBTemplate.queryForMap(commandText,city);
         }catch (Exception exp)
         {
             logger.warn("查询CityInfo信息异常:"+exp.getMessage());
@@ -281,9 +274,8 @@ public class CommonSources
         long now = System.currentTimeMillis();
         Map leakInfo = null;
         try{
-            String commandText = "select top 1 * from CUSRATDB..CardRisk_Leaked_Uid with (nolock) where [CardRisk_Leaked_Uid].[Uid] = '" +
-                    uid+"'";
-            leakInfo = cUSRATDBTemplate.queryForMap(commandText);
+            String commandText = "select top 1 * from CUSRATDB..CardRisk_Leaked_Uid with (nolock) where [CardRisk_Leaked_Uid].[Uid] = ?";
+            leakInfo = cUSRATDBTemplate.queryForMap(commandText,uid);
         }catch(Exception exp)
         {
             logger.warn("getLeakedInfo查询异常"+exp.getMessage());
@@ -321,10 +313,10 @@ public class CommonSources
                             "from Def_RuleStatisticTable t with (nolock)" +
                             "join Def_RuleMatchField f1 (nolock) on t.KeyFieldID1 = f1.FieldID " +
                             "join Def_RuleMatchField f2 (nolock) on t.KeyFieldID2 = f2.FieldID " +
-                            "where f2.ColumnName='OriginalRisklevel' and  f1.ColumnName= '"+key+"'" +
+                            "where f2.ColumnName='OriginalRisklevel' and  f1.ColumnName= ?" +
                             "and TableType =1 and t.Active = 'T' and  orderType = 0 ";//添加key来关联字段
                     long test = System.currentTimeMillis();
-                    allTableNames = cardRiskDBTemplate.queryForList(commandText);
+                    allTableNames = cardRiskDBTemplate.queryForList(commandText,key);
                     CacheFlowRuleData.originalRisklevel.put(key,allTableNames);//添加到缓存
                 }
                 //先取出出所有的表名称
@@ -336,10 +328,10 @@ public class CommonSources
                     //固定的值195分
                     String tableName = getValue(columnValue,"StatisticTableName");//columnValue.get("StatisticTableName") == null ? "" : columnValue.get("StatisticTableName").toString();
 
-                    String commandText1 = "select count(distinct originalrisklevel) from RiskCtrlPreProcDB.."+tableName +
-                            " with (nolock) where "+key +" = '"+value+"' and originalrisklevel>=195 and CreateDate>= '"+timeLimitStr+"' and CreateDate<= '"+nowTimeStr+"'";
+                    String commandText1 = "select count(distinct originalrisklevel) from RiskCtrlPreProcDB..? " +
+                            " with (nolock) where ?" +" = ?"+" and originalrisklevel>=195 and CreateDate>= ?"+" and CreateDate<= ?";
                     long test1 = System.currentTimeMillis();
-                    countValue = riskCtrlPreProcDBTemplate.queryForObject(commandText1, Integer.class);
+                    countValue = riskCtrlPreProcDBTemplate.queryForObject(commandText1, Integer.class,tableName,key,value,timeLimitStr,nowTimeStr);
                     logger.info("。。。。。。。。。。。。。。riskCtrlPreProcDBTemplate时间："+(System.currentTimeMillis()-test1));
                     if(countValue>0)
                         return  countValue;
@@ -380,8 +372,8 @@ public class CommonSources
                     "from cardriskdb..Def_RuleStatisticTable t (nolock) " +
                     "join cardriskdb..Def_RuleMatchField f1 (nolock) on t.KeyFieldID1 = f1.FieldID " +
                     "join cardriskdb..Def_RuleMatchField f2 (nolock) on t.KeyFieldID2 = f2.FieldID " +
-                    "where TableType = "+0+"  and t.Active = 'T' and (orderType = "+orderType+" or orderType = 0) ";
-            flowRules = cardRiskDBTemplate.queryForList(commandText);
+                    "where TableType = "+0+"  and t.Active = 'T' and (orderType = ?"+" or orderType = 0) ";
+            flowRules = cardRiskDBTemplate.queryForList(commandText,orderType);
         }catch (Exception exp)
         {
             logger.warn("查询流量规则集异常:"+exp.getMessage());
@@ -416,9 +408,9 @@ public class CommonSources
         long now = System.currentTimeMillis();
         Map info = null;
         try{
-            String commandText = "select top 1 * from CardRiskDB..BaseData_CardBankInfo with (nolock) where creditcardtype = "+creditCardType
-                    +" and branchNo = "+branchNo;
-            info = cardRiskDBTemplate.queryForMap(commandText);
+            String commandText = "select top 1 * from CardRiskDB..BaseData_CardBankInfo with (nolock) where creditcardtype = ?"
+                    +" and branchNo = ?";
+            info = cardRiskDBTemplate.queryForMap(commandText,creditCardType,branchNo);
         }catch(Exception exp)
         {
             logger.warn("getInfo查询异常"+exp.getMessage());
