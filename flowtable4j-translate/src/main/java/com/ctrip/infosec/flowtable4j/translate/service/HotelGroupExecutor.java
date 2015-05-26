@@ -61,7 +61,7 @@ public class HotelGroupExecutor implements Executor
     @Autowired
     CommonOperation commonOperation;
 
-    public CheckFact executeHotelGroup(Map data,ThreadPoolExecutor excutor,ThreadPoolExecutor writeExcutor)
+    public CheckFact executeHotelGroup(Map data,ThreadPoolExecutor excutor,ThreadPoolExecutor writeExcutor,boolean isWrite,boolean isCheck)
     {
         this.writeExcutor = writeExcutor;
         beforeInvoke();
@@ -169,8 +169,11 @@ public class HotelGroupExecutor implements Executor
             }
             logger.info("paymentMainInfo\t"+ Json.toPrettyJSONString(dataFact.paymentMainInfo));
 
+            //判断是否写入数据
+            // boolean isWrite = commonSources.getIsWrite("HotelGroupPreByNewSystem");//fixme 这个在上线后把注释去掉
+
             logger.info("流量表数据\t"+ Json.toPrettyJSONString(flowData));
-            writeDB(data,dataFact, flowData);//fixme 第一次测试先不写数据库
+            writeDB(data,dataFact, flowData,isWrite,isCheck);//fixme 第一次测试先不写数据库
 
         }catch (Exception exp)
         {
@@ -247,7 +250,7 @@ public class HotelGroupExecutor implements Executor
         }
     }
 
-    public void writeDB(Map data,DataFact dataFact,Map flowData)
+    public void writeDB(Map data,DataFact dataFact,Map flowData,final boolean isWrite,final boolean isCheck)
     {
         logger.info(getValue(dataFact.mainInfo,Common.OrderID)+"开始写预处理数据和流量表数据到数据库");
         //下面输出当前订单的预处理数据到日志 给测试用 方便他们做对比
@@ -261,7 +264,7 @@ public class HotelGroupExecutor implements Executor
             @Override
             public DataFact call() throws Exception {
                 try {
-                    commonWriteSources.insertMainInfo(dataFactCopy.mainInfo,reqId,false);
+                    commonWriteSources.insertMainInfo(dataFactCopy.mainInfo,reqId,isWrite,isCheck);
                 } catch (Exception e) {
                     logger.warn("invoke commonWriteSources.insertMainInfo failed.: ", e);
                 }
@@ -273,7 +276,7 @@ public class HotelGroupExecutor implements Executor
             @Override
             public DataFact call() throws Exception {
                 try {
-                    commonWriteSources.insertContactInfo(dataFactCopy.contactInfo,reqId,false);
+                    commonWriteSources.insertContactInfo(dataFactCopy.contactInfo,reqId,isWrite,isCheck);
                 } catch (Exception e) {
                     logger.warn("invoke commonWriteSources.insertContactInfo failed.: ", e);
                 }
@@ -285,7 +288,7 @@ public class HotelGroupExecutor implements Executor
             @Override
             public DataFact call() throws Exception {
                 try {
-                    commonWriteSources.insertUserInfo(dataFactCopy.userInfo, reqId,false);
+                    commonWriteSources.insertUserInfo(dataFactCopy.userInfo, reqId,isWrite,isCheck);
                 } catch (Exception e) {
                     logger.warn("invoke commonWriteSources.insertContactInfo failed.: ", e);
                 }
@@ -297,7 +300,7 @@ public class HotelGroupExecutor implements Executor
             @Override
             public DataFact call() throws Exception {
                 try {
-                    commonWriteSources.insertIpInfo(dataFactCopy.ipInfo,reqId,false);
+                    commonWriteSources.insertIpInfo(dataFactCopy.ipInfo,reqId,isWrite,isCheck);
                 } catch (Exception e) {
                     logger.warn("invoke commonWriteSources.insertIpInfo failed.: ", e);
                 }
@@ -320,7 +323,7 @@ public class HotelGroupExecutor implements Executor
             @Override
             public DataFact call() throws Exception {
                 try {
-                    commonWriteSources.insertOtherInfo(dataFactCopy.otherInfo,reqId,false);
+                    commonWriteSources.insertOtherInfo(dataFactCopy.otherInfo,reqId,isWrite,isCheck);
                 } catch (Exception e) {
                     logger.warn("invoke commonWriteSources.insertOtherInfo failed.: ", e);
                 }
@@ -332,7 +335,7 @@ public class HotelGroupExecutor implements Executor
         @Override
         public DataFact call() throws Exception {
             try {
-                commonWriteSources.insertDeviceIDInfo(dataFactCopy.DIDInfo, reqId,false);
+                commonWriteSources.insertDeviceIDInfo(dataFactCopy.DIDInfo, reqId,isWrite,isCheck);
             } catch (Exception e) {
                 logger.warn("invoke commonWriteSources.insertDeviceIDInfo failed.: ", e);
             }
@@ -344,7 +347,7 @@ public class HotelGroupExecutor implements Executor
             @Override
             public DataFact call() throws Exception {
                 try {
-                    commonWriteSources.insertPaymentMainInfo(dataFactCopy.paymentMainInfo, reqId,false);
+                    commonWriteSources.insertPaymentMainInfo(dataFactCopy.paymentMainInfo, reqId,isWrite,isCheck);
                 } catch (Exception e) {
                     logger.warn("invoke commonWriteSources.insertIpInfo failed.: ", e);
                 }
@@ -359,11 +362,11 @@ public class HotelGroupExecutor implements Executor
                     for(int i=0;i<dataFactCopy.paymentInfoList.size();i++)
                     {
                         Map<String,Object> paymentInfo = dataFactCopy.paymentInfoList.get(i);
-                        final String paymentInfoID = commonWriteSources.insertPaymentInfo(getValueMap(paymentInfo,Common.PaymentInfo),reqId,false);
+                        final String paymentInfoID = commonWriteSources.insertPaymentInfo(getValueMap(paymentInfo,Common.PaymentInfo),reqId,isWrite,isCheck);
                         List<Map<String,Object>> cardInfos = (List<Map<String,Object>>)paymentInfo.get(Common.CardInfoList);
                         for(int j=0;j<cardInfos.size();j++)
                         {
-                            commonWriteSources.insertCardInfo(cardInfos.get(j),reqId,paymentInfoID,false);
+                            commonWriteSources.insertCardInfo(cardInfos.get(j),reqId,paymentInfoID,isWrite,isCheck);
                         }
                     }
                 } catch (Exception e) {
@@ -375,7 +378,7 @@ public class HotelGroupExecutor implements Executor
 
         //流量数据
         final Map flowDataCopy = BeanMapper.copy(flowData,Map.class);
-        commonOperation.writeFlowData(flowDataCopy,runs);
+        commonOperation.writeFlowData(flowDataCopy,runs,isWrite,isCheck);
 
         try
         {

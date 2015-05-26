@@ -50,7 +50,7 @@ public class FlowTableRESTfulController {
         return flowtableProcessor.handle(checkEntity);
     }
 
-    @RequestMapping(value = "/checkRiskAdd")
+    @RequestMapping(value = "/checkRiskWithPre")
     public @ResponseBody
     RiskResult checkRisk(@RequestBody Map data) {
         long now = System.currentTimeMillis();

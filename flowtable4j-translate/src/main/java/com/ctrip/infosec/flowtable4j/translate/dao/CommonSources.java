@@ -426,4 +426,21 @@ public class CommonSources
         logger.info("getInfo的时间是"+(System.currentTimeMillis()-now));
         return info;
     }
+
+    public String getIsWrite(String type)
+    {
+        long now = System.currentTimeMillis();
+        String isWrite = "";
+        try{
+            String commandText = "select top 1 Active from cardriskdb..CardRisk_AppFlag with (nolock) where nameType = ?";
+            Map info  = cardRiskDBTemplate.queryForMap(commandText,type);
+            if(info != null)
+                isWrite = getValue(info,"Active");
+        }catch(Exception exp)
+        {
+            logger.warn("getInfo查询异常"+exp.getMessage());
+        }
+        logger.info("getInfo的时间是"+(System.currentTimeMillis()-now));
+        return isWrite;
+    }
 }

@@ -7,6 +7,7 @@ import com.ctrip.infosec.flowtable4j.translate.model.DataFact;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang3.time.DateUtils;
 import org.dom4j.DocumentException;
+import org.omg.CORBA._IDLTypeStub;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -385,7 +386,7 @@ public class CommonOperation
     }
 
     //写流量数据到数据库
-    public void writeFlowData(final Map flowData,List<Callable<DataFact>> runs)
+    public void writeFlowData(final Map flowData,List<Callable<DataFact>> runs,final boolean isWrite,final boolean isCheck)
     {
         final String orderType = getValue(flowData,Common.OrderType);
         if(orderType.isEmpty())
@@ -416,7 +417,7 @@ public class CommonOperation
                 runs.add(new Callable<DataFact>() {
                 @Override
                 public DataFact call() throws Exception {
-                    commonWriteSources.insertFlowInfo(flowData, KeyFieldName1, KeyFieldName2, StatisticTableName,false);
+                    commonWriteSources.insertFlowInfo(flowData, KeyFieldName1, KeyFieldName2, StatisticTableName,isWrite,isCheck);
                     return null;
                 }
                 });

@@ -29,7 +29,9 @@ public class AllTemplatesTest
         String mobilePhone = "13917863756";//13482188219
         String subMobileNum = mobilePhone.substring(0,7);
         String sqlCommand = "SELECT Top 1 *" + " FROM CardRiskDB..BaseData_MobilePhoneInfo with (nolock) WHERE MobileNumber = ?";
-        Map mobileInfo = cardRiskDBTemplate.queryForMap(sqlCommand,subMobileNum);
+
+        String commandText1 = "select top 1 Active from cardriskdb..CardRisk_AppFlag with (nolock) where nameType = ?";
+        Map mobileInfo = cardRiskDBTemplate.queryForMap(commandText1,"HotelGroupPreByNewSystem");
         Assert.assertNotNull(mobileInfo);
     }
 }
