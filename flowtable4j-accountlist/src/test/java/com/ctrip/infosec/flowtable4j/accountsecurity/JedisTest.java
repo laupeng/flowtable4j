@@ -66,7 +66,7 @@ public class JedisTest {
 //        paymentViaAccount.setBWGRule(list);
 
         AccountFact fact = new AccountFact();
-        AccountItem item = new AccountItem("UID","CREDIT-EXCHANGE","zsx");
+        AccountItem item = new AccountItem("UID","CREDIT-EXCHANGE","zsx123");
         AccountItem item1 = new AccountItem("UID","CREDIT-EXCHANGE","t2");
         AccountItem item2 = new AccountItem("UID","CREDIT-EXCHANGE","t1");
 //        AccountItem item2 = new AccountItem("UID","PAYMENT-CONF-WEIXIN","D00026295");

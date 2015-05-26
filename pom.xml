@@ -601,11 +601,11 @@
 	</dependencyManagement>
 
 	<repositories>
-		<repository>
-			<id>ctripdev-public</id>
-			<url>http://maven.dev.sh.ctripcorp.com:8081/nexus/content/groups/public/</url>
-		</repository>
-	</repositories>
+	<repository>
+		<id>ctripdev-public</id>
+		<url>http://maven.dev.sh.ctripcorp.com:8081/nexus/content/groups/public/</url>
+	</repository>
+</repositories>
 
 	<distributionManagement>
 		<repository>
