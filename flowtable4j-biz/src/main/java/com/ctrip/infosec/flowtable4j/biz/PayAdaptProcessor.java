@@ -262,6 +262,7 @@ public class PayAdaptProcessor {
 
         allResults.addAll(bwResults4j);
         allResults.addAll(payAdaptRuleResults);
+        //账户风控命中规则，转 PayAdaptResultItem
         for (Iterator<String> it = accountResults.keySet().iterator(); it.hasNext(); ) {
             String scene = it.next();
             if (accountResults.get(scene).intValue() > 0) {
@@ -275,7 +276,7 @@ public class PayAdaptProcessor {
         }
 
         Map<String, PayAdaptResultItem> groupByScene = new HashMap<String, PayAdaptResultItem>();
-        //对 blackResults，payAdaptRuleResults，accountResults，bwResults4j按scene 分组，取每组分值最大相
+        //按scene 分组，取每组分值最大值
         for (PayAdaptResultItem item:allResults) {
             String sceneType = item.getSceneType().toUpperCase();
             if (groupByScene.containsKey(sceneType)) {

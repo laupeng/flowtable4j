@@ -360,9 +360,8 @@ public class CommonSources
         long now = System.currentTimeMillis();
         List<Map<String,Object>> productInfo = null;
         try{
-            String commandText = "select * from InfoSecurity_HotelGroupInfo with (nolock) where [InfoSecurity_HotelGroupInfo].[ReqID] = '" +
-                    reqId+"'";
-            productInfo = cardRiskDBTemplate.queryForList(commandText);
+            String commandText = "select * from InfoSecurity_HotelGroupInfo with (nolock) where ReqID =? ";
+            productInfo = cardRiskDBTemplate.queryForList(commandText,reqId);
         }catch(Exception exp)
         {
             logger.warn("查询产品信息异常",exp);
