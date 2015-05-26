@@ -235,13 +235,12 @@ public class HotelGroupExecutor implements Executor
      */
     public void getHotelGroupProductInfo1(DataFact dataFact,Map data)
     {
-        //通过lastReqID查询所有订单相关的信息
-        String reqIdStr = getValue(data, Common.ReqID);
+        //通过lastReqID查询所有订单相关的信息 注意这里是上一次的reqid(当checkType=1的时候)
+        String reqIdStr = getValue(data,"OldReqID");
         if(reqIdStr.isEmpty())
             return;
         try{
-            long reqId= Long.parseLong(reqIdStr);
-            Map hotelGroupProduct = hotelGroupSources.getHotelGroupInfo(reqId);
+            Map hotelGroupProduct = hotelGroupSources.getHotelGroupInfo(reqIdStr);
             if(hotelGroupProduct != null && hotelGroupProduct.size()>0)
                 dataFact.productInfoM.putAll(hotelGroupProduct);
         }catch (Exception exp)

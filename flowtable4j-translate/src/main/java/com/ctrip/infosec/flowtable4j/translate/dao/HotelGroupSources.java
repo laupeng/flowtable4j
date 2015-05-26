@@ -38,13 +38,12 @@ public class HotelGroupSources
 
 
     //通过lastReqId获取酒店团购信息
-    public Map getHotelGroupInfo(long reqId)
+    public Map getHotelGroupInfo(String reqId)
     {
         Map hotelGroupInfo = null;
         try{
-            String commandText = "select * from InfoSecurity_HotelGroupInfo with (nolock) where [InfoSecurity_HotelGroupInfo].[ReqID] = " +
-                    reqId;
-            hotelGroupInfo = cardRiskDBTemplate.queryForMap(commandText);
+            String commandText = "select * from InfoSecurity_HotelGroupInfo with (nolock) where [InfoSecurity_HotelGroupInfo].[ReqID] = ?";
+            hotelGroupInfo = cardRiskDBTemplate.queryForMap(commandText,reqId);
             return hotelGroupInfo;
         }catch(Exception exp)
         {

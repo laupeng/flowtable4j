@@ -166,7 +166,6 @@ public class CommonOperation
         List<Map> paymentInfos = (List<Map>)data.get(Common.PaymentInfos);
         if(paymentInfos == null || paymentInfos.size()<1)
             return;
-
         for(Map payment : paymentInfos)
         {
             Map<String,Object> subPaymentInfoList = new HashMap<String, Object>();
@@ -217,7 +216,14 @@ public class CommonOperation
                 String creditCardNumber = getValue(cardInfoResult,"CreditCardNumber");
                 if(creditCardType.equals("3") && !creditCardNumber.isEmpty())//这里只针对类型为3的卡进行处理
                 {
-                    String decryptText = Crypto.decrypt(creditCardNumber);
+                    String decryptText = null;
+                    try
+                    {
+                        decryptText = Crypto.decrypt(creditCardNumber);
+                    }catch (Exception exp)
+                    {
+                        logger.warn("解密卡号异常"+exp.getMessage());
+                    }
                     if(decryptText !=null && !decryptText.isEmpty()&&decryptText.length()>12)
                     {
                         String branchNo = decryptText.substring(6,9);
