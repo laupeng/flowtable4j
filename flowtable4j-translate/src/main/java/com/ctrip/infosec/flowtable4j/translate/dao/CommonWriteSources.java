@@ -75,7 +75,7 @@ public class CommonWriteSources
                public CallableStatement createCallableStatement(Connection con) throws SQLException
                {
                    String params = "";
-                   for(int i=0;i<29-1;i++)
+                   for(int i=0;i<27-1;i++)
                    {
                        params += "?,";
                    }
@@ -104,15 +104,15 @@ public class CommonWriteSources
                    cs.setString(Common.ClientVersion,getValue(mainInfo,Common.ClientVersion));
                    cs.setString(Common.MerchantOrderID,getValue(mainInfo,Common.MerchantOrderID));
                    cs.setString("OrderProductName",getValue(mainInfo,"OrderProductName"));
-                   String PayExpiryDate = getValue(mainInfo,"PayExpiryDate");
+                   /*String PayExpiryDate = getValue(mainInfo,"PayExpiryDate");
                    if(PayExpiryDate.isEmpty())
                        PayExpiryDate = "NULL";
-                   cs.setString("PayExpiryDate",PayExpiryDate);
+                   cs.setString("PayExpiryDate",PayExpiryDate);*/
                    cs.setString("PreAuthorizedAmount",getValue(mainInfo,"PreAuthorizedAmount"));
-                   String RiskCountrolDeadline = getValue(mainInfo,"RiskCountrolDeadline");
+                   /*String RiskCountrolDeadline = getValue(mainInfo,"RiskCountrolDeadline");
                    if(PayExpiryDate.isEmpty())
                        RiskCountrolDeadline = "NULL";
-                   cs.setString("RiskCountrolDeadline",RiskCountrolDeadline);
+                   cs.setString("RiskCountrolDeadline",RiskCountrolDeadline);*/
                    cs.setString("TotalDiscountAmount",getValue(mainInfo,"TotalDiscountAmount"));
                    cs.setString("Currency",getValue(mainInfo,"Currency"));
                    cs.setString("OriginalAmount",getValue(mainInfo,"OriginalAmount"));
