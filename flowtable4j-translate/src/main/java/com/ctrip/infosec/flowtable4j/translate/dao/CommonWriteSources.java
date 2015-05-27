@@ -651,7 +651,7 @@ public class CommonWriteSources
         if(!isWrite)
             return ;//如果不写入就直接返回
 
-        logger.info("写入流量表："+tableName+"\t"+field1+"\t"+fieldValue1+"\t"+field2+"\t"+fieldValue2);
+        logger.info(tableName+"流量表: "+field1+":"+fieldValue1+"\t"+field2+":"+fieldValue2);
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         final String nowTime = format.format(new Date(System.currentTimeMillis()));
         Object result = riskCtrlPreProcDBTemplate.execute(new CallableStatementCreator() {
