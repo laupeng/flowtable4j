@@ -13,9 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * 按SceneType、CheckType组装的黑白名单
@@ -35,7 +33,8 @@ public class AccountBWGRuleHandle {
      * 保存黑白名单到Redis
      * @param rules
      */
-    public void setBWGRule(List<RuleContent> rules) {
+    public String setBWGRule(List<RuleContent> rules) {
+        String result="OK";
         List<Callable<Object>> tasks = new ArrayList<Callable<Object>>();
         for (final RuleContent item : rules) {
             tasks.add(new Callable<Object>() {
@@ -58,10 +57,19 @@ public class AccountBWGRuleHandle {
             });
         }
         try {
-            SimpleStaticThreadPool.getInstance().invokeAll(tasks, TIMEOUT, TimeUnit.MILLISECONDS);
-        } catch (InterruptedException e) {
-            logger.error("保存黑白名单异常", e);
+            List<Future<Object>> futures = SimpleStaticThreadPool.getInstance().invokeAll(tasks, TIMEOUT, TimeUnit.MILLISECONDS);
+            for(Future<Object> future:futures){
+                try {
+                    future.get();
+                } catch(Exception ex) {
+                    result="FAIL";
+                }
+            }
+        } catch (InterruptedException ex) {
+            logger.warn("save bwg rule timeout", ex);
+            result="FAIL";
         }
+        return  result;
     }
 
     /**
@@ -89,7 +97,8 @@ public class AccountBWGRuleHandle {
      * 从Redis中移除黑白名单
      * @param rules
      */
-    public void removeBWGRule(List<RuleContent> rules) {
+    public String removeBWGRule(List<RuleContent> rules) {
+        String result ="OK";
         List<Callable<Object>> tasks = new ArrayList<Callable<Object>>();
         for (final RuleContent item : rules) {
             tasks.add(new Callable<Object>() {
@@ -112,10 +121,19 @@ public class AccountBWGRuleHandle {
             });
         }
         try {
-            SimpleStaticThreadPool.getInstance().invokeAll(tasks, TIMEOUT, TimeUnit.MILLISECONDS);
+            List<Future<Object>> futures = SimpleStaticThreadPool.getInstance().invokeAll(tasks, TIMEOUT, TimeUnit.MILLISECONDS);
+            for(Future<Object> future:futures){
+                try {
+                    future.get();
+                } catch(Exception ex) {
+                    result="FAIL";
+                }
+            }
         } catch (InterruptedException e) {
-            logger.error("删除黑白名单异常", e);
+            logger.warn("remove bwg rule timeout", e);
+            result = "FAIL";
         }
+        return  result;
     }
 
 
@@ -127,12 +145,10 @@ public class AccountBWGRuleHandle {
      */
     public void checkBWGRule(AccountFact fact, Map<String, Integer> result) {
         if (fact == null || fact.getCheckItems() == null || fact.getCheckItems().size() == 0) {
-            logger.warn("数据格式错误，请求内容为空");
+            logger.warn("check data is null or empty");
             return;
         }
-
         List<Callable<Object>> tasks = new ArrayList<Callable<Object>>();
-
         final Set<String> redisKeys = new HashSet<String>();
         final Set<String> sceneTypes = new HashSet<String>();
 
@@ -153,9 +169,16 @@ public class AccountBWGRuleHandle {
             });
         }
         try {
-            SimpleStaticThreadPool.getInstance().invokeAll(tasks, TIMEOUT, TimeUnit.MILLISECONDS);
+            List<Future<Object>> futures = SimpleStaticThreadPool.getInstance().invokeAll(tasks, TIMEOUT, TimeUnit.MILLISECONDS);
+            for(Future<Object> future:futures){
+                try {
+                    future.get();
+                } catch(Exception ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
         } catch (InterruptedException e) {
-            logger.error("黑白名单校验失败", e);
+            logger.warn("check bwg rule timeout", e);
         }
         mergeRedisRule(dic_allrules, result);
     }
