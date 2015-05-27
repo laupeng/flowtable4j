@@ -201,6 +201,23 @@ public class CommonExecutor
                 default:
                     break;
             }
+
+            //DID信息
+            final DataFact dataFactCopy04 = new DataFact();
+            final String orderId = getValue(data,Common.OrderID);
+            final String orderType = getValue(data,Common.OrderType);
+            runs.add(new Callable<DataFact>() {
+                @Override
+                public DataFact call() throws Exception {
+                    try {
+                        commonOperation.getDIDInfo(dataFactCopy04, orderId, orderType);
+                        return dataFactCopy04;
+                    } catch (Exception e) {
+                        logger.warn("invoke commonOperation getDIDInfo failed.: ", e);
+                    }
+                    return null;
+                }
+            });
             //这里执行并发操作
             //并发执行
             long t1 = System.currentTimeMillis();
@@ -387,23 +404,6 @@ public class CommonExecutor
                     return dataFactCopy03;
                 } catch (Exception e) {
                     logger.warn("invoke commonOperation fillIpInfo failed.: ", e);
-                }
-                return null;
-            }
-        });
-
-        final DataFact dataFactCopy04 = new DataFact();
-        final String orderId = getValue(data,Common.OrderID);
-        final String orderType = getValue(data,Common.OrderType);
-        runs.add(new Callable<DataFact>() {
-            @Override
-            public DataFact call() throws Exception {
-                try {
-                    long start = System.currentTimeMillis();
-                    commonOperation.getDIDInfo(dataFactCopy04, orderId, orderType);
-                    return dataFactCopy04;
-                } catch (Exception e) {
-                    logger.warn("invoke commonOperation getDIDInfo failed.: ", e);
                 }
                 return null;
             }

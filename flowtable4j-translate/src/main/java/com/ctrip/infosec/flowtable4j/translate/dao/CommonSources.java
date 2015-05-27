@@ -82,8 +82,8 @@ public class CommonSources
         long now = System.currentTimeMillis();
         Map DIDInfo = null;
         try{
-            String sqlCommand = "SELECT TOP 1 * FROM RiskCtrlPreProcDB.dbo.CacheData_DeviceIDInfo with (nolock) WHERE [CacheData_DeviceIDInfo].[Oid] = ?"+
-                    " and [CacheData_DeviceIDInfo].[Payid] = ?" + " order by [CacheData_DeviceIDInfo].[RecordID] desc";
+            String sqlCommand = "select top 1 * from CacheData_DeviceIDInfo with (nolock) where Oid = ?"+
+                    " and Payid = ?" + " order by RecordID desc";
             DIDInfo = riskCtrlPreProcDBTemplate.queryForMap(sqlCommand,orderId,orderType);
         }catch (Exception exp)
         {
