@@ -105,9 +105,15 @@ public class CommonWriteSources
                    cs.setString(Common.ClientVersion,getValue(mainInfo,Common.ClientVersion));
                    cs.setString(Common.MerchantOrderID,getValue(mainInfo,Common.MerchantOrderID));
                    cs.setString("OrderProductName",getValue(mainInfo,"OrderProductName"));
-                   cs.setString("PayExpiryDate",getValue(mainInfo,"PayExpiryDate"));
+                   String PayExpiryDate = getValue(mainInfo,"PayExpiryDate");
+                   if(PayExpiryDate.isEmpty())
+                       PayExpiryDate = null;
+                   cs.setString("PayExpiryDate",PayExpiryDate);
                    cs.setString("PreAuthorizedAmount",getValue(mainInfo,"PreAuthorizedAmount"));
-                   cs.setString("RiskCountrolDeadline",getValue(mainInfo,"RiskCountrolDeadline"));
+                   String RiskCountrolDeadline = getValue(mainInfo,"RiskCountrolDeadline");
+                   if(PayExpiryDate.isEmpty())
+                       RiskCountrolDeadline = null;
+                   cs.setString("RiskCountrolDeadline",RiskCountrolDeadline);
                    cs.setString("TotalDiscountAmount",getValue(mainInfo,"TotalDiscountAmount"));
                    cs.setString("Currency",getValue(mainInfo,"Currency"));
                    cs.setString("OriginalAmount",getValue(mainInfo,"OriginalAmount"));

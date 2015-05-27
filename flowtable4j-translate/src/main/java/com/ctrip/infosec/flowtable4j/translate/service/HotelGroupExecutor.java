@@ -160,7 +160,7 @@ public class HotelGroupExecutor implements Executor
             for(int i=0;i<dataFact.paymentInfoList.size();i++)
             {
                 Map<String,Object> paymentInfo = dataFact.paymentInfoList.get(i);
-                logger.info(i + "\tpaymentInfo\t" + Json.toPrettyJSONString(paymentInfo));
+                logger.info(i + "\tpaymentInfo\t" + Json.toPrettyJSONString(paymentInfo.get("PaymentInfo")));
                 List<Map<String,Object>> cardInfos = (List<Map<String,Object>>)paymentInfo.get(Common.CardInfoList);
                 for(int j=0;j<cardInfos.size();j++)
                 {

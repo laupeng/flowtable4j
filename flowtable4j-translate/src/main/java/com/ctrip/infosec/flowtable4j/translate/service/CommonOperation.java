@@ -280,14 +280,13 @@ public class CommonOperation
 
     public Map getCardInfo(String cardInfoId)
     {
-        //int cardInfoId = PaymentInfo.get(Common.CardInfoID)==null ? 0 : Integer.parseInt(PaymentInfo.get(Common.CardInfoID).toString());
         //从esb获取数据 根据CardInfoID取出卡的信息
         String requestType = "AccCash.CreditCard.GetCreditCardInfo";
         String xpath = "/Response/GetCreditCardInfoResponse/CreditCardItems/CreditCardInfoResponseItem";
         StringBuffer requestXml = new StringBuffer();
         requestXml.append("<GetCreditCardInfoRequest>");
         requestXml.append("<CardInfoId>");
-        requestXml.append(cardInfoId+"");
+        requestXml.append(cardInfoId);
         requestXml.append("</CardInfoId>");
         requestXml.append("</GetCreditCardInfoRequest>");
         try
@@ -397,7 +396,7 @@ public class CommonOperation
         final String orderType = getValue(flowData,Common.OrderType);
         if(orderType.isEmpty())
             return;
-        List<Map<String,Object>> flowRules = (List<Map<String,Object>>)CacheFlowRuleData.flowRules.get(orderType);//fixme 这里有bug 每个订单的订单类型是不一样的
+        List<Map<String,Object>> flowRules = (List<Map<String,Object>>)CacheFlowRuleData.flowRules.get(orderType);
         if(flowRules == null || flowRules.size()<1)
         {
             flowRules = commonSources.getFlowRules(orderType);
@@ -446,14 +445,16 @@ public class CommonOperation
         String currentValue = "";
         for(Map flowFilter:newFlowFilters)
         {
-            currentValue = getValue(flowFilter,"KeyColumnName");
+            currentValue = getValue(flowData,getValue(flowFilter,"KeyColumnName"));
             String tempMatchValue = "", tempMatchType = "";
             String matchType = getValue(flowFilter,"MatchType");
             if(matchType.toUpperCase().equals("FEQ")||matchType.toUpperCase().equals("FNE")
                     ||matchType.toUpperCase().equals("FIN")||matchType.toUpperCase().equals("FNA"))
             {
                 tempMatchType = matchType.substring(1,2);
-                tempMatchValue = getValue(flowFilter,"MatchValue");
+                tempMatchValue = getValue(flowData,getValue(flowFilter,"MatchValue"));
+                if(tempMatchValue.isEmpty())
+                    return false;
             }else
             {
                 tempMatchType = matchType;
@@ -524,7 +525,7 @@ public class CommonOperation
         {
             Pattern pattern = Pattern.compile(matchValue);
             Matcher matcher = pattern.matcher(currentValue);
-            if(matchType.toUpperCase().equals("IN")||matchType.toUpperCase().equals("LLIKE")||matchType.toUpperCase().equals("RLIKE"))
+            if(matchType.toUpperCase().equals("IN")||matchType.toUpperCase().equals("LLIKE")||matchType.toUpperCase().equals("RLIKE")||matchType.toUpperCase().equals("REGEX"))
             {
                 return matcher.find();
             }
@@ -533,7 +534,6 @@ public class CommonOperation
                 return !matcher.find();
             }
         }
-        //fixme 明天完善这里的代码
         return true;
     }
     public String convertValueToRegValue(String checkType,String checkValue)

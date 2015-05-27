@@ -23,7 +23,7 @@ public class ESBSourcesTest
         ESBSources esbSources = new ESBSources();
 
         String contentType = "AccCash.CreditCard.GetCreditCardInfo";
-        String cardInfoId = "30075005";
+        String cardInfoId = "30091142";
         String contentBody = "<GetCreditCardInfoRequest><CardInfoId>" + cardInfoId + "</CardInfoId></GetCreditCardInfoRequest>";
         String requestContentXml = esbSources.constructXml(contentBody,contentType);
         Assert.assertNotNull(requestContentXml);
@@ -32,7 +32,7 @@ public class ESBSourcesTest
 
     @Test
     public void testGetResponse()
-    {//30075005
+    {//30075005  //30091142
         String xmlContent = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
                 "\n" +
                 "<Request>\n" +

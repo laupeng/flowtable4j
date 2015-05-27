@@ -115,7 +115,7 @@ public class CommonExecutor
 
                 case 2:
                     //region Description       补充产品
-                    dataFact.mainInfo.putAll(commonOperation.getLastReqID(data));//这里暂时存储起来 在后面从data里面取出来  添加mainInfo信息
+                    dataFact.mainInfo.putAll(commonOperation.getLastReqID(data));//这里暂时存储OldReqID 在后面从data里面取出来   添加mainInfo信息
                     dataFact.mainInfo.put(Common.OrderID,getValue(data,Common.OrderID));//添加订单id
                     dataFact.mainInfo.put(Common.CheckType,getValue(data,Common.CheckType));//要改成2
                     final String reqIdStr = getValue(data,"OldReqID");
@@ -178,21 +178,6 @@ public class CommonExecutor
 
                     //补充支付信息
                     commonOperation.fillPaymentInfo0(dataFact,data);//和checkType = 0的补充支付信息一样
-                   /* final DataFact dataFactCopy05 = new DataFact();
-                    final Map dataCopy = BeanMapper.copy(data,Map.class);
-                    runs.add(new Callable<DataFact>() {
-                        @Override
-                        public DataFact call() throws Exception {
-                            try {
-                                commonOperation.fillPaymentInfo0(dataFactCopy05,dataCopy);//和checkType = 0的补充支付信息一样
-                                return dataFactCopy05;
-                            } catch (Exception e) {
-                                logger.warn("invoke commonOperation.fillProductOther failed.: ", e);
-                            }
-                            return null;
-                        }
-                    });*/
-
                     
                     //paymentMainInfo
                     //final String lastReq_m = getValue(data, Common.ReqID);
@@ -218,7 +203,7 @@ public class CommonExecutor
             long t1 = System.currentTimeMillis();
             List<DataFact> rawResult = new ArrayList<DataFact>();
             try {
-                List<Future<DataFact>> result = excutor.invokeAll(runs, 1000, TimeUnit.MILLISECONDS);
+                List<Future<DataFact>> result = excutor.invokeAll(runs, 2000, TimeUnit.MILLISECONDS);
                 for (Future f : result) {
                     try {
                         if (f.isDone()) {
