@@ -268,104 +268,137 @@ public class HotelGroupExecutor implements Executor
             }
         });
 
-        writeExcutor.submit(new Callable<DataFact>() {
+        writeExcutor.submit(new Callable<DataFact>()
+        {
             @Override
-            public DataFact call() throws Exception {
-                try {
-                    commonWriteSources.insertContactInfo(dataFactCopy.contactInfo,reqId,isWrite,isCheck);
-                } catch (Exception e) {
+            public DataFact call() throws Exception
+            {
+                try
+                {
+                    commonWriteSources.insertContactInfo(dataFactCopy.contactInfo, reqId, isWrite, isCheck);
+                } catch (Exception e)
+                {
                     logger.warn("invoke commonWriteSources.insertContactInfo failed.: ", e);
                 }
                 return null;
             }
         });
 
-        writeExcutor.submit(new Callable<DataFact>() {
+        writeExcutor.submit(new Callable<DataFact>()
+        {
             @Override
-            public DataFact call() throws Exception {
-                try {
-                    commonWriteSources.insertUserInfo(dataFactCopy.userInfo, reqId,isWrite,isCheck);
-                } catch (Exception e) {
+            public DataFact call() throws Exception
+            {
+                try
+                {
+                    commonWriteSources.insertUserInfo(dataFactCopy.userInfo, reqId, isWrite, isCheck);
+                } catch (Exception e)
+                {
                     logger.warn("invoke commonWriteSources.insertContactInfo failed.: ", e);
                 }
                 return null;
             }
         });
 
-        writeExcutor.submit(new Callable<DataFact>() {
+        writeExcutor.submit(new Callable<DataFact>()
+        {
             @Override
-            public DataFact call() throws Exception {
-                try {
-                    commonWriteSources.insertIpInfo(dataFactCopy.ipInfo,reqId,isWrite,isCheck);
-                } catch (Exception e) {
+            public DataFact call() throws Exception
+            {
+                try
+                {
+                    commonWriteSources.insertIpInfo(dataFactCopy.ipInfo, reqId, isWrite, isCheck);
+                } catch (Exception e)
+                {
                     logger.warn("invoke commonWriteSources.insertIpInfo failed.: ", e);
                 }
                 return null;
             }
         });
 
-        writeExcutor.submit(new Callable<DataFact>() {
+        writeExcutor.submit(new Callable<DataFact>()
+        {
             @Override
-            public DataFact call() throws Exception {
-                try {
-                    hotelGroupWriteSources.insertHotelGroupInfo(dataFactCopy.productInfoM,reqId,isWrite,isCheck);
-                } catch (Exception e) {
+            public DataFact call() throws Exception
+            {
+                try
+                {
+                    hotelGroupWriteSources.insertHotelGroupInfo(dataFactCopy.productInfoM, reqId, isWrite, isCheck);
+        } catch (Exception e)
+                {
                     logger.warn("invoke commonWriteSources.insertHotelGroupInfo failed.: ", e);
                 }
                 return null;
             }
         });
-        writeExcutor.submit(new Callable<DataFact>() {
+
+        writeExcutor.submit(new Callable<DataFact>()
+        {
             @Override
-            public DataFact call() throws Exception {
-                try {
-                    commonWriteSources.insertOtherInfo(dataFactCopy.otherInfo,reqId,isWrite,isCheck);
-                } catch (Exception e) {
+            public DataFact call() throws Exception
+            {
+                try
+                {
+                    commonWriteSources.insertOtherInfo(dataFactCopy.otherInfo, reqId, isWrite, isCheck);
+                } catch (Exception e)
+                {
                     logger.warn("invoke commonWriteSources.insertOtherInfo failed.: ", e);
                 }
                 return null;
             }
         });
 
-        writeExcutor.submit(new Callable<DataFact>() {
-        @Override
-        public DataFact call() throws Exception {
-            try {
-                commonWriteSources.insertDeviceIDInfo(dataFactCopy.DIDInfo, reqId,isWrite,isCheck);
-            } catch (Exception e) {
-                logger.warn("invoke commonWriteSources.insertDeviceIDInfo failed.: ", e);
-            }
-            return null;
-        }
-    });
-
-        writeExcutor.submit(new Callable<DataFact>() {
+        writeExcutor.submit(new Callable<DataFact>()
+        {
             @Override
-            public DataFact call() throws Exception {
-                try {
-                    commonWriteSources.insertPaymentMainInfo(dataFactCopy.paymentMainInfo, reqId,isWrite,isCheck);
-                } catch (Exception e) {
+            public DataFact call() throws Exception
+            {
+                try
+                {
+                    commonWriteSources.insertDeviceIDInfo(dataFactCopy.DIDInfo, reqId, isWrite, isCheck);
+                } catch (Exception e)
+                {
+                    logger.warn("invoke commonWriteSources.insertDeviceIDInfo failed.: ", e);
+                }
+                return null;
+            }
+        });
+
+        writeExcutor.submit(new Callable<DataFact>()
+        {
+            @Override
+            public DataFact call() throws Exception
+            {
+                try
+                {
+                    commonWriteSources.insertPaymentMainInfo(dataFactCopy.paymentMainInfo, reqId, isWrite, isCheck);
+                } catch (Exception e)
+                {
                     logger.warn("invoke commonWriteSources.insertIpInfo failed.: ", e);
                 }
                 return null;
             }
         });
 
-        writeExcutor.submit(new Callable<DataFact>() {
+        writeExcutor.submit(new Callable<DataFact>()
+        {
             @Override
-            public DataFact call() throws Exception {
-                try {
-                    for(int i=0;i<dataFactCopy.paymentInfoList.size();i++)
+            public DataFact call() throws Exception
+            {
+                try
+                {
+                    for (int i = 0; i < dataFactCopy.paymentInfoList.size(); i++)
                     {
-                        Map<String,Object> paymentInfo = dataFactCopy.paymentInfoList.get(i);
-                        final String paymentInfoID = commonWriteSources.insertPaymentInfo(getValueMap(paymentInfo,Common.PaymentInfo),reqId,isWrite,isCheck);
-                        List<Map<String,Object>> cardInfos = (List<Map<String,Object>>)paymentInfo.get(Common.CardInfoList);
-                        for(int j=0;j<cardInfos.size();j++)
+                        Map<String, Object> paymentInfo = dataFactCopy.paymentInfoList.get(i);
+                        final String paymentInfoID = commonWriteSources.insertPaymentInfo(getValueMap(paymentInfo, Common.PaymentInfo), reqId, isWrite, isCheck);
+                        List<Map<String, Object>> cardInfos = (List<Map<String, Object>>) paymentInfo.get(Common.CardInfoList);
+                        for (int j = 0; j < cardInfos.size(); j++)
                         {
-                            commonWriteSources.insertCardInfo(cardInfos.get(j),reqId,paymentInfoID,isWrite,isCheck);
+                            commonWriteSources.insertCardInfo(cardInfos.get(j), reqId, paymentInfoID, isWrite, isCheck);
                         }
                     }
-                } catch (Exception e) {
+                } catch (Exception e)
+                {
                     logger.warn("invoke  commonWriteSources.insertCardInfo failed.: ", e);
                 }
                 return null;
@@ -375,13 +408,5 @@ public class HotelGroupExecutor implements Executor
         //流量数据
         final Map flowDataCopy = BeanMapper.copy(flowData,Map.class);
         commonOperation.writeFlowData(flowDataCopy,writeExcutor,isWrite,isCheck);
-
-        /*try
-        {
-            this.writeExcutor.invokeAll(runs, 2000, TimeUnit.MILLISECONDS);//这里的时间设定
-        } catch (InterruptedException e)
-        {
-            logger.warn("在writeExcutor线程池中执行写数据异常"+e.getMessage());
-        }*/
     }
 }

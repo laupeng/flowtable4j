@@ -115,7 +115,10 @@ public class CommonExecutor
 
                 case 2:
                     //region Description       补充产品
-                    dataFact.mainInfo.putAll(commonOperation.getLastReqID(data));//这里暂时存储OldReqID 在后面从data里面取出来   添加mainInfo信息
+                    Map mainInfo = commonOperation.getLastReqID(data);
+                    if(mainInfo!=null)
+                        dataFact.mainInfo.putAll(mainInfo);//这里暂时存储OldReqID 在后面从data里面取出来   添加mainInfo信息
+
                     dataFact.mainInfo.put(Common.OrderID,getValue(data,Common.OrderID));//添加订单id
                     dataFact.mainInfo.put(Common.CheckType,getValue(data,Common.CheckType));//要改成2
                     final String reqIdStr = getValue(data,"OldReqID");

@@ -62,7 +62,7 @@ public class CommonWriteSources
                 {
                     if(!entry.getValue().equals(getValue(mainInfo,entry.getKey())))
                     {
-                        logger.info("mainInfo信息比对结果"+entry.getKey()+":"+"老系统的值"+entry.getValue()+"新系统的值"+getValue(mainInfo,entry.getKey()));
+                        logger.info("mainInfo信息比对结果    "+entry.getKey()+": "+"老系统的值:"+entry.getValue()+"\t"+"新系统的值:"+getValue(mainInfo,entry.getKey()));
                     }
                 }
             }catch (Exception exp)
@@ -141,7 +141,7 @@ public class CommonWriteSources
                 {
                     if(!entry.getValue().equals(getValue(contactInfo,entry.getKey())))
                     {
-                        logger.info("contactInfo信息比对结果"+entry.getKey()+":"+"老系统的值"+entry.getValue()+"新系统的值"+getValue(contactInfo,entry.getKey()));
+                        logger.info("contactInfo信息比对结果    "+entry.getKey()+": "+"老系统的值:"+entry.getValue()+"\t"+"新系统的值:"+getValue(contactInfo,entry.getKey()));
                     }
                 }
             }
@@ -199,7 +199,7 @@ public class CommonWriteSources
                 {
                     if(!entry.getValue().equals(getValue(userInfo,entry.getKey())))
                     {
-                        logger.info("userInfo信息比对结果"+entry.getKey()+":"+"老系统的值"+entry.getValue()+"新系统的值"+getValue(userInfo,entry.getKey()));
+                        logger.info("userInfo信息比对结果    "+entry.getKey()+": "+"老系统的值:"+entry.getValue()+"\t"+"新系统的值:"+getValue(userInfo,entry.getKey()));
                     }
                 }
             }
@@ -263,7 +263,7 @@ public class CommonWriteSources
                 {
                     if(!entry.getValue().equals(getValue(ipInfo,entry.getKey())))
                     {
-                        logger.info("ipInfo信息比对结果"+entry.getKey()+":"+"老系统的值"+entry.getValue()+"新系统的值"+getValue(ipInfo,entry.getKey()));
+                        logger.info("ipInfo信息比对结果    "+entry.getKey()+": "+"老系统的值:"+entry.getValue()+"\t"+"新系统的值:"+getValue(ipInfo,entry.getKey()));
                     }
                 }
             }
@@ -313,7 +313,7 @@ public class CommonWriteSources
                 {
                     if(!entry.getValue().equals(getValue(otherInfo,entry.getKey())))
                     {
-                        logger.info("otherInfo信息比对结果"+entry.getKey()+":"+"老系统的值"+entry.getValue()+"新系统的值"+getValue(otherInfo,entry.getKey()));
+                        logger.info("otherInfo信息比对结果    "+entry.getKey()+": "+"老系统的值:"+entry.getValue()+"\t"+"新系统的值:"+getValue(otherInfo,entry.getKey()));
                     }
                 }
             }
@@ -362,7 +362,7 @@ public class CommonWriteSources
                 {
                     if(!entry.getValue().equals(getValue(corporationInfo,entry.getKey())))
                     {
-                        logger.info("corporationInfo信息比对结果"+entry.getKey()+":"+"老系统的值"+entry.getValue()+"新系统的值"+getValue(corporationInfo,entry.getKey()));
+                        logger.info("corporationInfo信息比对结果    "+entry.getKey()+": "+"老系统的值:"+entry.getValue()+"\t"+"新系统的值:"+getValue(corporationInfo,entry.getKey()));
                     }
                 }
             }
@@ -410,7 +410,7 @@ public class CommonWriteSources
                 {
                     if(!entry.getValue().equals(getValue(deviceIDInfo,entry.getKey())))
                     {
-                        logger.info("deviceIDInfo信息比对结果"+entry.getKey()+":"+"老系统的值"+entry.getValue()+"新系统的值"+getValue(deviceIDInfo,entry.getKey()));
+                        logger.info("deviceIDInfo信息比对结果    "+entry.getKey()+": "+"老系统的值:"+entry.getValue()+"\t"+"新系统的值:"+getValue(deviceIDInfo,entry.getKey()));
                     }
                 }
             }
@@ -460,7 +460,7 @@ public class CommonWriteSources
                 {
                     if(!entry.getValue().equals(getValue(paymentInfo,entry.getKey())))
                     {
-                        logger.info("paymentInfo信息比对结果"+entry.getKey()+":"+"老系统的值"+entry.getValue()+"新系统的值"+getValue(paymentInfo,entry.getKey()));
+                        logger.info("paymentInfo信息比对结果    "+entry.getKey()+": "+"老系统的值:"+entry.getValue()+"\t"+"新系统的值:"+getValue(paymentInfo,entry.getKey()));
                     }
                 }
             }
@@ -512,7 +512,7 @@ public class CommonWriteSources
                 {
                     if(!entry.getValue().equals(getValue(cardInfo,entry.getKey())))
                     {
-                        logger.info("cardInfo信息比对结果"+entry.getKey()+":"+"老系统的值"+entry.getValue()+"新系统的值"+getValue(cardInfo,entry.getKey()));
+                        logger.info("cardInfo信息比对结果    "+entry.getKey()+": "+"老系统的值:"+entry.getValue()+"\t"+"新系统的值:"+getValue(cardInfo,entry.getKey()));
                     }
                 }
             }
@@ -582,7 +582,7 @@ public class CommonWriteSources
                 {
                     if(!entry.getValue().equals(getValue(paymentMainInfo,entry.getKey())))
                     {
-                        logger.info("cardInfo信息比对结果"+entry.getKey()+":"+"老系统的值"+entry.getValue()+"新系统的值"+getValue(paymentMainInfo,entry.getKey()));
+                        logger.info("cardInfo信息比对结果    "+entry.getKey()+": "+"老系统的值:"+entry.getValue()+"\t"+"新系统的值:"+getValue(paymentMainInfo,entry.getKey()));
                     }
                 }
             }
@@ -637,11 +637,11 @@ public class CommonWriteSources
             {
                 if(!getValue(oldMainInfo,field1).equals(fieldValue1))
                 {
-                    logger.info(tableName+"信息比对结果"+field1+":"+"老系统的值"+getValue(oldMainInfo,field1)+"新系统的值"+fieldValue1);
+                    logger.info(tableName+"信息比对结果    "+field1+": "+"老系统的值:"+getValue(oldMainInfo,field1)+"\t"+"新系统的值:"+fieldValue1);
                 }
                 if(!getValue(oldMainInfo,field2).equals(fieldValue2))
                 {
-                    logger.info(tableName+"信息比对结果"+field2+":"+"老系统的值"+getValue(oldMainInfo,field2)+"新系统的值"+fieldValue2);
+                    logger.info(tableName+"信息比对结果    "+field2+": "+"老系统的值:"+getValue(oldMainInfo,field2)+"\t"+"新系统的值:"+fieldValue2);
                 }
             }
         }

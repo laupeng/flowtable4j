@@ -419,7 +419,6 @@ public class CommonOperation
                 final String StatisticTableName = flowRule.get("StatisticTableName").toString();
                 final String KeyFieldName1 = flowRule.get("KeyFieldID1").toString();
                 final String KeyFieldName2 = flowRule.get("KeyFieldID2").toString();
-                logger.info("写入流量表："+StatisticTableName+"\t"+KeyFieldName1+"\t"+KeyFieldName2);
                 excutor.submit(new Callable<DataFact>() {
                 @Override
                 public DataFact call() throws Exception {

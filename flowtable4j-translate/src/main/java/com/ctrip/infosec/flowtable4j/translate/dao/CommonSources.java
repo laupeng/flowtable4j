@@ -314,7 +314,7 @@ public class CommonSources
                             "join Def_RuleMatchField f1 (nolock) on t.KeyFieldID1 = f1.FieldID " +
                             "join Def_RuleMatchField f2 (nolock) on t.KeyFieldID2 = f2.FieldID " +
                             "where f2.ColumnName='OriginalRisklevel' and  f1.ColumnName= "+key +
-                            "and TableType =1 and t.Active = 'T' and  orderType = 0 ";//添加key来关联字段
+                            " and TableType =1 and t.Active = 'T' and  orderType = 0 ";//添加key来关联字段
                     allTableNames = cardRiskDBTemplate.queryForList(commandText);
                     CacheFlowRuleData.originalRisklevel.put(key,allTableNames);//添加到缓存
                 }
