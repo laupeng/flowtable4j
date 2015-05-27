@@ -543,7 +543,7 @@ public class CommonExecutor
             //InfoSecurity_CardInfo
             //     PaymentInfoList
             //PaymentInfo(Map) ; CardInfoList(List)
-            List<Map> paymentInfos = (List<Map>)data.get(Common.PaymentInfos);//注意这个字段的名字和报文的一致
+            List<Map> paymentInfos = dataFact.paymentInfoList;
             if(paymentInfos !=null && paymentInfos.size()>0)
             for(Map paymentInfo : paymentInfos)
             {
