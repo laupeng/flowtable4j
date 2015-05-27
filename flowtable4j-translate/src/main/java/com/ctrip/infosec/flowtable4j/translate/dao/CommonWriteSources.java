@@ -106,12 +106,12 @@ public class CommonWriteSources
                    cs.setString("OrderProductName",getValue(mainInfo,"OrderProductName"));
                    String PayExpiryDate = getValue(mainInfo,"PayExpiryDate");
                    if(PayExpiryDate.isEmpty())
-                       PayExpiryDate = null;
+                       PayExpiryDate = "NULL";
                    cs.setString("PayExpiryDate",PayExpiryDate);
                    cs.setString("PreAuthorizedAmount",getValue(mainInfo,"PreAuthorizedAmount"));
                    String RiskCountrolDeadline = getValue(mainInfo,"RiskCountrolDeadline");
                    if(PayExpiryDate.isEmpty())
-                       RiskCountrolDeadline = null;
+                       RiskCountrolDeadline = "NULL";
                    cs.setString("RiskCountrolDeadline",RiskCountrolDeadline);
                    cs.setString("TotalDiscountAmount",getValue(mainInfo,"TotalDiscountAmount"));
                    cs.setString("Currency",getValue(mainInfo,"Currency"));
