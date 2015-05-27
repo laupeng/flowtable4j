@@ -58,7 +58,7 @@ public class DataProxySourcesTest
         Map result = DataProxySources.queryForOne(serviceName, operationName, params);
         System.out.println(myJSON.toPrettyJSONString(result));*/
 
-        String serviceName = "UserProfileService";
+       /* String serviceName = "UserProfileService";
         String operationName = "DataQuery";
         List tagContents = new ArrayList();
         tagContents.add("CUSCHARACTER");
@@ -66,7 +66,7 @@ public class DataProxySourcesTest
         params.put("uid","test111111");
         params.put("tagNames",tagContents);
 
-        Map uidInfo = DataProxySources.queryForMap(serviceName, operationName, params);
+        Map uidInfo = DataProxySources.queryForMap(serviceName, operationName, params);*/
 
         /*String serviceName1 = "MobilePhoneService";
         String operationName1 = "getMobileArea";
@@ -74,11 +74,11 @@ public class DataProxySourcesTest
          Map result = DataProxySources.queryForOne(serviceName, operationName, params);
         System.out.println(myJSON.toPrettyJSONString(result));*/
 
-        /*String serviceName = "CRMService";
+        String serviceName = "CRMService";
         String operationName = "getMemberInfo";
         Map params = ImmutableMap.of("uid", "test111111");
          Map result = DataProxySources.queryForMap(serviceName, operationName, params);
-        System.out.println(myJSON.toPrettyJSONString(result));*/
+        System.out.println(myJSON.toPrettyJSONString(result));
 
         /*String serviceName = "AirPortService";
         String operationName = "getAirPortCity";

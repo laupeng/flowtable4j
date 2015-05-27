@@ -629,6 +629,8 @@ public class CommonWriteSources
         final String reqId = getValue(flowInfo, Common.ReqID);
         final String fieldValue1 = getValue(flowInfo,field1);
         final String fieldValue2 = getValue(flowInfo,field2);
+        if(fieldValue1.isEmpty() || fieldValue2.isEmpty())
+            return;
         try{
         if(isCheck)
         {

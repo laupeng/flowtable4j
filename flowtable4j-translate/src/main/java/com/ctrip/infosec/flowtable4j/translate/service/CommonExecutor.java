@@ -514,6 +514,10 @@ public class CommonExecutor
         Map<String,Object> flowData = new HashMap();
         try{
             logger.info("开始构造"+data.get("OrderID")+"流量表数据");
+            //公共属性赋值
+            flowData.put("ClientID",getValue(dataFact.mainInfo,"ClientID"));
+            flowData.put("OrderType",getValue(dataFact.mainInfo,"OrderType"));
+            flowData.put("SubOrderType",getValue(dataFact.mainInfo,"SubOrderType"));
             //InfoSecurity_MainInfo
             flowData.put("OrderId",getValue(dataFact.mainInfo,Common.OrderID));
             flowData.put("Amount",getValue(dataFact.mainInfo,Common.Amount));
@@ -539,7 +543,7 @@ public class CommonExecutor
             //InfoSecurity_CardInfo
             //     PaymentInfoList
             //PaymentInfo(Map) ; CardInfoList(List)
-            List<Map> paymentInfos = (List<Map>)data.get(Common.PaymentInfoList);
+            List<Map> paymentInfos = (List<Map>)data.get(Common.PaymentInfos);//注意这个字段的名字和报文的一致
             if(paymentInfos !=null && paymentInfos.size()>0)
             for(Map paymentInfo : paymentInfos)
             {
@@ -557,13 +561,11 @@ public class CommonExecutor
                     flowData.put("CardBinIssue",getValue(cardInfoFirst,Common.CardBinIssue));
                     flowData.put("CardBin",getValue(cardInfoFirst,Common.CardBin));
                     flowData.put("CardHolder",getValue(cardInfoFirst,Common.CardHolder));
-//                    flowData.putAll(cardInfoFirst);
                     break;
                 }
             }
 
             //InfoSecurity_ContactInfo
-//            flowData.putAll(dataFact.contactInfo);
             flowData.put("MobilePhone",getValue(dataFact.contactInfo,Common.MobilePhone));
             flowData.put("MobilePhoneCity",getValue(dataFact.contactInfo,Common.MobilePhoneCity));
             flowData.put("ContactEMail",getValue(dataFact.contactInfo,Common.ContactEMail));
