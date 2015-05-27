@@ -181,9 +181,8 @@ public class CommonExecutor
 
                     //补充支付信息
                     commonOperation.fillPaymentInfo0(dataFact,data);//和checkType = 0的补充支付信息一样
-                    
+
                     //paymentMainInfo
-                    //final String lastReq_m = getValue(data, Common.ReqID);
                     final DataFact dataFactCopy_M = new DataFact();
                     runs.add(new Callable<DataFact>() {
                         @Override
@@ -519,7 +518,7 @@ public class CommonExecutor
             flowData.put("OrderType",getValue(dataFact.mainInfo,"OrderType"));
             flowData.put("SubOrderType",getValue(dataFact.mainInfo,"SubOrderType"));
             //InfoSecurity_MainInfo
-            flowData.put("OrderId",getValue(dataFact.mainInfo,Common.OrderID));
+            flowData.put("OrderId",getValue(dataFact.mainInfo, Common.OrderID));
             flowData.put("Amount",getValue(dataFact.mainInfo,Common.Amount));
             flowData.put("CheckType",getValue(dataFact.mainInfo,Common.CheckType));
             flowData.put("Serverfrom",getValue(dataFact.mainInfo,Common.Serverfrom));
