@@ -313,9 +313,9 @@ public class CommonSources
                             "from Def_RuleStatisticTable t with (nolock) " +
                             "join Def_RuleMatchField f1 (nolock) on t.KeyFieldID1 = f1.FieldID " +
                             "join Def_RuleMatchField f2 (nolock) on t.KeyFieldID2 = f2.FieldID " +
-                            "where f2.ColumnName='OriginalRisklevel' and  f1.ColumnName= '"+key +
-                            "' and TableType =1 and t.Active = 'T' and  orderType = 0 ";//添加key来关联字段
-                    allTableNames = cardRiskDBTemplate.queryForList(commandText);
+                            "where f2.ColumnName='OriginalRisklevel' and  f1.ColumnName= ?" +
+                            " and TableType =1 and t.Active = 'T' and  orderType = 0 ";//添加key来关联字段
+                    allTableNames = cardRiskDBTemplate.queryForList(commandText,key);
                     CacheFlowRuleData.originalRisklevel.put(key,allTableNames);//添加到缓存
                 }
                 //先取出出所有的表名称
@@ -327,10 +327,10 @@ public class CommonSources
                     //固定的值195分
                     String tableName = getValue(columnValue,"StatisticTableName");//columnValue.get("StatisticTableName") == null ? "" : columnValue.get("StatisticTableName").toString();
 
-                    String commandText1 = "select count(distinct originalrisklevel) from RiskCtrlPreProcDB..? " +
-                            " with (nolock) where ?" +" = ?"+" and originalrisklevel>=195 and CreateDate>= ?"+" and CreateDate<= ?";
+                    String commandText1 = "select count(distinct originalrisklevel) from "+tableName +
+                            " with(nolock) where "+key+" = ?"+" and originalrisklevel>=195 and CreateDate>=?"+" and CreateDate<=?";
                     long test1 = System.currentTimeMillis();
-                    countValue = riskCtrlPreProcDBTemplate.queryForObject(commandText1, Integer.class,tableName,key,value,timeLimitStr,nowTimeStr);
+                    countValue = riskCtrlPreProcDBTemplate.queryForObject(commandText1, Integer.class,value,timeLimitStr,nowTimeStr);
                     logger.info("。。。。。。。。。。。。。。riskCtrlPreProcDBTemplate时间："+(System.currentTimeMillis()-test1));
                     if(countValue>0)
                         return  countValue;
