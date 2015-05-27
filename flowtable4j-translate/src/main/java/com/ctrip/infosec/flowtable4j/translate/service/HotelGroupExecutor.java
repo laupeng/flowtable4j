@@ -147,7 +147,6 @@ public class HotelGroupExecutor implements Executor
 
             //预处理数据写到数据库
             flowData.put(Common.OrderType,data.get(Common.OrderType));
-            logger.info("dealInfo\t"+ Json.toPrettyJSONString(dataFact.dealInfo));
             logger.info("mainInfo\t"+ Json.toPrettyJSONString(dataFact.mainInfo));
             logger.info("contactInfo\t"+ Json.toPrettyJSONString(dataFact.contactInfo));
             logger.info("userInfo\t"+ Json.toPrettyJSONString(dataFact.userInfo));
@@ -257,9 +256,7 @@ public class HotelGroupExecutor implements Executor
         flowData.put(Common.ReqID,reqId);
 
         final DataFact dataFactCopy = BeanMapper.copy(dataFact,DataFact.class);
-        List<Callable<DataFact>> runs = Lists.newArrayList();
-
-        runs.add(new Callable<DataFact>() {
+        writeExcutor.submit(new Callable<DataFact>() {
             @Override
             public DataFact call() throws Exception {
                 try {
@@ -271,7 +268,7 @@ public class HotelGroupExecutor implements Executor
             }
         });
 
-        runs.add(new Callable<DataFact>() {
+        writeExcutor.submit(new Callable<DataFact>() {
             @Override
             public DataFact call() throws Exception {
                 try {
@@ -283,7 +280,7 @@ public class HotelGroupExecutor implements Executor
             }
         });
 
-        runs.add(new Callable<DataFact>() {
+        writeExcutor.submit(new Callable<DataFact>() {
             @Override
             public DataFact call() throws Exception {
                 try {
@@ -295,7 +292,7 @@ public class HotelGroupExecutor implements Executor
             }
         });
 
-        runs.add(new Callable<DataFact>() {
+        writeExcutor.submit(new Callable<DataFact>() {
             @Override
             public DataFact call() throws Exception {
                 try {
@@ -307,7 +304,7 @@ public class HotelGroupExecutor implements Executor
             }
         });
 
-        runs.add(new Callable<DataFact>() {
+        writeExcutor.submit(new Callable<DataFact>() {
             @Override
             public DataFact call() throws Exception {
                 try {
@@ -318,7 +315,7 @@ public class HotelGroupExecutor implements Executor
                 return null;
             }
         });
-        runs.add(new Callable<DataFact>() {
+        writeExcutor.submit(new Callable<DataFact>() {
             @Override
             public DataFact call() throws Exception {
                 try {
@@ -330,7 +327,7 @@ public class HotelGroupExecutor implements Executor
             }
         });
 
-        runs.add(new Callable<DataFact>() {
+        writeExcutor.submit(new Callable<DataFact>() {
         @Override
         public DataFact call() throws Exception {
             try {
@@ -342,7 +339,7 @@ public class HotelGroupExecutor implements Executor
         }
     });
 
-        runs.add(new Callable<DataFact>() {
+        writeExcutor.submit(new Callable<DataFact>() {
             @Override
             public DataFact call() throws Exception {
                 try {
@@ -354,7 +351,7 @@ public class HotelGroupExecutor implements Executor
             }
         });
 
-        runs.add(new Callable<DataFact>() {
+        writeExcutor.submit(new Callable<DataFact>() {
             @Override
             public DataFact call() throws Exception {
                 try {
@@ -377,14 +374,14 @@ public class HotelGroupExecutor implements Executor
 
         //流量数据
         final Map flowDataCopy = BeanMapper.copy(flowData,Map.class);
-        commonOperation.writeFlowData(flowDataCopy,runs,isWrite,isCheck);
+        commonOperation.writeFlowData(flowDataCopy,writeExcutor,isWrite,isCheck);
 
-        try
+        /*try
         {
             this.writeExcutor.invokeAll(runs, 2000, TimeUnit.MILLISECONDS);//这里的时间设定
         } catch (InterruptedException e)
         {
             logger.warn("在writeExcutor线程池中执行写数据异常"+e.getMessage());
-        }
+        }*/
     }
 }

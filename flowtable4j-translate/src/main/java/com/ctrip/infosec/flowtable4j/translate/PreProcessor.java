@@ -10,9 +10,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * Created by lpxie on 15-3-31.
@@ -22,7 +20,8 @@ public class PreProcessor
 {
     private Logger logger = LoggerFactory.getLogger(PreProcessor.class);
     private ThreadPoolExecutor excutor = new ThreadPoolExecutor(64, 507, 60, TimeUnit.SECONDS, new SynchronousQueue(), new ThreadPoolExecutor.CallerRunsPolicy());
-    private ThreadPoolExecutor writeExcutor = new ThreadPoolExecutor(2, 5, 60, TimeUnit.SECONDS, new SynchronousQueue(), new ThreadPoolExecutor.CallerRunsPolicy());
+    BlockingQueue<Runnable> queue = new LinkedBlockingQueue<Runnable>();
+    private ThreadPoolExecutor writeExcutor = new ThreadPoolExecutor(2, 5, 60, TimeUnit.SECONDS, queue);
     @Autowired
     HotelGroupExecutor hotelGroupExecutor;
     @Autowired

@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 import java.text.ParseException;
 import java.util.*;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -391,7 +392,7 @@ public class CommonOperation
     }
 
     //写流量数据到数据库
-    public void writeFlowData(final Map flowData,List<Callable<DataFact>> runs,final boolean isWrite,final boolean isCheck)
+    public void writeFlowData(final Map flowData,ThreadPoolExecutor excutor,final boolean isWrite,final boolean isCheck)
     {
         final String orderType = getValue(flowData,Common.OrderType);
         if(orderType.isEmpty())
@@ -419,7 +420,7 @@ public class CommonOperation
                 final String KeyFieldName1 = flowRule.get("KeyFieldID1").toString();
                 final String KeyFieldName2 = flowRule.get("KeyFieldID2").toString();
                 logger.info("写入流量表："+StatisticTableName+"\t"+KeyFieldName1+"\t"+KeyFieldName2);
-                runs.add(new Callable<DataFact>() {
+                excutor.submit(new Callable<DataFact>() {
                 @Override
                 public DataFact call() throws Exception {
                     commonWriteSources.insertFlowInfo(flowData, KeyFieldName1, KeyFieldName2, StatisticTableName,isWrite,isCheck);
