@@ -38,7 +38,6 @@ public class CommonWriteSources
     JdbcTemplate cardRiskDBTemplate = null;
     JdbcTemplate riskCtrlPreProcDBTemplate = null;
     JdbcTemplate cUSRATDBTemplate = null;
-
     /**
      * 初始化jndi
      */
@@ -675,5 +674,4 @@ public class CommonWriteSources
                 }
         });
     }
-
 }
