@@ -648,12 +648,14 @@ public class CommonExecutor
             //region Description    这里面是计算一些属性的风险值 这个操作比较耗时，所以改进执行方式
             final Map flowDataCopy03 = new HashMap();
             final String ccardNoCode = getValue(flowData,Common.CCardNoCode);
+            final String cardNoRefID = getValue(flowData,"cardNoRefID");
             final Map<String,Object> temp = new HashMap();
             final String orderType = getValue(data,Common.OrderType);
             temp.put("Uid",getValue(dataFact.userInfo,Common.Uid));
             temp.put("ContactEMail",getValue(dataFact.contactInfo,Common.ContactEMail));
             temp.put("MobilePhone",getValue(dataFact.contactInfo, Common.MobilePhone));
             temp.put("CCardNoCode",ccardNoCode);
+            temp.put("cardNoRefID",cardNoRefID);
             runsF.add(new Callable<Map>() {
                 @Override
                 public Map call() throws Exception {
@@ -665,7 +667,6 @@ public class CommonExecutor
                         calendar.setTime(date);
                         calendar.add(calendar.MINUTE, -720);//往前720分钟
                         String timeLimitStr = format1.format(calendar.getTime());
-
                         int count = commonSources.getOriginalRisklevel(temp,timeLimitStr,nowTimeStr,orderType);
                         flowDataCopy03.put(Common.OriginalRisklevelCount,count);
                         return flowDataCopy03;
