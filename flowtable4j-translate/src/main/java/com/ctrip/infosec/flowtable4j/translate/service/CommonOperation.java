@@ -370,24 +370,36 @@ public class CommonOperation
     //通过uid补充用户信息
     public void fillUserInfo(DataFact dataFact,String uid)
     {
-        String serviceName = "CRMService";
+        String contentType = "Customer.User.GetMemberInfo";
+        String contentBody = "<MemberInfoRequest><Uid>" + uid + "</Uid><Type>M</Type></MemberInfoRequest>";
+        String xpath = "/Response/MemberInfoResponse";
+        Map crmInfo = null;
+        try
+        {
+            crmInfo = esbSources.getResponse(contentBody,contentType,xpath);
+        } catch (DocumentException e)
+        {
+            logger.warn("查询用户"+uid+"的userInfo的信息异常"+e.getMessage());
+        }
+
+        /*String serviceName = "CRMService";
         String operationName = "getMemberInfo";
         Map params = ImmutableMap.of("uid", uid);//根据uid取值
-        Map crmInfo = DataProxySources.queryForMap(serviceName, operationName, params);
+        Map crmInfo = DataProxySources.queryForMap(serviceName, operationName, params);//fixme dataProxy的数据不稳定*/
         if(crmInfo !=null && crmInfo.size()>0)
         {
-            dataFact.userInfo.put(Common.RelatedEMail,getValue(crmInfo,"email"));
-            dataFact.userInfo.put(Common.RelatedMobilephone,getValue(crmInfo,"mobilePhone"));
-            dataFact.userInfo.put(Common.BindedEmail,getValue(crmInfo,"bindedEmail"));
-            dataFact.userInfo.put(Common.BindedMobilePhone,getValue(crmInfo,"bindedMobilePhone"));
-            String experience = getValue(crmInfo, "experience");
+            dataFact.userInfo.put(Common.RelatedEMail,getValue(crmInfo,"Email"));
+            dataFact.userInfo.put(Common.RelatedMobilephone,getValue(crmInfo,"MobilePhone"));
+            dataFact.userInfo.put(Common.BindedEmail,getValue(crmInfo,"BindedEmail"));
+            dataFact.userInfo.put(Common.BindedMobilePhone,getValue(crmInfo,"BindedMobilePhone"));
+            String experience = getValue(crmInfo, "Experience");
             if(experience.isEmpty())
                 experience = "0";
             dataFact.userInfo.put(Common.Experience,experience);
-            dataFact.userInfo.put(Common.SignUpDate,getValue(crmInfo,"signupdate"));
-            dataFact.userInfo.put(Common.UserPassword,getValue(crmInfo,"mD5Password"));
-            dataFact.userInfo.put(Common.VipGrade,getValue(crmInfo,"vipGrade"));
-            dataFact.userInfo.put("vip",getValue(crmInfo,"vip"));
+            dataFact.userInfo.put(Common.SignUpDate,getValue(crmInfo,"Signupdate"));
+            dataFact.userInfo.put(Common.UserPassword,getValue(crmInfo,"MD5Password"));
+            dataFact.userInfo.put(Common.VipGrade,getValue(crmInfo,"VipGrade"));
+            dataFact.userInfo.put("vip",getValue(crmInfo,"Vip"));
         }
     }
 

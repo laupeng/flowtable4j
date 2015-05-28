@@ -543,26 +543,31 @@ public class CommonExecutor
             //     PaymentInfoList
             //PaymentInfo(Map) ; CardInfoList(List)
             List<Map> paymentInfos = dataFact.paymentInfoList;
+            String  MergerOrderPrepayType = "|";
             if(paymentInfos !=null && paymentInfos.size()>0)
             for(Map paymentInfo : paymentInfos)
             {
                 Map subPaymentInfo = (Map)paymentInfo.get(Common.PaymentInfo);
                 List<Map> cardInfoList = (List<Map>)paymentInfo.get(Common.CardInfoList);
+                MergerOrderPrepayType += subPaymentInfo.get(Common.PrepayType)+"|";
                 if((getValue(subPaymentInfo,Common.PrepayType).toUpperCase().equals("CCARD")||
                         getValue(subPaymentInfo,Common.PrepayType).toUpperCase().equals("DCARD")) &&
                         cardInfoList.size()>0)
                 {
                     Map cardInfoFirst = cardInfoList.get(0);
                     flowData.put("CCardNoCode",getValue(cardInfoFirst,Common.CCardNoCode));
+                    flowData.put("CardNoRefID",getValue(cardInfoFirst,"CardNoRefID"));
                     flowData.put("CValidityCode",getValue(cardInfoFirst,Common.CValidityCode));
                     flowData.put("CreditCardType",getValue(cardInfoFirst,Common.CreditCardType));
                     flowData.put("IsForigenCard",getValue(cardInfoFirst,Common.IsForigenCard));
                     flowData.put("CardBinIssue",getValue(cardInfoFirst,Common.CardBinIssue));
                     flowData.put("CardBin",getValue(cardInfoFirst,Common.CardBin));
                     flowData.put("CardHolder",getValue(cardInfoFirst,Common.CardHolder));
+                    flowData.put("CardBinOrderID",getValue(cardInfoFirst,"CardBin")+getValue(dataFact.mainInfo,Common.OrderID));
                     break;
                 }
             }
+            flowData.put("MergerOrderPrepayType",MergerOrderPrepayType);
 
             //InfoSecurity_ContactInfo
             flowData.put("MobilePhone",getValue(dataFact.contactInfo,Common.MobilePhone));
@@ -584,6 +589,8 @@ public class CommonExecutor
             flowData.put("UserPassword",getValue(dataFact.userInfo,Common.UserPassword));
             flowData.put("Experience",getValue(dataFact.userInfo,Common.Experience));
             flowData.put("BindedEmail",getValue(dataFact.userInfo,Common.BindedEmail));
+            flowData.put("Uid",getValue(dataFact.userInfo,Common.Uid));
+            flowData.put("VipGrade",getValue(dataFact.userInfo,Common.VipGrade));
 
             //InfoSecurity_IPInfo
 //            flowData.putAll(dataFact.ipInfo);

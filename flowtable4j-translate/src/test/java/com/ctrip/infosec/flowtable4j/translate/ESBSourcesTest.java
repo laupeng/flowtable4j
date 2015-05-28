@@ -21,13 +21,25 @@ public class ESBSourcesTest
     public void testConstructXml()
     {
         ESBSources esbSources = new ESBSources();
+        esbSources.init();
+        String contentType = "Customer.User.GetMemberInfo";
+        String contentBody = "<MemberInfoRequest><Uid>" + "test111111" + "</Uid><Type>M</Type></MemberInfoRequest>";
+        String xpath = "/Response/MemberInfoResponse";
+        Map crmInfo = null;
+        try
+        {
+            crmInfo = esbSources.getResponse(contentBody,contentType,xpath);
+        } catch (DocumentException e)
+        {
+            //logger.warn("查询用户"+uid+"的userInfo的信息异常"+e.getMessage());
+        }
 
-        String contentType = "AccCash.CreditCard.GetCreditCardInfo";
+        /*String contentType = "AccCash.CreditCard.GetCreditCardInfo";
         String cardInfoId = "30091142";
         String contentBody = "<GetCreditCardInfoRequest><CardInfoId>" + cardInfoId + "</CardInfoId></GetCreditCardInfoRequest>";
         String requestContentXml = esbSources.constructXml(contentBody,contentType);
         Assert.assertNotNull(requestContentXml);
-        Assert.assertTrue(!requestContentXml.isEmpty());
+        Assert.assertTrue(!requestContentXml.isEmpty());*/
     }
 
     @Test
