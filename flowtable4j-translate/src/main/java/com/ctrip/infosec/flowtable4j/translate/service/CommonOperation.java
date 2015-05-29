@@ -143,7 +143,7 @@ public class CommonOperation
         {
             try{
                 long reqId = Long.parseLong(getValue(mainInfo, Common.ReqID));
-                data.put("OldReqID",reqId);//上一次写入产品信息的reqId
+                data.put(Common.OldReqID,reqId);//上一次写入产品信息的reqId
             }catch (Exception exp)
             {
                 logger.warn("getLastReqID获取lastReqID异常:",exp);
@@ -385,7 +385,7 @@ public class CommonOperation
         /*String serviceName = "CRMService";
         String operationName = "getMemberInfo";
         Map params = ImmutableMap.of("uid", uid);//根据uid取值
-        Map crmInfo = DataProxySources.queryForMap(serviceName, operationName, params);//fixme dataProxy的数据不稳定*/
+        Map crmInfo = DataProxySources.queryForMap(serviceName, operationName, params);//fixme dataProxy的数据不稳定,等郁伟那边稳定了再切回来*/
         if(crmInfo !=null && crmInfo.size()>0)
         {
             dataFact.userInfo.put(Common.RelatedEMail,getValue(crmInfo,"Email"));
@@ -425,7 +425,11 @@ public class CommonOperation
         for(Map flowRule : flowRules)
         {
             StatisticTableId = flowRule.get("StatisticTableId").toString();
-            if(isInsertToStaticTable(flowRule,StatisticTableId,flowFilters))
+            /*if(StatisticTableId.equals("78") || StatisticTableId.equals("301") || StatisticTableId.equals("306") || StatisticTableId.equals("2085")
+                    || StatisticTableId.equals("2136"))
+                logger.info("调试这里");*/
+            //fixme 这里验证StatisticTableId是78  301 306 2085 2136
+            if(isInsertToStaticTable(flowData,StatisticTableId,flowFilters))
             {
                 //写到数据库
                 final String StatisticTableName = flowRule.get("StatisticTableName").toString();
@@ -445,6 +449,9 @@ public class CommonOperation
     //判断是否需要写流量表数据
     public boolean isInsertToStaticTable(Map flowData,String id,List<Map<String,Object>> flowFilters)
     {
+        if(id.equals("78") || id.equals("301") || id.equals("306") || id.equals("2085")
+                    || id.equals("2136"))
+                logger.info("调试这里");
         List<Map<String,Object>> newFlowFilters = new ArrayList<Map<String, Object>>();
         boolean isInsert = true;
         for(Map flowFilter:flowFilters)
@@ -457,14 +464,14 @@ public class CommonOperation
         String currentValue = "";
         for(Map flowFilter:newFlowFilters)
         {
-            currentValue = getValue(flowData,getValue(flowFilter,"KeyColumnName"));
+            currentValue = getValue(flowData,getValue(flowFilter,"KeyColumnName")).trim();
             String tempMatchValue = "", tempMatchType = "";
             String matchType = getValue(flowFilter,"MatchType");
             if(matchType.toUpperCase().equals("FEQ")||matchType.toUpperCase().equals("FNE")
                     ||matchType.toUpperCase().equals("FIN")||matchType.toUpperCase().equals("FNA"))
             {
                 tempMatchType = matchType.substring(1,2);
-                tempMatchValue = getValue(flowData,getValue(flowFilter,"MatchValue"));
+                tempMatchValue = getValue(flowData,getValue(flowFilter,"MatchValue")).trim();
                 if(tempMatchValue.isEmpty())
                     return false;
             }else
@@ -541,7 +548,9 @@ public class CommonOperation
             {
                 return matcher.find();
             }
-            else if(matchType.toUpperCase().equals("NA"))
+            else if(matchType.toUpperCase().equals("NA"))//fixme 301的时候  301	UserIPAdd	NA	^(192)|^(10)|^(172)
+            //fixme 306的时候 306	UserIPAdd	NA	^(192)|^(10)|^(172)
+            //fixme 2136的时候 2136	UserIPAdd	NA	^(192)|^(10)|^(172)
             {
                 return !matcher.find();
             }

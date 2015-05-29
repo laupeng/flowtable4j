@@ -387,7 +387,7 @@ public class CommonSources
         long now = System.currentTimeMillis();
         List<Map<String,Object>> flowRuleFilter = null;
         try{
-            String commandText = "select f.StatisticTableID," +
+            String commandText = "select distinct f.StatisticTableID," +
                     "m.ColumnName as KeyColumnName," +
                     "f.MatchType," +
                     "f.MatchValue " +

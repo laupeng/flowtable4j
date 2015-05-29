@@ -134,29 +134,6 @@ public class Common
      * 对应的内容类型是Map
      */
     public static String PaymentInfoByDefault = "PaymentInfoByDefault";
-    //public static String PrepayType = "PrepayType";
-    //public static String Amount = "Amount";
-    //public static String RefNo = "RefNo";
-    /**
-     * 支付信息（PaymentInfoByDefault）的子类
-     * 表示当前支付的卡的信息
-     */
-    /*public static String CreditCardInfo = "CreditCardInfo";
-    public static String CardInfoID = "CardInfoID";
-    public static String CreditCardType = "CreditCardType";
-    public static String InfoID = "InfoID";
-    public static String CValidityCode = "CValidityCode";
-    public static String CCardNoCode = "CCardNoCode";
-    public static String CardHolder = "CardHolder";
-    public static String CardBin = "CardBin";
-    public static String CCardLastNoCode = "CCardLastNoCode";
-    public static String CCardPreNoCode = "CCardPreNoCode";
-    public static String StateName = "StateName";
-    public static String BillingAddress = "BillingAddress";
-    public static String Nationality = "Nationality";
-    public static String Nationalityofisuue = "Nationalityofisuue";
-    public static String BankOfCardIssue = "BankOfCardIssue";
-    public static String IsForigenCard = "IsForigenCard";*/
 
 
     /*下面是衍生字段 主要是给黑白名单统计使用 和给流量统计使用*/
@@ -306,4 +283,7 @@ public class Common
     public static String PayMethod = "PayMethod";
     public static String PayValidationMethod = "PayValidationMethod";
     public static String ValidationFailsReason = "ValidationFailsReason";
+
+    //自己添加的备用字段
+    public static String OldReqID = "OldReqID";
 }

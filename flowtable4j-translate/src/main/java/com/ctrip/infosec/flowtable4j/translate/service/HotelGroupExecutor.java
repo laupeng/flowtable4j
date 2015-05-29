@@ -61,9 +61,9 @@ public class HotelGroupExecutor implements Executor
     @Autowired
     CommonOperation commonOperation;
 
-    public CheckFact executeHotelGroup(Map data,ThreadPoolExecutor excutor,ThreadPoolExecutor writeExcutor,boolean isWrite,boolean isCheck)
+    public CheckFact executeHotelGroup(Map data,ThreadPoolExecutor excutor,ThreadPoolExecutor writeExecutor,boolean isWrite,boolean isCheck)
     {
-        this.writeExcutor = writeExcutor;
+        this.writeExcutor = writeExecutor;
         beforeInvoke();
         DataFact dataFact = new DataFact();
         CheckFact checkFact = new CheckFact();
@@ -121,7 +121,6 @@ public class HotelGroupExecutor implements Executor
             }
 
             //产品信息加到流量实体
-//            flowData.putAll(dataFact.productInfoM);
             flowData.put("Quantity",getValue(dataFact.productInfoM,Common.Quantity));
             flowData.put("City",getValue(dataFact.productInfoM,Common.City));
             flowData.put("ProductID",getValue(dataFact.productInfoM,Common.ProductID));
@@ -173,7 +172,6 @@ public class HotelGroupExecutor implements Executor
 
             logger.info("流量表数据\t"+ Json.toPrettyJSONString(flowData));
             writeDB(data,dataFact, flowData,isWrite,isCheck);//fixme 第一次测试先不写数据库
-
         }catch (Exception exp)
         {
             fault();
@@ -235,7 +233,7 @@ public class HotelGroupExecutor implements Executor
     public void getHotelGroupProductInfo1(DataFact dataFact,Map data)
     {
         //通过lastReqID查询所有订单相关的信息 注意这里是上一次的reqid(当checkType=1的时候)
-        String reqIdStr = getValue(data,"OldReqID");
+        String reqIdStr = getValue(data,Common.OldReqID);
         if(reqIdStr.isEmpty())
             return;
         try{
@@ -244,7 +242,7 @@ public class HotelGroupExecutor implements Executor
                 dataFact.productInfoM.putAll(hotelGroupProduct);
         }catch (Exception exp)
         {
-            logger.warn("获取HotelGroupProductInfo1异常:",exp);
+            logger.warn("获取HotelGroupProductInfo异常:",exp);
         }
     }
 

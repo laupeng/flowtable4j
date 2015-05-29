@@ -82,7 +82,7 @@ public class CommonExecutor
                     //并发执行
                     final DataFact dataFactCopy01 = new DataFact();
                     commonOperation.getLastReqID(data);
-                    final String lastReq = getValue(data, "OldReqID");
+                    final String lastReq = getValue(data,Common.OldReqID);
                     if(lastReq!=null && !lastReq.isEmpty())
                     {
                         runs.add(new Callable<DataFact>() {
@@ -121,7 +121,7 @@ public class CommonExecutor
 
                     dataFact.mainInfo.put(Common.OrderID,getValue(data,Common.OrderID));//添加订单id
                     dataFact.mainInfo.put(Common.CheckType,getValue(data,Common.CheckType));//要改成2
-                    final String reqIdStr = getValue(data,"OldReqID");
+                    final String reqIdStr = getValue(data,Common.OldReqID);
                     final DataFact dataFactCopy001 = new DataFact();
                     runs.add(new Callable<DataFact>() {
                         @Override
@@ -287,7 +287,6 @@ public class CommonExecutor
                     {
                         dataFact.tempInfo.putAll(item.tempInfo);
                     }
-
                 }
                 //endregion
             }
@@ -362,7 +361,6 @@ public class CommonExecutor
             @Override
             public DataFact call() throws Exception {
                 try {
-                    long start = System.currentTimeMillis();
                     commonOperation.fillMobilePhone(dataFactCopy01,mobilePhone);//补充联系人手机对应的省
                     return dataFactCopy01;
                 } catch (Exception e) {
@@ -579,11 +577,9 @@ public class CommonExecutor
             flowData.put(Common.RelatedMobilePhoneProvince,getValue(dataFact.contactInfo,Common.MobilePhoneProvince));
 
             //InfoSecurity_OtherInfo
-//            flowData.putAll(dataFact.otherInfo);
             flowData.put("OrderToSignUpDate",getValue(dataFact.otherInfo,Common.OrderToSignUpDate));
 
             //InfoSecurity_UserInfo
-//            flowData.putAll(dataFact.userInfo);
             flowData.put("CusCharacter",getValue(dataFact.userInfo,Common.CusCharacter));
             flowData.put("BindedMobilePhone",getValue(dataFact.userInfo,Common.BindedMobilePhone));
             flowData.put("UserPassword",getValue(dataFact.userInfo,Common.UserPassword));
@@ -593,7 +589,6 @@ public class CommonExecutor
             flowData.put("VipGrade",getValue(dataFact.userInfo,Common.VipGrade));
 
             //InfoSecurity_IPInfo
-//            flowData.putAll(dataFact.ipInfo);
             flowData.put("UserIPAdd",getValue(dataFact.ipInfo,Common.UserIPAdd));
             flowData.put("UserIPValue",getValue(dataFact.ipInfo,Common.UserIPValue));
             flowData.put("IPCity",getValue(dataFact.ipInfo,Common.IPCity));
@@ -605,7 +600,6 @@ public class CommonExecutor
                 {
                     flowData.put("IPCityName",getValue(ipCityInfo,"CityName"));
                     flowData.put("IPProvince",getValue(ipCityInfo,"ProvinceName"));
-//                    flowData.putAll(ipCityInfo);
                 }
             }
 
@@ -656,7 +650,7 @@ public class CommonExecutor
             //region Description    这里面是计算一些属性的风险值 这个操作比较耗时，所以改进执行方式
             final Map flowDataCopy03 = new HashMap();
             final String ccardNoCode = getValue(flowData,Common.CCardNoCode);
-            final String cardNoRefID = getValue(flowData,"cardNoRefID");
+            final String cardNoRefID = getValue(flowData,"CardNoRefID");
             final Map<String,Object> temp = new HashMap();
             final String orderType = getValue(data,Common.OrderType);
             temp.put("Uid",getValue(dataFact.userInfo,Common.Uid));
@@ -704,7 +698,6 @@ public class CommonExecutor
                     }
                 }
             } catch (Exception e) {
-
             }
             logger.info("第二个线程池执行的时间是："+(System.currentTimeMillis()-t2));
             if (rawResult.size() > 0){

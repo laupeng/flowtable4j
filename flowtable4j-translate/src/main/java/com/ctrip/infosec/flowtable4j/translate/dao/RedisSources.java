@@ -37,7 +37,7 @@ public class RedisSources
         RAppSetting.setCRedisServiceUrl(serviceUrl);
         RAppSetting.setLogging(false);
         try {
-            cacheProvider = CacheFactory.GetProvider(provider);
+            cacheProvider = CacheFactory.GetProvider(provider);//fixme 等服务好了再启动这个服务
         } catch (RuntimeException exp) {
             logger.error("Connect to redis failed by " + exp.getMessage());
         }

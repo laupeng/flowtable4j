@@ -7,6 +7,8 @@ import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
 * Created by lpxie on 15-4-7.
@@ -123,5 +125,35 @@ public class ESBSourcesTest
     public void testMapMerge()
     {
         final long lastReq = Long.parseLong("55555");
+    }
+
+    @Test
+    public void testRegex()
+    {
+        String matchValue = "^(192)|^(10)|^(172)";
+        String currentValue = "127.0.0.1";
+        Pattern pattern = Pattern.compile(matchValue);
+        Matcher matcher = pattern.matcher(currentValue);
+        if(matcher.find())
+            System.out.println(true);
+
+
+        String matchValue1 = "^10";
+        String currentValue1 = "10.0.0.1";
+        Pattern pattern1 = Pattern.compile(matchValue1);
+        Matcher matcher1 = pattern1.matcher(currentValue1);
+        if(matcher1.find())
+            System.out.println(true);
+
+        String matchValue2 = "^(10)";
+        String currentValue2 = "10.0.0.1";
+        Pattern pattern2 = Pattern.compile(matchValue2);
+        Matcher matcher2 = pattern2.matcher(currentValue2);
+        if(matcher2.find())
+            System.out.println(true);
+
+        String testValue = "2";
+        String testValue1 = "2";
+        System.out.print(testValue.equalsIgnoreCase("2"));
     }
 }
