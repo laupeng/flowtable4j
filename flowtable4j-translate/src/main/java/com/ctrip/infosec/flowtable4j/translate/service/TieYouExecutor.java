@@ -4,8 +4,8 @@ import com.ctrip.infosec.flowtable4j.model.BWFact;
 import com.ctrip.infosec.flowtable4j.model.CheckFact;
 import com.ctrip.infosec.flowtable4j.model.CheckType;
 import com.ctrip.infosec.flowtable4j.model.FlowFact;
-import com.ctrip.infosec.flowtable4j.translate.dao.CommonSources;
-import com.ctrip.infosec.flowtable4j.translate.dao.TieYouSources;
+import com.ctrip.infosec.flowtable4j.translate.common.BeanMapper;
+import com.ctrip.infosec.flowtable4j.translate.dao.*;
 import com.ctrip.infosec.flowtable4j.translate.model.Common;
 import com.ctrip.infosec.flowtable4j.translate.model.DataFact;
 import com.ctrip.infosec.flowtable4j.translate.model.HotelGroup;
@@ -18,12 +18,14 @@ import org.springframework.stereotype.Component;
 
 import java.text.ParseException;
 import java.util.*;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import static com.ctrip.infosec.common.SarsMonitorWrapper.afterInvoke;
 import static com.ctrip.infosec.common.SarsMonitorWrapper.beforeInvoke;
 import static com.ctrip.infosec.common.SarsMonitorWrapper.fault;
 import static com.ctrip.infosec.flowtable4j.translate.common.MyDateUtil.getDateAbs;
+import static com.ctrip.infosec.flowtable4j.translate.common.Utils.Json;
 import static com.ctrip.infosec.flowtable4j.translate.common.Utils.getValue;
 import static com.ctrip.infosec.flowtable4j.translate.common.Utils.getValueMap;
 
@@ -34,25 +36,36 @@ import static com.ctrip.infosec.flowtable4j.translate.common.Utils.getValueMap;
 public class TieYouExecutor implements Executor
 {
     private Logger logger = LoggerFactory.getLogger(TieYouExecutor.class);
-    private ThreadPoolExecutor writeExcutor = null;
-    @Autowired
-    CommonExecutor commonExecutor;
+    private ThreadPoolExecutor writeExecutor = null;
     @Autowired
     CommonSources commonSources;
     @Autowired
+    CommonWriteSources commonWriteSources;
+    @Autowired
     TieYouSources tieYouSources;
+    @Autowired
+    TieYouWriteSources tieYouWriteSources;
+    @Autowired
+    RedisSources redisSources;
+    @Autowired
+    ESBSources esbSources;
+    @Autowired
+    DataProxySources dataProxySources;
+    @Autowired
+    CommonExecutor commonExecutor;
+    @Autowired
+    CommonOperation commonOperation;
 
-    public CheckFact executeTieYou(Map data,ThreadPoolExecutor excutor,ThreadPoolExecutor writeExcutor)
+    public CheckFact executeTieYou(Map data,ThreadPoolExecutor executor,ThreadPoolExecutor writeExecutor,boolean isWrite,boolean isCheck)
     {
-        this.writeExcutor = writeExcutor;
+        this.writeExecutor = writeExecutor;
         beforeInvoke();
         DataFact dataFact = new DataFact();
         CheckFact checkFact = new CheckFact();
         try{
             logger.info("开始处理铁友 "+data.get("OrderID").toString()+" 数据");
-
             //一：补充数据
-            commonExecutor.complementData(dataFact,data,excutor);
+            commonExecutor.complementData(dataFact,data,executor);
             dataFact.mainInfo.put(Common.OrderType,18);//添加订单类型 铁友是18
             getOtherInfo(dataFact, data);
             //这里分checkType 0、1和2两种情况
@@ -141,20 +154,56 @@ public class TieYouExecutor implements Executor
             CheckType[] checkTypes = {CheckType.BW,CheckType.FLOWRULE};
 
             BWFact bwFact = new BWFact();
-            bwFact.setOrderType(Integer.parseInt(data.get(HotelGroup.OrderType).toString()));
+            bwFact.setOrderType(Integer.parseInt(data.get(Common.OrderType).toString()));
             bwFact.setContent(bwList);
 
             FlowFact flowFact = new FlowFact();
             flowFact.setContent(flowData);
-            flowFact.setOrderType(Integer.parseInt(data.get(HotelGroup.OrderType).toString()));
+            flowFact.setOrderType(Integer.parseInt(data.get(Common.OrderType).toString()));
 
             checkFact.setBwFact(bwFact);
             checkFact.setFlowFact(flowFact);
             checkFact.setCheckTypes(checkTypes);
-            if(data.get(HotelGroup.ReqID)!=null)
-                checkFact.setReqId(Long.parseLong(data.get(HotelGroup.ReqID).toString()));//reqId如何获取
-
+            if(data.get(Common.ReqID)!=null)
+                checkFact.setReqId(Long.parseLong(data.get(Common.ReqID).toString()));//reqId如何获取
             logger.info(data.get("OrderID").toString()+" 数据处理完毕");
+
+            //预处理数据写到数据库
+            flowData.put(Common.OrderType,data.get(Common.OrderType));
+            logger.info("mainInfo\t"+ Json.toPrettyJSONString(dataFact.mainInfo));
+            logger.info("contactInfo\t"+ Json.toPrettyJSONString(dataFact.contactInfo));
+            logger.info("userInfo\t"+ Json.toPrettyJSONString(dataFact.userInfo));
+            logger.info("ipInfo\t"+ Json.toPrettyJSONString(dataFact.ipInfo));
+            logger.info("corporationInfo\t"+ Json.toPrettyJSONString(dataFact.corporationInfo));
+            if(dataFact.productInfoL != null && dataFact.productInfoL.size()>0)//铁友产品信息是list
+                for (int i = 0; i < dataFact.productInfoL.size(); i++)
+                {
+                    Map<String, Object> tieYouInfo = dataFact.productInfoL.get(i);
+                    Map exRailInfo = getValueMap(tieYouInfo, TieYou.ExRailInfo);
+                    logger.info(i + "\texRailInfo\t" + Json.toPrettyJSONString(exRailInfo));
+                    Map exRailUserInfo = getValueMap(tieYouInfo, TieYou.ExRailUserInfo);
+                    logger.info(i + "\texRailUserInfo\t" + Json.toPrettyJSONString(exRailUserInfo));
+                }
+            logger.info("otherInfo\t"+ Json.toPrettyJSONString(dataFact.otherInfo));
+            logger.info("DIDInfo\t"+ Json.toPrettyJSONString(dataFact.DIDInfo));
+
+            if(dataFact.paymentInfoList != null && dataFact.paymentInfoList.size()>0)
+                for(int i=0;i<dataFact.paymentInfoList.size();i++)
+                {
+                    Map<String,Object> paymentInfo = dataFact.paymentInfoList.get(i);
+                    logger.info(i + "\tpaymentInfo\t" + Json.toPrettyJSONString(paymentInfo.get("PaymentInfo")));
+                    List<Map<String,Object>> cardInfos = (List<Map<String,Object>>)paymentInfo.get(Common.CardInfoList);
+                    for(int j=0;j<cardInfos.size();j++)
+                    {
+                        logger.info(i + "\t" + j + "\tcardInfo\t" + Json.toPrettyJSONString(cardInfos.get(j)));
+                    }
+                }
+            logger.info("paymentMainInfo\t"+ Json.toPrettyJSONString(dataFact.paymentMainInfo));
+
+            //判断是否写入数据
+            // boolean isWrite = commonSources.getIsWrite("TieYouPreByNewSystem");//fixme 这个在上线后把注释去掉
+            logger.info("流量表数据\t"+ Json.toPrettyJSONString(flowData));
+            writeDB(data,dataFact, flowData,isWrite,isCheck);
         }catch (Exception exp)
         {
             fault();
@@ -239,5 +288,195 @@ public class TieYouExecutor implements Executor
             subProductInfo.put(TieYou.ExRailUserInfo,exRailUserInfo);
             dataFact.productInfoL.add(subProductInfo);
         }
+    }
+
+    public void writeDB(Map data,DataFact dataFact,Map flowData,final boolean isWrite,final boolean isCheck)
+    {
+        logger.info(getValue(dataFact.mainInfo,Common.OrderID)+"开始写预处理数据和流量表数据到数据库");
+        //下面输出当前订单的预处理数据到日志 给测试用 方便他们做对比
+        final String reqId = getValue(data,Common.ReqID);
+        flowData.put(Common.ReqID,reqId);
+
+        final DataFact dataFactCopy = BeanMapper.copy(dataFact, DataFact.class);
+        writeExecutor.submit(new Callable<DataFact>() {
+            @Override
+            public DataFact call() throws Exception {
+                try {
+                    commonWriteSources.insertMainInfo(dataFactCopy.mainInfo,reqId,isWrite,isCheck);
+                } catch (Exception e) {
+                    logger.warn("invoke commonWriteSources.insertMainInfo failed.: ", e);
+                }
+                return null;
+            }
+        });
+
+        writeExecutor.submit(new Callable<DataFact>()
+        {
+            @Override
+            public DataFact call() throws Exception
+            {
+                try
+                {
+                    commonWriteSources.insertContactInfo(dataFactCopy.contactInfo, reqId, isWrite, isCheck);
+                } catch (Exception e)
+                {
+                    logger.warn("invoke commonWriteSources.insertContactInfo failed.: ", e);
+                }
+                return null;
+            }
+        });
+
+        writeExecutor.submit(new Callable<DataFact>()
+        {
+            @Override
+            public DataFact call() throws Exception
+            {
+                try
+                {
+                    commonWriteSources.insertUserInfo(dataFactCopy.userInfo, reqId, isWrite, isCheck);
+                } catch (Exception e)
+                {
+                    logger.warn("invoke commonWriteSources.insertContactInfo failed.: ", e);
+                }
+                return null;
+            }
+        });
+
+        writeExecutor.submit(new Callable<DataFact>()
+        {
+            @Override
+            public DataFact call() throws Exception
+            {
+                try
+                {
+                    commonWriteSources.insertIpInfo(dataFactCopy.ipInfo, reqId, isWrite, isCheck);
+                } catch (Exception e)
+                {
+                    logger.warn("invoke commonWriteSources.insertIpInfo failed.: ", e);
+                }
+                return null;
+            }
+        });
+
+        writeExecutor.submit(new Callable<DataFact>()
+        {
+            @Override
+            public DataFact call() throws Exception
+            {
+                try
+                {
+                    commonWriteSources.insertCorporationInfo(dataFactCopy.corporationInfo, reqId, isWrite, isCheck);
+                } catch (Exception e)
+                {
+                    logger.warn("invoke commonWriteSources.corporationInfo failed.: ", e);
+                }
+                return null;
+            }
+        });
+
+        writeExecutor.submit(new Callable<DataFact>()
+        {
+            @Override
+            public DataFact call() throws Exception
+            {
+                try
+                {
+                    for (int i = 0; i < dataFactCopy.productInfoL.size(); i++)
+                    {
+                        Map<String, Object> tieYouInfo = dataFactCopy.productInfoL.get(i);
+                        String ExRailInfoID = "";
+                        Map exRailInfo = getValueMap(tieYouInfo, TieYou.ExRailInfo);
+                        if(exRailInfo.size()>0)
+                        {ExRailInfoID = tieYouWriteSources.insertTieYouExRailInfo(exRailInfo,reqId, isWrite, isCheck);}
+
+                        Map exRailUserInfo = getValueMap(tieYouInfo, TieYou.ExRailUserInfo);
+                        exRailUserInfo.put("ExRailInfoID",ExRailInfoID);
+                        if(exRailUserInfo.size()>0 && !ExRailInfoID.isEmpty())
+                        {tieYouWriteSources.insertTieYouExRailInfo(exRailUserInfo, reqId, isWrite, isCheck);}
+                    }
+                } catch (Exception e)
+                {
+                    logger.warn("invoke  tieYouWriteSources.insertTieInfo failed.: ", e);
+                }
+                return null;
+            }
+        });
+
+        writeExecutor.submit(new Callable<DataFact>()
+        {
+            @Override
+            public DataFact call() throws Exception
+            {
+                try
+                {
+                    commonWriteSources.insertOtherInfo(dataFactCopy.otherInfo, reqId, isWrite, isCheck);
+                } catch (Exception e)
+                {
+                    logger.warn("invoke commonWriteSources.insertOtherInfo failed.: ", e);
+                }
+                return null;
+            }
+        });
+
+        writeExecutor.submit(new Callable<DataFact>()
+        {
+            @Override
+            public DataFact call() throws Exception
+            {
+                try
+                {
+                    commonWriteSources.insertDeviceIDInfo(dataFactCopy.DIDInfo, reqId, isWrite, isCheck);
+                } catch (Exception e)
+                {
+                    logger.warn("invoke commonWriteSources.insertDeviceIDInfo failed.: ", e);
+                }
+                return null;
+            }
+        });
+
+        writeExecutor.submit(new Callable<DataFact>()
+        {
+            @Override
+            public DataFact call() throws Exception
+            {
+                try
+                {
+                    commonWriteSources.insertPaymentMainInfo(dataFactCopy.paymentMainInfo, reqId, isWrite, isCheck);
+                } catch (Exception e)
+                {
+                    logger.warn("invoke commonWriteSources.insertIpInfo failed.: ", e);
+                }
+                return null;
+            }
+        });
+
+        writeExecutor.submit(new Callable<DataFact>()
+        {
+            @Override
+            public DataFact call() throws Exception
+            {
+                try
+                {
+                    for (int i = 0; i < dataFactCopy.paymentInfoList.size(); i++)
+                    {
+                        Map<String, Object> paymentInfo = dataFactCopy.paymentInfoList.get(i);
+                        final String paymentInfoID = commonWriteSources.insertPaymentInfo(getValueMap(paymentInfo, Common.PaymentInfo), reqId, isWrite, isCheck);
+                        List<Map<String, Object>> cardInfos = (List<Map<String, Object>>) paymentInfo.get(Common.CardInfoList);
+                        for (int j = 0; j < cardInfos.size(); j++)
+                        {
+                            commonWriteSources.insertCardInfo(cardInfos.get(j), reqId, paymentInfoID, isWrite, isCheck);
+                        }
+                    }
+                } catch (Exception e)
+                {
+                    logger.warn("invoke  commonWriteSources.insertCardInfo failed.: ", e);
+                }
+                return null;
+            }
+        });
+
+        //流量数据
+        final Map flowDataCopy = BeanMapper.copy(flowData,Map.class);
+        commonOperation.writeFlowData(flowDataCopy,writeExecutor,isWrite,isCheck);
     }
 }

@@ -39,13 +39,12 @@ public class TieYouSources
         Map exRailUserInfo = null;
         try
         {
-            String sqlCommand = "SELECT Top 1 *" + " FROM InfoSecurity_ExRailUserInfo with (nolock) WHERE [InfoSecurity_ExRailUserInfo].[ExRailInfoID] = "
-                    +exRailId;
-            exRailUserInfo = cardRiskDBTemplate.queryForMap(sqlCommand);
+            String sqlCommand = "SELECT Top 1 *" + " FROM InfoSecurity_ExRailUserInfo with (nolock) WHERE [InfoSecurity_ExRailUserInfo].[ExRailInfoID] = ?";
+            exRailUserInfo = cardRiskDBTemplate.queryForMap(sqlCommand,exRailId);
         }catch(Exception exp)
         {
-            logger.warn("从sql查询高铁信息异常:",exp);
+            logger.warn("从sql查询高铁信息异常:"+exp.getMessage());
         }
-        return exRailUserInfo;//这里取出里面的是 CityName 和 ProvinceName 这两个字段
+        return exRailUserInfo;
     }
 }

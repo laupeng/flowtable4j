@@ -19,10 +19,14 @@
           depends-on="allTemplates" init-method="init">
     </bean>
 
-    <bean id="hotelGroupWriteSources" class="com.ctrip.infosec.flowtable4j.translate.dao.HotelGroupWriteSources" init-method="init" depends-on="allTemplates"/>
+    <bean id="hotelGroupWriteSources" class="com.ctrip.infosec.flowtable4j.translate.dao.HotelGroupWriteSources" init-method="init"
+          depends-on="allTemplates"/>
 
     <bean id="tieYouSources" class="com.ctrip.infosec.flowtable4j.translate.dao.TieYouSources" depends-on="allTemplates"
           init-method="init"/>
+
+    <bean id="tieYouWriteSources" class="com.ctrip.infosec.flowtable4j.translate.dao.TieYouWriteSources" init-method="init"
+          depends-on="allTemplates"/>
 
     <bean id="commonWriteSources" class="com.ctrip.infosec.flowtable4j.translate.dao.CommonWriteSources" init-method="init" depends-on="allTemplates"/>
 

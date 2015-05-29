@@ -41,7 +41,7 @@ import static com.ctrip.infosec.flowtable4j.translate.common.Utils.getValueMap;
 public class HotelGroupExecutor implements Executor
 {
     private Logger logger = LoggerFactory.getLogger(HotelGroupExecutor.class);
-    private ThreadPoolExecutor writeExcutor = null;
+    private ThreadPoolExecutor writeExecutor = null;
     @Autowired
     HotelGroupSources hotelGroupSources;
     @Autowired
@@ -63,7 +63,7 @@ public class HotelGroupExecutor implements Executor
 
     public CheckFact executeHotelGroup(Map data,ThreadPoolExecutor excutor,ThreadPoolExecutor writeExecutor,boolean isWrite,boolean isCheck)
     {
-        this.writeExcutor = writeExecutor;
+        this.writeExecutor = writeExecutor;
         beforeInvoke();
         DataFact dataFact = new DataFact();
         CheckFact checkFact = new CheckFact();
@@ -104,7 +104,7 @@ public class HotelGroupExecutor implements Executor
             List<Map> paymentInfos = dataFact.paymentInfoList;
             for(Map paymentInfo : paymentInfos)
             {
-                Map subPaymentInfo = (Map)paymentInfo.get(Common.PaymentInfo);
+                //Map subPaymentInfo = (Map)paymentInfo.get(Common.PaymentInfo);
                 List<Map> cardInfoList = (List<Map>)paymentInfo.get(Common.CardInfoList);
                 Map cardInfoFirst = cardInfoList.get(0);
 //                flowData.put(HotelGroup.CardBinOrderID,getValue(cardInfoFirst,Common.CardBin)+getValue(dataFact.mainInfo,Common.OrderID));
@@ -254,7 +254,7 @@ public class HotelGroupExecutor implements Executor
         flowData.put(Common.ReqID,reqId);
 
         final DataFact dataFactCopy = BeanMapper.copy(dataFact,DataFact.class);
-        writeExcutor.submit(new Callable<DataFact>() {
+        writeExecutor.submit(new Callable<DataFact>() {
             @Override
             public DataFact call() throws Exception {
                 try {
@@ -266,7 +266,7 @@ public class HotelGroupExecutor implements Executor
             }
         });
 
-        writeExcutor.submit(new Callable<DataFact>()
+        writeExecutor.submit(new Callable<DataFact>()
         {
             @Override
             public DataFact call() throws Exception
@@ -282,7 +282,7 @@ public class HotelGroupExecutor implements Executor
             }
         });
 
-        writeExcutor.submit(new Callable<DataFact>()
+        writeExecutor.submit(new Callable<DataFact>()
         {
             @Override
             public DataFact call() throws Exception
@@ -298,7 +298,7 @@ public class HotelGroupExecutor implements Executor
             }
         });
 
-        writeExcutor.submit(new Callable<DataFact>()
+        writeExecutor.submit(new Callable<DataFact>()
         {
             @Override
             public DataFact call() throws Exception
@@ -314,7 +314,7 @@ public class HotelGroupExecutor implements Executor
             }
         });
 
-        writeExcutor.submit(new Callable<DataFact>()
+        writeExecutor.submit(new Callable<DataFact>()
         {
             @Override
             public DataFact call() throws Exception
@@ -330,7 +330,7 @@ public class HotelGroupExecutor implements Executor
             }
         });
 
-        writeExcutor.submit(new Callable<DataFact>()
+        writeExecutor.submit(new Callable<DataFact>()
         {
             @Override
             public DataFact call() throws Exception
@@ -346,7 +346,7 @@ public class HotelGroupExecutor implements Executor
             }
         });
 
-        writeExcutor.submit(new Callable<DataFact>()
+        writeExecutor.submit(new Callable<DataFact>()
         {
             @Override
             public DataFact call() throws Exception
@@ -362,7 +362,7 @@ public class HotelGroupExecutor implements Executor
             }
         });
 
-        writeExcutor.submit(new Callable<DataFact>()
+        writeExecutor.submit(new Callable<DataFact>()
         {
             @Override
             public DataFact call() throws Exception
@@ -378,7 +378,7 @@ public class HotelGroupExecutor implements Executor
             }
         });
 
-        writeExcutor.submit(new Callable<DataFact>()
+        writeExecutor.submit(new Callable<DataFact>()
         {
             @Override
             public DataFact call() throws Exception
@@ -405,6 +405,6 @@ public class HotelGroupExecutor implements Executor
 
         //流量数据
         final Map flowDataCopy = BeanMapper.copy(flowData,Map.class);
-        commonOperation.writeFlowData(flowDataCopy,writeExcutor,isWrite,isCheck);
+        commonOperation.writeFlowData(flowDataCopy,writeExecutor,isWrite,isCheck);
     }
 }

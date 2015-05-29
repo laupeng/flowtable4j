@@ -521,7 +521,7 @@ public class CommonExecutor
             flowData.put("CheckType",getValue(dataFact.mainInfo,Common.CheckType));
             flowData.put("Serverfrom",getValue(dataFact.mainInfo,Common.Serverfrom));
             flowData.put("OrderDate",getValue(dataFact.mainInfo,Common.OrderDate));
-//            flowData.putAll(dataFact.mainInfo);
+
             String orderDateStr = getValue(dataFact.mainInfo,Common.OrderDate);
             try
             {

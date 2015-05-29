@@ -301,11 +301,11 @@ public class CommonSources
         while(iterator.hasNext())
         {
             String key = iterator.next().toString();
-            String value = params.get(key) == null ? "" : params.get(key).toString();
+            String value = getValue(params,key);
             if(value.isEmpty())
                 continue;
             try{
-                List<Map<String,Object>> allTableNames = (List<Map<String,Object>>)CacheFlowRuleData.originalRisklevel.get(key);
+                List<Map<String,Object>> allTableNames = (List<Map<String,Object>>)CacheFlowRuleData.originalRisklevel.get(orderType+"_"+key);
                 if(allTableNames == null || allTableNames.size()<1)
                 {
                     String commandText = "select t.StatisticTableId, t.StatisticTableName ,f1.ColumnName as KeyFieldID1,f2.ColumnName as " +
@@ -314,9 +314,9 @@ public class CommonSources
                             "join Def_RuleMatchField f1 (nolock) on t.KeyFieldID1 = f1.FieldID " +
                             "join Def_RuleMatchField f2 (nolock) on t.KeyFieldID2 = f2.FieldID " +
                             "where f2.ColumnName='OriginalRisklevel' and  f1.ColumnName= ?" +
-                            " and TableType =1 and t.Active = 'T' and  orderType = 0 ";//添加key来关联字段
-                    allTableNames = cardRiskDBTemplate.queryForList(commandText,key);
-                    CacheFlowRuleData.originalRisklevel.put(key,allTableNames);//添加到缓存
+                            " and TableType =1 and t.Active = 'T' and  (orderType = ? or orderType = 0)";//添加key来关联字段
+                    allTableNames = cardRiskDBTemplate.queryForList(commandText,key,orderType);
+                    CacheFlowRuleData.originalRisklevel.put(orderType+"_"+key,allTableNames);//添加到缓存
                 }
                 //先取出出所有的表名称
                 Iterator iterator1 = allTableNames.iterator();
@@ -325,7 +325,7 @@ public class CommonSources
                     Map<String,Object> columnValue = (Map)iterator1.next();
                     {
                     //固定的值195分
-                    String tableName = getValue(columnValue,"StatisticTableName");//columnValue.get("StatisticTableName") == null ? "" : columnValue.get("StatisticTableName").toString();
+                    String tableName = getValue(columnValue,"StatisticTableName");
 
                     String commandText1 = "select count(distinct originalrisklevel) from "+tableName +
                             " with(nolock) where "+key+" = ?"+" and originalrisklevel>=195 and CreateDate>=?"+" and CreateDate<=?";
@@ -351,7 +351,7 @@ public class CommonSources
         long now = System.currentTimeMillis();
         List<Map<String,Object>> productInfo = null;
         try{
-            String commandText = "select * from InfoSecurity_HotelGroupInfo with (nolock) where ReqID =? ";
+            String commandText = "select distinct * from InfoSecurity_HotelGroupInfo with (nolock) where ReqID =? ";
             productInfo = cardRiskDBTemplate.queryForList(commandText,reqId);
         }catch(Exception exp)
         {
