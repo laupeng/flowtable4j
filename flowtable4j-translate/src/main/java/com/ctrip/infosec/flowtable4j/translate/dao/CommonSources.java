@@ -392,7 +392,7 @@ public class CommonSources
                     "f.MatchType," +
                     "f.MatchValue " +
                     "FROM cardriskdb..Def_RuleStatisticTableFilter f (nolock) join " +
-                    "cardriskdb..Def_RuleMatchField m (nolock) on f.FieldID=m.FieldID  order by f.MatchIndex";
+                    "cardriskdb..Def_RuleMatchField m (nolock) on f.FieldID=m.FieldID";
             flowRuleFilter = cardRiskDBTemplate.queryForList(commandText);
         }catch (Exception exp)
         {
