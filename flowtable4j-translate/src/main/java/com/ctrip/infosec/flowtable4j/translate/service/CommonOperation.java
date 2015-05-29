@@ -319,6 +319,12 @@ public class CommonOperation
         if(ipInfo!=null)
             dataFact.ipInfo.putAll(ipInfo);
     }
+    public void fillCorporationInfo(DataFact dataFact,String lastReqID)
+    {
+        Map corporationInfo = commonSources.getIpInfo(lastReqID);
+        if(corporationInfo!=null)
+            dataFact.corporationInfo.putAll(corporationInfo);
+    }
     public void fillProductOther(DataFact dataFact,String lastReqID)
     {
         Map otherInfo = commonSources.getOtherInfo(lastReqID);

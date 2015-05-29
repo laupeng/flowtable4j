@@ -45,7 +45,7 @@ public class PreProcessor
             case 14:
                 return hotelGroupExecutor.executeHotelGroup(data,excutor,writeExcutor,true,true);//fixme 注意这里要调整 在上线后的写入和检查
             case 18:
-                return tieYouExecutor.executeTieYou(data,excutor,writeExcutor);
+                return tieYouExecutor.executeTieYou(data,excutor,writeExcutor,true,true);
             //...14-24
             default:
                 logger.info("没有找到相关的订单类型 : "+orderType);

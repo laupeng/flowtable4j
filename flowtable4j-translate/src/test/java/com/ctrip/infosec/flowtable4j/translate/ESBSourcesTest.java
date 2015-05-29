@@ -124,7 +124,8 @@ public class ESBSourcesTest
     @Test
     public void testMapMerge()
     {
-        final long lastReq = Long.parseLong("55555");
+        String mobilePhone = "013917863756";
+        mobilePhone = mobilePhone.substring(0,mobilePhone.length());
     }
 
     @Test

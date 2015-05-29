@@ -9,6 +9,7 @@ import com.ctrip.infosec.flowtable4j.translate.model.Common;
 import com.ctrip.infosec.flowtable4j.translate.model.DataFact;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import com.sun.java.swing.plaf.motif.resources.motif;
 import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +55,12 @@ public class CommonExecutor
             logger.info("开始补充"+data.get("OrderID")+"数据");
             runs.clear();
             runsF.clear();
-            long test = System.currentTimeMillis();
+            String mobilePhone = getValue(data,Common.MobilePhone);
+            if(mobilePhone.length()>0&&mobilePhone.startsWith("0"))
+            {
+                mobilePhone = mobilePhone.substring(1,mobilePhone.length());
+                data.put(Common.MobilePhone,mobilePhone);
+            }
             int checkType = Integer.parseInt(getValue(data, Common.CheckType));
             switch (checkType)
             {
@@ -73,7 +79,6 @@ public class CommonExecutor
                     dataFact.paymentMainInfo.put(Common.PayValidationMethod,getValue(data,Common.PayValidationMethod));
                     dataFact.paymentMainInfo.put(Common.ValidationFailsReason,getValue(data,Common.ValidationFailsReason));
                     //endregion
-
                     break;
                 case 1:
                     //补充公共属性信息
@@ -131,6 +136,20 @@ public class CommonExecutor
                                 return dataFactCopy001;
                             } catch (Exception e) {
                                 logger.warn("invoke commonOperation.fillProductContact failed.: ", e);
+                            }
+                            return null;
+                        }
+                    });
+
+                    final DataFact dataFactCopy_Corpo = new DataFact();
+                    runs.add(new Callable<DataFact>() {
+                        @Override
+                        public DataFact call() throws Exception {
+                            try {
+                                commonOperation.fillCorporationInfo(dataFactCopy_Corpo, reqIdStr);
+                                return dataFactCopy_Corpo;
+                            } catch (Exception e) {
+                                logger.warn("invoke commonOperation.fillCorporationInfo failed.: ", e);
                             }
                             return null;
                         }
@@ -308,7 +327,8 @@ public class CommonExecutor
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         //long lastReqID = -1;
         dataFact.dealInfo.put(Common.LastCheck,"T");
-        dataFact.dealInfo.put(Common.CorporationID,"");
+        dataFact.dealInfo.put(Common.CorporationID,getValue(data,Common.CorporationID));
+        dataFact.dealInfo.put(Common.ReferenceNo,getValue(data,Common.ReferenceNo));
         //mainInfo
         dataFact.mainInfo.put(Common.CheckType,getValue(data,Common.CheckType));
         dataFact.mainInfo.put(Common.CorporationID,"");
@@ -492,7 +512,7 @@ public class CommonExecutor
 
             //serverForm
             bwList.put(Common.Serverfrom, dataFact.mainInfo.get(Common.Serverfrom)); //黑m字段
-
+            bwList.put(Common.ClientID, dataFact.mainInfo.get(Common.ClientID));
             logger.info("构造"+data.get("OrderID")+"黑白名单数据完毕");
         }catch (Exception exp)
         {
@@ -561,12 +581,10 @@ public class CommonExecutor
                     flowData.put("CardBinIssue",getValue(cardInfoFirst,Common.CardBinIssue));
                     flowData.put("CardBin",getValue(cardInfoFirst,Common.CardBin));
                     flowData.put("CardHolder",getValue(cardInfoFirst,Common.CardHolder));
-                    flowData.put("CardBinOrderID",getValue(cardInfoFirst,"CardBin")+getValue(dataFact.mainInfo,Common.OrderID));
                     break;
                 }
             }
             flowData.put("MergerOrderPrepayType",MergerOrderPrepayType);
-
             //InfoSecurity_ContactInfo
             flowData.put("MobilePhone",getValue(dataFact.contactInfo,Common.MobilePhone));
             flowData.put("MobilePhoneCity",getValue(dataFact.contactInfo,Common.MobilePhoneCity));

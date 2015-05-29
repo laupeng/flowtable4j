@@ -107,7 +107,7 @@ public class HotelGroupExecutor implements Executor
                 //Map subPaymentInfo = (Map)paymentInfo.get(Common.PaymentInfo);
                 List<Map> cardInfoList = (List<Map>)paymentInfo.get(Common.CardInfoList);
                 Map cardInfoFirst = cardInfoList.get(0);
-//                flowData.put(HotelGroup.CardBinOrderID,getValue(cardInfoFirst,Common.CardBin)+getValue(dataFact.mainInfo,Common.OrderID));
+                flowData.put(HotelGroup.CardBinOrderID,getValue(cardInfoFirst,Common.CardBin)+getValue(dataFact.mainInfo,Common.OrderID));
                 flowData.put(HotelGroup.CardBinUID,getValue(cardInfoFirst,Common.CardBin)+getValue(dataFact.userInfo,Common.Uid));
                 flowData.put(HotelGroup.CardBinMobilePhone,getValue(cardInfoFirst,Common.CardBin)+getValue(dataFact.contactInfo,Common.MobilePhone));
                 flowData.put(HotelGroup.CardBinUserIPAdd,getValue(cardInfoFirst,Common.CardBin)+getValue(dataFact.ipInfo,Common.UserIPAdd));

@@ -131,7 +131,7 @@ public class TieYouExecutor implements Executor
                 try{
                     Date departureDate = DateUtils.parseDate(departureDateStr, "yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd HH:mm:ss.SSS");//yyyy-MM-dd HH:mm:ss   yyyy-MM-dd HH:mm:ss.SSS
                     Date orderDate = DateUtils.parseDate(orderDateStr, "yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd HH:mm:ss.SSS");
-                    flowData.put(Common.OrderToSignUpDate,getDateAbs(departureDate, orderDate,1));
+                    flowData.put("OrderToDepartureDate",getDateAbs(departureDate, orderDate,1));
                 }catch (Exception exp)
                 {
                     logger.warn("解析时间格式出错:departureDateStr,orderDateStr "+departureDateStr+"\t"+orderDateStr,exp);
@@ -147,7 +147,7 @@ public class TieYouExecutor implements Executor
                     PassengerList.add(tempPassenger);
                     MergePassengerIDType = MergePassengerIDType + getValue(ExRailUserInfo,TieYou.PassengerIDCode)+"|";
                 }
-                flowData.put("MergePassengerIDType",MergePassengerIDType);
+                flowData.put("MergePassengerIDType",MergePassengerIDType.substring(0,MergePassengerIDType.length()-1));
             }
 
             //构造规则引擎的数据类型CheckFact
