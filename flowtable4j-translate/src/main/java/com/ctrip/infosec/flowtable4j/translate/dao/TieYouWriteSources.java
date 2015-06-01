@@ -13,6 +13,7 @@ import javax.annotation.Resource;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.Map;
 import java.util.Set;
 
@@ -85,6 +86,7 @@ public class TieYouWriteSources
                cs.setString("TrainNo",getValue(tieYouExRailInfo,"TrainNo"));
                cs.setString("DataChange_LastTime","");//站位符
                cs.setString("FromStationName",getValue(tieYouExRailInfo,"FromStationName"));
+               cs.registerOutParameter(1, Types.BIGINT);
                return cs;
            }
        }, new CallableStatementCallback() {

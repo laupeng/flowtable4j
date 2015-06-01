@@ -1,19 +1,30 @@
 package com.ctrip.infosec.flowtable4j.translate.service;
 
+import com.ctrip.infosec.flowtable4j.model.CheckFact;
 import com.ctrip.infosec.flowtable4j.translate.common.MyJSON;
 import com.ctrip.infosec.flowtable4j.translate.dao.*;
+import com.ctrip.infosec.flowtable4j.translate.model.Common;
+import com.ctrip.infosec.flowtable4j.translate.model.DataFact;
 import com.ctrip.infosec.flowtable4j.translate.model.Flight;
 import org.apache.commons.lang3.time.DateUtils;
 import org.dom4j.DocumentException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
 import java.util.*;
+import java.util.concurrent.ThreadPoolExecutor;
 
+import static com.ctrip.infosec.common.SarsMonitorWrapper.afterInvoke;
+import static com.ctrip.infosec.common.SarsMonitorWrapper.beforeInvoke;
+import static com.ctrip.infosec.common.SarsMonitorWrapper.fault;
 import static com.ctrip.infosec.flowtable4j.translate.common.IpConvert.ipConvertTo10;
 import static com.ctrip.infosec.flowtable4j.translate.common.MyDateUtil.getDateAbs;
 import static com.ctrip.infosec.flowtable4j.translate.common.Utils.Json;
+import static com.ctrip.infosec.flowtable4j.translate.common.Utils.getValue;
+
 /**
  * Created by lpxie on 15-3-31.
  * 两个模块：1，数据补充。2，转换成实体
@@ -21,10 +32,14 @@ import static com.ctrip.infosec.flowtable4j.translate.common.Utils.Json;
 @Service
 public class FlightExecutor implements Executor
 {
+    private Logger logger = LoggerFactory.getLogger(FlightExecutor.class);
+    private ThreadPoolExecutor writeExecutor = null;
     @Autowired
-    HotelGroupSources hotelGroupSources;
+    FlightSources flightSources;
     @Autowired
     CommonSources commonSources;
+    @Autowired
+    CommonWriteSources commonWriteSources;
     @Autowired
     RedisSources redisSources;
     @Autowired
@@ -32,8 +47,48 @@ public class FlightExecutor implements Executor
     @Autowired
     DataProxySources dataProxySources;
     @Autowired
-    FlightSources flightSources;
+    CommonExecutor commonExecutor;
+    @Autowired
+    CommonOperation commonOperation;
 
+    public CheckFact executeFlight(Map data,ThreadPoolExecutor excutor,ThreadPoolExecutor writeExecutor,boolean isWrite,boolean isCheck)
+    {
+        this.writeExecutor = writeExecutor;
+        beforeInvoke();
+        DataFact dataFact = new DataFact();
+        CheckFact checkFact = new CheckFact();
+        try{
+            logger.info("开始处理机票 "+data.get("OrderID").toString()+" 数据");
+            //一：补充数据
+            long now = System.currentTimeMillis();
+            commonExecutor.complementData(dataFact,data,excutor);
+            logger.info("complementData公共补充数据的时间是:"+(System.currentTimeMillis()-now));
+
+            //这里分checkType 0、1和2两种情况
+            int checkType = Integer.parseInt(getValue(data, Common.CheckType));
+            if(checkType == 0 )
+            {
+                getOtherInfo0(dataFact, data);
+            }else if(checkType == 1)
+            {
+                getOtherInfo0(dataFact, data);
+                getHotelGroupProductInfo0(dataFact, data);
+            }
+            else if(checkType == 2)
+            {
+                getOtherInfo1(dataFact, data);
+                getHotelGroupProductInfo1(dataFact, data);
+            }
+        }catch (Exception exp)
+        {
+            fault();
+            logger.error("invoke FlightExecutor.executeFlight fault.",exp);
+        }finally
+        {
+            afterInvoke("FlightExecutor.executeFlight");
+        }
+        return checkFact;
+    }
     /**
      * 补充订单信息
      * @param data
@@ -1129,5 +1184,52 @@ public class FlightExecutor implements Executor
         String takeOffTimeDateStr = data.get(Flight.TakeOffTime) == null ? "": data.get(Flight.TakeOffTime).toString();
         Date takeOffTimeDate =  DateUtils.parseDate(takeOffTimeDateStr, "yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd HH:mm:ss.SSS");
         data.put(Flight.TakeOffToOrderDate,getDateAbs(takeOffTimeDate, orderDate,1));
+    }
+
+    /**
+     * 添加订单日期到注册日期的差值
+     * 添加订单日期到起飞日期的差值
+     * @param data
+     * @throws java.text.ParseException
+     */
+    public void getOtherInfo0(DataFact dataFact,Map data) throws ParseException
+    {
+        logger.info(data.get("OrderID")+"获取时间的差值相关信息");
+        //订单日期
+        String orderDateStr = getValue(data,Common.OrderDate);
+        Date orderDate = DateUtils.parseDate(orderDateStr, "yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd HH:mm:ss.SSS");//yyyy-MM-dd HH:mm:ss   yyyy-MM-dd HH:mm:ss.SSS
+        //注册日期
+        String signUpDateStr = getValue(data,Common.SignUpDate);
+        Date signUpDate = DateUtils.parseDate(signUpDateStr,"yyyy-MM-dd HH:mm:ss","yyyy-MM-dd HH:mm:ss.SSS");
+        dataFact.otherInfo.put(Common.OrderToSignUpDate,getDateAbs(signUpDate, orderDate,1));
+        //起飞日期
+        String takeOffDateStr = getValue(data,Common.TakeOffTime);
+        Date takeOffDate = DateUtils.parseDate(takeOffDateStr,"yyyy-MM-dd HH:mm:ss","yyyy-MM-dd HH:mm:ss.SSS");
+        dataFact.otherInfo.put(Common.TakeOffToOrderDate,getDateAbs(takeOffDate, orderDate,1));
+    }
+
+    public void getOtherInfo1(DataFact dataFact,Map data)
+    {
+        String reqIdStr = getValue(data,Common.ReqID);
+        Map otherInfo = commonSources.getOtherInfo(reqIdStr);
+        if(otherInfo != null && otherInfo.size()>0)
+            dataFact.otherInfo.putAll(otherInfo);
+    }
+
+    /**
+     * 获取机票产品信息当checkType是0或1的时候
+     * @param dataFact
+     * @param data
+     */
+    public void getFlightProductInfo0(DataFact dataFact,Map data)
+    {
+        Map<String,Object> flightsOrderInfo = new HashMap();
+        flightsOrderInfo.put();
+        dataFact.productInfoM.put(Flight.City,getValue(data,Flight.City));
+        dataFact.productInfoM.put(HotelGroup.Price,getValue(data,HotelGroup.Price));//fixme 转成decimal
+        dataFact.productInfoM.put(HotelGroup.ProductID,getValue(data,HotelGroup.ProductID));
+        dataFact.productInfoM.put(HotelGroup.ProductName,getValue(data,HotelGroup.ProductName));
+        dataFact.productInfoM.put(HotelGroup.Quantity,getValue(data,HotelGroup.Quantity));
+        dataFact.productInfoM.put(HotelGroup.ProductType,getValue(data,HotelGroup.ProductType));
     }
 }

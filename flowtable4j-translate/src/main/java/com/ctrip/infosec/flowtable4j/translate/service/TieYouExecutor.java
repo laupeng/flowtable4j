@@ -176,28 +176,28 @@ public class TieYouExecutor implements Executor
             logger.info("ipInfo\t"+ Json.toPrettyJSONString(dataFact.ipInfo));
             logger.info("corporationInfo\t"+ Json.toPrettyJSONString(dataFact.corporationInfo));
             if(dataFact.productInfoL != null && dataFact.productInfoL.size()>0)//铁友产品信息是list
-                for (int i = 0; i < dataFact.productInfoL.size(); i++)
-                {
-                    Map<String, Object> tieYouInfo = dataFact.productInfoL.get(i);
-                    Map exRailInfo = getValueMap(tieYouInfo, TieYou.ExRailInfo);
-                    logger.info(i + "\texRailInfo\t" + Json.toPrettyJSONString(exRailInfo));
-                    Map exRailUserInfo = getValueMap(tieYouInfo, TieYou.ExRailUserInfo);
-                    logger.info(i + "\texRailUserInfo\t" + Json.toPrettyJSONString(exRailUserInfo));
-                }
+            for (int i = 0; i < dataFact.productInfoL.size(); i++)
+            {
+                Map<String, Object> tieYouInfo = dataFact.productInfoL.get(i);
+                Map exRailInfo = getValueMap(tieYouInfo, TieYou.ExRailInfo);
+                logger.info(i + "\texRailInfo\t" + Json.toPrettyJSONString(exRailInfo));
+                Map exRailUserInfo = getValueMap(tieYouInfo, TieYou.ExRailUserInfo);
+                logger.info(i + "\texRailUserInfo\t" + Json.toPrettyJSONString(exRailUserInfo));
+            }
             logger.info("otherInfo\t"+ Json.toPrettyJSONString(dataFact.otherInfo));
             logger.info("DIDInfo\t"+ Json.toPrettyJSONString(dataFact.DIDInfo));
 
             if(dataFact.paymentInfoList != null && dataFact.paymentInfoList.size()>0)
-                for(int i=0;i<dataFact.paymentInfoList.size();i++)
+            for(int i=0;i<dataFact.paymentInfoList.size();i++)
+            {
+                Map<String,Object> paymentInfo = dataFact.paymentInfoList.get(i);
+                logger.info(i + "\tpaymentInfo\t" + Json.toPrettyJSONString(paymentInfo.get("PaymentInfo")));
+                List<Map<String,Object>> cardInfos = (List<Map<String,Object>>)paymentInfo.get(Common.CardInfoList);
+                for(int j=0;j<cardInfos.size();j++)
                 {
-                    Map<String,Object> paymentInfo = dataFact.paymentInfoList.get(i);
-                    logger.info(i + "\tpaymentInfo\t" + Json.toPrettyJSONString(paymentInfo.get("PaymentInfo")));
-                    List<Map<String,Object>> cardInfos = (List<Map<String,Object>>)paymentInfo.get(Common.CardInfoList);
-                    for(int j=0;j<cardInfos.size();j++)
-                    {
-                        logger.info(i + "\t" + j + "\tcardInfo\t" + Json.toPrettyJSONString(cardInfos.get(j)));
-                    }
+                    logger.info(i + "\t" + j + "\tcardInfo\t" + Json.toPrettyJSONString(cardInfos.get(j)));
                 }
+            }
             logger.info("paymentMainInfo\t"+ Json.toPrettyJSONString(dataFact.paymentMainInfo));
 
             //判断是否写入数据

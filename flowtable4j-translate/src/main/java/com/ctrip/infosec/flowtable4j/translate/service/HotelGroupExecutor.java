@@ -112,14 +112,13 @@ public class HotelGroupExecutor implements Executor
                 flowData.put(HotelGroup.CardBinMobilePhone,getValue(cardInfoFirst,Common.CardBin)+getValue(dataFact.contactInfo,Common.MobilePhone));
                 flowData.put(HotelGroup.CardBinUserIPAdd,getValue(cardInfoFirst,Common.CardBin)+getValue(dataFact.ipInfo,Common.UserIPAdd));
                 flowData.put(HotelGroup.ContactEMailCardBin,getValue(dataFact.contactInfo,Common.ContactEMail)+getValue(cardInfoFirst,Common.CardBin));
-                if(getValue(dataFact.contactInfo,Common.MobilePhone).length()>=7)
-                {
-                    flowData.put(HotelGroup.UserIPAddMobileNumber,getValue(dataFact.ipInfo,Common.UserIPAdd)+getValue(dataFact.contactInfo,Common.MobilePhone).substring(0,7));
-                    flowData.put(HotelGroup.UIDMobileNumber,getValue(dataFact.contactInfo,Common.Uid)+getValue(dataFact.contactInfo,Common.MobilePhone).substring(0,7));
-                }
                 break;
             }
-
+            if(getValue(dataFact.contactInfo,Common.MobilePhone).length()>=7)//fixme 看看下面这段是不是都有用到，可以拿到common里面去
+            {
+                flowData.put(HotelGroup.UserIPAddMobileNumber,getValue(dataFact.ipInfo,Common.UserIPAdd)+getValue(dataFact.contactInfo,Common.MobilePhone).substring(0,7));
+                flowData.put(HotelGroup.UIDMobileNumber,getValue(dataFact.userInfo,Common.Uid)+getValue(dataFact.contactInfo,Common.MobilePhone).substring(0,7));
+            }
             //产品信息加到流量实体
             flowData.put("Quantity",getValue(dataFact.productInfoM,Common.Quantity));
             flowData.put("City",getValue(dataFact.productInfoM,Common.City));
