@@ -53,4 +53,8 @@ public class Flight
     public static String PassengerGender = "PassengerGender";
     //航程段信息
 
+    //FlightsOrderInfo  PassengerInfoList  SegmentInfoList
+    public static String FlightsOrderInfo = "FlightsOrderInfo";
+    public static String PassengerInfoList = "PassengerInfoList";
+    public static String SegmentInfoList = "SegmentInfoList";
 }

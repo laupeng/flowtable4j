@@ -28,4 +28,7 @@ public class CacheFlowRuleData
     {
         CacheFlowRuleData.flowFilters = flowFilters;
     }
+
+    //缓存机场和城市的编码
+    public static Map<String,Object> airPortCache = new HashMap();
 }

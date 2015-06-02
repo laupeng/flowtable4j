@@ -332,6 +332,13 @@ public class CommonOperation
             dataFact.otherInfo.putAll(otherInfo);
     }
 
+    //获取appInfo
+    public void fillProductAppInfo(DataFact dataFact,String lastReqID)
+    {
+        Map appInfo = commonSources.getAppInfo(lastReqID);
+        if(appInfo!=null)
+            dataFact.appInfo.putAll(appInfo);
+    }
     //补充主要支付方式
     public void fillMainOrderType(Map data)
     {

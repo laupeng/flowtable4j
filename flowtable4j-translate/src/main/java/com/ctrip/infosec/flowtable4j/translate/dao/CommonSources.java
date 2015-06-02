@@ -236,6 +236,21 @@ public class CommonSources
         return otherInfo;
     }
 
+    //获取appInfo信息
+    public Map getAppInfo(String reqId)
+    {
+        long now = System.currentTimeMillis();
+        Map appInfo = null;
+        try{
+            String commandText = "select * from InfoSecurity_AppInfo with (nolock) where [InfoSecurity_AppInfo].[ReqID] = ?";
+            appInfo = cardRiskDBTemplate.queryForMap(commandText,reqId);
+        }catch(Exception exp)
+        {
+            logger.warn("查询AppInfo信息异常:"+exp.getMessage());
+        }
+        logger.info("getAppInfo的查询sqlServer的时间是："+(System.currentTimeMillis()-now));
+        return appInfo;
+    }
     //获取上次主支付信息
     public Map getMainPrepayType(String orderType,String orderId)
     {

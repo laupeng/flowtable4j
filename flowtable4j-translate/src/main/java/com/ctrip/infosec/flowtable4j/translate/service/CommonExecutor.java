@@ -196,6 +196,20 @@ public class CommonExecutor
                             return null;
                         }
                     });
+
+                    final DataFact dataFactCopy005 = new DataFact();
+                    runs.add(new Callable<DataFact>() {
+                        @Override
+                        public DataFact call() throws Exception {
+                            try {
+                                commonOperation.fillProductAppInfo(dataFactCopy005, reqIdStr);
+                                return dataFactCopy005;
+                            } catch (Exception e) {
+                                logger.warn("invoke commonOperation.fillProductOther failed.: ", e);
+                            }
+                            return null;
+                        }
+                    });
                     //endregion
 
                     //补充支付信息

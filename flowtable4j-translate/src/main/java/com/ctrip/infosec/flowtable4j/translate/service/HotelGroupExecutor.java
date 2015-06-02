@@ -107,17 +107,17 @@ public class HotelGroupExecutor implements Executor
                 //Map subPaymentInfo = (Map)paymentInfo.get(Common.PaymentInfo);
                 List<Map> cardInfoList = (List<Map>)paymentInfo.get(Common.CardInfoList);
                 Map cardInfoFirst = cardInfoList.get(0);
-                flowData.put(HotelGroup.CardBinOrderID,getValue(cardInfoFirst,Common.CardBin)+getValue(dataFact.mainInfo,Common.OrderID));
-                flowData.put(HotelGroup.CardBinUID,getValue(cardInfoFirst,Common.CardBin)+getValue(dataFact.userInfo,Common.Uid));
-                flowData.put(HotelGroup.CardBinMobilePhone,getValue(cardInfoFirst,Common.CardBin)+getValue(dataFact.contactInfo,Common.MobilePhone));
-                flowData.put(HotelGroup.CardBinUserIPAdd,getValue(cardInfoFirst,Common.CardBin)+getValue(dataFact.ipInfo,Common.UserIPAdd));
-                flowData.put(HotelGroup.ContactEMailCardBin,getValue(dataFact.contactInfo,Common.ContactEMail)+getValue(cardInfoFirst,Common.CardBin));
+                flowData.put(Common.CardBinOrderID,getValue(cardInfoFirst,Common.CardBin)+getValue(dataFact.mainInfo,Common.OrderID));
+                flowData.put(Common.CardBinUID,getValue(cardInfoFirst,Common.CardBin)+getValue(dataFact.userInfo,Common.Uid));
+                flowData.put(Common.CardBinMobilePhone,getValue(cardInfoFirst,Common.CardBin)+getValue(dataFact.contactInfo,Common.MobilePhone));
+                flowData.put(Common.CardBinUserIPAdd,getValue(cardInfoFirst,Common.CardBin)+getValue(dataFact.ipInfo,Common.UserIPAdd));
+                flowData.put(Common.ContactEMailCardBin,getValue(dataFact.contactInfo,Common.ContactEMail)+getValue(cardInfoFirst,Common.CardBin));
                 break;
             }
             if(getValue(dataFact.contactInfo,Common.MobilePhone).length()>=7)//fixme 看看下面这段是不是都有用到，可以拿到common里面去
             {
-                flowData.put(HotelGroup.UserIPAddMobileNumber,getValue(dataFact.ipInfo,Common.UserIPAdd)+getValue(dataFact.contactInfo,Common.MobilePhone).substring(0,7));
-                flowData.put(HotelGroup.UIDMobileNumber,getValue(dataFact.userInfo,Common.Uid)+getValue(dataFact.contactInfo,Common.MobilePhone).substring(0,7));
+                flowData.put(Common.UserIPAddMobileNumber,getValue(dataFact.ipInfo,Common.UserIPAdd)+getValue(dataFact.contactInfo,Common.MobilePhone).substring(0,7));
+                flowData.put(Common.UIDMobileNumber,getValue(dataFact.userInfo,Common.Uid)+getValue(dataFact.contactInfo,Common.MobilePhone).substring(0,7));
             }
             //产品信息加到流量实体
             flowData.put("Quantity",getValue(dataFact.productInfoM,Common.Quantity));
@@ -126,22 +126,23 @@ public class HotelGroupExecutor implements Executor
             flowData.put("ProductName",getValue(dataFact.productInfoM,Common.ProductName));
             flowData.put("ProductType",getValue(dataFact.productInfoM,Common.ProductType));
             flowData.put("Price",getValue(dataFact.productInfoM,Common.Price));
+            logger.info("三：到补充流量数据的时间是："+(System.currentTimeMillis()-now5));
+            logger.info(data.get("OrderID").toString()+" 数据处理完毕");
 
-            //构造规则引擎的数据类型CheckFact
+            //四：构造规则引擎的数据类型CheckFact
             CheckType[] checkTypes = {CheckType.BW,CheckType.FLOWRULE};
             BWFact bwFact = new BWFact();
-            bwFact.setOrderType(Integer.parseInt(data.get(HotelGroup.OrderType).toString()));
+            bwFact.setOrderType(Integer.parseInt(data.get(Common.OrderType).toString()));
             bwFact.setContent(bwList);
             FlowFact flowFact = new FlowFact();
             flowFact.setContent(flowData);
-            flowFact.setOrderType(Integer.parseInt(data.get(HotelGroup.OrderType).toString()));
+            flowFact.setOrderType(Integer.parseInt(data.get(Common.OrderType).toString()));
             checkFact.setBwFact(bwFact);
             checkFact.setFlowFact(flowFact);
             checkFact.setCheckTypes(checkTypes);
             if(data.get(HotelGroup.ReqID)!=null)
-                checkFact.setReqId(Long.parseLong(data.get(HotelGroup.ReqID).toString()));//reqId如何获取
-            logger.info("三：到补充流量数据的时间是："+(System.currentTimeMillis()-now5));
-            logger.info(data.get("OrderID").toString()+" 数据处理完毕");
+                checkFact.setReqId(Long.parseLong(data.get(Common.ReqID).toString()));//reqId如何获取
+
 
             //预处理数据写到数据库
             flowData.put(Common.OrderType,data.get(Common.OrderType));

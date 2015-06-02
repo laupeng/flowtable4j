@@ -1,5 +1,8 @@
 package com.ctrip.infosec.flowtable4j.translate.dao;
 
+import com.ctrip.infosec.flowtable4j.translate.dao.Jndi.AllTemplates;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
@@ -15,28 +18,30 @@ import java.util.Map;
  */
 public class FlightSources
 {
-    @Resource(name="CardRiskDB")
-    private JdbcTemplate cardRiskDBTemplate;
+    private static Logger logger = LoggerFactory.getLogger(FlightSources.class);
 
-    //获取当前IP所在地信息(Top 1 OrderBy IpStart Desc)  IpCountryCity
-    public Map getIpCountryCity(long ipValue)
+    @Resource(name="allTemplates")
+    private AllTemplates allTemplates;
+
+    JdbcTemplate cardRiskDBTemplate = null;
+    JdbcTemplate riskCtrlPreProcDBTemplate = null;
+    JdbcTemplate cUSRATDBTemplate = null;
+
+    /**
+     * 初始化jndi
+     */
+    private void init()
     {
-        Map ipInfo = null;
-        try{
-            String sqlCommand = "SELECT Top 1 * FROM IpCountryCity with (nolock) WHERE IpStart <= "+ipValue +" ORDER BY IpStart DESC ";//FIXME 这里问徐洪修正
-            ipInfo = cardRiskDBTemplate.queryForMap(sqlCommand);
-        }catch(Exception exp)
-        {
-            //log for warn
-        }
-        return ipInfo;
+        cardRiskDBTemplate = allTemplates.getCardRiskDBTemplate();
+        riskCtrlPreProcDBTemplate = allTemplates.getRiskCtrlPreProcDBTemplate();
+        cUSRATDBTemplate = allTemplates.getcUSRATDBTemplate();
     }
 
     //获取CityCode根据airPort
-    public int getCityCode(String airPort)
+    public String getCityCode(String airPort)
     {
-        String sqlCommand = "select City from Fltproductdb..AirPort (nolock) where AirPort = "+"'"+airPort+"'";
-        int cityCode = 0;
+        String sqlCommand = "select City from Fltproductdb..AirPort (nolock) where AirPort = ?";
+        String cityCode = "";
 
         //FIXME 这里连接机票的库？
         //Map cityInfo = cardRiskDBTemplate
@@ -44,127 +49,136 @@ public class FlightSources
         return cityCode;
     }
 
-    //获取主要的信息（？） 根据订单类型和订单id 数据库表：InfoSecurity_MainInfo
-    public Map getMainInfo(String orderType,String orderId)
+    //获取机票订单信息 InfoSecurity_FlightsOrderInfo
+    public Map getFlightsOrderInfo(String reqId)
     {
+        long now = System.currentTimeMillis();
+        Map flightsOrderInfo = null;
         try{
-            String sqlCommand = "SELECT top 1 * from InfoSecurity_MainInfo with (nolock) where [InfoSecurity_MainInfo].OrderType = " +
-                    orderType + " and [InfoSecurity_MainInfo].OrderId = "+orderId +" order by [InfoSecurity_MainInfo].ReqID desc";
-            Map mainInfo = cardRiskDBTemplate.queryForMap(sqlCommand);
-            return mainInfo;
+            String sqlCommand = "SELECT top 1 * from InfoSecurity_FlightsOrderInfo with (nolock) where [InfoSecurity_FlightsOrderInfo].[ReqID] = ?";
+            flightsOrderInfo = cardRiskDBTemplate.queryForMap(sqlCommand,reqId);
         }catch(Exception exp)
         {
-            return null;
+            logger.warn("查询FlightsOrderInfo信息异常:"+exp.getMessage());
         }
-    }
-
-    //获取用户联系信息根据ReqID InfoSecurity_ContactInfo
-    public Map getContactInfo(long reqId)
-    {
-        String sqlCommand = "SELECT top 1 * from InfoSecurity_ContactInfo with (nolock) where [InfoSecurity_ContactInfo].[ReqID] = "+reqId;
-        Map contactInfo = cardRiskDBTemplate.queryForMap(sqlCommand);
-        return contactInfo;
-    }
-
-    //获取用户基本信息ReqID InfoSecurity_UserInfo
-    public Map getUserInfo(long reqId)
-    {
-        String sqlCommand = "SELECT top 1 * from InfoSecurity_UserInfo with (nolock) where [InfoSecurity_UserInfo].[ReqID] = "+reqId;
-        Map userInfo = cardRiskDBTemplate.queryForMap(sqlCommand);
-        return userInfo;
-    }
-
-    //获取用户IP信息ReqID InfoSecurity_IPInfo
-    public Map getIpInfo(long reqId)
-    {
-        String sqlCommand = "SELECT top 1 * from InfoSecurity_IPInfo with (nolock) where [InfoSecurity_IPInfo].[ReqID] = "+reqId;
-        Map ipInfo = cardRiskDBTemplate.queryForMap(sqlCommand);
-        return ipInfo;
-    }
-    //获取机票订单信息 InfoSecurity_FlightsOrderInfo
-    public Map getFlightsOrderInfo(long reqId)
-    {
-        String sqlCommand = "SELECT top 1 * from InfoSecurity_FlightsOrderInfo with (nolock) where [InfoSecurity_FlightsOrderInfo].[ReqID] = "+reqId;
-        Map flightsOrderInfo = cardRiskDBTemplate.queryForMap(sqlCommand);
+        logger.info("getFlightsOrderInfo的查询sqlServer的时间是："+(System.currentTimeMillis()-now));
         return flightsOrderInfo;
     }
     //获取机票乘客信息 用机票订单号来获取
-    public Map getPassengerInfo(int flightsOrderId)
+    public List<Map<String,Object>> getPassengerInfo(String flightsOrderId)
     {
-        String sqlCommand = "SELECT top 1 * from InfoSecurity_PassengerInfo with (nolock) where [InfoSecurity_PassengerInfo].[FlightsOrderID] = "+flightsOrderId;
-        Map passengerInfo = cardRiskDBTemplate.queryForMap(sqlCommand);
+        long now = System.currentTimeMillis();
+        List<Map<String,Object>> passengerInfo = null;
+        try{
+            String sqlCommand = "SELECT * from InfoSecurity_PassengerInfo with (nolock) where [InfoSecurity_PassengerInfo].[FlightsOrderID] = ?";
+            passengerInfo = cardRiskDBTemplate.queryForList(sqlCommand, flightsOrderId);
+        }catch(Exception exp)
+        {
+            logger.warn("查询PassengerInfo信息异常:"+exp.getMessage());
+        }
+        logger.info("getPassengerInfo的查询sqlServer的时间是："+(System.currentTimeMillis()-now));
         return passengerInfo;
     }
     //获取机票段信息 用机票订单号来获取
-    public Map getSegmentInfo(int flightsOrderId)
+    public List<Map<String,Object>> getSegmentInfo(String flightsOrderId)
     {
-        String sqlCommand = "SELECT top 1 * from InfoSecurity_SegmentInfo with (nolock) where [InfoSecurity_SegmentInfo].[FlightsOrderID] = "+flightsOrderId;
-        Map segmentInfo = cardRiskDBTemplate.queryForMap(sqlCommand);
+        long now = System.currentTimeMillis();
+        List<Map<String,Object>> segmentInfo = null;
+        try{
+            String sqlCommand = "SELECT top 1 * from InfoSecurity_SegmentInfo with (nolock) where [InfoSecurity_SegmentInfo].[FlightsOrderID] = ?";
+            segmentInfo = cardRiskDBTemplate.queryForList(sqlCommand, flightsOrderId);
+        }catch(Exception exp)
+        {
+            logger.warn("查询SegmentInfo信息异常:"+exp.getMessage());
+        }
+        logger.info("getSegmentInfo的查询sqlServer的时间是："+(System.currentTimeMillis()-now));
         return segmentInfo;
     }
 
-    //获取用户其他信息ReqID InfoSecurity_OtherInfo
-    public Map getOtherInfo(long reqId)
+    //根据城市编码获取对应的省市
+    public Map getCityNameProvince(String city)
     {
-        String sqlCommand = "SELECT top 1 * from InfoSecurity_OtherInfo with (nolock) where [InfoSecurity_OtherInfo].[ReqID] = "+reqId;
-        Map otherInfo = cardRiskDBTemplate.queryForMap(sqlCommand);
-        return otherInfo;
-    }
-
-    //获取用户关联信息ReqID InfoSecurity_CorporationInfo
-    public Map getCorporationInfo(long reqId)
-    {
-        String sqlCommand = "SELECT top 1 * from InfoSecurity_CorporationInfo with (nolock) where [InfoSecurity_CorporationInfo].[ReqID] = "+reqId;
-        Map corporationInfo = cardRiskDBTemplate.queryForMap(sqlCommand);
-        return corporationInfo;
-    }
-
-   //获取用户的APP信息ReqID  InfoSecurity_AppInfo
-    public Map getAppInfo(long reqId)
-    {
-        String sqlCommand = "SELECT top 1 * from InfoSecurity_AppInfo with (nolock) where [InfoSecurity_AppInfo].[ReqID] = "+reqId;
-        Map appInfo = cardRiskDBTemplate.queryForMap(sqlCommand);
-        return appInfo;
-    }
-
-    //获取信用卡信息 通过卡种和卡BIN获取 CreditCardRule_ForeignCard
-    public Map getCardInfo(int cardTypeId,String cardBin)
-    {
-        try
-        {
-            String sqlCommand = "SELECT top 1 * from CreditCardRule_ForeignCard with (nolock) where CardTypeID = "+cardTypeId+" and CardRule" +
-                " = "+cardBin;
-            Map cardInfo = cardRiskDBTemplate.queryForMap(sqlCommand);
-            return cardInfo;
+        long now = System.currentTimeMillis();
+        Map<String,Object> cnpInfo = null;
+        try{
+            String sqlCommand = "SELECT top 1 * from BaseData_City with (nolock) where city = ?";
+            cnpInfo = cardRiskDBTemplate.queryForMap(sqlCommand, city);
         }catch(Exception exp)
         {
-            return null;
+            logger.warn("查询cnpInfo信息异常:"+exp.getMessage());
         }
+        logger.info("getCityNameProvince的查询sqlServer的时间是："+(System.currentTimeMillis()-now));
+        return cnpInfo;
     }
-
-    //获取支付信息 通过reqID
-    public List<Map<String,Object>> getPaymentInfo(long reqId)
+    //根据国家编号获取国家的名称和国际
+    public Map getCountryNameNationality(String country)
     {
-        String sqlCommand = "SELECT top 1 from InfoSecurity_PaymentInfo with (nolock) where [InfoSecurity_PaymentInfo]" +
-                ".[ReqID] = "+reqId;
-        List<Map<String,Object>> paymentInfo = cardRiskDBTemplate.queryForList(sqlCommand);
-        return paymentInfo;
+        long now = System.currentTimeMillis();
+        Map<String,Object> countryInfo = null;
+        try{
+            String sqlCommand = "SELECT top 1 * from BaseData_CountryInfo with (nolock) where Country = ?";
+            countryInfo = cardRiskDBTemplate.queryForMap(sqlCommand, country);
+        }catch(Exception exp)
+        {
+            logger.warn("查询cnpInfo信息异常:"+exp.getMessage());
+        }
+        logger.info("getCityNameProvince的查询sqlServer的时间是："+(System.currentTimeMillis()-now));
+        return countryInfo;
     }
 
+    //获取省份证归属省信息  BaseData_IDCardInfo
+    public Map getIDCardProvince(String iDCardNumber)
+    {
+        long now = System.currentTimeMillis();
+        Map<String,Object> iDCardNumberInfo = null;
+        try{
+            String sqlCommand = "SELECT top 1 * from BaseData_IDCardInfo with (nolock) where IDCardNumber = ?";
+            iDCardNumberInfo = cardRiskDBTemplate.queryForMap(sqlCommand, iDCardNumber);
+        }catch(Exception exp)
+        {
+            logger.warn("查询iDCardNumberInfo信息异常:"+exp.getMessage());
+        }
+        logger.info("getIDCardProvince的查询sqlServer的时间是："+(System.currentTimeMillis()-now));
+        return iDCardNumberInfo;
+    }
+
+    //获取uid过去的订单时间
+    public String getUidOrderDate(String uid,String startTimeLimit,String timeLimit)
+    {
+        long now = System.currentTimeMillis();
+        String orderDate = null;
+        try{
+            String sqlCommand = "select top 1 OrderDate from CTRIP_ALL_UID_OrderDate with (nolock) where " +
+                    "Uid = ? and CreateDate>=? and CreateDate<=?";
+            orderDate = riskCtrlPreProcDBTemplate.queryForObject(sqlCommand,String.class, uid,startTimeLimit,timeLimit);
+        }catch(Exception exp)
+        {
+            logger.warn("查询orderDate信息异常:"+exp.getMessage());
+        }
+        logger.info("getUidOrderDate的查询sqlServer的时间是："+(System.currentTimeMillis()-now));
+        return orderDate;
+    }
+    //获取七天内均值消费金额
+    public String getAvgAmount7(String CCardNoCode,String startTimeLimit,String timeLimit)
+    {
+        long now = System.currentTimeMillis();
+        String avgAmount = null;
+        try{
+            String sqlCommand = "select avg(Amount) from CTRIP_FLT_CCardNoCode_Amount with (nolock) where " +
+                    "CCardNoCode = ? and CreateDate>=? and CreateDate<=?";
+            avgAmount = riskCtrlPreProcDBTemplate.queryForObject(sqlCommand,String.class, CCardNoCode,startTimeLimit,timeLimit);
+        }catch(Exception exp)
+        {
+            logger.warn("查询avgAmount信息异常:"+exp.getMessage());
+        }
+        logger.info("getAvgAmount7的查询sqlServer的时间是："+(System.currentTimeMillis()-now));
+        return avgAmount;
+    }
     //获取临时支付信息 通过PaymentInfoID  InfoSecurity_CardInfo
-    public List<Map<String,Object>> getTemPayInfo(long paymentInfoId)
+    /*public List<Map<String,Object>> getTemPayInfo(long paymentInfoId)
     {
         String sqlCommand = "SELECT top 1 * from InfoSecurity_CardInfo with (nolock) where [InfoSecurity_CardInfo].[PaymentInfoID] = "+paymentInfoId;
         List<Map<String,Object>> temPayInfo = cardRiskDBTemplate.queryForList(sqlCommand);
         return temPayInfo;
-    }
-
-    //获取主支付信息 InfoSecurity_PaymentMainInfo
-    public Map getPaymentMainInfo(long reqId)
-    {
-        String sqlCommand = "SELECT top 1 from InfoSecurity_PaymentMainInfo with (nolock) where [InfoSecurity_PaymentMainInfo]" +
-                ".[ReqID] = "+reqId;
-        Map paymentMainInfo = cardRiskDBTemplate.queryForMap(sqlCommand);
-        return paymentMainInfo;
-    }
+    }*/
 }
