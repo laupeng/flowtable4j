@@ -570,7 +570,7 @@ public class FlightExecutor implements Executor
  * */
 
 
-    public Map complementData(Map<String,Object> data,int checkType)
+    /*public Map complementData(Map<String,Object> data,int checkType)
     {
         //当数据进来的时候先执行规则引擎的数据标准化
 //        rulesExecutorService.executeSyncRules();
@@ -643,11 +643,11 @@ public class FlightExecutor implements Executor
         return data;
     }
 
-/**
+*//**
      * 转成黑白名单实体数据
      * 内容是data的数据
      * 这里两种方案：1，新生成一个Map,2，用原来的data作为一个完整信息
-     * @param data*/
+     * @param data*//*
 
 
     public void convertToBWEntity(Map data)
@@ -717,10 +717,10 @@ public class FlightExecutor implements Executor
 
     }
 
-/**
+*//**
      * 转成流量实体数据
      * 内容是data的数据
-     * @param data*/
+     * @param data*//*
 
 
     public void convertToFlowEntity(Map data)
@@ -1157,9 +1157,9 @@ public class FlightExecutor implements Executor
 
 
     }
-/**
+*//**
      * 补充手机对应的城市和省
-     * @param data*/
+     * @param data*//*
 
 
     public void fillMobilePhoneInfo(Map data)
@@ -1231,9 +1231,9 @@ public class FlightExecutor implements Executor
             }
         }
     }
-/**
+*//**
      * 补充IP信息 先转换成10进制在通过10进制的数据查询IP对应的城市
-     * @param data*/
+     * @param data*//*
 
 
     public void fillIpInfo(Map data)
@@ -1255,11 +1255,11 @@ public class FlightExecutor implements Executor
         data.put(Flight.IPCountry,CountryCode);
     }
 
-/**
+*//**
      * 补充航程段信息
      * 获取逻辑：用AAirPort获取对应的City的id三位码
      * 获取逻辑：用DAirPort获取对应的City的id三位码
-     * @param data*/
+     * @param data*//*
 
 
     public void fillCityCode(Map data)
@@ -1314,10 +1314,10 @@ public class FlightExecutor implements Executor
         }
     }
 
-/**
+*//**
      * 补充订单主信息
      * @param data
-     * @param checkType*/
+     * @param checkType*//*
 
 
     public void fillMainInfo(Map data,int checkType)
@@ -1380,9 +1380,9 @@ public class FlightExecutor implements Executor
         }
     }
 
-/**
+*//**
      * 补充支付信息
-     * @param data*/
+     * @param data*//*
 
 
     public void fillPaymentInfo(Map data)
@@ -1521,11 +1521,11 @@ public class FlightExecutor implements Executor
         }
     }
 
-/*
+*//*
 *
      * 补充订单支付信息（包括订单的支付和主支付信息）
      * @param data
-*/
+*//*
 
 
     public void fillOrderInfo(Map data)
@@ -1569,9 +1569,9 @@ public class FlightExecutor implements Executor
         }
     }
 
-/**
+*//**
      * 补充机票订单信息
-     * @param data*/
+     * @param data*//*
 
 
     public void fillFlightsOrderInfo(Map data)
@@ -1587,11 +1587,11 @@ public class FlightExecutor implements Executor
         data.put(Flight.PaymentMainInfo,paymentMainInfo);
     }
 
-/*
+*//*
 *
      * 计算机票利润
      * @param data
-*/
+*//*
 
 
     public void fillFightsOrderProfit(Map data)
@@ -1634,9 +1634,9 @@ public class FlightExecutor implements Executor
         }
     }
 
-/**
+*//**
      * 补充did信息
-     * @param data*/
+     * @param data*//*
 
 
     public void fillDID(Map data)
@@ -1686,7 +1686,7 @@ public class FlightExecutor implements Executor
      * @param data
      * @throws java.text.ParseException
 
-
+*/
     public void getOtherInfo0(DataFact dataFact,Map data) throws ParseException
     {
         logger.info(data.get("OrderID")+"获取时间的差值相关信息");
