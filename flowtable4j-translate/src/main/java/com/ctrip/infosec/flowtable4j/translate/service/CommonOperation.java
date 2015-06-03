@@ -164,7 +164,7 @@ public class CommonOperation
      */
     public void fillPaymentInfo0(DataFact dataFact,Map data)
     {
-        List<Map> paymentInfos = (List<Map>)data.get(Common.PaymentInfos);
+        List<Map> paymentInfos = (List<Map>)data.get(Common.PaymentInfos);//这里在转换的时候注意是否需要转换成Json格式
         if(paymentInfos == null || paymentInfos.size()<1)
             return;
         for(Map payment : paymentInfos)

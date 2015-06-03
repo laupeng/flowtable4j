@@ -1,6 +1,7 @@
 package com.ctrip.infosec.flowtable4j.translate;
 
 import com.ctrip.infosec.flowtable4j.model.CheckFact;
+import com.ctrip.infosec.flowtable4j.translate.service.FlightExecutor;
 import com.ctrip.infosec.flowtable4j.translate.service.HotelGroupExecutor;
 import com.ctrip.infosec.flowtable4j.translate.service.TieYouExecutor;
 import org.slf4j.Logger;
@@ -23,6 +24,8 @@ public class PreProcessor
     BlockingQueue<Runnable> queue = new LinkedBlockingQueue<Runnable>();
     private ThreadPoolExecutor writeExcutor = new ThreadPoolExecutor(2, 5, 60, TimeUnit.SECONDS, queue);
     @Autowired
+    FlightExecutor flightExecutor;
+    @Autowired
     HotelGroupExecutor hotelGroupExecutor;
     @Autowired
     TieYouExecutor tieYouExecutor;
@@ -39,7 +42,7 @@ public class PreProcessor
         switch (orderType)
         {
             case 1:
-                break;
+                return flightExecutor.executeFlight(data,excutor,writeExcutor,true,true);
             case 2:
                 break;
             case 14:

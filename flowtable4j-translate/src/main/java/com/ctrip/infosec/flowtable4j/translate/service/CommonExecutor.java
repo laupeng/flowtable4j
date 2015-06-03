@@ -33,7 +33,7 @@ import static com.ctrip.infosec.flowtable4j.translate.common.Utils.getValue;
 public class CommonExecutor
 {
     private Logger logger = LoggerFactory.getLogger(HotelGroupExecutor.class);
-    private ThreadPoolExecutor excutor = null;
+    private ThreadPoolExecutor executor = null;
     List<Callable<DataFact>> runs = Lists.newArrayList();
     List<Callable<Map>> runsF = Lists.newArrayList();
     @Autowired
@@ -49,14 +49,14 @@ public class CommonExecutor
 
     public void complementData(DataFact dataFact,Map data,ThreadPoolExecutor excutor)
     {
-        this.excutor = excutor;
+        this.executor = excutor;
         beforeInvoke();
         try{
             logger.info("开始补充"+data.get("OrderID")+"数据");
             runs.clear();
             runsF.clear();
             String mobilePhone = getValue(data,Common.MobilePhone);
-            if(mobilePhone.length()>0&&mobilePhone.startsWith("0"))
+            if(mobilePhone.length()>0&&mobilePhone.startsWith("0"))//去掉手机号的第0位的0
             {
                 mobilePhone = mobilePhone.substring(1,mobilePhone.length());
                 data.put(Common.MobilePhone,mobilePhone);
@@ -215,8 +215,16 @@ public class CommonExecutor
                     //补充支付信息
                     commonOperation.fillPaymentInfo0(dataFact,data);//和checkType = 0的补充支付信息一样
 
+                    dataFact.paymentMainInfo.put(Common.BankValidationMethod,getValue(data,Common.BankValidationMethod));
+                    dataFact.paymentMainInfo.put(Common.ClientIDOrIP,getValue(data,Common.ClientIDOrIP));
+                    dataFact.paymentMainInfo.put(Common.ClientOS,getValue(data,Common.ClientOS));
+                    dataFact.paymentMainInfo.put(Common.DeductType,getValue(data,Common.DeductType));
+                    dataFact.paymentMainInfo.put(Common.IsPrepaID,getValue(data,Common.IsPrepaID));
+                    dataFact.paymentMainInfo.put(Common.PayMethod,getValue(data,Common.PayMethod));
+                    dataFact.paymentMainInfo.put(Common.PayValidationMethod,getValue(data,Common.PayValidationMethod));
+                    dataFact.paymentMainInfo.put(Common.ValidationFailsReason,getValue(data,Common.ValidationFailsReason));
                     //paymentMainInfo
-                    final DataFact dataFactCopy_M = new DataFact();
+                   /* final DataFact dataFactCopy_M = new DataFact();//fixme 当checkType=2的时候不需要重数据库读取信息
                     runs.add(new Callable<DataFact>() {
                         @Override
                         public DataFact call() throws Exception {
@@ -228,7 +236,7 @@ public class CommonExecutor
                             }
                             return null;
                         }
-                    });
+                    });*/
                     break;
                 default:
                     break;
@@ -387,6 +395,11 @@ public class CommonExecutor
         //补充主要支付方式                                           自己添加的以便于后面使用
         commonOperation.fillMainOrderType(data);//这里面加一个字段 “OrderPrepayType”
 
+        //appInfo
+        dataFact.appInfo.put("ClientID",getValue(data,"ClientID"));
+        dataFact.appInfo.put("ClientVersion",getValue(data,"ClientVersion"));
+        dataFact.appInfo.put("Latitude",getValue(data,"Latitude"));
+        dataFact.appInfo.put("Longitude",getValue(data,"Longitude"));
         //FIXME 这里检查
         //并发执行
         final DataFact dataFactCopy01 = new DataFact();
@@ -716,7 +729,7 @@ public class CommonExecutor
             long t2 = System.currentTimeMillis();
             List<Map> rawResult = new ArrayList<Map>();
             try {
-                List<Future<Map>> result = excutor.invokeAll(runsF, 1000, TimeUnit.MILLISECONDS);
+                List<Future<Map>> result = executor.invokeAll(runsF, 1000, TimeUnit.MILLISECONDS);
                 for (Future f : result) {
                     try {
                         if (f.isDone()) {
