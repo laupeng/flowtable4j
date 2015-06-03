@@ -601,6 +601,7 @@ public class CommonExecutor
                 {
                     Map cardInfoFirst = cardInfoList.get(0);
                     flowData.put("CCardNoCode",getValue(cardInfoFirst,Common.CCardNoCode));
+                    flowData.put("CCardPreNoCode",getValue(cardInfoFirst,Common.CCardPreNoCode));
                     flowData.put("CardNoRefID",getValue(cardInfoFirst,"CardNoRefID"));
                     flowData.put("CValidityCode",getValue(cardInfoFirst,Common.CValidityCode));
                     flowData.put("CreditCardType",getValue(cardInfoFirst,Common.CreditCardType));
@@ -638,6 +639,7 @@ public class CommonExecutor
             flowData.put("UserIPValue",getValue(dataFact.ipInfo,Common.UserIPValue));
             flowData.put("IPCity",getValue(dataFact.ipInfo,Common.IPCity));
             flowData.put("IPCountry",getValue(dataFact.ipInfo,Common.IPCountry));
+            flowData.put("Continent",getValue(dataFact.ipInfo,Common.Continent));
             if(!getValue(dataFact.ipInfo,Common.IPCity).isEmpty())
             {
                 Map ipCityInfo = commonSources.getCityInfo(getValue(dataFact.ipInfo, Common.IPCity));
@@ -662,8 +664,8 @@ public class CommonExecutor
                         Map cityInfo = commonSources.getCityAndProv(bindedMobiePhone);
                         if(cityInfo != null)
                         {
-                            flowDataCopy01.put(Common.RelatedMobilePhoneCity,getValue(cityInfo,Common.BindedMobilePhoneCity));
-                            flowDataCopy01.put(Common.RelatedMobilePhoneProvince,getValue(cityInfo,Common.BindedMobilePhoneProvince));
+                            flowDataCopy01.put(Common.BindedMobilePhoneCity,getValue(cityInfo,Common.BindedMobilePhoneCity));
+                            flowDataCopy01.put(Common.BindedMobilePhoneProvince,getValue(cityInfo,Common.BindedMobilePhoneProvince));
                         }
                         return flowDataCopy01;
                     } catch (Exception e) {

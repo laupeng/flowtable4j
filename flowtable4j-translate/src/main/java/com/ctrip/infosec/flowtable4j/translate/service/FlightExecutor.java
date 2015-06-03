@@ -123,13 +123,32 @@ public class FlightExecutor implements Executor
             long now2 = System.currentTimeMillis();
             Map<String,Object> flowData = commonExecutor.convertToFlowRuleCheckItem(dataFact,data);
             logger.info("通用流量实体执行时间:"+(System.currentTimeMillis()-now2));
+            flowData.put("IsTempUser",getValue(dataFact.userInfo,"IsTempUser"));
+            flowData.put("RelatedEMail",getValue(dataFact.userInfo,"RelatedEMail"));
+
+            flowData.put("IsOnline",getValue(dataFact.mainInfo,"IsOnline"));
+            flowData.put("Serverfrom",getValue(dataFact.mainInfo,"Serverfrom"));
+            flowData.put("WirelessClientNo",getValue(dataFact.mainInfo,"WirelessClientNo"));
+            flowData.put("ContactName",getValue(dataFact.contactInfo,"ContactName"));
+            flowData.put("ContactTel",getValue(dataFact.contactInfo,"ContactTel"));
+            flowData.put("ForignMobilePhone",getValue(dataFact.contactInfo,"ForignMobilePhone"));
+            flowData.put("TelCall",getValue(dataFact.contactInfo,"TelCall"));
+            flowData.put("SendTickerAddr",getValue(dataFact.contactInfo,"SendTickerAddr"));
+            flowData.put("PostAddress",getValue(dataFact.contactInfo,"PostAddress"));
+            int mobilePhone4Count = 0;
+            for(char c : getValue(dataFact.contactInfo,"MobilePhone").toCharArray())
+            {
+                if(c == '4')
+                    mobilePhone4Count++;
+            }
+            flowData.put("MobilePhone4Count",mobilePhone4Count);
             //支付衍生字段
             List<Map> paymentInfos = dataFact.paymentInfoList;
             for(Map paymentInfo : paymentInfos)
             {
                 Map subPaymentInfo = (Map)paymentInfo.get(Common.PaymentInfo);
                 String prepayType = getValue(subPaymentInfo,Common.PrepayType);
-                if(prepayType.equals("CCARD")||prepayType.equals("DCARD")||prepayType.equals("DQPAY"))
+                if(prepayType.equals("CCARD")||prepayType.equals("DCARD"))
                 {
                     List<Map> cardInfoList = (List<Map>)paymentInfo.get(Common.CardInfoList);
                     Map cardInfoFirst = cardInfoList.get(0);
@@ -204,11 +223,18 @@ public class FlightExecutor implements Executor
 
 
             //产品信息加到流量实体
+
             if(flightsOrderInfo!=null && flightsOrderInfo.size()>0)
             {
                 flowData.put("Profit",getValue(flightsOrderInfo,"Profit"));
                 flowData.put("FlightCostRate",getValue(flightsOrderInfo,"FlightCostRate"));
                 flowData.put("AgencyName",getValue(flightsOrderInfo,"AgencyName"));
+                flowData.put("IsClient",getValue(flightsOrderInfo,"IsClient"));
+                flowData.put("FlightClass",getValue(flightsOrderInfo,"FlightClass"));
+                flowData.put("DAirPort",getValue(flightsOrderInfo,"DAirPort"));
+                flowData.put("AAirPort",getValue(flightsOrderInfo,"AAirPort"));
+                flowData.put("EAirPort",getValue(flightsOrderInfo,"EAirPort"));
+                flowData.put("Remark",getValue(flightsOrderInfo,"Remark"));
             }
             List<Map<String,Object>> segmentInfoList = (List<Map<String,Object>>)dataFact.productInfoM.get(Flight.SegmentInfoList);
             if(segmentInfoList != null && segmentInfoList.size()>0)
