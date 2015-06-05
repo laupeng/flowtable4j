@@ -449,4 +449,20 @@ public class CommonSources
         logger.info("getInfo的时间是"+(System.currentTimeMillis()-now));
         return isWrite;
     }
+
+    //根据国家编号获取国家的名称和国际
+    public Map getCountryNameNationality(String country)
+    {
+        long now = System.currentTimeMillis();
+        Map<String,Object> countryInfo = null;
+        try{
+            String sqlCommand = "SELECT top 1 * from BaseData_CountryInfo with (nolock) where Country = ?";
+            countryInfo = cardRiskDBTemplate.queryForMap(sqlCommand, country);
+        }catch(Exception exp)
+        {
+            logger.warn("查询countryInfo信息异常:"+exp.getMessage());
+        }
+        logger.info("getCountryNameNationality的查询sqlServer的时间是："+(System.currentTimeMillis()-now));
+        return countryInfo;
+    }
 }

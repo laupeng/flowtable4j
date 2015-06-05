@@ -120,9 +120,9 @@ public class FlightSources
             countryInfo = cardRiskDBTemplate.queryForMap(sqlCommand, country);
         }catch(Exception exp)
         {
-            logger.warn("查询cnpInfo信息异常:"+exp.getMessage());
+            logger.warn("查询countryInfo信息异常:"+exp.getMessage());
         }
-        logger.info("getCityNameProvince的查询sqlServer的时间是："+(System.currentTimeMillis()-now));
+        logger.info("getCountryNameNationality的查询sqlServer的时间是："+(System.currentTimeMillis()-now));
         return countryInfo;
     }
 

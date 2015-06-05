@@ -2,10 +2,14 @@ package com.ctrip.infosec.flowtable4j.translate;
 
 import com.ctrip.infosec.flowtable4j.translate.dao.ESBSources;
 import org.antlr.grammar.v3.ANTLRv3Parser;
+import org.apache.commons.lang3.time.DateUtils;
 import org.dom4j.DocumentException;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -23,6 +27,19 @@ public class ESBSourcesTest
     @Test
     public void testConstructXml()
     {
+//        Date date = new Date();
+        // Date date1 = DateUtils.parseDate("2014-04-13 15:13:17.000", );
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        try
+        {
+            Date date = formatter.parse("2014-04-13 15:13:17.000");
+            String dateStr = formatter.format(date);
+            System.out.print(dateStr);
+        } catch (ParseException e)
+        {
+            e.printStackTrace();
+        }
+
         ESBSources esbSources = new ESBSources();
         esbSources.init();
         String contentType = "Customer.User.GetMemberInfo";
