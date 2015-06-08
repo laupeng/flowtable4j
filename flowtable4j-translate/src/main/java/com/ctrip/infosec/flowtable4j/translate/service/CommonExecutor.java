@@ -62,6 +62,7 @@ public class CommonExecutor
                 data.put(Common.MobilePhone,mobilePhone);
             }
             int checkType = Integer.parseInt(getValue(data, Common.CheckType));
+
             switch (checkType)
             {
                 case 0:
@@ -86,7 +87,16 @@ public class CommonExecutor
                     //补充支付信息 从数据库获取支付信息
                     //并发执行
                     final DataFact dataFactCopy01 = new DataFact();
-                    commonOperation.getLastReqID(data);
+
+                    //lastReqId
+                    if(getValue(data,Common.OrderType).equals("18"))
+                    {
+                        //铁有特殊处理 订单号是商户订单号
+                        commonOperation.getTieYouLastReqID(data);
+                    }else
+                    {
+                        commonOperation.getLastReqID(data);
+                    }
                     final String lastReq = getValue(data,Common.OldReqID);
                     if(lastReq!=null && !lastReq.isEmpty())
                     {
@@ -120,7 +130,16 @@ public class CommonExecutor
 
                 case 2:
                     //region Description       补充产品
-                    Map mainInfo = commonOperation.getLastReqID(data);
+                    //lastReqId
+                    Map mainInfo = null;
+                    if(getValue(data,Common.OrderType).equals("18"))
+                    {
+                        //铁有特殊处理 订单号是商户订单号
+                        mainInfo = commonOperation.getTieYouLastReqID(data);
+                    }else
+                    {
+                        mainInfo = commonOperation.getLastReqID(data);
+                    }
                     if(mainInfo!=null)
                         dataFact.mainInfo.putAll(mainInfo);//这里暂时存储OldReqID 在后面从data里面取出来   添加mainInfo信息
 

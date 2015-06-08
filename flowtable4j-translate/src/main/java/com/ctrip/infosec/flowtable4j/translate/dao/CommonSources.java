@@ -110,6 +110,23 @@ public class CommonSources
         return mainInfo;
     }
 
+    public Map getTieYouMainInfo(String orderType,String merchantOrderID)
+    {
+        long now = System.currentTimeMillis();
+        Map mainInfo = null;
+        try{
+            String commandText = "SELECT top 1 * from InfoSecurity_MainInfo with (nolock) where [InfoSecurity_MainInfo].[OrderType] = ?"
+                    +" and [InfoSecurity_MainInfo].[MerchantOrderID] = ?"+" order by [InfoSecurity_MainInfo].ReqID desc";
+            mainInfo = cardRiskDBTemplate.queryForMap(commandText,orderType,merchantOrderID);
+        }catch (Exception exp)
+        {
+            logger.warn("查询MainInfo信息异常:"+exp.getMessage());
+        }
+        logger.info("getMainInfo的查询sqlServer的时间是："+(System.currentTimeMillis()-now));
+        return mainInfo;
+
+    }
+
     public Map getCardInfo(String cardTypeId,String cardBin)
     {
         long now = System.currentTimeMillis();

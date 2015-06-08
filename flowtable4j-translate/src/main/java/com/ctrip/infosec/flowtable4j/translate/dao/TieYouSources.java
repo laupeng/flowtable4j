@@ -1,6 +1,7 @@
 package com.ctrip.infosec.flowtable4j.translate.dao;
 
 import com.ctrip.infosec.flowtable4j.translate.dao.Jndi.AllTemplates;
+import com.ctrip.infosec.flowtable4j.translate.model.Common;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -8,6 +9,8 @@ import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
 import java.util.Map;
+
+import static com.ctrip.infosec.flowtable4j.translate.common.Utils.getValue;
 
 /**
  * Created by lpxie on 15-5-8.
@@ -47,4 +50,6 @@ public class TieYouSources
         }
         return exRailUserInfo;
     }
+
+
 }

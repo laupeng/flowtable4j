@@ -152,6 +152,25 @@ public class CommonOperation
         return mainInfo;
     }
 
+    //获取tieYou的特殊reqId 根据订单类型和MerchantOrderID来获取
+    public Map getTieYouLastReqID(Map data)
+    {
+        String merchantOrderID = getValue(data, "MerchantOrderID");
+        String orderType = getValue(data,Common.OrderType);
+        Map mainInfo = commonSources.getTieYouMainInfo(orderType,merchantOrderID);
+        if(mainInfo!=null)
+        {
+            try{
+                long reqId = Long.parseLong(getValue(mainInfo, Common.ReqID));
+                data.put(Common.OldReqID,reqId);//上一次写入产品信息的reqId
+            }catch (Exception exp)
+            {
+                logger.warn("getLastReqID获取lastReqID异常:",exp);
+            }
+        }
+        return mainInfo;
+    }
+
     /**
      * 这个方法其实是把原来的标签PaymentInfos改成PaymentInfoList
      * 原来的结构：
