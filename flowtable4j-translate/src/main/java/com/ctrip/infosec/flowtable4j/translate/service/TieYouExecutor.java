@@ -224,13 +224,18 @@ public class TieYouExecutor implements Executor
     public void getOtherInfo(DataFact dataFact,Map data) throws ParseException
     {
         logger.info(data.get("OrderID")+"获取时间的差值相关信息");
-        //订单日期
-        String orderDateStr = getValue(data,Common.OrderDate);
-        Date orderDate = DateUtils.parseDate(orderDateStr, "yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd HH:mm:ss.SSS");//yyyy-MM-dd HH:mm:ss   yyyy-MM-dd HH:mm:ss.SSS
-        //注册日期
-        String signUpDateStr = getValue(data,Common.SignUpDate);
-        Date signUpDate = DateUtils.parseDate(signUpDateStr,"yyyy-MM-dd HH:mm:ss","yyyy-MM-dd HH:mm:ss.SSS");
-        dataFact.otherInfo.put(Common.OrderToSignUpDate,getDateAbs(signUpDate, orderDate,1));
+        try{
+            //订单日期
+            String orderDateStr = getValue(data,Common.OrderDate);
+            Date orderDate = DateUtils.parseDate(orderDateStr, "yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd HH:mm:ss.SSS");//yyyy-MM-dd HH:mm:ss   yyyy-MM-dd HH:mm:ss.SSS
+            //注册日期
+            String signUpDateStr = getValue(data,Common.SignUpDate);
+            Date signUpDate = DateUtils.parseDate(signUpDateStr,"yyyy-MM-dd HH:mm:ss","yyyy-MM-dd HH:mm:ss.SSS");
+            dataFact.otherInfo.put(Common.OrderToSignUpDate,getDateAbs(signUpDate, orderDate,1));
+        }catch (Exception exp)
+        {
+            logger.warn(data.get("OrderID")+"获取时间的差值相关信息异常"+exp.getMessage());
+        }
     }
 
     /**
