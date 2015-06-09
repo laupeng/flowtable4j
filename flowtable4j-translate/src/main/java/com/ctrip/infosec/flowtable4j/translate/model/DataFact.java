@@ -51,5 +51,7 @@ public class DataFact
     //七：临时信息
     public Map<String,Object> tempInfo = new HashMap<String, Object>();//我自己添加的
     //八：机票里面有AppInfo
-    public Map<String,Object> appInfo = new HashMap<String, Object>();
+    public Map<String,Object> appInfo = new HashMap<String, Object>();//机票需要
+
+    public Map<String,Object> miceInfo = new HashMap<String, Object>();//度假需要
 }

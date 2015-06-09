@@ -5,26 +5,19 @@ import com.ctrip.infosec.flowtable4j.model.CheckFact;
 import com.ctrip.infosec.flowtable4j.model.CheckType;
 import com.ctrip.infosec.flowtable4j.model.FlowFact;
 import com.ctrip.infosec.flowtable4j.translate.common.BeanMapper;
-import com.ctrip.infosec.flowtable4j.translate.common.MyJSON;
 import com.ctrip.infosec.flowtable4j.translate.dao.*;
 import com.ctrip.infosec.flowtable4j.translate.model.Common;
 import com.ctrip.infosec.flowtable4j.translate.model.DataFact;
 import com.ctrip.infosec.flowtable4j.translate.model.HotelGroup;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
 import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-import javax.print.attribute.standard.OrientationRequested;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 import static com.ctrip.infosec.common.SarsMonitorWrapper.afterInvoke;
 import static com.ctrip.infosec.common.SarsMonitorWrapper.beforeInvoke;
@@ -35,17 +28,14 @@ import static com.ctrip.infosec.flowtable4j.translate.common.Utils.getValue;
 import static com.ctrip.infosec.flowtable4j.translate.common.Utils.getValueMap;
 
 /**
- * Created by lpxie on 15-4-20.
+ * Created by lpxie on 15-6-9.
  */
-@Component
-public class HotelGroupExecutor implements Executor
+public class VacationExecutor
 {
-    private Logger logger = LoggerFactory.getLogger(HotelGroupExecutor.class);
+    private Logger logger = LoggerFactory.getLogger(VacationExecutor.class);
     private ThreadPoolExecutor writeExecutor = null;
     @Autowired
-    HotelGroupSources hotelGroupSources;
-    @Autowired
-    HotelGroupWriteSources hotelGroupWriteSources;
+    VacationSources vacationSources;
     @Autowired
     CommonSources commonSources;
     @Autowired
@@ -61,19 +51,25 @@ public class HotelGroupExecutor implements Executor
     @Autowired
     CommonOperation commonOperation;
 
-    public CheckFact executeHotelGroup(Map data,ThreadPoolExecutor executor,ThreadPoolExecutor writeExecutor,boolean isWrite,boolean isCheck)
+    public CheckFact executeVacation(Map data,ThreadPoolExecutor executor,ThreadPoolExecutor writeExecutor,boolean isWrite,boolean isCheck)
     {
         this.writeExecutor = writeExecutor;
         beforeInvoke();
         DataFact dataFact = new DataFact();
         CheckFact checkFact = new CheckFact();
         try{
-            logger.info("开始处理酒店团购 "+data.get("OrderID").toString()+" 数据");
+            logger.info("开始处理度假 "+data.get("OrderID").toString()+" 数据");
             //一：补充数据
             long now5 = System.currentTimeMillis();
             commonExecutor.complementData(dataFact,data,executor);
             logger.info("complementData公共补充数据的时间是:"+(System.currentTimeMillis()-now5));
-
+            //添加miceInfo的信息
+            String subOrderType = getValue(data,Common.SubOrderType);
+            if(subOrderType.equals("18"))//18是欧铁
+            {
+                dataFact.miceInfo.put("AccountBook",getValue(data,"AccountBook"));
+                dataFact.miceInfo.put("BookingName",getValue(data,"BookingName"));
+            }
             //这里分checkType 0、1和2两种情况
             int checkType = Integer.parseInt(getValue(data, Common.CheckType));
             if(checkType == 0 )
@@ -82,18 +78,56 @@ public class HotelGroupExecutor implements Executor
             }else if(checkType == 1)
             {
                 getOtherInfo0(dataFact, data);
-                getHotelGroupProductInfo0(dataFact, data);
+                getVacationProductInfo0(dataFact, data);
             }
             else if(checkType == 2)
             {
                 getOtherInfo1(dataFact, data);
-                getHotelGroupProductInfo1(dataFact, data);
+                getVacationProductInfo1(dataFact, data);
+                getMiceInfo(dataFact,data);//获取欧铁信息
             }
             logger.info("一：公共补充数据的时间是:"+(System.currentTimeMillis()-now5));
             //二：黑白名单数据
             long now1 = System.currentTimeMillis();
             Map<String,Object> bwList = commonExecutor.convertToBlackCheckItem(dataFact,data);
-            bwList.putAll(dataFact.productInfoM);
+            //产品信息
+            Map vacationOrderInfo = getValueMap(dataFact.productInfoM,"VacationOrderInfo");
+            if(vacationOrderInfo != null && vacationOrderInfo.size()>0)
+                bwList.put("ProductName",getValue(vacationOrderInfo,"ProductName"));
+            List<Map<String,Object>> vacationUserInfo = (List<Map<String,Object>>)data.get("VacationUserInfo");
+            if(vacationUserInfo != null && vacationUserInfo.size()>0)
+            {
+                String PassengerName = "";
+                String PassengerNationality = "";
+                String PassengerCardID = "";
+                String VisitorContactInfo = "";
+                for(Map item : vacationUserInfo)
+                {
+                    PassengerName += getValue(item,"VisitorName") +"|"; //	出行人姓名(精确)
+                    PassengerNationality += getValue(item,"VisitorNationality") +"|";   //	出行人国籍
+                    PassengerCardID += getValue(item,"VisitorIDCode") +"|";//	出行人证件号码
+                    VisitorContactInfo += getValue(item,"VisitorContactInfo") +"|";////	出行人联系方式
+                }
+                bwList.put("PassengerName","|"+PassengerName);
+                bwList.put("PassengerNationality","|"+PassengerNationality);
+                bwList.put("PassengerCardID","|"+PassengerCardID);
+                bwList.put("VisitorContactInfo","|"+VisitorContactInfo);
+            }
+            List<Map<String,Object>> vacationOptionInfo = (List<Map<String,Object>>)data.get("VacationOptionInfo");
+            if(vacationOptionInfo != null && vacationOptionInfo.size()>0)
+            {
+                String VacationOptionID = "";
+                String VacationOptionName = "";
+                for(Map item : vacationOptionInfo)
+                {
+                    VacationOptionID += getValue(item,"OptionID") +"|"; //	度假子项ID
+                    VacationOptionName += getValue(item,"OptionName") +"|";      //	度假子项名称
+                }
+                bwList.put("VacationOptionID","|"+VacationOptionID);
+                bwList.put("VacationOptionName","|"+VacationOptionName);
+            }
+
+            //bwList.putAll(dataFact.productInfoM);
             logger.info("补充黑白名单数据的时间是："+(System.currentTimeMillis()-now1));
             logger.info("二：到黑白名单数据的时间是："+(System.currentTimeMillis()-now5));
             //三：流量实体数据
@@ -119,7 +153,46 @@ public class HotelGroupExecutor implements Executor
                 flowData.put(Common.UserIPAddMobileNumber,getValue(dataFact.ipInfo,Common.UserIPAdd)+getValue(dataFact.contactInfo,Common.MobilePhone).substring(0,7));
                 flowData.put(Common.UIDMobileNumber,getValue(dataFact.userInfo,Common.Uid)+getValue(dataFact.contactInfo,Common.MobilePhone).substring(0,7));
             }
-            //产品信息加到流量实体
+
+            //vacationOrderInfo  //产品信息加到流量实体
+            if(vacationOrderInfo != null && vacationOrderInfo.size()>0)
+            {
+                flowData.put("DCity",getValue(vacationOrderInfo,"DCity"));
+                flowData.put("SupplierID",getValue(vacationOrderInfo,"SupplierID"));
+                flowData.put("SaleMode",getValue(vacationOrderInfo,"SaleMode"));
+                flowData.put("DCityName",getValue(vacationOrderInfo,"DCityName"));//fixme 这里有点问题
+                flowData.put("ProductName",getValue(vacationOrderInfo,"ProductName"));
+            }
+            //vacationOptionInfo
+            if(vacationOptionInfo != null && vacationOptionInfo.size()>0)
+            {
+                int optionQty = 0;
+                for (Map item : vacationOptionInfo)
+                {
+                    optionQty += Integer.parseInt(getValue(item,"OptionQty"));
+                }
+                flowData.put("OptionQty",optionQty);
+            }
+            //vacationUserInfo
+            if(vacationUserInfo != null && vacationUserInfo.size()>0)
+            {
+                String visitorContactInfo = "";
+                int visitorCount = vacationUserInfo.size();
+                for (Map item : vacationUserInfo)
+                {
+                    if(!getValue(item,"VisitorContactInfo").isEmpty())
+                    {
+                        visitorContactInfo = getValue(item,"VisitorContactInfo");
+                        break;
+                    }
+                }
+                if(!visitorContactInfo.isEmpty())
+                {
+                    flowData.put("VisitorContactInfo",visitorContactInfo);
+                    flowData.put("MergedContactInfo",visitorContactInfo);
+                }
+                flowData.put("VistorCount",visitorCount);
+            }
             flowData.put("Quantity",getValue(dataFact.productInfoM,Common.Quantity));
             flowData.put("City",getValue(dataFact.productInfoM,Common.City));
             flowData.put("ProductID",getValue(dataFact.productInfoM,Common.ProductID));
@@ -155,16 +228,16 @@ public class HotelGroupExecutor implements Executor
             logger.info("DIDInfo\t"+ Json.toPrettyJSONString(dataFact.DIDInfo));
 
             if(dataFact.paymentInfoList != null && dataFact.paymentInfoList.size()>0)
-            for(int i=0;i<dataFact.paymentInfoList.size();i++)
-            {
-                Map<String,Object> paymentInfo = dataFact.paymentInfoList.get(i);
-                logger.info(i + "\tpaymentInfo\t" + Json.toPrettyJSONString(paymentInfo.get("PaymentInfo")));
-                List<Map<String,Object>> cardInfos = (List<Map<String,Object>>)paymentInfo.get(Common.CardInfoList);
-                for(int j=0;j<cardInfos.size();j++)
+                for(int i=0;i<dataFact.paymentInfoList.size();i++)
                 {
-                    logger.info(i + "\t" + j + "\tcardInfo\t" + Json.toPrettyJSONString(cardInfos.get(j)));
+                    Map<String,Object> paymentInfo = dataFact.paymentInfoList.get(i);
+                    logger.info(i + "\tpaymentInfo\t" + Json.toPrettyJSONString(paymentInfo.get("PaymentInfo")));
+                    List<Map<String,Object>> cardInfos = (List<Map<String,Object>>)paymentInfo.get(Common.CardInfoList);
+                    for(int j=0;j<cardInfos.size();j++)
+                    {
+                        logger.info(i + "\t" + j + "\tcardInfo\t" + Json.toPrettyJSONString(cardInfos.get(j)));
+                    }
                 }
-            }
             logger.info("paymentMainInfo\t"+ Json.toPrettyJSONString(dataFact.paymentMainInfo));
 
             //判断是否写入数据
@@ -215,14 +288,47 @@ public class HotelGroupExecutor implements Executor
      * @param dataFact
      * @param data
      */
-    public void getHotelGroupProductInfo0(DataFact dataFact,Map data)
+    public void getVacationProductInfo0(DataFact dataFact,Map data)
     {
-        dataFact.productInfoM.put(HotelGroup.City,getValue(data,HotelGroup.City));
-        dataFact.productInfoM.put(HotelGroup.Price,getValue(data,HotelGroup.Price));//fixme 转成decimal
-        dataFact.productInfoM.put(HotelGroup.ProductID,getValue(data,HotelGroup.ProductID));
-        dataFact.productInfoM.put(HotelGroup.ProductName,getValue(data,HotelGroup.ProductName));
-        dataFact.productInfoM.put(HotelGroup.Quantity,getValue(data,HotelGroup.Quantity));
-        dataFact.productInfoM.put(HotelGroup.ProductType,getValue(data,HotelGroup.ProductType));
+        Map<String,Object> vacationOrderInfo = new HashMap<String, Object>();
+        vacationOrderInfo.put("DCity",getValue(data,"DCity"));
+        vacationOrderInfo.put("ACity",getValue(data,"ACity"));
+        vacationOrderInfo.put("DepartureDate",getValue(data,"DepartureDate"));
+        vacationOrderInfo.put("ProductName",getValue(data,"ProductName"));
+        vacationOrderInfo.put("SaleMode",getValue(data,"SaleMode"));
+        vacationOrderInfo.put("SupplierID",getValue(data,"SupplierID"));
+        vacationOrderInfo.put("SupplierName",getValue(data,"SupplierName"));
+
+        List<Map<String,Object>> vacationOptionInfoList = new ArrayList<Map<String, Object>>();
+        Map<String,Object> vacationOptionInfo = new HashMap<String, Object>();
+        List<Map<String,Object>> oldVacationOptionInfo = (List<Map<String,Object>>)data.get("OptionItems");
+        if(oldVacationOptionInfo != null)
+        for(Map item : oldVacationOptionInfo)
+        {
+            vacationOptionInfo.put("OptionID",getValue(item,"OptionID"));
+            vacationOptionInfo.put("OptionName",getValue(item,"OptionName"));
+            vacationOptionInfo.put("OptionQty",getValue(item,"OptionQty"));
+            vacationOptionInfo.put("SupplierID",getValue(item,"SupplierID"));
+            vacationOptionInfo.put("SupplierName",getValue(item,"SupplierName"));
+            vacationOptionInfoList.add(vacationOptionInfo);
+        }
+
+        List<Map<String,Object>> vacationUserInfoList = new ArrayList<Map<String, Object>>();
+        Map<String,Object> vacationUserInfo = new HashMap<String, Object>();
+        List<Map<String,Object>> oldVacationUserInfo = (List<Map<String,Object>>)data.get("UserInfos");//出行人信息
+        if(oldVacationUserInfo != null)
+        for(Map item : oldVacationUserInfo)
+        {
+            vacationUserInfo.put("VisitorContactInfo",getValue(item,"VisitorContactInfo"));
+            vacationUserInfo.put("VisitorCardNo",getValue(item,"VisitorCardNo"));
+            vacationUserInfo.put("VisitorName",getValue(item,"VisitorName"));
+            vacationUserInfo.put("VisitorNationality",getValue(item,"VisitorNationality"));
+            vacationUserInfoList.add(vacationUserInfo);
+        }
+
+        dataFact.productInfoM.put("VacationOrderInfo",vacationOrderInfo);//订单信息
+        dataFact.productInfoM.put("VacationOptionInfo",vacationOptionInfoList);//选项信息
+        dataFact.productInfoM.put("VacationUserInfo",vacationUserInfoList);//出行人信息
     }
 
     /**
@@ -230,20 +336,48 @@ public class HotelGroupExecutor implements Executor
      * @param dataFact
      * @param data
      */
-    public void getHotelGroupProductInfo1(DataFact dataFact,Map data)
+    public void getVacationProductInfo1(DataFact dataFact,Map data)
     {
         //通过lastReqID查询所有订单相关的信息 注意这里是上一次的reqid(当checkType=1的时候)
         String reqIdStr = getValue(data,Common.OldReqID);
         if(reqIdStr.isEmpty())
             return;
         try{
-            Map hotelGroupProduct = hotelGroupSources.getHotelGroupInfo(reqIdStr);
-            if(hotelGroupProduct != null && hotelGroupProduct.size()>0)
-                dataFact.productInfoM.putAll(hotelGroupProduct);
+            Map vacationOrderInfo = vacationSources.getVacationOrderInfo(reqIdStr);
+            if(vacationOrderInfo != null && vacationOrderInfo.size()>0)
+                dataFact.productInfoM.put("VacationOrderInfo",vacationOrderInfo);
+            String vacationInfoID = getValue(vacationOrderInfo,"VacationInfoID");
+            if(!vacationInfoID.isEmpty())
+            {
+                List<Map<String,Object>> vacationOptionInfoList = vacationSources.getVacationOptionInfoList(vacationInfoID);
+                if(vacationOptionInfoList != null && vacationOptionInfoList.size()>0)
+                    dataFact.productInfoM.put("VacationOptionInfo",vacationOrderInfo);
+                List<Map<String,Object>> vacationUserInfoList = vacationSources.getVacationUserInfoList(vacationInfoID);
+                if(vacationUserInfoList != null && vacationUserInfoList.size()>0)
+                    dataFact.productInfoM.put("VacationUserInfo",vacationUserInfoList);
+            }
         }catch (Exception exp)
         {
             logger.warn("获取HotelGroupProductInfo异常:",exp);
         }
+    }
+
+    //获取欧铁信息
+    public void getMiceInfo(DataFact dataFact,Map data)
+    {
+        //通过lastReqID查询所有订单相关的信息 注意这里是上一次的reqid(当checkType=1的时候)
+        String reqIdStr = getValue(data,Common.OldReqID);
+        if(reqIdStr.isEmpty())
+            return;
+        try{
+            Map miceInfo = vacationSources.getMiceInfo(reqIdStr);
+            if(miceInfo != null && miceInfo.size()>0)
+                dataFact.productInfoM.put("MiceInfo",miceInfo);
+        }catch (Exception exp)
+        {
+            logger.warn("获取MiceInfo异常:",exp);
+        }
+
     }
 
     public void writeDB(Map data,DataFact dataFact,Map flowData,final boolean isWrite,final boolean isCheck)
@@ -253,7 +387,7 @@ public class HotelGroupExecutor implements Executor
         final String reqId = getValue(data,Common.ReqID);
         flowData.put(Common.ReqID,reqId);
 
-        final DataFact dataFactCopy = BeanMapper.copy(dataFact,DataFact.class);
+        final DataFact dataFactCopy = BeanMapper.copy(dataFact, DataFact.class);
         writeExecutor.submit(new Callable<DataFact>() {
             @Override
             public DataFact call() throws Exception {
@@ -322,7 +456,7 @@ public class HotelGroupExecutor implements Executor
                 try
                 {
                     hotelGroupWriteSources.insertHotelGroupInfo(dataFactCopy.productInfoM, reqId, isWrite, isCheck);
-        } catch (Exception e)
+                } catch (Exception e)
                 {
                     logger.warn("invoke commonWriteSources.insertHotelGroupInfo failed.: ", e);
                 }
