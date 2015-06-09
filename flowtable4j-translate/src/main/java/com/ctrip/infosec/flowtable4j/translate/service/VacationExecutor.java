@@ -142,18 +142,18 @@ public class VacationExecutor
                 List<Map> cardInfoList = (List<Map>)paymentInfo.get(Common.CardInfoList);
                 Map cardInfoFirst = cardInfoList.get(0);
                 flowData.put(Common.CardBinOrderID,getValue(cardInfoFirst,Common.CardBin)+getValue(dataFact.mainInfo,Common.OrderID));
-                flowData.put(Common.CardBinUID,getValue(cardInfoFirst,Common.CardBin)+getValue(dataFact.userInfo,Common.Uid));
-                flowData.put(Common.CardBinMobilePhone,getValue(cardInfoFirst,Common.CardBin)+getValue(dataFact.contactInfo,Common.MobilePhone));
-                flowData.put(Common.CardBinUserIPAdd,getValue(cardInfoFirst,Common.CardBin)+getValue(dataFact.ipInfo,Common.UserIPAdd));
-                flowData.put(Common.ContactEMailCardBin,getValue(dataFact.contactInfo,Common.ContactEMail)+getValue(cardInfoFirst,Common.CardBin));
+                flowData.put("CCardPreNoCodeContactEMail",getValue(cardInfoFirst,Common.CCardPreNoCode)+getValue(dataFact.contactInfo,Common.ContactEMail));
+                flowData.put("CCardPreNoCodeMobilePhone",getValue(cardInfoFirst,Common.CCardPreNoCode)+getValue(dataFact.contactInfo,Common.MobilePhone));
+                flowData.put("CCardPreNoCodeUid",getValue(cardInfoFirst,Common.CCardPreNoCode)+getValue(dataFact.userInfo,Common.Uid));
+
+                flowData.put("UidCCardNoCode",getValue(dataFact.userInfo,Common.Uid)+getValue(cardInfoFirst,Common.CCardNoCode));
+                flowData.put("UidCardNoRefID",getValue(dataFact.userInfo,Common.Uid)+getValue(cardInfoFirst,"CardNoRefID"));
+                flowData.put("CCardNoCodeSupplierID",getValue(cardInfoFirst,Common.CCardNoCode)+getValue(flowData,"SupplierID"));
+                flowData.put("MobilePhoneSupplierID",getValue(dataFact.contactInfo,Common.MobilePhone)+getValue(flowData,"SupplierID"));
+                flowData.put("ContactEMailSupplierID",getValue(dataFact.contactInfo,Common.ContactEMail)+getValue(flowData,"SupplierID"));
+                flowData.put("ServerfromSupplierID",getValue(flowData,"Serverfrom")+getValue(flowData,"SupplierID"));
                 break;
             }
-            if(getValue(dataFact.contactInfo,Common.MobilePhone).length()>=7)//fixme 看看下面这段是不是都有用到，可以拿到common里面去
-            {
-                flowData.put(Common.UserIPAddMobileNumber,getValue(dataFact.ipInfo,Common.UserIPAdd)+getValue(dataFact.contactInfo,Common.MobilePhone).substring(0,7));
-                flowData.put(Common.UIDMobileNumber,getValue(dataFact.userInfo,Common.Uid)+getValue(dataFact.contactInfo,Common.MobilePhone).substring(0,7));
-            }
-
             //vacationOrderInfo  //产品信息加到流量实体
             if(vacationOrderInfo != null && vacationOrderInfo.size()>0)
             {
@@ -193,12 +193,12 @@ public class VacationExecutor
                 }
                 flowData.put("VistorCount",visitorCount);
             }
-            flowData.put("Quantity",getValue(dataFact.productInfoM,Common.Quantity));
+            /*flowData.put("Quantity",getValue(dataFact.productInfoM,Common.Quantity));
             flowData.put("City",getValue(dataFact.productInfoM,Common.City));
             flowData.put("ProductID",getValue(dataFact.productInfoM,Common.ProductID));
             flowData.put("ProductName",getValue(dataFact.productInfoM,Common.ProductName));
             flowData.put("ProductType",getValue(dataFact.productInfoM,Common.ProductType));
-            flowData.put("Price",getValue(dataFact.productInfoM,Common.Price));
+            flowData.put("Price",getValue(dataFact.productInfoM,Common.Price));*/
             logger.info("三：到补充流量数据的时间是："+(System.currentTimeMillis()-now5));
             logger.info(data.get("OrderID").toString()+" 数据处理完毕");
 
