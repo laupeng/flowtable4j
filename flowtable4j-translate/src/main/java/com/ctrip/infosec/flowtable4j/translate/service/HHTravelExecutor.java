@@ -30,12 +30,11 @@ import static com.ctrip.infosec.flowtable4j.translate.common.Utils.getValueMap;
 /**
  * Created by lpxie on 15-6-9.
  */
-public class VacationExecutor
+public class HHTravelExecutor
 {
-    private Logger logger = LoggerFactory.getLogger(VacationExecutor.class);
+    private Logger logger = LoggerFactory.getLogger(HotelGroupExecutor.class);
     private ThreadPoolExecutor writeExecutor = null;
-    @Autowired
-    VacationSources vacationSources;
+
     @Autowired
     CommonSources commonSources;
     @Autowired
@@ -51,49 +50,36 @@ public class VacationExecutor
     @Autowired
     CommonOperation commonOperation;
 
-    public CheckFact executeVacation(Map data,ThreadPoolExecutor executor,ThreadPoolExecutor writeExecutor,boolean isWrite,boolean isCheck)
+    /**
+     * 鸿鹄旅游只有checkType=0的情况
+     * @param data
+     * @param executor
+     * @param writeExecutor
+     * @param isWrite
+     * @param isCheck
+     * @return
+     */
+    public CheckFact executeHHTravel(Map data,ThreadPoolExecutor executor,ThreadPoolExecutor writeExecutor,boolean isWrite,boolean isCheck)
     {
         this.writeExecutor = writeExecutor;
         beforeInvoke();
         DataFact dataFact = new DataFact();
         CheckFact checkFact = new CheckFact();
         try{
-            logger.info("开始处理度假 "+data.get("OrderID").toString()+" 数据");
+            logger.info("开始处理酒店团购 "+data.get("OrderID").toString()+" 数据");
             //一：补充数据
             long now5 = System.currentTimeMillis();
-            commonExecutor.complementData(dataFact,data,executor);
-            logger.info("complementData公共补充数据的时间是:"+(System.currentTimeMillis()-now5));
-            //添加miceInfo的信息
-            String subOrderType = getValue(data,Common.SubOrderType);
-            if(subOrderType.equals("18"))//18是欧铁
-            {
-                dataFact.miceInfo.put("AccountBook",getValue(data,"AccountBook"));
-                dataFact.miceInfo.put("BookingName",getValue(data,"BookingName"));
-            }
-            //这里分checkType 0、1和2两种情况
-            int checkType = Integer.parseInt(getValue(data, Common.CheckType));
-            if(checkType == 0 )
-            {
-                getOtherInfo0(dataFact, data);
-            }else if(checkType == 1)
-            {
-                getOtherInfo0(dataFact, data);
-                getVacationProductInfo0(dataFact, data);
-            }
-            else if(checkType == 2)
-            {
-                getOtherInfo1(dataFact, data);
-                getVacationProductInfo1(dataFact, data);
-                getMiceInfo(dataFact,data);//获取欧铁信息
-            }
+            data.put(Common.CheckType,"0");
+            commonExecutor.complementData(dataFact, data, executor);
+            logger.info("complementData公共补充数据的时间是:" + (System.currentTimeMillis() - now5));
+            getOtherInfo0(dataFact, data);
+            //产品信息添加
+            getVacationProductInfo(dataFact,data);
             logger.info("一：公共补充数据的时间是:"+(System.currentTimeMillis()-now5));
             //二：黑白名单数据
             long now1 = System.currentTimeMillis();
             Map<String,Object> bwList = commonExecutor.convertToBlackCheckItem(dataFact,data);
             //产品信息
-            Map vacationOrderInfo = getValueMap(dataFact.productInfoM,"VacationOrderInfo");
-            if(vacationOrderInfo != null && vacationOrderInfo.size()>0)
-                bwList.put("ProductName",getValue(vacationOrderInfo,"ProductName"));
             List<Map<String,Object>> vacationUserInfo = (List<Map<String,Object>>)data.get("VacationUserInfo");
             if(vacationUserInfo != null && vacationUserInfo.size()>0)
             {
@@ -126,84 +112,17 @@ public class VacationExecutor
                 bwList.put("VacationOptionID","|"+VacationOptionID);
                 bwList.put("VacationOptionName","|"+VacationOptionName);
             }
-
-            //bwList.putAll(dataFact.productInfoM);
             logger.info("补充黑白名单数据的时间是："+(System.currentTimeMillis()-now1));
             logger.info("二：到黑白名单数据的时间是："+(System.currentTimeMillis()-now5));
             //三：流量实体数据
             long now2 = System.currentTimeMillis();
-            Map<String,Object> flowData = commonExecutor.convertToFlowRuleCheckItem(dataFact,data);
+            Map<String,Object> flowData = null;//鸿鹄旅游不需要这个
             logger.info("通用流量实体执行时间:"+(System.currentTimeMillis()-now2));
-            //支付衍生字段
-            List<Map> paymentInfos = dataFact.paymentInfoList;
-            for(Map paymentInfo : paymentInfos)
-            {
-                //Map subPaymentInfo = (Map)paymentInfo.get(Common.PaymentInfo);
-                List<Map> cardInfoList = (List<Map>)paymentInfo.get(Common.CardInfoList);
-                Map cardInfoFirst = cardInfoList.get(0);
-                flowData.put(Common.CardBinOrderID,getValue(cardInfoFirst,Common.CardBin)+getValue(dataFact.mainInfo,Common.OrderID));
-                flowData.put("CCardPreNoCodeContactEMail",getValue(cardInfoFirst,Common.CCardPreNoCode)+getValue(dataFact.contactInfo,Common.ContactEMail));
-                flowData.put("CCardPreNoCodeMobilePhone",getValue(cardInfoFirst,Common.CCardPreNoCode)+getValue(dataFact.contactInfo,Common.MobilePhone));
-                flowData.put("CCardPreNoCodeUid",getValue(cardInfoFirst,Common.CCardPreNoCode)+getValue(dataFact.userInfo,Common.Uid));
-
-                flowData.put("UidCCardNoCode",getValue(dataFact.userInfo,Common.Uid)+getValue(cardInfoFirst,Common.CCardNoCode));
-                flowData.put("UidCardNoRefID",getValue(dataFact.userInfo,Common.Uid)+getValue(cardInfoFirst,"CardNoRefID"));
-                flowData.put("CCardNoCodeSupplierID",getValue(cardInfoFirst,Common.CCardNoCode)+getValue(flowData,"SupplierID"));
-                flowData.put("MobilePhoneSupplierID",getValue(dataFact.contactInfo,Common.MobilePhone)+getValue(flowData,"SupplierID"));
-                flowData.put("ContactEMailSupplierID",getValue(dataFact.contactInfo,Common.ContactEMail)+getValue(flowData,"SupplierID"));
-                flowData.put("ServerfromSupplierID",getValue(flowData,"Serverfrom")+getValue(flowData,"SupplierID"));
-                break;
-            }
-            //vacationOrderInfo  //产品信息加到流量实体
-            if(vacationOrderInfo != null && vacationOrderInfo.size()>0)
-            {
-                flowData.put("DCity",getValue(vacationOrderInfo,"DCity"));
-                flowData.put("SupplierID",getValue(vacationOrderInfo,"SupplierID"));
-                flowData.put("SaleMode",getValue(vacationOrderInfo,"SaleMode"));
-                flowData.put("DCityName",getValue(vacationOrderInfo,"DCityName"));//fixme 这里有点问题
-                flowData.put("ProductName",getValue(vacationOrderInfo,"ProductName"));
-            }
-            //vacationOptionInfo
-            if(vacationOptionInfo != null && vacationOptionInfo.size()>0)
-            {
-                int optionQty = 0;
-                for (Map item : vacationOptionInfo)
-                {
-                    optionQty += Integer.parseInt(getValue(item,"OptionQty"));
-                }
-                flowData.put("OptionQty",optionQty);
-            }
-            //vacationUserInfo
-            if(vacationUserInfo != null && vacationUserInfo.size()>0)
-            {
-                String visitorContactInfo = "";
-                int visitorCount = vacationUserInfo.size();
-                for (Map item : vacationUserInfo)
-                {
-                    if(!getValue(item,"VisitorContactInfo").isEmpty())
-                    {
-                        visitorContactInfo = getValue(item,"VisitorContactInfo");
-                        break;
-                    }
-                }
-                if(!visitorContactInfo.isEmpty())
-                {
-                    flowData.put("VisitorContactInfo",visitorContactInfo);
-                    flowData.put("MergedContactInfo",visitorContactInfo);
-                }
-                flowData.put("VistorCount",visitorCount);
-            }
-            /*flowData.put("Quantity",getValue(dataFact.productInfoM,Common.Quantity));
-            flowData.put("City",getValue(dataFact.productInfoM,Common.City));
-            flowData.put("ProductID",getValue(dataFact.productInfoM,Common.ProductID));
-            flowData.put("ProductName",getValue(dataFact.productInfoM,Common.ProductName));
-            flowData.put("ProductType",getValue(dataFact.productInfoM,Common.ProductType));
-            flowData.put("Price",getValue(dataFact.productInfoM,Common.Price));*/
             logger.info("三：到补充流量数据的时间是："+(System.currentTimeMillis()-now5));
             logger.info(data.get("OrderID").toString()+" 数据处理完毕");
 
             //四：构造规则引擎的数据类型CheckFact
-            CheckType[] checkTypes = {CheckType.BW,CheckType.FLOWRULE};
+            CheckType[] checkTypes = {CheckType.BW};//鸿鹄旅游不需要检查流量实体
             BWFact bwFact = new BWFact();
             bwFact.setOrderType(Integer.parseInt(data.get(Common.OrderType).toString()));
             bwFact.setContent(bwList);
@@ -274,110 +193,45 @@ public class VacationExecutor
         dataFact.otherInfo.put(Common.OrderToSignUpDate,getDateAbs(signUpDate, orderDate,1));
 
         dataFact.otherInfo.put(Common.TakeOffToOrderDate,"0");
+
+        dataFact.otherInfo.put("OrderInfoExternalURL",getValue(data,"OrderInfoExternalURL"));
     }
 
-    public void getOtherInfo1(DataFact dataFact,Map data)
-    {
-        String reqIdStr = getValue(data,Common.ReqID);
-        Map otherInfo = commonSources.getOtherInfo(reqIdStr);
-        if(otherInfo != null && otherInfo.size()>0)
-            dataFact.otherInfo.putAll(otherInfo);
-    }
-    /**
-     * 获取铁友产品信息当checkType是0或1的时候
-     * @param dataFact
-     * @param data
-     */
-    public void getVacationProductInfo0(DataFact dataFact,Map data)
+    public void getVacationProductInfo(DataFact dataFact,Map data)
     {
         Map<String,Object> vacationOrderInfo = new HashMap<String, Object>();
         vacationOrderInfo.put("DCity",getValue(data,"DCity"));
-        vacationOrderInfo.put("ACity",getValue(data,"ACity"));
         vacationOrderInfo.put("DepartureDate",getValue(data,"DepartureDate"));
         vacationOrderInfo.put("ProductName",getValue(data,"ProductName"));
-        vacationOrderInfo.put("SaleMode",getValue(data,"SaleMode"));
-        vacationOrderInfo.put("SupplierID",getValue(data,"SupplierID"));
-        vacationOrderInfo.put("SupplierName",getValue(data,"SupplierName"));
 
         List<Map<String,Object>> vacationOptionInfoList = new ArrayList<Map<String, Object>>();
         Map<String,Object> vacationOptionInfo = new HashMap<String, Object>();
         List<Map<String,Object>> oldVacationOptionInfo = (List<Map<String,Object>>)data.get("OptionItems");
         if(oldVacationOptionInfo != null)
-        for(Map item : oldVacationOptionInfo)
-        {
-            vacationOptionInfo.put("OptionID",getValue(item,"OptionID"));
-            vacationOptionInfo.put("OptionName",getValue(item,"OptionName"));
-            vacationOptionInfo.put("OptionQty",getValue(item,"OptionQty"));
-            vacationOptionInfo.put("SupplierID",getValue(item,"SupplierID"));
-            vacationOptionInfo.put("SupplierName",getValue(item,"SupplierName"));
-            vacationOptionInfoList.add(vacationOptionInfo);
-        }
+            for(Map item : oldVacationOptionInfo)
+            {
+                vacationOptionInfo.put("OptionID",getValue(item,"OptionID"));
+                vacationOptionInfo.put("OptionName",getValue(item,"OptionName"));
+                vacationOptionInfo.put("OptionQty",getValue(item,"OptionQty"));
+                vacationOptionInfoList.add(vacationOptionInfo);
+            }
 
         List<Map<String,Object>> vacationUserInfoList = new ArrayList<Map<String, Object>>();
         Map<String,Object> vacationUserInfo = new HashMap<String, Object>();
         List<Map<String,Object>> oldVacationUserInfo = (List<Map<String,Object>>)data.get("UserInfos");//出行人信息
         if(oldVacationUserInfo != null)
-        for(Map item : oldVacationUserInfo)
-        {
-            vacationUserInfo.put("VisitorContactInfo",getValue(item,"VisitorContactInfo"));
-            vacationUserInfo.put("VisitorCardNo",getValue(item,"VisitorCardNo"));
-            vacationUserInfo.put("VisitorName",getValue(item,"VisitorName"));
-            vacationUserInfo.put("VisitorNationality",getValue(item,"VisitorNationality"));
-            vacationUserInfoList.add(vacationUserInfo);
-        }
+            for(Map item : oldVacationUserInfo)
+            {
+                vacationUserInfo.put("VisitorContactInfo",getValue(item,"VisitorContactInfo"));
+                vacationUserInfo.put("VisitorCardNo",getValue(item,"VisitorCardNo"));
+                vacationUserInfo.put("VisitorName",getValue(item,"VisitorName"));
+                vacationUserInfo.put("VisitorNationality",getValue(item,"VisitorNationality"));
+                vacationUserInfoList.add(vacationUserInfo);
+            }
 
         dataFact.productInfoM.put("VacationOrderInfo",vacationOrderInfo);//订单信息
         dataFact.productInfoM.put("VacationOptionInfo",vacationOptionInfoList);//选项信息
         dataFact.productInfoM.put("VacationUserInfo",vacationUserInfoList);//出行人信息
-    }
-
-    /**
-     * 获取铁友产品信息当checkType是2的时候
-     * @param dataFact
-     * @param data
-     */
-    public void getVacationProductInfo1(DataFact dataFact,Map data)
-    {
-        //通过lastReqID查询所有订单相关的信息 注意这里是上一次的reqid(当checkType=1的时候)
-        String reqIdStr = getValue(data,Common.OldReqID);
-        if(reqIdStr.isEmpty())
-            return;
-        try{
-            Map vacationOrderInfo = vacationSources.getVacationOrderInfo(reqIdStr);
-            if(vacationOrderInfo != null && vacationOrderInfo.size()>0)
-                dataFact.productInfoM.put("VacationOrderInfo",vacationOrderInfo);
-            String vacationInfoID = getValue(vacationOrderInfo,"VacationInfoID");
-            if(!vacationInfoID.isEmpty())
-            {
-                List<Map<String,Object>> vacationOptionInfoList = vacationSources.getVacationOptionInfoList(vacationInfoID);
-                if(vacationOptionInfoList != null && vacationOptionInfoList.size()>0)
-                    dataFact.productInfoM.put("VacationOptionInfo",vacationOrderInfo);
-                List<Map<String,Object>> vacationUserInfoList = vacationSources.getVacationUserInfoList(vacationInfoID);
-                if(vacationUserInfoList != null && vacationUserInfoList.size()>0)
-                    dataFact.productInfoM.put("VacationUserInfo",vacationUserInfoList);
-            }
-        }catch (Exception exp)
-        {
-            logger.warn("获取HotelGroupProductInfo异常:",exp);
-        }
-    }
-
-    //获取欧铁信息
-    public void getMiceInfo(DataFact dataFact,Map data)
-    {
-        //通过lastReqID查询所有订单相关的信息 注意这里是上一次的reqid(当checkType=1的时候)
-        String reqIdStr = getValue(data,Common.OldReqID);
-        if(reqIdStr.isEmpty())
-            return;
-        try{
-            Map miceInfo = vacationSources.getMiceInfo(reqIdStr);
-            if(miceInfo != null && miceInfo.size()>0)
-                dataFact.productInfoM.put("MiceInfo",miceInfo);
-        }catch (Exception exp)
-        {
-            logger.warn("获取MiceInfo异常:",exp);
-        }
-
     }
 
     public void writeDB(Map data,DataFact dataFact,Map flowData,final boolean isWrite,final boolean isCheck)
