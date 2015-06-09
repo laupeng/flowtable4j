@@ -174,7 +174,7 @@ public class CruiseExecutor
             checkFact.setBwFact(bwFact);
             checkFact.setFlowFact(flowFact);
             checkFact.setCheckTypes(checkTypes);
-            if(data.get(HotelGroup.ReqID)!=null)
+            if(data.get(Common.ReqID)!=null)
                 checkFact.setReqId(Long.parseLong(data.get(Common.ReqID).toString()));//reqId如何获取
 
 
@@ -395,7 +395,7 @@ public class CruiseExecutor
             {
                 try
                 {
-                    hotelGroupWriteSources.insertHotelGroupInfo(dataFactCopy.productInfoM, reqId, isWrite, isCheck);
+                    //hotelGroupWriteSources.insertHotelGroupInfo(dataFactCopy.productInfoM, reqId, isWrite, isCheck);
                 } catch (Exception e)
                 {
                     logger.warn("invoke commonWriteSources.insertHotelGroupInfo failed.: ", e);
