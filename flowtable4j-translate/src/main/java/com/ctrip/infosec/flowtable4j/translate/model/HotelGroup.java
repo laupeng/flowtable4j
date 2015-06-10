@@ -213,7 +213,7 @@ public class HotelGroup
     public static String DIDInfo = "DIDInfo";
 
     //paymentInfoList
-    public static String PaymentInfoList = "PaymentInfoList";
+    public static String PaymentInfoList = "PaymentInfoListConvert";
 
     //CardBinIssue
     public static String CardBinIssue = "CardBinIssue";

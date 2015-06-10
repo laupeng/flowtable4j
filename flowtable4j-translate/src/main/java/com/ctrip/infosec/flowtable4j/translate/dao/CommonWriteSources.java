@@ -632,20 +632,20 @@ public class CommonWriteSources
         if(fieldValue1.isEmpty() || fieldValue2.isEmpty())
             return;
         try{
-        if(isCheck)
-        {
-            Map oldMainInfo = riskCtrlPreProcDBTemplate.queryForMap("select top 1 * from "+tableName+" where reqid=?",reqId);
+            if(isCheck)
             {
-                if(!getValue(oldMainInfo,field1).equals(fieldValue1))
+                Map oldMainInfo = riskCtrlPreProcDBTemplate.queryForMap("select top 1 * from "+tableName+" where reqid=?",reqId);
                 {
-                    logger.info(tableName+"信息比对结果    "+field1+": "+"老系统的值:"+getValue(oldMainInfo,field1)+"\t"+"新系统的值:"+fieldValue1);
-                }
-                if(!getValue(oldMainInfo,field2).equals(fieldValue2))
-                {
-                    logger.info(tableName+"信息比对结果    "+field2+": "+"老系统的值:"+getValue(oldMainInfo,field2)+"\t"+"新系统的值:"+fieldValue2);
+                    if(!getValue(oldMainInfo,field1).equals(fieldValue1))
+                    {
+                        logger.info(tableName+"信息比对结果    "+field1+": "+"老系统的值:"+getValue(oldMainInfo,field1)+"\t"+"新系统的值:"+fieldValue1);
+                    }
+                    if(!getValue(oldMainInfo,field2).equals(fieldValue2))
+                    {
+                        logger.info(tableName+"信息比对结果    "+field2+": "+"老系统的值:"+getValue(oldMainInfo,field2)+"\t"+"新系统的值:"+fieldValue2);
+                    }
                 }
             }
-        }
         }catch (Exception exp)
         {
             logger.warn("insertFlowInfo比对数据的时候出现异常"+exp.getMessage());

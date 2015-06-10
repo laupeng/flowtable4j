@@ -177,7 +177,7 @@ public class CommonOperation
      *    PaymentInfos
      *    PaymentInfo:PrepayType(String),...;CreditCardInfo(Map)
      *新的结构：
-     *      PaymentInfoList
+     *      PaymentInfoListConvert
      * PaymentInfo(Map);CardInfoList(List):cardInfo(Map)
      * @param data
      */

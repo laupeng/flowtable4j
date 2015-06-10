@@ -486,7 +486,7 @@ public class CommonExecutor
             bwList.put(Common.OrderToSignUpDate,getValue(dataFact.otherInfo,Common.OrderToSignUpDate)); //预定距注册日期小时数
 
 
-            //region Description   支付信息处理paymentInfo   PaymentInfoList   PaymentInfo(Map) ; CardInfoList(List)
+            //region Description   支付信息处理paymentInfo   PaymentInfoListConvert   PaymentInfo(Map) ; CardInfoList(List)
             {
                 List<Map> paymentInfos = dataFact.paymentInfoList;
                 for(Map paymentInfo : paymentInfos)
@@ -604,7 +604,7 @@ public class CommonExecutor
 
             //处理卡面信息(cardInfo)
             //InfoSecurity_CardInfo
-            //     PaymentInfoList
+            //     PaymentInfoListConvert
             //PaymentInfo(Map) ; CardInfoList(List)
             List<Map> paymentInfos = dataFact.paymentInfoList;
             String  MergerOrderPrepayType = "|";
