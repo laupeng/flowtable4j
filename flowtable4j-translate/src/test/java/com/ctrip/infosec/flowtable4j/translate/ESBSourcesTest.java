@@ -32,9 +32,11 @@ public class ESBSourcesTest
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
         try
         {
-            Date date = formatter.parse("2014-04-13 15:13:17.000");
+            Date date = formatter.parse("2014-04-13 15:13:17");
             String dateStr = formatter.format(date);
             System.out.print(dateStr);
+            //Date test = DateUtils.parseDate("2014-04-13 15:13:17","yyyy-MM-dd");
+
         } catch (ParseException e)
         {
             e.printStackTrace();

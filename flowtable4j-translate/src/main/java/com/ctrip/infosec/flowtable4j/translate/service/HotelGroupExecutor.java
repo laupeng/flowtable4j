@@ -41,7 +41,6 @@ import static com.ctrip.infosec.flowtable4j.translate.common.Utils.getValueMap;
 public class HotelGroupExecutor implements Executor
 {
     private Logger logger = LoggerFactory.getLogger(HotelGroupExecutor.class);
-    private ThreadPoolExecutor writeExecutor = null;
     @Autowired
     HotelGroupSources hotelGroupSources;
     @Autowired
@@ -61,18 +60,16 @@ public class HotelGroupExecutor implements Executor
     @Autowired
     CommonOperation commonOperation;
 
-    public CheckFact executeHotelGroup(Map data,ThreadPoolExecutor executor,ThreadPoolExecutor writeExecutor,boolean isWrite,boolean isCheck)
+    @Override
+    public void complementData(DataFact dataFact, Map data,ThreadPoolExecutor executor)
     {
-        this.writeExecutor = writeExecutor;
         beforeInvoke();
-        DataFact dataFact = new DataFact();
-        CheckFact checkFact = new CheckFact();
         try{
             logger.info("开始处理酒店团购 "+data.get("OrderID").toString()+" 数据");
             //一：补充数据
-            long now5 = System.currentTimeMillis();
+            long now = System.currentTimeMillis();
             commonExecutor.complementData(dataFact,data,executor);
-            logger.info("complementData公共补充数据的时间是:"+(System.currentTimeMillis()-now5));
+            logger.info("complementData公共数据补充的时间是:"+(System.currentTimeMillis()-now));
 
             //这里分checkType 0、1和2两种情况
             int checkType = Integer.parseInt(getValue(data, Common.CheckType));
@@ -89,17 +86,37 @@ public class HotelGroupExecutor implements Executor
                 getOtherInfo1(dataFact, data);
                 getHotelGroupProductInfo1(dataFact, data);
             }
-            logger.info("一：公共补充数据的时间是:"+(System.currentTimeMillis()-now5));
+            logger.info("一：公共补充数据的时间是:"+(System.currentTimeMillis()-now));
+        }catch (Exception exp)
+        {
+            logger.warn("补充酒店团购数据异常"+exp.getMessage());
+        }
+    }
+
+    @Override
+    public void convertToBlackCheckItem(DataFact dataFact, Map data,Map bwList)
+    {
+        try
+        {
             //二：黑白名单数据
-            long now1 = System.currentTimeMillis();
-            Map<String,Object> bwList = commonExecutor.convertToBlackCheckItem(dataFact,data);
+            long now = System.currentTimeMillis();
+            bwList = commonExecutor.convertToBlackCheckItem(dataFact,data);
             bwList.putAll(dataFact.productInfoM);
-            logger.info("补充黑白名单数据的时间是："+(System.currentTimeMillis()-now1));
-            logger.info("二：到黑白名单数据的时间是："+(System.currentTimeMillis()-now5));
+            logger.info("补充黑白名单数据的时间是："+(System.currentTimeMillis()-now));
+        }catch (Exception exp)
+        {
+            logger.warn("补充酒店黑白名单异常"+exp.getMessage());
+        }
+    }
+
+    @Override
+    public void convertToFlowRuleCheckItem(DataFact dataFact, Map data,Map flowData)
+    {
+        try{
             //三：流量实体数据
-            long now2 = System.currentTimeMillis();
-            Map<String,Object> flowData = commonExecutor.convertToFlowRuleCheckItem(dataFact,data);
-            logger.info("通用流量实体执行时间:"+(System.currentTimeMillis()-now2));
+            long now = System.currentTimeMillis();
+            flowData = commonExecutor.convertToFlowRuleCheckItem(dataFact,data);
+            logger.info("通用流量实体执行时间:"+(System.currentTimeMillis()-now));
             //支付衍生字段
             List<Map> paymentInfos = dataFact.paymentInfoList;
             for(Map paymentInfo : paymentInfos)
@@ -119,6 +136,7 @@ public class HotelGroupExecutor implements Executor
                 flowData.put(Common.UserIPAddMobileNumber,getValue(dataFact.ipInfo,Common.UserIPAdd)+getValue(dataFact.contactInfo,Common.MobilePhone).substring(0,7));
                 flowData.put(Common.UIDMobileNumber,getValue(dataFact.userInfo,Common.Uid)+getValue(dataFact.contactInfo,Common.MobilePhone).substring(0,7));
             }
+
             //产品信息加到流量实体
             flowData.put("Quantity",getValue(dataFact.productInfoM,Common.Quantity));
             flowData.put("City",getValue(dataFact.productInfoM,Common.City));
@@ -126,35 +144,27 @@ public class HotelGroupExecutor implements Executor
             flowData.put("ProductName",getValue(dataFact.productInfoM,Common.ProductName));
             flowData.put("ProductType",getValue(dataFact.productInfoM,Common.ProductType));
             flowData.put("Price",getValue(dataFact.productInfoM,Common.Price));
-            logger.info("三：到补充流量数据的时间是："+(System.currentTimeMillis()-now5));
-            logger.info(data.get("OrderID").toString()+" 数据处理完毕");
+            //logger.info(data.get("OrderID").toString()+" 数据处理完毕");
+        }catch (Exception exp)
+        {
+            logger.warn("转换酒店团购流量实体数据异常"+exp.getMessage());
+        }
+    }
 
-            //四：构造规则引擎的数据类型CheckFact
-            CheckType[] checkTypes = {CheckType.BW,CheckType.FLOWRULE};
-            BWFact bwFact = new BWFact();
-            bwFact.setOrderType(Integer.parseInt(data.get(Common.OrderType).toString()));
-            bwFact.setContent(bwList);
-            FlowFact flowFact = new FlowFact();
-            flowFact.setContent(flowData);
-            flowFact.setOrderType(Integer.parseInt(data.get(Common.OrderType).toString()));
-            checkFact.setBwFact(bwFact);
-            checkFact.setFlowFact(flowFact);
-            checkFact.setCheckTypes(checkTypes);
-            if(data.get(HotelGroup.ReqID)!=null)
-                checkFact.setReqId(Long.parseLong(data.get(Common.ReqID).toString()));//reqId如何获取
+    @Override
+    public void writeData(DataFact dataFact, Map data,Map flowData,ThreadPoolExecutor writeExecutor,final boolean isWrite,final boolean isCheck)
+    {
+        //预处理数据写到数据库
+        flowData.put(Common.OrderType,data.get(Common.OrderType));
+        logger.info("mainInfo\t"+ Json.toPrettyJSONString(dataFact.mainInfo));
+        logger.info("contactInfo\t"+ Json.toPrettyJSONString(dataFact.contactInfo));
+        logger.info("userInfo\t"+ Json.toPrettyJSONString(dataFact.userInfo));
+        logger.info("ipInfo\t"+ Json.toPrettyJSONString(dataFact.ipInfo));
+        logger.info("hotelGroupInfo\t"+ Json.toPrettyJSONString(dataFact.productInfoM));
+        logger.info("otherInfo\t"+ Json.toPrettyJSONString(dataFact.otherInfo));
+        logger.info("DIDInfo\t"+ Json.toPrettyJSONString(dataFact.DIDInfo));
 
-
-            //预处理数据写到数据库
-            flowData.put(Common.OrderType,data.get(Common.OrderType));
-            logger.info("mainInfo\t"+ Json.toPrettyJSONString(dataFact.mainInfo));
-            logger.info("contactInfo\t"+ Json.toPrettyJSONString(dataFact.contactInfo));
-            logger.info("userInfo\t"+ Json.toPrettyJSONString(dataFact.userInfo));
-            logger.info("ipInfo\t"+ Json.toPrettyJSONString(dataFact.ipInfo));
-            logger.info("hotelGroupInfo\t"+ Json.toPrettyJSONString(dataFact.productInfoM));
-            logger.info("otherInfo\t"+ Json.toPrettyJSONString(dataFact.otherInfo));
-            logger.info("DIDInfo\t"+ Json.toPrettyJSONString(dataFact.DIDInfo));
-
-            if(dataFact.paymentInfoList != null && dataFact.paymentInfoList.size()>0)
+        if(dataFact.paymentInfoList != null && dataFact.paymentInfoList.size()>0)
             for(int i=0;i<dataFact.paymentInfoList.size();i++)
             {
                 Map<String,Object> paymentInfo = dataFact.paymentInfoList.get(i);
@@ -165,89 +175,8 @@ public class HotelGroupExecutor implements Executor
                     logger.info(i + "\t" + j + "\tcardInfo\t" + Json.toPrettyJSONString(cardInfos.get(j)));
                 }
             }
-            logger.info("paymentMainInfo\t"+ Json.toPrettyJSONString(dataFact.paymentMainInfo));
+        logger.info("paymentMainInfo\t"+ Json.toPrettyJSONString(dataFact.paymentMainInfo));
 
-            //判断是否写入数据
-            // boolean isWrite = commonSources.getIsWrite("HotelGroupPreByNewSystem");//fixme 这个在上线后把注释去掉
-
-            logger.info("流量表数据\t"+ Json.toPrettyJSONString(flowData));
-            writeDB(data,dataFact, flowData,isWrite,isCheck);//fixme 第一次测试先不写数据库
-        }catch (Exception exp)
-        {
-            fault();
-            logger.error("invoke HotelGroupExecutor.executeHotelGroup fault.",exp);
-        }finally
-        {
-            afterInvoke("HotelGroupExecutor.executeHotelGroup");
-        }
-        return checkFact;
-    }
-
-    /**
-     * 添加订单日期到注册日期的差值
-     * 添加订单日期到起飞日期的差值
-     * @param data
-     * @throws java.text.ParseException
-     */
-    public void getOtherInfo0(DataFact dataFact,Map data) throws ParseException
-    {
-        logger.info(data.get("OrderID")+"获取时间的差值相关信息");
-        //订单日期
-        String orderDateStr = getValue(data,Common.OrderDate);
-        Date orderDate = DateUtils.parseDate(orderDateStr, "yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd HH:mm:ss.SSS");//yyyy-MM-dd HH:mm:ss   yyyy-MM-dd HH:mm:ss.SSS
-        //注册日期
-        String signUpDateStr = getValue(data,Common.SignUpDate);
-        Date signUpDate = DateUtils.parseDate(signUpDateStr,"yyyy-MM-dd HH:mm:ss","yyyy-MM-dd HH:mm:ss.SSS");
-        dataFact.otherInfo.put(Common.OrderToSignUpDate,getDateAbs(signUpDate, orderDate,1));
-
-        dataFact.otherInfo.put(Common.TakeOffToOrderDate,"0");
-    }
-
-    public void getOtherInfo1(DataFact dataFact,Map data)
-    {
-        String reqIdStr = getValue(data,Common.ReqID);
-        Map otherInfo = commonSources.getOtherInfo(reqIdStr);
-        if(otherInfo != null && otherInfo.size()>0)
-            dataFact.otherInfo.putAll(otherInfo);
-    }
-    /**
-     * 获取铁友产品信息当checkType是0或1的时候
-     * @param dataFact
-     * @param data
-     */
-    public void getHotelGroupProductInfo0(DataFact dataFact,Map data)
-    {
-        dataFact.productInfoM.put(HotelGroup.City,getValue(data,HotelGroup.City));
-        dataFact.productInfoM.put(HotelGroup.Price,getValue(data,HotelGroup.Price));//fixme 转成decimal
-        dataFact.productInfoM.put(HotelGroup.ProductID,getValue(data,HotelGroup.ProductID));
-        dataFact.productInfoM.put(HotelGroup.ProductName,getValue(data,HotelGroup.ProductName));
-        dataFact.productInfoM.put(HotelGroup.Quantity,getValue(data,HotelGroup.Quantity));
-        dataFact.productInfoM.put(HotelGroup.ProductType,getValue(data,HotelGroup.ProductType));
-    }
-
-    /**
-     * 获取铁友产品信息当checkType是2的时候
-     * @param dataFact
-     * @param data
-     */
-    public void getHotelGroupProductInfo1(DataFact dataFact,Map data)
-    {
-        //通过lastReqID查询所有订单相关的信息 注意这里是上一次的reqid(当checkType=1的时候)
-        String reqIdStr = getValue(data,Common.OldReqID);
-        if(reqIdStr.isEmpty())
-            return;
-        try{
-            Map hotelGroupProduct = hotelGroupSources.getHotelGroupInfo(reqIdStr);
-            if(hotelGroupProduct != null && hotelGroupProduct.size()>0)
-                dataFact.productInfoM.putAll(hotelGroupProduct);
-        }catch (Exception exp)
-        {
-            logger.warn("获取HotelGroupProductInfo异常:",exp);
-        }
-    }
-
-    public void writeDB(Map data,DataFact dataFact,Map flowData,final boolean isWrite,final boolean isCheck)
-    {
         logger.info(getValue(dataFact.mainInfo,Common.OrderID)+"开始写预处理数据和流量表数据到数据库");
         //下面输出当前订单的预处理数据到日志 给测试用 方便他们做对比
         final String reqId = getValue(data,Common.ReqID);
@@ -322,7 +251,7 @@ public class HotelGroupExecutor implements Executor
                 try
                 {
                     hotelGroupWriteSources.insertHotelGroupInfo(dataFactCopy.productInfoM, reqId, isWrite, isCheck);
-        } catch (Exception e)
+                } catch (Exception e)
                 {
                     logger.warn("invoke commonWriteSources.insertHotelGroupInfo failed.: ", e);
                 }
@@ -406,5 +335,118 @@ public class HotelGroupExecutor implements Executor
         //流量数据
         final Map flowDataCopy = BeanMapper.copy(flowData,Map.class);
         commonOperation.writeFlowData(flowDataCopy,writeExecutor,isWrite,isCheck);
+    }
+
+
+    public CheckFact executeHotelGroup(Map data,ThreadPoolExecutor executor,ThreadPoolExecutor writeExecutor,boolean isWrite,boolean isCheck)
+    {
+        CheckFact checkFact = new CheckFact();
+        beforeInvoke();
+        try{
+            logger.info("开始处理酒店团购 "+data.get("OrderID").toString()+" 数据");
+
+            DataFact dataFact = new DataFact();
+            complementData(dataFact,data,executor);
+
+            Map<String,Object> bwList = new HashMap();
+            convertToBlackCheckItem(dataFact,data,bwList);
+
+            Map<String,Object> flowData = new HashMap<String, Object>();
+            convertToFlowRuleCheckItem(dataFact,data,flowData);
+
+            logger.info(data.get("OrderID").toString()+" 数据处理完毕");
+
+            //构造规则引擎的数据类型CheckFact
+            CheckType[] checkTypes = {CheckType.BW,CheckType.FLOWRULE};
+            BWFact bwFact = new BWFact();
+            bwFact.setOrderType(Integer.parseInt(data.get(Common.OrderType).toString()));
+            bwFact.setContent(bwList);
+
+            FlowFact flowFact = new FlowFact();
+            flowFact.setContent(flowData);
+            flowFact.setOrderType(Integer.parseInt(data.get(Common.OrderType).toString()));
+
+            checkFact.setBwFact(bwFact);
+            checkFact.setFlowFact(flowFact);
+            checkFact.setCheckTypes(checkTypes);
+            if(data.get(HotelGroup.ReqID)!=null)
+                checkFact.setReqId(Long.parseLong(data.get(Common.ReqID).toString()));//reqId如何获取
+
+            //判断是否写入数据
+            // boolean isWrite = commonSources.getIsWrite("HotelGroupPreByNewSystem");//fixme 这个在上线后把注释去掉
+            writeData(dataFact,data,flowData,writeExecutor,isWrite,isCheck);//fixme 第一次测试先不写数据库
+        }catch (Exception exp)
+        {
+            fault();
+            logger.error("invoke HotelGroupExecutor.executeHotelGroup fault.",exp);
+        }finally
+        {
+            afterInvoke("HotelGroupExecutor.executeHotelGroup");
+        }
+        return checkFact;
+    }
+
+    /**
+     * 添加订单日期到注册日期的差值
+     * 添加订单日期到起飞日期的差值
+     * @param data
+     * @throws java.text.ParseException
+     */
+    public void getOtherInfo0(DataFact dataFact,Map data) throws ParseException
+    {
+        logger.info(data.get("OrderID")+"获取时间的差值相关信息");
+        //订单日期
+        String orderDateStr = getValue(data,Common.OrderDate);
+        Date orderDate = DateUtils.parseDate(orderDateStr, "yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd HH:mm:ss.SSS");//yyyy-MM-dd HH:mm:ss   yyyy-MM-dd HH:mm:ss.SSS
+        //注册日期
+        String signUpDateStr = getValue(data,Common.SignUpDate);
+        Date signUpDate = DateUtils.parseDate(signUpDateStr,"yyyy-MM-dd HH:mm:ss","yyyy-MM-dd HH:mm:ss.SSS");
+        dataFact.otherInfo.put(Common.OrderToSignUpDate,getDateAbs(signUpDate, orderDate,1));
+
+        dataFact.otherInfo.put(Common.TakeOffToOrderDate,"0");
+    }
+
+    public void getOtherInfo1(DataFact dataFact,Map data)
+    {
+        String reqIdStr = getValue(data,Common.ReqID);
+        Map otherInfo = commonSources.getOtherInfo(reqIdStr);
+        if(otherInfo != null && otherInfo.size()>0)
+            dataFact.otherInfo.putAll(otherInfo);
+    }
+
+    /**
+     * 获取铁友产品信息当checkType是0或1的时候
+     * @param dataFact
+     * @param data
+     */
+    public void getHotelGroupProductInfo0(DataFact dataFact,Map data)
+    {
+        dataFact.productInfoM.put(HotelGroup.City,getValue(data,HotelGroup.City));
+        dataFact.productInfoM.put(HotelGroup.Price,getValue(data,HotelGroup.Price));//fixme 转成decimal
+        dataFact.productInfoM.put(HotelGroup.ProductID,getValue(data,HotelGroup.ProductID));
+        dataFact.productInfoM.put(HotelGroup.ProductName,getValue(data,HotelGroup.ProductName));
+        dataFact.productInfoM.put(HotelGroup.Quantity,getValue(data,HotelGroup.Quantity));
+        dataFact.productInfoM.put(HotelGroup.ProductType,getValue(data,HotelGroup.ProductType));
+    }
+
+    /**
+     * 获取铁友产品信息当checkType是2的时候
+     * @param dataFact
+     * @param data
+     */
+    public void getHotelGroupProductInfo1(DataFact dataFact,Map data)
+    {
+        //通过lastReqID查询所有订单相关的信息 注意这里是上一次的reqid(当checkType=1的时候)
+        String reqIdStr = getValue(data,Common.OldReqID);
+        if(reqIdStr.isEmpty())
+            return;
+        try{
+            Map hotelGroupProduct = hotelGroupSources.getHotelGroupInfo(reqIdStr);
+            if(hotelGroupProduct != null && hotelGroupProduct.size()>0)
+                dataFact.productInfoM.putAll(hotelGroupProduct);
+        }catch (Exception exp)
+        {
+            logger.warn("获取HotelGroupProductInfo异常:",exp);
+        }
     }
 }

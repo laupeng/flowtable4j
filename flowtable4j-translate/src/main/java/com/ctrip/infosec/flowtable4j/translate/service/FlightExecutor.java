@@ -57,17 +57,15 @@ public class FlightExecutor implements Executor
     @Autowired
     CommonOperation commonOperation;
 
-    public CheckFact executeFlight(Map data,ThreadPoolExecutor excutor,ThreadPoolExecutor writeExecutor,boolean isWrite,boolean isCheck)
+    @Override
+    public void complementData(DataFact dataFact, Map data, ThreadPoolExecutor executor)
     {
-        this.writeExecutor = writeExecutor;
         beforeInvoke();
-        DataFact dataFact = new DataFact();
-        CheckFact checkFact = new CheckFact();
         try{
             logger.info("开始处理机票 "+data.get("OrderID").toString()+" 数据");
             //一：补充数据
             long now = System.currentTimeMillis();
-            commonExecutor.complementData(dataFact,data,excutor);
+            commonExecutor.complementData(dataFact,data,executor);
             logger.info("complementData公共补充数据的时间是:"+(System.currentTimeMillis()-now));
             //这里分checkType 0、1和2两种情况
             int checkType = Integer.parseInt(getValue(data, Common.CheckType));
@@ -87,471 +85,514 @@ public class FlightExecutor implements Executor
             //机票利润值计算
             fillFightsOrderProfit(data,dataFact);
             logger.info("一：公共补充数据的时间是:"+(System.currentTimeMillis()-now));
+        }catch (Exception exp)
+        {
+            logger.warn(data.get("OrderID").toString()+" 机票数据处理异常"+exp.getMessage());
+        }
+    }
 
-            //二：黑白名单数据
-            long now1 = System.currentTimeMillis();
-            Map<String,Object> bwList = commonExecutor.convertToBlackCheckItem(dataFact,data);
-            bwList.put("TakeOffToOrderDate",getValue(dataFact.otherInfo,"TakeOffToOrderDate"));
-            Map flightsOrderInfo = getValueMap(dataFact.productInfoM,Flight.FlightsOrderInfo);
-            //机票产品信息
-            if(flightsOrderInfo!=null && flightsOrderInfo.size()>0)
+    @Override
+    public void convertToBlackCheckItem(DataFact dataFact, Map data, Map bwList)
+    {
+        long now = System.currentTimeMillis();
+        bwList = commonExecutor.convertToBlackCheckItem(dataFact,data);
+        bwList.put("TakeOffToOrderDate",getValue(dataFact.otherInfo,"TakeOffToOrderDate"));
+        Map flightsOrderInfo = getValueMap(dataFact.productInfoM,Flight.FlightsOrderInfo);
+        //机票产品信息
+        if(flightsOrderInfo!=null && flightsOrderInfo.size()>0)
+        {
+            bwList.put(Flight.AAirPort,getValue(flightsOrderInfo,Flight.AAirPort));
+            bwList.put(Flight.EAirPort,getValue(flightsOrderInfo,Flight.EAirPort));
+            bwList.put(Flight.DAirPort,getValue(flightsOrderInfo,Flight.DAirPort));
+            bwList.put("Acity",getValue(flightsOrderInfo,"Acity"));
+            bwList.put("Dcity",getValue(flightsOrderInfo,"Dcity"));
+        }
+        List<Map<String,Object>> passengerInfoList = (List<Map<String,Object>>)dataFact.productInfoM.get(Flight.PassengerInfoList);
+        if(passengerInfoList != null && passengerInfoList.size()>0)
+        {
+            String passengerName = "", passengerNationality = "",passengerCardID = "";
+            for(Map passengerInfo : passengerInfoList)
             {
-                bwList.put(Flight.AAirPort,getValue(flightsOrderInfo,Flight.AAirPort));
-                bwList.put(Flight.EAirPort,getValue(flightsOrderInfo,Flight.EAirPort));
-                bwList.put(Flight.DAirPort,getValue(flightsOrderInfo,Flight.DAirPort));
-                bwList.put("Acity",getValue(flightsOrderInfo,"Acity"));
-                bwList.put("Dcity",getValue(flightsOrderInfo,"Dcity"));
+                passengerName += getValue(passengerInfo,"PassengerName") + "|";
+                passengerNationality += getValue(passengerInfo,"PassengerNationality") + "|";
+                passengerCardID += getValue(passengerInfo,"PassengerCardID") + "|";
             }
-            List<Map<String,Object>> passengerInfoList = (List<Map<String,Object>>)dataFact.productInfoM.get(Flight.PassengerInfoList);
-            if(passengerInfoList != null && passengerInfoList.size()>0)
-            {
-                String passengerName = "", passengerNationality = "",passengerCardID = "";
-                for(Map passengerInfo : passengerInfoList)
-                {
-                    passengerName += getValue(passengerInfo,"PassengerName") + "|";
-                    passengerNationality += getValue(passengerInfo,"PassengerNationality") + "|";
-                    passengerCardID += getValue(passengerInfo,"PassengerCardID") + "|";
-                }
-                bwList.put("PassengerName","|"+passengerName);
-                bwList.put("PassengerNationality","|"+passengerNationality);
-                bwList.put("PassengerCardID","|"+passengerCardID);
-            }
-            logger.info("补充黑白名单数据的时间是："+(System.currentTimeMillis()-now1));
-            logger.info("二：到黑白名单数据的时间是："+(System.currentTimeMillis()-now));
+            bwList.put("PassengerName","|"+passengerName);
+            bwList.put("PassengerNationality","|"+passengerNationality);
+            bwList.put("PassengerCardID","|"+passengerCardID);
+        }
+        logger.info("补充黑白名单数据的时间是："+(System.currentTimeMillis()-now));
+    }
 
-            //三：流量实体数据
-            long now2 = System.currentTimeMillis();
-            Map<String,Object> flowData = commonExecutor.convertToFlowRuleCheckItem(dataFact,data);
-            logger.info("通用流量实体执行时间:"+(System.currentTimeMillis()-now2));
-            flowData.put("IsTempUser",getValue(dataFact.userInfo,"IsTempUser"));
-            flowData.put("RelatedEMail",getValue(dataFact.userInfo,"RelatedEMail"));
+    @Override
+    public void convertToFlowRuleCheckItem(DataFact dataFact, Map data, Map flowData)
+    {
+        long now2 = System.currentTimeMillis();
+        flowData = commonExecutor.convertToFlowRuleCheckItem(dataFact,data);
+        logger.info("通用流量实体执行时间:"+(System.currentTimeMillis()-now2));
+        flowData.put("IsTempUser",getValue(dataFact.userInfo,"IsTempUser"));
+        flowData.put("RelatedEMail",getValue(dataFact.userInfo,"RelatedEMail"));
 
-            flowData.put("IsOnline",getValue(dataFact.mainInfo,"IsOnline"));
-            flowData.put("Serverfrom",getValue(dataFact.mainInfo,"Serverfrom"));
-            flowData.put("WirelessClientNo",getValue(dataFact.mainInfo,"WirelessClientNo"));
-            flowData.put("ContactName",getValue(dataFact.contactInfo,"ContactName"));
-            flowData.put("ContactTel",getValue(dataFact.contactInfo,"ContactTel"));
-            flowData.put("ForignMobilePhone",getValue(dataFact.contactInfo,"ForignMobilePhone"));
-            flowData.put("TelCall",getValue(dataFact.contactInfo,"TelCall"));
-            flowData.put("SendTickerAddr",getValue(dataFact.contactInfo,"SendTickerAddr"));
-            flowData.put("PostAddress",getValue(dataFact.contactInfo,"PostAddress"));
-            int mobilePhone4Count = 0;
-            for(char c : getValue(dataFact.contactInfo,"MobilePhone").toCharArray())
+        flowData.put("IsOnline",getValue(dataFact.mainInfo,"IsOnline"));
+        flowData.put("Serverfrom",getValue(dataFact.mainInfo,"Serverfrom"));
+        flowData.put("WirelessClientNo",getValue(dataFact.mainInfo,"WirelessClientNo"));
+        flowData.put("ContactName",getValue(dataFact.contactInfo,"ContactName"));
+        flowData.put("ContactTel",getValue(dataFact.contactInfo,"ContactTel"));
+        flowData.put("ForignMobilePhone",getValue(dataFact.contactInfo,"ForignMobilePhone"));
+        flowData.put("TelCall",getValue(dataFact.contactInfo,"TelCall"));
+        flowData.put("SendTickerAddr",getValue(dataFact.contactInfo,"SendTickerAddr"));
+        flowData.put("PostAddress",getValue(dataFact.contactInfo,"PostAddress"));
+        int mobilePhone4Count = 0;
+        for(char c : getValue(dataFact.contactInfo,"MobilePhone").toCharArray())
+        {
+            if(c == '4')
+                mobilePhone4Count++;
+        }
+        flowData.put("MobilePhone4Count",mobilePhone4Count);
+        //支付衍生字段
+        List<Map> paymentInfos = dataFact.paymentInfoList;
+        for(Map paymentInfo : paymentInfos)
+        {
+            Map subPaymentInfo = (Map)paymentInfo.get(Common.PaymentInfo);
+            String prepayType = getValue(subPaymentInfo,Common.PrepayType);
+            if(prepayType.equals("CCARD")||prepayType.equals("DCARD"))
             {
-                if(c == '4')
-                    mobilePhone4Count++;
-            }
-            flowData.put("MobilePhone4Count",mobilePhone4Count);
-            //支付衍生字段
-            List<Map> paymentInfos = dataFact.paymentInfoList;
-            for(Map paymentInfo : paymentInfos)
-            {
-                Map subPaymentInfo = (Map)paymentInfo.get(Common.PaymentInfo);
-                String prepayType = getValue(subPaymentInfo,Common.PrepayType);
-                if(prepayType.equals("CCARD")||prepayType.equals("DCARD"))
-                {
-                    List<Map> cardInfoList = (List<Map>)paymentInfo.get(Common.CardInfoList);
-                    Map cardInfoFirst = cardInfoList.get(0);
-                    flowData.put("BranchCity",getValue(cardInfoFirst,"BranchCity"));
-                    flowData.put("BranchProvince",getValue(cardInfoFirst,"BranchProvince"));
-                    flowData.put("MobilePhoneCardBin",getValue(dataFact.contactInfo,Common.MobilePhone)+getValue(cardInfoFirst,Common.CardBin));
-                    flowData.put("UserIPAddCardBin",getValue(dataFact.ipInfo,Common.UserIPAdd)+getValue(cardInfoFirst,Common.CardBin));
+                List<Map> cardInfoList = (List<Map>)paymentInfo.get(Common.CardInfoList);
+                Map cardInfoFirst = cardInfoList.get(0);
+                flowData.put("BranchCity",getValue(cardInfoFirst,"BranchCity"));
+                flowData.put("BranchProvince",getValue(cardInfoFirst,"BranchProvince"));
+                flowData.put("MobilePhoneCardBin",getValue(dataFact.contactInfo,Common.MobilePhone)+getValue(cardInfoFirst,Common.CardBin));
+                flowData.put("UserIPAddCardBin",getValue(dataFact.ipInfo,Common.UserIPAdd)+getValue(cardInfoFirst,Common.CardBin));
                     /*flowData.put(Common.CardBinUID,getValue(cardInfoFirst,Common.CardBin)+getValue(dataFact.userInfo,Common.Uid));
                     flowData.put(Common.CardBinOrderID,getValue(cardInfoFirst,Common.CardBin)+getValue(dataFact.mainInfo,Common.OrderID));
                     flowData.put(Common.CardBinUID,getValue(cardInfoFirst,Common.CardBin)+getValue(dataFact.userInfo,Common.Uid));
                     flowData.put(Common.CardBinMobilePhone,getValue(cardInfoFirst,Common.CardBin)+getValue(dataFact.contactInfo,Common.MobilePhone));
                     flowData.put(Common.CardBinUserIPAdd,getValue(cardInfoFirst,Common.CardBin)+getValue(dataFact.ipInfo,Common.UserIPAdd));
                     flowData.put(Common.ContactEMailCardBin,getValue(dataFact.contactInfo,Common.ContactEMail)+getValue(cardInfoFirst,Common.CardBin));*/
-                    break;
-                }
-                else if(prepayType.equals("TMPAY"))
-                {
-                    flowData.put("TmpayAmount",getValue(subPaymentInfo,"Amount"));
-                    break;
-                }
+                break;
             }
-            if(getValue(dataFact.contactInfo,Common.MobilePhone).length()>=7)
+            else if(prepayType.equals("TMPAY"))
             {
-                flowData.put(Common.UIDMobileNumber,getValue(dataFact.userInfo,Common.Uid)+getValue(dataFact.contactInfo,Common.MobilePhone).substring(0,7));
-                flowData.put("UidMergerMobilePhone7",getValue(dataFact.userInfo,Common.Uid)+getValue(dataFact.contactInfo,Common.MobilePhone).substring(0,7));
-                flowData.put("UserIPAddMergerMobilePhone7",getValue(dataFact.ipInfo,Common.UserIPAdd)+getValue(dataFact.contactInfo,Common.MobilePhone).substring(0,7));
+                flowData.put("TmpayAmount",getValue(subPaymentInfo,"Amount"));
+                break;
             }
+        }
+        if(getValue(dataFact.contactInfo,Common.MobilePhone).length()>=7)
+        {
+            flowData.put(Common.UIDMobileNumber,getValue(dataFact.userInfo,Common.Uid)+getValue(dataFact.contactInfo,Common.MobilePhone).substring(0,7));
+            flowData.put("UidMergerMobilePhone7",getValue(dataFact.userInfo,Common.Uid)+getValue(dataFact.contactInfo,Common.MobilePhone).substring(0,7));
+            flowData.put("UserIPAddMergerMobilePhone7",getValue(dataFact.ipInfo,Common.UserIPAdd)+getValue(dataFact.contactInfo,Common.MobilePhone).substring(0,7));
+        }
 
-            String aCityProvince = "", aCityName = "",aCountryCode="";
-            Map aCnpInfo = flightSources.getCityNameProvince(getValue(flightsOrderInfo,"ACity"));
-            if(aCnpInfo!=null&&aCnpInfo.size()>0)
-            {
-                aCityProvince = getValue(aCnpInfo,"ProvinceName");
-                aCityName = getValue(aCnpInfo,"CityName");
-                aCountryCode = getValue(aCnpInfo,"Country");
-            }
-            String dCityProvince = "", dCityName = "",dCountryCode="";
-            Map dCnpInfo = flightSources.getCityNameProvince(getValue(flightsOrderInfo,"DCity"));
-            if(dCnpInfo!=null&&dCnpInfo.size()>0)
-            {
-                dCityProvince = getValue(dCnpInfo,"ProvinceName");
-                dCityName = getValue(dCnpInfo,"CityName");
-                dCountryCode = getValue(dCnpInfo,"Country");
-            }
-            flowData.put("Agencyid",getValue(flightsOrderInfo,"Agencyid"));
-            flowData.put("Insurance_fee",getValue(flightsOrderInfo,"Insurance_fee"));
-            flowData.put("MergedDACityName","|"+aCityName+"|"+dCityName+"|");
+        List<Map<String,Object>> passengerInfoList = (List<Map<String,Object>>)dataFact.productInfoM.get(Flight.PassengerInfoList);
+        Map flightsOrderInfo = getValueMap(dataFact.productInfoM,Flight.FlightsOrderInfo);
 
-            flowData.put("ACityName",aCityName);
-            flowData.put("ACityProvince",aCityProvince);
-            flowData.put("ACountryCode",aCountryCode);
+        String aCityProvince = "", aCityName = "",aCountryCode="";
+        Map aCnpInfo = flightSources.getCityNameProvince(getValue(flightsOrderInfo,"ACity"));
+        if(aCnpInfo!=null&&aCnpInfo.size()>0)
+        {
+            aCityProvince = getValue(aCnpInfo,"ProvinceName");
+            aCityName = getValue(aCnpInfo,"CityName");
+            aCountryCode = getValue(aCnpInfo,"Country");
+        }
+        String dCityProvince = "", dCityName = "",dCountryCode="";
+        Map dCnpInfo = flightSources.getCityNameProvince(getValue(flightsOrderInfo,"DCity"));
+        if(dCnpInfo!=null&&dCnpInfo.size()>0)
+        {
+            dCityProvince = getValue(dCnpInfo,"ProvinceName");
+            dCityName = getValue(dCnpInfo,"CityName");
+            dCountryCode = getValue(dCnpInfo,"Country");
+        }
+        flowData.put("Agencyid",getValue(flightsOrderInfo,"Agencyid"));
+        flowData.put("Insurance_fee",getValue(flightsOrderInfo,"Insurance_fee"));
+        flowData.put("MergedDACityName","|"+aCityName+"|"+dCityName+"|");
 
-            flowData.put("DCityName",dCityName);
-            flowData.put("DCityProvince",dCityProvince);
-            flowData.put("DCountryCode",dCountryCode);
+        flowData.put("ACityName",aCityName);
+        flowData.put("ACityProvince",aCityProvince);
+        flowData.put("ACountryCode",aCountryCode);
 
-            //国家相关信息
-            if(!dCountryCode.isEmpty())
-            {
-                Map countryInfo = flightSources.getCountryNameNationality(dCountryCode);
-                flowData.put("DCountryNationality",getValue(countryInfo,"Nationality"));
-            }
-            if(!aCountryCode.isEmpty())
-            {
-                Map countryInfo = flightSources.getCountryNameNationality(aCountryCode);
-                flowData.put("ACountryNationality",getValue(countryInfo,"Nationality"));
-            }
+        flowData.put("DCityName",dCityName);
+        flowData.put("DCityProvince",dCityProvince);
+        flowData.put("DCountryCode",dCountryCode);
 
-            //获取IP省
+        //国家相关信息
+        if(!dCountryCode.isEmpty())
+        {
+            Map countryInfo = flightSources.getCountryNameNationality(dCountryCode);
+            flowData.put("DCountryNationality",getValue(countryInfo,"Nationality"));
+        }
+        if(!aCountryCode.isEmpty())
+        {
+            Map countryInfo = flightSources.getCountryNameNationality(aCountryCode);
+            flowData.put("ACountryNationality",getValue(countryInfo,"Nationality"));
+        }
+
+        //获取IP省
             /*GetCityNameProvince(en.IPCity, ref dCityName, ref dCityProvince, ref countryCode);//fixme 这段代码的逻辑有问题
             en.IPProvince = dCityProvince;*/
 
 
-            //产品信息加到流量实体
+        //产品信息加到流量实体
 
-            if(flightsOrderInfo!=null && flightsOrderInfo.size()>0)
+        if(flightsOrderInfo!=null && flightsOrderInfo.size()>0)
+        {
+            flowData.put("Profit",getValue(flightsOrderInfo,"Profit"));
+            flowData.put("FlightCostRate",getValue(flightsOrderInfo,"FlightCostRate"));
+            flowData.put("AgencyName",getValue(flightsOrderInfo,"AgencyName"));
+            flowData.put("IsClient",getValue(flightsOrderInfo,"IsClient"));
+            flowData.put("FlightClass",getValue(flightsOrderInfo,"FlightClass"));
+            flowData.put("DAirPort",getValue(flightsOrderInfo,"DAirPort"));
+            flowData.put("AAirPort",getValue(flightsOrderInfo,"AAirPort"));
+            flowData.put("EAirPort",getValue(flightsOrderInfo,"EAirPort"));
+            flowData.put("Remark",getValue(flightsOrderInfo,"Remark"));
+        }
+        List<Map<String,Object>> segmentInfoList = (List<Map<String,Object>>)dataFact.productInfoM.get(Flight.SegmentInfoList);
+        if(segmentInfoList != null && segmentInfoList.size()>0)
+        {
+            flowData.put("SegmentInfoCount",segmentInfoList.size());
+            flowData.put("SegmentInfoCount",getValue(segmentInfoList.get(0),"SeatClass"));
+            flowData.put("SegmentInfoCount",getValue(segmentInfoList.get(0), "Sequence"));
+        }
+
+        String contactEMail = getValue(dataFact.contactInfo,"ContactEMail");
+        if(dataFact.contactInfo != null && !contactEMail.isEmpty())
+        {
+            String tmpContactEMail = contactEMail.replace(".","").replace("_","").replace("@","");
+            if(tmpContactEMail.length()>=7)
             {
-                flowData.put("Profit",getValue(flightsOrderInfo,"Profit"));
-                flowData.put("FlightCostRate",getValue(flightsOrderInfo,"FlightCostRate"));
-                flowData.put("AgencyName",getValue(flightsOrderInfo,"AgencyName"));
-                flowData.put("IsClient",getValue(flightsOrderInfo,"IsClient"));
-                flowData.put("FlightClass",getValue(flightsOrderInfo,"FlightClass"));
-                flowData.put("DAirPort",getValue(flightsOrderInfo,"DAirPort"));
-                flowData.put("AAirPort",getValue(flightsOrderInfo,"AAirPort"));
-                flowData.put("EAirPort",getValue(flightsOrderInfo,"EAirPort"));
-                flowData.put("Remark",getValue(flightsOrderInfo,"Remark"));
+                flowData.put("ContactEMailToConvert7",tmpContactEMail.substring(0,7));
             }
-            List<Map<String,Object>> segmentInfoList = (List<Map<String,Object>>)dataFact.productInfoM.get(Flight.SegmentInfoList);
-            if(segmentInfoList != null && segmentInfoList.size()>0)
+        }
+
+        //乘客信息
+        if(passengerInfoList != null && passengerInfoList.size()>0)
+        {
+            String passengerName = "|",passengerNationality = "|",passengerCardID = "|",passengerCardIDLength = "|",mergerPassengerCardIDLength = "|";
+            passengerCardIDLength = "F";
+            List<Map<String,Object>> passengerList = new ArrayList<Map<String, Object>>();
+            flowData.put("PassengerCount",passengerInfoList.size());
+
+            String PassengerNationality1 = "";
+            flowData.put("IsSamePassengerNationality","");
+            if(passengerInfoList.size()>=1)
             {
-                flowData.put("SegmentInfoCount",segmentInfoList.size());
-                flowData.put("SegmentInfoCount",getValue(segmentInfoList.get(0),"SeatClass"));
-                flowData.put("SegmentInfoCount",getValue(segmentInfoList.get(0), "Sequence"));
+                flowData.put("IsSamePassengerNationality","T");
             }
 
-            String contactEMail = getValue(dataFact.contactInfo,"ContactEMail");
-            if(dataFact.contactInfo != null && !contactEMail.isEmpty())
+            List<Map<String,Object>> flowPassengerList = new ArrayList<Map<String, Object>>();
+            Map<Integer,String> dic3 = new HashMap<Integer, String>();
+            Map<Integer,String> dic6 = new HashMap<Integer, String>();
+            for(Map passengerInfo : passengerInfoList)
             {
-                String tmpContactEMail = contactEMail.replace(".","").replace("_","").replace("@","");
-                if(tmpContactEMail.length()>=7)
+                passengerName += getValue(passengerInfo,"PassengerName") + "|";
+                passengerNationality += getValue(passengerInfo,"PassengerNationality") + "|";
+                passengerCardID += getValue(passengerInfo,"PassengerCardID") + "|";
+                if(!passengerCardID.isEmpty())
                 {
-                    flowData.put("ContactEMailToConvert7",tmpContactEMail.substring(0,7));
-                }
-            }
-
-            //乘客信息
-            if(passengerInfoList != null && passengerInfoList.size()>0)
-            {
-                String passengerName = "|",passengerNationality = "|",passengerCardID = "|",passengerCardIDLength = "|",mergerPassengerCardIDLength = "|";
-                passengerCardIDLength = "F";
-                List<Map<String,Object>> passengerList = new ArrayList<Map<String, Object>>();
-                flowData.put("PassengerCount",passengerInfoList.size());
-
-                String PassengerNationality1 = "";
-                flowData.put("IsSamePassengerNationality","");
-                if(passengerInfoList.size()>=1)
-                {
-                    flowData.put("IsSamePassengerNationality","T");
+                    mergerPassengerCardIDLength += passengerCardID.length()+"|";
                 }
 
-                List<Map<String,Object>> flowPassengerList = new ArrayList<Map<String, Object>>();
-                Map<Integer,String> dic3 = new HashMap<Integer, String>();
-                Map<Integer,String> dic6 = new HashMap<Integer, String>();
-                for(Map passengerInfo : passengerInfoList)
+                String PassengerCardID = getValue(passengerInfo,"PassengerCardID");
+                if(dic3.size() == 0 || (!PassengerCardID.isEmpty()&&PassengerCardID.length()>3&&!dic3.containsValue(PassengerCardID.substring(0,3))))
                 {
-                    passengerName += getValue(passengerInfo,"PassengerName") + "|";
-                    passengerNationality += getValue(passengerInfo,"PassengerNationality") + "|";
-                    passengerCardID += getValue(passengerInfo,"PassengerCardID") + "|";
-                    if(!passengerCardID.isEmpty())
-                    {
-                        mergerPassengerCardIDLength += passengerCardID.length()+"|";
-                    }
-
-                    String PassengerCardID = getValue(passengerInfo,"PassengerCardID");
-                    if(dic3.size() == 0 || (!PassengerCardID.isEmpty()&&PassengerCardID.length()>3&&!dic3.containsValue(PassengerCardID.substring(0,3))))
-                    {
-                        dic3.put(dic3.size(),PassengerCardID.substring(0,3));
-                    }
-                    if(dic6.size() == 0 || (!PassengerCardID.isEmpty()&&PassengerCardID.length()>6&&!dic6.containsValue(PassengerCardID.substring(0,6))))
-                    {
-                        dic6.put(dic6.size(),PassengerCardID.substring(0,6));
-                    }
-
-                    if(passengerCardIDLength.equals("F"))
-                    {
-                        if(PassengerCardID.length() != 15 && PassengerCardID.length() != 18)//登机人证件长度存在不等于15位和18位的
-                        {
-                            passengerCardIDLength = "T";
-                        }
-                    }
-
-                    Map<String,Object> flightPassenger = new HashMap();
-                    flightPassenger.put("PassengerName",getValue(passengerInfo,"PassengerName"));
-                    flightPassenger.put("PassengerNationality",getValue(passengerInfo,"PassengerNationality"));
-                    flightPassenger.put("PassengerCardID",getValue(passengerInfo,"PassengerCardID"));
-                    flightPassenger.put("PassengerNameCardID",getValue(passengerInfo,"PassengerName")+getValue(passengerInfo,"PassengerCardID"));
-                    //PassengerCardID6 += getValue(passengerInfo,PassengerCardID);//fixme 原来的代码逻辑有问题
-                    String PassengerCardID6 = getValue(passengerInfo,PassengerCardID).substring(0,6);
-                    flightPassenger.put("PassengerCardID6",PassengerCardID6);//乘机人证件前6位
-                    flightPassenger.put("PassengerCardIDLengthOne",getValue(passengerInfo,"PassengerCardID").length());
-
-                    String IDCardNumberProvinceName = "",IDCardNumberProvinceNameToDACity = "";
-                    Map<String,Object> iDCardInfo = flightSources.getIDCardProvince(PassengerCardID6);
-                    String provinceName = "";
-                    if(iDCardInfo != null && iDCardInfo.size()>0)
-                    {
-                        provinceName = getValue(iDCardInfo,"ProvinceName");
-                        String mobilePhoneProvince = getValue(dataFact.contactInfo,"MobilePhoneProvince");
-                        //aCityProvince dCityProvince  IDCardNumberProvinceName  IDCardNumberProvinceNameToDACity
-                        if(!provinceName.equals(mobilePhoneProvince))
-                        {
-                            IDCardNumberProvinceName = "F";
-                        }else
-                        {
-                            IDCardNumberProvinceName = "T";
-                        }
-                        if(!provinceName.equals(aCityProvince) && !provinceName.equals(dCityProvince))
-                        {
-                            IDCardNumberProvinceNameToDACity = "F";
-                        }else
-                        {
-                            IDCardNumberProvinceNameToDACity = "T";
-                        }
-                    }
-                    if(!getValue(flowData,"IDCardNumberProvinceNameToMobilePhone").equals("T"))
-                    {
-                        flowData.put("IDCardNumberProvinceNameToMobilePhone",IDCardNumberProvinceName);
-                    }
-                    if(!getValue(flowData,"IDCardNumberProvinceNameToDACity").equals("T"))
-                    {
-                        flowData.put("IDCardNumberProvinceNameToDACity",IDCardNumberProvinceNameToDACity);
-                    }
-
-                    flightPassenger.put("UidPassengerName",passengerName+getValue(dataFact.userInfo,"Uid"));
-                    flightPassenger.put("UidPassengerNameCardID",getValue(dataFact.userInfo,"Uid")+passengerCardID);
-                    flightPassenger.put("MobilePhonePassengerCardID",getValue(dataFact.contactInfo,"MobilePhone")+passengerCardID);
-                    flightPassenger.put("EMailPassengerNameCardID",getValue(dataFact.contactInfo,"ContactEMail")+passengerCardID);
-                    flightPassenger.put("CCardNoCodePassengerNameCardID",getValue(flowData,"CCardNoCode")+passengerCardID);
-                    flightPassenger.put("CardNoRefIDPassengerNameCardID",getValue(flowData,"CardNoRefID")+passengerCardID);
-
-                    //判断多个乘机人国籍是否相同
-                    if(getValue(flowData,"IsSamePassengerNationality").equals("T"))
-                    {
-                        if(PassengerNationality1.isEmpty())
-                            PassengerNationality1 = passengerNationality;
-                        else
-                        {
-                            if(PassengerNationality1.equals(passengerNationality))
-                            {
-                                flowData.put("IsSamePassengerNationality","F");
-                            }
-                        }
-                    }
-                    flowPassengerList.add(flightPassenger);
+                    dic3.put(dic3.size(),PassengerCardID.substring(0,3));
+                }
+                if(dic6.size() == 0 || (!PassengerCardID.isEmpty()&&PassengerCardID.length()>6&&!dic6.containsValue(PassengerCardID.substring(0,6))))
+                {
+                    dic6.put(dic6.size(),PassengerCardID.substring(0,6));
                 }
 
-                int count = Integer.parseInt(getValue(flowData,"PassengerCount"));
-                if(count>0)
+                if(passengerCardIDLength.equals("F"))
                 {
-                    long amount = Integer.parseInt(getValue(dataFact.mainInfo,"Amount"));
-                    flowData.put("LeafletAmount",amount/count);
+                    if(PassengerCardID.length() != 15 && PassengerCardID.length() != 18)//登机人证件长度存在不等于15位和18位的
+                    {
+                        passengerCardIDLength = "T";
+                    }
                 }
 
-                flowData.put("MergerPassengerName",passengerName.toUpperCase());
-                flowData.put("MergerPassengerNationality",passengerNationality.toUpperCase());
-                flowData.put("MergerPassengerCardID",passengerCardID.toUpperCase());
-                flowData.put("PassengerCardIDLength",passengerCardIDLength.toUpperCase());
-                flowData.put("MergerPassengerCardIDLength",mergerPassengerCardIDLength.toUpperCase());
-                flowData.put("DCountPassengerCardID3",dic3.size());
-                flowData.put("DCountPassengerCardID6",dic6.size());
+                Map<String,Object> flightPassenger = new HashMap();
+                flightPassenger.put("PassengerName",getValue(passengerInfo,"PassengerName"));
+                flightPassenger.put("PassengerNationality",getValue(passengerInfo,"PassengerNationality"));
+                flightPassenger.put("PassengerCardID",getValue(passengerInfo,"PassengerCardID"));
+                flightPassenger.put("PassengerNameCardID",getValue(passengerInfo,"PassengerName")+getValue(passengerInfo,"PassengerCardID"));
+                //PassengerCardID6 += getValue(passengerInfo,PassengerCardID);//fixme 原来的代码逻辑有问题
+                String PassengerCardID6 = getValue(passengerInfo,PassengerCardID).substring(0,6);
+                flightPassenger.put("PassengerCardID6",PassengerCardID6);//乘机人证件前6位
+                flightPassenger.put("PassengerCardIDLengthOne",getValue(passengerInfo,"PassengerCardID").length());
 
-                //计算机票负利润
-                //List<Map> paymentInfos = dataFact.paymentInfoList;
-                for(Map paymentInfo : paymentInfos)
+                String IDCardNumberProvinceName = "",IDCardNumberProvinceNameToDACity = "";
+                Map<String,Object> iDCardInfo = flightSources.getIDCardProvince(PassengerCardID6);
+                String provinceName = "";
+                if(iDCardInfo != null && iDCardInfo.size()>0)
                 {
-                    Map subPaymentInfo = (Map)paymentInfo.get(Common.PaymentInfo);
-                    String prepayType = getValue(subPaymentInfo,Common.PrepayType);
-                    if(prepayType.equals("TMPAY"))
+                    provinceName = getValue(iDCardInfo,"ProvinceName");
+                    String mobilePhoneProvince = getValue(dataFact.contactInfo,"MobilePhoneProvince");
+                    //aCityProvince dCityProvince  IDCardNumberProvinceName  IDCardNumberProvinceNameToDACity
+                    if(!provinceName.equals(mobilePhoneProvince))
                     {
-                        try{
-                            Map flightOrderInfo = getValueMap(dataFact.productInfoM,"FlightsOrderInfo");
-                            if(flightOrderInfo.size()>0)
-                            {
-                                long flightPrice = Long.parseLong(getValue(flightOrderInfo,"Flightprice"));
-                                long flightCost = Long.parseLong(getValue(flightOrderInfo,"FlightCost"));
-                                long packageAttachFee = Long.parseLong(getValue(flightOrderInfo,"PackageAttachFee"));
-                                long insurance_fee = Long.parseLong(getValue(flightOrderInfo,"Insurance_fee"));
-                                long amount = Long.parseLong(getValue(subPaymentInfo,"Amount"));
+                        IDCardNumberProvinceName = "F";
+                    }else
+                    {
+                        IDCardNumberProvinceName = "T";
+                    }
+                    if(!provinceName.equals(aCityProvince) && !provinceName.equals(dCityProvince))
+                    {
+                        IDCardNumberProvinceNameToDACity = "F";
+                    }else
+                    {
+                        IDCardNumberProvinceNameToDACity = "T";
+                    }
+                }
+                if(!getValue(flowData,"IDCardNumberProvinceNameToMobilePhone").equals("T"))
+                {
+                    flowData.put("IDCardNumberProvinceNameToMobilePhone",IDCardNumberProvinceName);
+                }
+                if(!getValue(flowData,"IDCardNumberProvinceNameToDACity").equals("T"))
+                {
+                    flowData.put("IDCardNumberProvinceNameToDACity",IDCardNumberProvinceNameToDACity);
+                }
 
-                                double onePointFivePercentProfit = (flightPrice- flightCost)+packageAttachFee*0.7+insurance_fee*0.9-amount*0.15;
-                                double twoPointFivePercentProfit = (flightPrice- flightCost)+packageAttachFee*0.7+insurance_fee*0.9-amount*0.02;
-                                double threePointFivePercentProfit = (flightPrice- flightCost)+packageAttachFee*0.7+insurance_fee*0.9-amount*0.03;
-                                double fourPointFivePercentProfit = (flightPrice- flightCost)+packageAttachFee*0.7+insurance_fee*0.9-amount*0.04;
-                                double fivePointFivePercentProfit = (flightPrice- flightCost)+packageAttachFee*0.7+insurance_fee*0.9-amount*0.05;
+                flightPassenger.put("UidPassengerName",passengerName+getValue(dataFact.userInfo,"Uid"));
+                flightPassenger.put("UidPassengerNameCardID",getValue(dataFact.userInfo,"Uid")+passengerCardID);
+                flightPassenger.put("MobilePhonePassengerCardID",getValue(dataFact.contactInfo,"MobilePhone")+passengerCardID);
+                flightPassenger.put("EMailPassengerNameCardID",getValue(dataFact.contactInfo,"ContactEMail")+passengerCardID);
+                flightPassenger.put("CCardNoCodePassengerNameCardID",getValue(flowData,"CCardNoCode")+passengerCardID);
+                flightPassenger.put("CardNoRefIDPassengerNameCardID",getValue(flowData,"CardNoRefID")+passengerCardID);
 
-                                double onePointFivePercentProfitNotIncludeBinded = (flightPrice- flightCost)+insurance_fee*0.9-amount*0.15;
-                                double twoPointFivePercentProfitNotIncludeBinded = (flightPrice- flightCost)+insurance_fee*0.9-amount*0.02;
-                                double threePointFivePercentProfitNotIncludeBinded = (flightPrice- flightCost)+insurance_fee*0.9-amount*0.03;
-                                double fourPointFivePercentProfitNotIncludeBinded = (flightPrice- flightCost)+insurance_fee*0.9-amount*0.04;
-                                double fivePointFivePercentProfitNotIncludeBinded = (flightPrice- flightCost)+insurance_fee*0.9-amount*0.05;
-
-                                flowData.put("OnePointFivePercentProfit",onePointFivePercentProfit);
-                                flowData.put("TwoPercentProfit",twoPointFivePercentProfit);
-                                flowData.put("Threepercentprofit",threePointFivePercentProfit);
-                                flowData.put("Fourpercentprofit",fourPointFivePercentProfit);
-                                flowData.put("Fivepercentprofit",fivePointFivePercentProfit);
-                                flowData.put("OnePointFivePercentProfitNotIncludeBinded",onePointFivePercentProfitNotIncludeBinded);
-                                flowData.put("TwoPercentProfitNotIncludeBinded",twoPointFivePercentProfitNotIncludeBinded);
-                                flowData.put("ThreepercentProfitnotincludebinded",threePointFivePercentProfitNotIncludeBinded);
-                                flowData.put("FourpercentProfitnotincludebinded",fourPointFivePercentProfitNotIncludeBinded);
-                                flowData.put("FivepercentProfitnotincludebinded",fivePointFivePercentProfitNotIncludeBinded);
-
-                                flowData.put("ActualAmount",amount+insurance_fee+packageAttachFee);
-                            }
-                        }catch (Exception exp)
+                //判断多个乘机人国籍是否相同
+                if(getValue(flowData,"IsSamePassengerNationality").equals("T"))
+                {
+                    if(PassengerNationality1.isEmpty())
+                        PassengerNationality1 = passengerNationality;
+                    else
+                    {
+                        if(PassengerNationality1.equals(passengerNationality))
                         {
-                            logger.warn("机票负利润计算子项异常:",exp.getMessage());
+                            flowData.put("IsSamePassengerNationality","F");
                         }
                     }
                 }
+                flowPassengerList.add(flightPassenger);
             }
 
-            //同一手机，相同卡号前12位  同一Email，相同卡号前12位  同一UID，相同卡号前12位
-            flowData.put("CCardPreNoCodeMobilePhone",getValue(flowData,"CCardPreNoCode")+getValue(dataFact.contactInfo,"MobilePhone"));
-            flowData.put("CCardNoCodeMobilePhone7",getValue(flowData,"CCardNoCode")+getValue(dataFact.contactInfo,"MobilePhone").substring(0,7));
-            flowData.put("CCardPreNoCodeContactEMail",getValue(flowData,"CCardPreNoCode")+getValue(dataFact.contactInfo, "ContactEMail"));
-            flowData.put("CCardPreNoCodeUid",getValue(flowData,"CCardPreNoCode")+getValue(dataFact.userInfo,"Uid"));
-
-            flowData.put("CardBinOrderID",getValue(flowData,"CardBin")+getValue(dataFact.mainInfo,"OrderId"));
-            flowData.put("CardBinMobilePhone",getValue(flowData,"CardBin")+getValue(dataFact.contactInfo, "MobilePhone"));
-            flowData.put("ContactEMailCardBin",getValue(flowData,"CCardPreNoCode")+getValue(dataFact.contactInfo, "ContactEMail"));
-            flowData.put("CCardPreNoCodeUid",getValue(dataFact.contactInfo, "ContactEMail")+getValue(flowData,"CardBin"));
-
-            flowData.put("CardBinUID",getValue(flowData,"CardBin")+getValue(dataFact.userInfo,"Uid"));
-
-            flowData.put("MobilePhoneContactEMail",getValue(dataFact.contactInfo, "MobilePhone")+getValue(dataFact.contactInfo, "ContactEMail"));
-
-            flowData.put("MobilePhoneUID",getValue(dataFact.contactInfo, "MobilePhone")+getValue(dataFact.userInfo,"Uid"));
-            flowData.put("UidUserIPValue",getValue(dataFact.userInfo,"Uid")+getValue(dataFact.ipInfo,"UserIPValue"));
-
-            flowData.put("CCardNoCodeContactEMailUserIPValue",getValue(flowData,"CCardNoCode")+getValue(dataFact.contactInfo, "ContactEMail")+getValue(dataFact.ipInfo,"UserIPValue"));
-            flowData.put("CardNoRefIDContactEMailUserIPValue",getValue(flowData,"CardNoRefID")+getValue(dataFact.contactInfo, "ContactEMail")+getValue(dataFact.ipInfo,"UserIPValue"));
-
-            flowData.put("CardNoRefIDMobilePhone7",getValue(flowData,"CardNoRefID")+getValue(dataFact.contactInfo,"MobilePhone").substring(0,7));
-
-
-            String contactEmail = getValue(flowData,"ContactEMail");
-            if(!contactEmail.isEmpty()&&contactEmail.contains("@"))
+            int count = Integer.parseInt(getValue(flowData,"PassengerCount"));
+            if(count>0)
             {
-                contactEMail = contactEmail.substring(contactEmail.indexOf("@")+1);
-                flowData.put("ContactEMailToPassengerNationality","T");
-                String[] passengerNationalitylist = getValue(flowData,"MergerPassengerNationality").split("|");
-                for(String item : passengerNationalitylist)
+                long amount = Integer.parseInt(getValue(dataFact.mainInfo,"Amount"));
+                flowData.put("LeafletAmount",amount/count);
+            }
+
+            flowData.put("MergerPassengerName",passengerName.toUpperCase());
+            flowData.put("MergerPassengerNationality",passengerNationality.toUpperCase());
+            flowData.put("MergerPassengerCardID",passengerCardID.toUpperCase());
+            flowData.put("PassengerCardIDLength",passengerCardIDLength.toUpperCase());
+            flowData.put("MergerPassengerCardIDLength",mergerPassengerCardIDLength.toUpperCase());
+            flowData.put("DCountPassengerCardID3",dic3.size());
+            flowData.put("DCountPassengerCardID6",dic6.size());
+
+            //计算机票负利润
+            //List<Map> paymentInfos = dataFact.paymentInfoList;
+            for(Map paymentInfo : paymentInfos)
+            {
+                Map subPaymentInfo = (Map)paymentInfo.get(Common.PaymentInfo);
+                String prepayType = getValue(subPaymentInfo,Common.PrepayType);
+                if(prepayType.equals("TMPAY"))
                 {
-                    if(item.isEmpty())
-                        continue;
-                    if(contactEmail.contains(item))
+                    try{
+                        Map flightOrderInfo = getValueMap(dataFact.productInfoM,"FlightsOrderInfo");
+                        if(flightOrderInfo.size()>0)
+                        {
+                            long flightPrice = Long.parseLong(getValue(flightOrderInfo,"Flightprice"));
+                            long flightCost = Long.parseLong(getValue(flightOrderInfo,"FlightCost"));
+                            long packageAttachFee = Long.parseLong(getValue(flightOrderInfo,"PackageAttachFee"));
+                            long insurance_fee = Long.parseLong(getValue(flightOrderInfo,"Insurance_fee"));
+                            long amount = Long.parseLong(getValue(subPaymentInfo,"Amount"));
+
+                            double onePointFivePercentProfit = (flightPrice- flightCost)+packageAttachFee*0.7+insurance_fee*0.9-amount*0.15;
+                            double twoPointFivePercentProfit = (flightPrice- flightCost)+packageAttachFee*0.7+insurance_fee*0.9-amount*0.02;
+                            double threePointFivePercentProfit = (flightPrice- flightCost)+packageAttachFee*0.7+insurance_fee*0.9-amount*0.03;
+                            double fourPointFivePercentProfit = (flightPrice- flightCost)+packageAttachFee*0.7+insurance_fee*0.9-amount*0.04;
+                            double fivePointFivePercentProfit = (flightPrice- flightCost)+packageAttachFee*0.7+insurance_fee*0.9-amount*0.05;
+
+                            double onePointFivePercentProfitNotIncludeBinded = (flightPrice- flightCost)+insurance_fee*0.9-amount*0.15;
+                            double twoPointFivePercentProfitNotIncludeBinded = (flightPrice- flightCost)+insurance_fee*0.9-amount*0.02;
+                            double threePointFivePercentProfitNotIncludeBinded = (flightPrice- flightCost)+insurance_fee*0.9-amount*0.03;
+                            double fourPointFivePercentProfitNotIncludeBinded = (flightPrice- flightCost)+insurance_fee*0.9-amount*0.04;
+                            double fivePointFivePercentProfitNotIncludeBinded = (flightPrice- flightCost)+insurance_fee*0.9-amount*0.05;
+
+                            flowData.put("OnePointFivePercentProfit",onePointFivePercentProfit);
+                            flowData.put("TwoPercentProfit",twoPointFivePercentProfit);
+                            flowData.put("Threepercentprofit",threePointFivePercentProfit);
+                            flowData.put("Fourpercentprofit",fourPointFivePercentProfit);
+                            flowData.put("Fivepercentprofit",fivePointFivePercentProfit);
+                            flowData.put("OnePointFivePercentProfitNotIncludeBinded",onePointFivePercentProfitNotIncludeBinded);
+                            flowData.put("TwoPercentProfitNotIncludeBinded",twoPointFivePercentProfitNotIncludeBinded);
+                            flowData.put("ThreepercentProfitnotincludebinded",threePointFivePercentProfitNotIncludeBinded);
+                            flowData.put("FourpercentProfitnotincludebinded",fourPointFivePercentProfitNotIncludeBinded);
+                            flowData.put("FivepercentProfitnotincludebinded",fivePointFivePercentProfitNotIncludeBinded);
+
+                            flowData.put("ActualAmount",amount+insurance_fee+packageAttachFee);
+                        }
+                    }catch (Exception exp)
                     {
-                        flowData.put("ContactEMailToPassengerNationality","F");
-                        break;
+                        logger.warn("机票负利润计算子项异常:",exp.getMessage());
                     }
                 }
             }
-            flowData.put("DAirPortAAirPort",getValue(flightsOrderInfo,"DAirPort")+getValue(flightsOrderInfo,"AAirPort"));
-            flowData.put("ContactEMailMergerMobilePhone7",getValue(dataFact.contactInfo, "ContactEMail")+getValue(dataFact.contactInfo, "MobilePhone").substring(0,7));
+        }
 
-            boolean isIPProvince = commonOperation.isMatch("EQ",getValue(flowData,"IPProvince"),getValue(flowData,"DCityProvince"));
-            if(isIPProvince)
-            {
-                flowData.put("IPProvinceCompareDCityProvince","T");
-            }else
-            {
-                flowData.put("IPProvinceCompareDCityProvince","F");
-            }
-            boolean isMobilePhoneProvince = commonOperation.isMatch("EQ",getValue(flowData,"MobilePhoneProvince"),getValue(flowData,"DCityProvince"));
-            if(isMobilePhoneProvince)
-            {
-                flowData.put("MobilePhoneProvinceCompareDCityProvince","T");
-            }else
-            {
-                flowData.put("MobilePhoneProvinceCompareDCityProvince","F");
-            }
-            boolean isACityProvince = commonOperation.isMatch("EQ",getValue(flowData,"IPProvince"),getValue(flowData,"ACityProvince"));
-            if(isACityProvince)
-            {
-                flowData.put("IPProvinceCompareACityProvince","T");
-            }else
-            {
-                flowData.put("IPProvinceCompareACityProvince","F");
-            }
-            boolean MobilePhoneProvinceCompareACityProvince = commonOperation.isMatch("EQ",getValue(flowData,"MobilePhoneProvince"),getValue(flowData,"ACityProvince"));
-            if(MobilePhoneProvinceCompareACityProvince)
-            {
-                flowData.put("MobilePhoneProvinceCompareACityProvince","T");
-            }else
-            {
-                flowData.put("MobilePhoneProvinceCompareACityProvince","F");
-            }
+        //同一手机，相同卡号前12位  同一Email，相同卡号前12位  同一UID，相同卡号前12位
+        flowData.put("CCardPreNoCodeMobilePhone",getValue(flowData,"CCardPreNoCode")+getValue(dataFact.contactInfo,"MobilePhone"));
+        flowData.put("CCardNoCodeMobilePhone7",getValue(flowData,"CCardNoCode")+getValue(dataFact.contactInfo,"MobilePhone").substring(0,7));
+        flowData.put("CCardPreNoCodeContactEMail",getValue(flowData,"CCardPreNoCode")+getValue(dataFact.contactInfo, "ContactEMail"));
+        flowData.put("CCardPreNoCodeUid",getValue(flowData,"CCardPreNoCode")+getValue(dataFact.userInfo,"Uid"));
 
-            String uid = getValue(dataFact.userInfo,"Uid");
-            //该uid在最近一年内的第一次订单时间
-            try
-            {
-                Date date = new Date(System.currentTimeMillis());
-                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.sss");
-                String timeLimitStr = format.format(date);
-                Calendar calendar = new GregorianCalendar();
-                calendar.setTime(date);
-                calendar.add(calendar.MINUTE, -525600);//往前525600分钟
-                String startTimeStr = format.format(calendar.getTime());
-                String firstOrderStr = flightSources.getUidOrderDate(uid,startTimeStr,timeLimitStr);//fixme 这里提取的日期应该是.net的日期格式 要改
-                firstOrderStr = firstOrderStr.replace("T"," ");
-                String currentOrderStr = getValue(dataFact.mainInfo,"OrderDate");
-                Date firstOrder = format.parse(firstOrderStr);
-                Date currentOrder = format.parse(currentOrderStr);
-                flowData.put("orderDateToOrderDate1YByUid",getDateAbs(firstOrder,currentOrder,1));
+        flowData.put("CardBinOrderID",getValue(flowData,"CardBin")+getValue(dataFact.mainInfo,"OrderId"));
+        flowData.put("CardBinMobilePhone",getValue(flowData,"CardBin")+getValue(dataFact.contactInfo, "MobilePhone"));
+        flowData.put("ContactEMailCardBin",getValue(flowData,"CCardPreNoCode")+getValue(dataFact.contactInfo, "ContactEMail"));
+        flowData.put("CCardPreNoCodeUid",getValue(dataFact.contactInfo, "ContactEMail")+getValue(flowData,"CardBin"));
 
-                // 本单金额与7天内均值消费金额之间的差值的绝对值
-                calendar.add(calendar.MINUTE, -10080);//往前10080分钟
-                String startTimeStr1 = format.format(calendar.getTime());
-                String avgAmount7 = flightSources.getAvgAmount7(getValue(flowData,"CCardNoCode"),startTimeStr1,timeLimitStr);
-                long avgAmount = Long.parseLong(avgAmount7);
-                long currentAmount = Long.parseLong(getValue(dataFact.mainInfo,"Amount"));
-                flowData.put("AmountToAvgAmount7",currentAmount-avgAmount);
-            }catch (Exception exp)
-            {
-                flowData.put("orderDateToOrderDate1YByUid","-1");
-            }
+        flowData.put("CardBinUID",getValue(flowData,"CardBin")+getValue(dataFact.userInfo,"Uid"));
 
-            flowData.put("uidIPCityLastYear","T");
+        flowData.put("MobilePhoneContactEMail",getValue(dataFact.contactInfo, "MobilePhone")+getValue(dataFact.contactInfo, "ContactEMail"));
+
+        flowData.put("MobilePhoneUID",getValue(dataFact.contactInfo, "MobilePhone")+getValue(dataFact.userInfo,"Uid"));
+        flowData.put("UidUserIPValue",getValue(dataFact.userInfo,"Uid")+getValue(dataFact.ipInfo,"UserIPValue"));
+
+        flowData.put("CCardNoCodeContactEMailUserIPValue",getValue(flowData,"CCardNoCode")+getValue(dataFact.contactInfo, "ContactEMail")+getValue(dataFact.ipInfo,"UserIPValue"));
+        flowData.put("CardNoRefIDContactEMailUserIPValue",getValue(flowData,"CardNoRefID")+getValue(dataFact.contactInfo, "ContactEMail")+getValue(dataFact.ipInfo,"UserIPValue"));
+
+        flowData.put("CardNoRefIDMobilePhone7",getValue(flowData,"CardNoRefID")+getValue(dataFact.contactInfo,"MobilePhone").substring(0,7));
 
 
-            if(dataFact.userInfo != null && !uid.isEmpty())
+        String contactEmail = getValue(flowData,"ContactEMail");
+        if(!contactEmail.isEmpty()&&contactEmail.contains("@"))
+        {
+            contactEMail = contactEmail.substring(contactEmail.indexOf("@")+1);
+            flowData.put("ContactEMailToPassengerNationality","T");
+            String[] passengerNationalitylist = getValue(flowData,"MergerPassengerNationality").split("|");
+            for(String item : passengerNationalitylist)
             {
-                if(uid.length()>=10)
+                if(item.isEmpty())
+                    continue;
+                if(contactEmail.contains(item))
                 {
-                    flowData.put("UID3To7",uid.substring(2,9));
-                    flowData.put("Uid1",uid.substring(0,1));
+                    flowData.put("ContactEMailToPassengerNationality","F");
+                    break;
                 }
             }
+        }
+        flowData.put("DAirPortAAirPort",getValue(flightsOrderInfo,"DAirPort")+getValue(flightsOrderInfo,"AAirPort"));
+        flowData.put("ContactEMailMergerMobilePhone7",getValue(dataFact.contactInfo, "ContactEMail")+getValue(dataFact.contactInfo, "MobilePhone").substring(0,7));
 
-            flowData.put("TakeOffToOrderDate",getValue(dataFact.otherInfo,"TakeOffToOrderDate"));
-            logger.info("三：到补充流量数据的时间是："+(System.currentTimeMillis()-now));
+        boolean isIPProvince = commonOperation.isMatch("EQ",getValue(flowData,"IPProvince"),getValue(flowData,"DCityProvince"));
+        if(isIPProvince)
+        {
+            flowData.put("IPProvinceCompareDCityProvince","T");
+        }else
+        {
+            flowData.put("IPProvinceCompareDCityProvince","F");
+        }
+        boolean isMobilePhoneProvince = commonOperation.isMatch("EQ",getValue(flowData,"MobilePhoneProvince"),getValue(flowData,"DCityProvince"));
+        if(isMobilePhoneProvince)
+        {
+            flowData.put("MobilePhoneProvinceCompareDCityProvince","T");
+        }else
+        {
+            flowData.put("MobilePhoneProvinceCompareDCityProvince","F");
+        }
+        boolean isACityProvince = commonOperation.isMatch("EQ",getValue(flowData,"IPProvince"),getValue(flowData,"ACityProvince"));
+        if(isACityProvince)
+        {
+            flowData.put("IPProvinceCompareACityProvince","T");
+        }else
+        {
+            flowData.put("IPProvinceCompareACityProvince","F");
+        }
+        boolean MobilePhoneProvinceCompareACityProvince = commonOperation.isMatch("EQ",getValue(flowData,"MobilePhoneProvince"),getValue(flowData,"ACityProvince"));
+        if(MobilePhoneProvinceCompareACityProvince)
+        {
+            flowData.put("MobilePhoneProvinceCompareACityProvince","T");
+        }else
+        {
+            flowData.put("MobilePhoneProvinceCompareACityProvince","F");
+        }
+
+        String uid = getValue(dataFact.userInfo,"Uid");
+        //该uid在最近一年内的第一次订单时间
+        try
+        {
+            Date date = new Date(System.currentTimeMillis());
+            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.sss");
+            String timeLimitStr = format.format(date);
+            Calendar calendar = new GregorianCalendar();
+            calendar.setTime(date);
+            calendar.add(calendar.MINUTE, -525600);//往前525600分钟
+            String startTimeStr = format.format(calendar.getTime());
+            String firstOrderStr = flightSources.getUidOrderDate(uid,startTimeStr,timeLimitStr);//fixme 这里提取的日期应该是.net的日期格式 要改
+            firstOrderStr = firstOrderStr.replace("T"," ");
+            String currentOrderStr = getValue(dataFact.mainInfo,"OrderDate");
+            Date firstOrder = format.parse(firstOrderStr);
+            Date currentOrder = format.parse(currentOrderStr);
+            flowData.put("orderDateToOrderDate1YByUid",getDateAbs(firstOrder,currentOrder,1));
+
+            // 本单金额与7天内均值消费金额之间的差值的绝对值
+            calendar.add(calendar.MINUTE, -10080);//往前10080分钟
+            String startTimeStr1 = format.format(calendar.getTime());
+            String avgAmount7 = flightSources.getAvgAmount7(getValue(flowData,"CCardNoCode"),startTimeStr1,timeLimitStr);
+            long avgAmount = Long.parseLong(avgAmount7);
+            long currentAmount = Long.parseLong(getValue(dataFact.mainInfo,"Amount"));
+            flowData.put("AmountToAvgAmount7",currentAmount-avgAmount);
+        }catch (Exception exp)
+        {
+            flowData.put("orderDateToOrderDate1YByUid","-1");
+        }
+
+        flowData.put("uidIPCityLastYear","T");
+
+
+        if(dataFact.userInfo != null && !uid.isEmpty())
+        {
+            if(uid.length()>=10)
+            {
+                flowData.put("UID3To7",uid.substring(2,9));
+                flowData.put("Uid1",uid.substring(0,1));
+            }
+        }
+
+        flowData.put("TakeOffToOrderDate",getValue(dataFact.otherInfo,"TakeOffToOrderDate"));
+    }
+
+    @Override
+    public void writeData(DataFact dataFact, Map data, Map flowData, ThreadPoolExecutor writeExecutor, boolean isWrite, boolean isCheck)
+    {
+        //预处理数据写到数据库
+        flowData.put(Common.OrderType,data.get(Common.OrderType));
+        logger.info("mainInfo\t"+ Json.toPrettyJSONString(dataFact.mainInfo));
+        logger.info("contactInfo\t"+ Json.toPrettyJSONString(dataFact.contactInfo));
+        logger.info("userInfo\t"+ Json.toPrettyJSONString(dataFact.userInfo));
+        logger.info("ipInfo\t"+ Json.toPrettyJSONString(dataFact.ipInfo));
+        logger.info("hotelGroupInfo\t"+ Json.toPrettyJSONString(dataFact.productInfoM));
+        logger.info("otherInfo\t"+ Json.toPrettyJSONString(dataFact.otherInfo));
+        logger.info("DIDInfo\t"+ Json.toPrettyJSONString(dataFact.DIDInfo));
+    }
+
+    public CheckFact executeFlight(Map data,ThreadPoolExecutor executor,ThreadPoolExecutor writeExecutor,boolean isWrite,boolean isCheck)
+    {
+        CheckFact checkFact = new CheckFact();
+        beforeInvoke();
+        try{
+            logger.info("开始处理酒店团购 "+data.get("OrderID").toString()+" 数据");
+
+            DataFact dataFact = new DataFact();
+            complementData(dataFact,data,executor);
+
+            Map<String,Object> bwList = new HashMap();
+            convertToBlackCheckItem(dataFact,data,bwList);
+
+            Map<String,Object> flowData = new HashMap<String, Object>();
+            convertToFlowRuleCheckItem(dataFact,data,flowData);
+
             logger.info(data.get("OrderID").toString()+" 数据处理完毕");
 
 
@@ -569,16 +610,10 @@ public class FlightExecutor implements Executor
             if(data.get(Common.ReqID)!=null)
                 checkFact.setReqId(Long.parseLong(data.get(Common.ReqID).toString()));//reqId如何获取
 
+            //判断是否写入数据
+            // boolean isWrite = commonSources.getIsWrite("HotelGroupPreByNewSystem");//fixme 这个在上线后把注释去掉
+            writeData(dataFact,data,flowData,writeExecutor,isWrite,isCheck);//fixme 第一次测试先不写数据库
 
-            //预处理数据写到数据库
-            flowData.put(Common.OrderType,data.get(Common.OrderType));
-            logger.info("mainInfo\t"+ Json.toPrettyJSONString(dataFact.mainInfo));
-            logger.info("contactInfo\t"+ Json.toPrettyJSONString(dataFact.contactInfo));
-            logger.info("userInfo\t"+ Json.toPrettyJSONString(dataFact.userInfo));
-            logger.info("ipInfo\t"+ Json.toPrettyJSONString(dataFact.ipInfo));
-            logger.info("hotelGroupInfo\t"+ Json.toPrettyJSONString(dataFact.productInfoM));
-            logger.info("otherInfo\t"+ Json.toPrettyJSONString(dataFact.otherInfo));
-            logger.info("DIDInfo\t"+ Json.toPrettyJSONString(dataFact.DIDInfo));
         }catch (Exception exp)
         {
             fault();
