@@ -11,6 +11,10 @@ import java.util.Map;
 public class PO {
     private static Map<String, String> prop2Table = new HashMap<String, String>();
 
+    public static Map<String, String> getProp2Table() {
+        return prop2Table;
+    }
+
     /**
      * 非基本类，需要转换
      * @param items
