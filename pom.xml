@@ -630,5 +630,6 @@
         <module>flowtable4j-translate</module>
     	<module>flowtable4j-payadapt</module>
 		<module>flowtable4j-biz</module>
-	</modules>
+    <module>flowtable4j-v2m</module>
+  </modules>
 </project>
