@@ -63,15 +63,16 @@ public class TieYouExecutor implements Executor
             //一：补充数据
             commonExecutor.complementData(dataFact,data,executor);
             dataFact.mainInfo.put(Common.OrderType,18);//添加订单类型 铁友是18
-            getOtherInfo(dataFact, data);
             //这里分checkType 0、1和2两种情况
             int checkType = Integer.parseInt(getValue(data, Common.CheckType));
             if(checkType == 0 ||checkType == 1)
             {
                 getTieYouProductInfo0(dataFact, data);
+                getOtherInfo0(dataFact,data);
             }else if(checkType == 2)
             {
                 getTieYouProductInfo1(dataFact, data);
+                getOtherInfo1(dataFact,data);
             }
         }catch (Exception exp)
         {
@@ -293,7 +294,7 @@ public class TieYouExecutor implements Executor
                         Map exRailUserInfo = getValueMap(tieYouInfo, TieYou.ExRailUserInfo);
                         exRailUserInfo.put("ExRailInfoID",ExRailInfoID);
                         if(exRailUserInfo.size()>0 && !ExRailInfoID.isEmpty())
-                        {tieYouWriteSources.insertTieYouExRailInfo(exRailUserInfo, reqId, isWrite, isCheck);}
+                        {tieYouWriteSources.insertTieYouExRailUserInfo(exRailUserInfo, reqId, isWrite, isCheck);}
                     }
                 } catch (Exception e)
                 {
@@ -510,5 +511,33 @@ public class TieYouExecutor implements Executor
             subProductInfo.put(TieYou.ExRailUserInfo,exRailUserInfo);
             dataFact.productInfoL.add(subProductInfo);
         }
+    }
+
+    /**
+     * 添加订单日期到注册日期的差值
+     * 添加订单日期到起飞日期的差值
+     * @param data
+     * @throws java.text.ParseException
+     */
+    public void getOtherInfo0(DataFact dataFact,Map data) throws ParseException
+    {
+        logger.info(data.get("OrderID")+"获取时间的差值相关信息");
+        //订单日期
+        String orderDateStr = getValue(data,Common.OrderDate);
+        Date orderDate = DateUtils.parseDate(orderDateStr, "yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd HH:mm:ss.SSS");//yyyy-MM-dd HH:mm:ss   yyyy-MM-dd HH:mm:ss.SSS
+        //注册日期
+        String signUpDateStr = getValue(data,Common.SignUpDate);
+        Date signUpDate = DateUtils.parseDate(signUpDateStr,"yyyy-MM-dd HH:mm:ss","yyyy-MM-dd HH:mm:ss.SSS");
+        dataFact.otherInfo.put(Common.OrderToSignUpDate,getDateAbs(signUpDate, orderDate,1));
+
+        dataFact.otherInfo.put(Common.TakeOffToOrderDate,"0");
+    }
+
+    public void getOtherInfo1(DataFact dataFact,Map data)
+    {
+        String reqIdStr = getValue(data,Common.ReqID);
+        Map otherInfo = commonSources.getOtherInfo(reqIdStr);
+        if(otherInfo != null && otherInfo.size()>0)
+            dataFact.otherInfo.putAll(otherInfo);
     }
 }
