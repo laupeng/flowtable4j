@@ -117,8 +117,8 @@ public class CommonOperation
         if(ipInfo != null && ipInfo.size()>0)
         {
             String ContinentID = getValue(ipInfo,"ContinentID");
-            String CityId = getValue(ipInfo,"CityId");
-            String NationCode = getValue(ipInfo,"NationCode");
+            String CityId = getValue(ipInfo,"CityID");
+            String NationCode = getValue(ipInfo,"CountryCode");
             dataFact.ipInfo.put(Common.Continent,ContinentID);
             dataFact.ipInfo.put(Common.IPCity,CityId);
             dataFact.ipInfo.put(Common.IPCountry,NationCode);
