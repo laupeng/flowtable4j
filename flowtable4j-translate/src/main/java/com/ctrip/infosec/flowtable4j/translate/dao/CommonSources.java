@@ -81,7 +81,7 @@ public class CommonSources
         long now = System.currentTimeMillis();
         Map ipInfo = null;
         try{
-            String sqlCommand = "SELECT Top 1 * FROM IpCountryCity with (nolock) WHERE IpStart <= ?" +" ORDER BY IpStart DESC ";//FIXME 这里问徐洪修正
+            String sqlCommand = "select Top 1 * from IpCountryCity with (nolock) where IpStart <= ?"+" ORDER BY IpStart DESC ";
             ipInfo = cardRiskDBTemplate.queryForMap(sqlCommand,ipValue);
         }catch(Exception exp)
         {

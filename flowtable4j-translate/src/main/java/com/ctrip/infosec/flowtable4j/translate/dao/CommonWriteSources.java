@@ -97,7 +97,11 @@ public class CommonWriteSources
                    cs.setString(Common.CorporationID,getValue(mainInfo,Common.CorporationID));
                    cs.setString("DataChange_LastTime","");
                    cs.setString(Common.MerchantID,getValue(mainInfo,Common.MerchantID));
-                   cs.setString("ProcessingType",getValue(mainInfo,"ProcessingType"));
+                   String processingType = getValue(mainInfo,"ProcessingType");
+                   if(processingType.isEmpty())
+                    cs.setString("ProcessingType",null);
+                   else
+                       cs.setString("ProcessingType",processingType);
                    cs.setString(Common.SubOrderType,getValue(mainInfo,Common.SubOrderType));
                    cs.setString("ApplyRemark",getValue(mainInfo,"ApplyRemark"));
                    cs.setString(Common.ClientID,getValue(mainInfo,Common.ClientID));

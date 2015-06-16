@@ -15,6 +15,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.ctrip.infosec.flowtable4j.translate.common.IpConvert.ipConvertTo10;
+
 /**
 * Created by lpxie on 15-4-7.
 */
@@ -27,6 +29,7 @@ public class ESBSourcesTest
     @Test
     public void testConstructXml()
     {
+        System.out.println(ipConvertTo10("58.246.10.89"));
 //        Date date = new Date();
         // Date date1 = DateUtils.parseDate("2014-04-13 15:13:17.000", );
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
