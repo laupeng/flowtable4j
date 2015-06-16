@@ -96,16 +96,16 @@ public class TieYouWriteSources
                return cs.getString(1);
            }
        });
-        return "";
+        return result.toString();
     }
 
-    public void insertTieYouExRailUserInfo(final Map tieYouExRailUserInfo,final String reqId,final boolean isWrite,final boolean isCheck)
+    public void insertTieYouExRailUserInfo(final Map tieYouExRailUserInfo,final String ExRailInfoID,final boolean isWrite,final boolean isCheck)
     {
         try
         {
             if(isCheck)
             {
-                Map oldMainInfo = cardRiskDBTemplate.queryForMap("select top 1 * from InfoSecurity_ExRailUserInfo where reqid=?",reqId);
+                Map oldMainInfo = cardRiskDBTemplate.queryForMap("select top 1 * from InfoSecurity_ExRailUserInfo where ExRailInfoID=?",ExRailInfoID);
                 Set<Map.Entry> entries = oldMainInfo.entrySet();
                 for(Map.Entry<String,Object> entry : entries)
                 {
@@ -133,7 +133,7 @@ public class TieYouWriteSources
                    String storedProc = "{call sp3_InfoSecurity_ExRailUserInfo_i("+params+")}";// 调用的dbo.sp3_InfoSecurity_HotelGroupInfo_i
                    CallableStatement cs = con.prepareCall(storedProc);
                    cs.setString("ExRailUserID","");//这个是自增主键 站位符
-                   cs.setString("ExRailInfoID",getValue(tieYouExRailUserInfo,"ExRailInfoID"));
+                   cs.setString("ExRailInfoID",ExRailInfoID);
                    cs.setString(Common.PassengerName,getValue(tieYouExRailUserInfo,Common.PassengerName));
                    cs.setString("PassengerIDType",getValue(tieYouExRailUserInfo,"PassengerIDType"));
                    cs.setString("PassengerIDCode",getValue(tieYouExRailUserInfo,"PassengerIDCode"));

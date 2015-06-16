@@ -68,11 +68,11 @@ public class TieYouExecutor implements Executor
             if(checkType == 0 ||checkType == 1)
             {
                 getTieYouProductInfo0(dataFact, data);
-                getOtherInfo0(dataFact,data);
+                getOtherInfo0(dataFact, data);
             }else if(checkType == 2)
             {
                 getTieYouProductInfo1(dataFact, data);
-                getOtherInfo1(dataFact,data);
+                getOtherInfo1(dataFact, data);
             }
         }catch (Exception exp)
         {
@@ -286,15 +286,18 @@ public class TieYouExecutor implements Executor
                     for (int i = 0; i < dataFactCopy.productInfoL.size(); i++)
                     {
                         Map<String, Object> tieYouInfo = dataFactCopy.productInfoL.get(i);
-                        String ExRailInfoID = "";
+
                         Map exRailInfo = getValueMap(tieYouInfo, TieYou.ExRailInfo);
                         if(exRailInfo.size()>0)
-                        {ExRailInfoID = tieYouWriteSources.insertTieYouExRailInfo(exRailInfo,reqId, isWrite, isCheck);}
+                        {
+                            final String ExRailInfoID = tieYouWriteSources.insertTieYouExRailInfo(exRailInfo,reqId, isWrite, isCheck);
 
-                        Map exRailUserInfo = getValueMap(tieYouInfo, TieYou.ExRailUserInfo);
-                        exRailUserInfo.put("ExRailInfoID",ExRailInfoID);
-                        if(exRailUserInfo.size()>0 && !ExRailInfoID.isEmpty())
-                        {tieYouWriteSources.insertTieYouExRailUserInfo(exRailUserInfo, reqId, isWrite, isCheck);}
+                            Map exRailUserInfo = getValueMap(tieYouInfo, TieYou.ExRailUserInfo);
+                            if(exRailUserInfo.size()>0 && !ExRailInfoID.isEmpty())
+                            {
+                                tieYouWriteSources.insertTieYouExRailUserInfo(exRailUserInfo, ExRailInfoID, isWrite, isCheck);
+                            }
+                        }  
                     }
                 } catch (Exception e)
                 {
