@@ -1,6 +1,7 @@
 package com.ctrip.infosec.flowtable4j.translate.service;
 
 import com.ctrip.infosec.flowtable4j.model.CheckFact;
+import com.ctrip.infosec.flowtable4j.translate.UnitConverters.*;
 import com.ctrip.infosec.flowtable4j.translate.common.BeanMapper;
 import com.ctrip.infosec.flowtable4j.translate.dao.*;
 import com.ctrip.infosec.flowtable4j.translate.model.Common;
@@ -46,10 +47,29 @@ public class CommonExecutor
     DataProxySources dataProxySources;
     @Autowired
     CommonOperation commonOperation;
+    //转换器
+    @Autowired
+    MainInfoConvert mainInfoConvert;
+    @Autowired
+    ContactInfoConvert contactInfoConvert;
+    @Autowired
+    IPInfoConvert ipInfoConvert;
+    @Autowired
+    CorporationConvert corporationConvert;
+    @Autowired
+    DIDInfoConvert didInfoConvert;
+    @Autowired
+    PaymentInfoListConvert paymentInfoListConvert;
+    @Autowired
+    PaymentMainInfoConvert paymentMainInfoConvert;
+    @Autowired
+    UserInfoConvert userInfoConvert;
+    @Autowired
+    AppInfoConvert appInfoConvert;
 
-    public void complementData(DataFact dataFact,Map data,ThreadPoolExecutor excutor)
+    public void complementData(DataFact dataFact,Map data,ThreadPoolExecutor executor)
     {
-        this.executor = excutor;
+        this.executor = executor;
         beforeInvoke();
         try{
             logger.info("开始补充"+data.get("OrderID")+"数据");
@@ -61,7 +81,174 @@ public class CommonExecutor
                 mobilePhone = mobilePhone.substring(1,mobilePhone.length());
                 data.put(Common.MobilePhone,mobilePhone);
             }
-            int checkType = Integer.parseInt(getValue(data, Common.CheckType));
+
+            //获取lastReqId
+            if(getValue(data,Common.OrderType).equals("18"))
+            {
+                //铁有特殊处理 订单号是商户订单号
+                commonOperation.getTieYouLastReqID(data);
+            }else
+            {
+                commonOperation.getLastReqID(data);
+            }
+            //获取主要支付方式
+            commonOperation.fillMainOrderType(data);
+
+            //这里改成一次跑所有的Converts 下面并发跑所有的转换器
+            final DataFact dataFactCopy01 = new DataFact();
+            final Map dataCopy01 = BeanMapper.copy(data,Map.class);
+            runs.add(new Callable<DataFact>() {
+                @Override
+                public DataFact call() throws Exception {
+                    try {
+                        mainInfoConvert.completeData(dataFactCopy01, dataCopy01);
+                        return dataFactCopy01;
+                    } catch (Exception e) {
+                        logger.warn("invoke mainInfoConvert.completeData failed.: ", e);
+                    }
+                    return null;
+                }
+            });
+
+            final DataFact dataFactCopy02 = new DataFact();
+            final Map dataCopy02 = BeanMapper.copy(data,Map.class);
+            runs.add(new Callable<DataFact>() {
+                @Override
+                public DataFact call() throws Exception {
+                    try {
+                        contactInfoConvert.completeData(dataFactCopy02,dataCopy02);
+                        return dataFactCopy02;
+                    } catch (Exception e) {
+                        logger.warn("invoke contactInfoConvert.completeData failed.: ", e);
+                    }
+                    return null;
+                }
+            });
+
+            final DataFact dataFactCopy03 = new DataFact();
+            final Map dataCopy03 = BeanMapper.copy(data,Map.class);
+            runs.add(new Callable<DataFact>() {
+                @Override
+                public DataFact call() throws Exception {
+                    try {
+                        paymentInfoListConvert.completeData(dataFactCopy03,dataCopy03);
+                        return dataFactCopy03;
+                    } catch (Exception e) {
+                        logger.warn("invoke  paymentInfoListConvert.completeData failed.: ", e);
+                    }
+                    return null;
+                }
+            });
+
+            final DataFact dataFactCopy04 = new DataFact();
+            final Map dataCopy04 = BeanMapper.copy(data,Map.class);
+            runs.add(new Callable<DataFact>() {
+                @Override
+                public DataFact call() throws Exception {
+                    try {
+                        userInfoConvert.completeData(dataFactCopy04,dataCopy04);
+                        return dataFactCopy04;
+                    } catch (Exception e) {
+                        logger.warn("invoke  ipInfoConvert.completeData failed.: ", e);
+                    }
+                    return null;
+                }
+            });
+
+            final DataFact dataFactCopy05 = new DataFact();
+            final Map dataCopy05 = BeanMapper.copy(data,Map.class);
+            runs.add(new Callable<DataFact>() {
+                @Override
+                public DataFact call() throws Exception {
+                    try {
+                        corporationConvert.completeData(dataFactCopy05,dataCopy05);
+                        return dataFactCopy05;
+                    } catch (Exception e) {
+                        logger.warn("invoke  corporationConvert.completeData failed.: ", e);
+                    }
+                    return null;
+                }
+            });
+
+            final DataFact dataFactCopy06 = new DataFact();
+            final Map dataCopy06 = BeanMapper.copy(data,Map.class);
+            runs.add(new Callable<DataFact>() {
+                @Override
+                public DataFact call() throws Exception {
+                    try {
+                        didInfoConvert.completeData(dataFactCopy06,dataCopy06);
+                        return dataFactCopy06;
+                    } catch (Exception e) {
+                        logger.warn("invoke  didInfoConvert.completeData failed.: ", e);
+                    }
+                    return null;
+                }
+            });
+
+            final DataFact dataFactCopy07 = new DataFact();
+            final Map dataCopy07 = BeanMapper.copy(data,Map.class);
+            runs.add(new Callable<DataFact>() {
+                @Override
+                public DataFact call() throws Exception {
+                    try {
+                        didInfoConvert.completeData(dataFactCopy07,dataCopy07);
+                        return dataFactCopy07;
+                    } catch (Exception e) {
+                        logger.warn("invoke  idInfoConvert.completeData failed.: ", e);
+                    }
+                    return null;
+                }
+            });
+
+            final DataFact dataFactCopy08 = new DataFact();
+            final Map dataCopy08 = BeanMapper.copy(data,Map.class);
+            runs.add(new Callable<DataFact>() {
+                @Override
+                public DataFact call() throws Exception {
+                    try {
+                        appInfoConvert.completeData(dataFactCopy08,dataCopy08);
+                        return dataFactCopy08;
+                    } catch (Exception e) {
+                        logger.warn("invoke  appInfoConvert.completeData failed.: ", e);
+                    }
+                    return null;
+                }
+            });
+
+            final DataFact dataFactCopy09 = new DataFact();
+            final Map dataCopy09 = BeanMapper.copy(data,Map.class);
+            runs.add(new Callable<DataFact>() {
+                @Override
+                public DataFact call() throws Exception {
+                    try {
+                        ipInfoConvert.completeData(dataFactCopy09,dataCopy09);
+                        return dataFactCopy09;
+                    } catch (Exception e) {
+                        logger.warn("invoke  ipInfoConvert.completeData failed.: ", e);
+                    }
+                    return null;
+                }
+            });
+
+            final DataFact dataFactCopy10 = new DataFact();
+            final Map dataCopy10 = BeanMapper.copy(data,Map.class);
+            runs.add(new Callable<DataFact>() {
+                @Override
+                public DataFact call() throws Exception {
+                    try {
+                        paymentMainInfoConvert.completeData(dataFactCopy10,dataCopy10);
+                        return dataFactCopy10;
+                    } catch (Exception e) {
+                        logger.warn("invoke  paymentMainInfoConvert.completeData failed.: ", e);
+                    }
+                    return null;
+                }
+            });
+
+
+
+            //region Description  原来的处理方式
+/*int checkType = Integer.parseInt(getValue(data, Common.CheckType));
 
             switch (checkType)
             {
@@ -145,6 +332,7 @@ public class CommonExecutor
 
                     dataFact.mainInfo.put(Common.OrderID,getValue(data,Common.OrderID));//添加订单id
                     dataFact.mainInfo.put(Common.CheckType,getValue(data,Common.CheckType));//要改成2
+
                     final String reqIdStr = getValue(data,Common.OldReqID);
                     final DataFact dataFactCopy001 = new DataFact();
                     runs.add(new Callable<DataFact>() {
@@ -243,7 +431,7 @@ public class CommonExecutor
                     dataFact.paymentMainInfo.put(Common.PayValidationMethod,getValue(data,Common.PayValidationMethod));
                     dataFact.paymentMainInfo.put(Common.ValidationFailsReason,getValue(data,Common.ValidationFailsReason));
                     //paymentMainInfo
-                   /* final DataFact dataFactCopy_M = new DataFact();//fixme 当checkType=2的时候不需要重数据库读取信息
+                   *//* final DataFact dataFactCopy_M = new DataFact();//fixme 当checkType=2的时候不需要重数据库读取信息
                     runs.add(new Callable<DataFact>() {
                         @Override
                         public DataFact call() throws Exception {
@@ -255,7 +443,7 @@ public class CommonExecutor
                             }
                             return null;
                         }
-                    });*/
+                    });*//*
                     break;
                 default:
                     break;
@@ -276,13 +464,14 @@ public class CommonExecutor
                     }
                     return null;
                 }
-            });
-            //这里执行并发操作
+            });*/
+            //endregion
+
             //并发执行
             long t1 = System.currentTimeMillis();
             List<DataFact> rawResult = new ArrayList<DataFact>();
             try {
-                List<Future<DataFact>> result = excutor.invokeAll(runs, 2000, TimeUnit.MILLISECONDS);
+                List<Future<DataFact>> result = executor.invokeAll(runs, 2000, TimeUnit.MILLISECONDS);
                 for (Future f : result) {
                     try {
                         if (f.isDone()) {
@@ -331,10 +520,6 @@ public class CommonExecutor
                     {
                         dataFact.paymentMainInfo.putAll(item.paymentMainInfo);
                     }
-                    if(item.dealInfo != null &&item.dealInfo.size()>0)
-                    {
-                        dataFact.dealInfo.putAll(item.dealInfo);
-                    }
                     if(item.corporationInfo != null &&item.corporationInfo.size()>0)
                     {
                         dataFact.corporationInfo.putAll(item.corporationInfo);
@@ -342,10 +527,6 @@ public class CommonExecutor
                     if(item.DIDInfo != null &&item.DIDInfo.size()>0)
                     {
                         dataFact.DIDInfo.putAll(item.DIDInfo);
-                    }
-                    if(item.tempInfo != null &&item.tempInfo.size()>0)
-                    {
-                        dataFact.tempInfo.putAll(item.tempInfo);
                     }
                 }
                 //endregion
@@ -473,10 +654,10 @@ public class CommonExecutor
         });
     }
 
-    public Map<String,Object> convertToBlackCheckItem(DataFact dataFact,Map data)
+    public Map<String,Object> convertToBlackCheckItem(DataFact dataFact,Map data,Map bwList)
     {
         beforeInvoke();
-        Map bwList = new HashMap<String,Object>();//定义黑白名单实体
+        //Map bwList = new HashMap<String,Object>();//定义黑白名单实体
         try{
             logger.info("开始构造"+data.get("OrderID")+"黑白名单数据");
             bwList.put(Common.IPCity, getValue(dataFact.ipInfo,Common.IPCity));
@@ -571,10 +752,9 @@ public class CommonExecutor
         return bwList;
     }
 
-    public Map<String,Object> convertToFlowRuleCheckItem(DataFact dataFact,Map data)
+    public Map<String,Object> convertToFlowRuleCheckItem(DataFact dataFact,Map data,Map flowData)
     {
         beforeInvoke();
-        Map<String,Object> flowData = new HashMap();
         try{
             logger.info("开始构造"+data.get("OrderID")+"流量表数据");
             //公共属性赋值

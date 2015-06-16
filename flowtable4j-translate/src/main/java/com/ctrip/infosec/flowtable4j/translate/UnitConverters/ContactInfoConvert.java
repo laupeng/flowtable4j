@@ -3,8 +3,10 @@ package com.ctrip.infosec.flowtable4j.translate.UnitConverters;
 import com.ctrip.infosec.flowtable4j.translate.dao.Jndi.AllTemplates;
 import com.ctrip.infosec.flowtable4j.translate.model.Common;
 import com.ctrip.infosec.flowtable4j.translate.model.DataFact;
+import com.ctrip.infosec.flowtable4j.translate.service.CommonOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.CallableStatementCallback;
 import org.springframework.jdbc.core.CallableStatementCreator;
@@ -33,6 +35,8 @@ public class ContactInfoConvert implements Convert
     JdbcTemplate riskCtrlPreProcDBTemplate = null;
     JdbcTemplate cUSRATDBTemplate = null;
 
+    @Autowired
+    CommonOperation commonOperation;
     /**
      * 初始化jndi
      */
@@ -46,11 +50,20 @@ public class ContactInfoConvert implements Convert
     @Override
     public void completeData(DataFact dataFact, Map data)
     {
-        dataFact.contactInfo.put(Common.MobilePhone,getValue(data,Common.MobilePhone));
-        dataFact.contactInfo.put(Common.ContactName,getValue(data,Common.ContactName));
-        dataFact.contactInfo.put(Common.ContactTel,getValue(data,Common.ContactTel));
-        dataFact.contactInfo.put(Common.ContactEMail,getValue(data,Common.ContactEMail));
-        dataFact.contactInfo.put(Common.SendTickerAddr,getValue(data,Common.SendTickerAddr));
+        String checkType = getValue(data,Common.CheckType);
+        if(checkType.equals("0") || checkType.equals("1"))
+        {
+            dataFact.contactInfo.put(Common.MobilePhone,getValue(data,Common.MobilePhone));
+            dataFact.contactInfo.put(Common.ContactName,getValue(data,Common.ContactName));
+            dataFact.contactInfo.put(Common.ContactTel,getValue(data,Common.ContactTel));
+            dataFact.contactInfo.put(Common.ContactEMail,getValue(data,Common.ContactEMail));
+            dataFact.contactInfo.put(Common.SendTickerAddr,getValue(data,Common.SendTickerAddr));
+        }else if(checkType.equals("2"))
+        {
+            final String reqIdStr = getValue(data,Common.OldReqID);
+            commonOperation.fillProductContact(dataFact, reqIdStr);
+        }
+
     }
 
     @Override

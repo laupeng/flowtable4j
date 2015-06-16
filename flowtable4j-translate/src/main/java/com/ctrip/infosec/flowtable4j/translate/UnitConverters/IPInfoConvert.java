@@ -12,6 +12,7 @@ import org.springframework.jdbc.core.CallableStatementCallback;
 import org.springframework.jdbc.core.CallableStatementCreator;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import javax.activation.CommandMap;
 import javax.annotation.Resource;
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -51,8 +52,18 @@ public class IPInfoConvert implements Convert
     @Override
     public void completeData(DataFact dataFact, Map data)
     {
-        final String userIp = getValue(data, Common.UserIP);
-        commonOperation.fillIpInfo(dataFact, userIp);//做到并发里面去
+        String checkType = getValue(data, Common.CheckType);
+        if(checkType.equals("0") || checkType.equals("1"))
+        {
+            final String userIp = getValue(data, Common.UserIP);
+            commonOperation.fillIpInfo(dataFact, userIp);//做到并发里面去
+        }
+        else if(checkType.equals("2"))
+        {
+            final String reqIdStr = getValue(data,Common.OldReqID);
+            commonOperation.fillProductIp(dataFact, reqIdStr);
+        }
+
     }
 
     @Override

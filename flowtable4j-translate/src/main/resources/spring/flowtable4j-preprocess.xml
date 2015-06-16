@@ -56,4 +56,17 @@
     <bean id="flightExecutor" class="com.ctrip.infosec.flowtable4j.translate.service.FlightExecutor"/>
 
     <bean id="preProcessor" class="com.ctrip.infosec.flowtable4j.translate.PreProcessor"/>
+
+    <!--转换器-->
+    <bean id="appInfoConvert" class="com.ctrip.infosec.flowtable4j.translate.UnitConverters.AppInfoConvert" init-method="init" depends-on="commonOperation"/>
+    <bean id="contactInfoConvert" class="com.ctrip.infosec.flowtable4j.translate.UnitConverters.ContactInfoConvert" init-method="init" depends-on="commonOperation"/>
+    <bean id="corporationConvert" class="com.ctrip.infosec.flowtable4j.translate.UnitConverters.CorporationConvert" init-method="init" depends-on="commonOperation"/>
+    <bean id="didInfoConvert" class="com.ctrip.infosec.flowtable4j.translate.UnitConverters.DIDInfoConvert" init-method="init" depends-on="commonOperation"/>
+    <bean id="ipInfoConvert" class="com.ctrip.infosec.flowtable4j.translate.UnitConverters.IPInfoConvert" init-method="init" depends-on="commonOperation"/>
+    <bean id="mainInfoConvert" class="com.ctrip.infosec.flowtable4j.translate.UnitConverters.MainInfoConvert" init-method="init" depends-on="commonOperation"/>
+    <bean id="paymentInfoListConvert" class="com.ctrip.infosec.flowtable4j.translate.UnitConverters.PaymentInfoListConvert" init-method="init" depends-on="commonOperation"/>
+    <bean id="paymentMainInfoConvert" class="com.ctrip.infosec.flowtable4j.translate.UnitConverters.PaymentMainInfoConvert" init-method="init" depends-on="commonOperation"/>
+    <bean id="userInfoConvert" class="com.ctrip.infosec.flowtable4j.translate.UnitConverters.UserInfoConvert" init-method="init" depends-on="commonOperation"/>
+
+    <bean id="hotelGroupConvert" class="com.ctrip.infosec.flowtable4j.translate.UnitConverters.HotelGroupConvert" init-method="init" depends-on="commonOperation"/>
 </beans>

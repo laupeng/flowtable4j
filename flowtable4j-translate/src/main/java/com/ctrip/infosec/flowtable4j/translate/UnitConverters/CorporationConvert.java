@@ -3,8 +3,10 @@ package com.ctrip.infosec.flowtable4j.translate.UnitConverters;
 import com.ctrip.infosec.flowtable4j.translate.dao.Jndi.AllTemplates;
 import com.ctrip.infosec.flowtable4j.translate.model.Common;
 import com.ctrip.infosec.flowtable4j.translate.model.DataFact;
+import com.ctrip.infosec.flowtable4j.translate.service.CommonOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.CallableStatementCallback;
 import org.springframework.jdbc.core.CallableStatementCreator;
@@ -33,6 +35,8 @@ public class CorporationConvert implements Convert
     JdbcTemplate riskCtrlPreProcDBTemplate = null;
     JdbcTemplate cUSRATDBTemplate = null;
 
+    @Autowired
+    CommonOperation commonOperation;
     /**
      * 初始化jndi
      */
@@ -48,14 +52,16 @@ public class CorporationConvert implements Convert
     {
         //这里分checkType是1和0、2的情况
         String checkType = getValue(data, Common.CheckType);
-        if(checkType.equals("0") || checkType.equals("2"))
-        {
-            //Map oldMainInfo = cardRiskDBTemplate.queryForMap("select top 1 * from infosecurity_corporationInfo where reqid=?",reqId);
-        }else if(checkType.equals("1"))
+        if(checkType.equals("0") || checkType.equals("1"))
         {
             dataFact.corporationInfo.put(Common.CanAccountPay,getValue(data,Common.CanAccountPay));
             dataFact.corporationInfo.put(Common.CompanyType,getValue(data,Common.CompanyType));
             dataFact.corporationInfo.put(Common.Corp_PayType,getValue(data,Common.Corp_PayType));
+
+        }else if(checkType.equals("2"))
+        {
+            final String reqIdStr = getValue(data,Common.OldReqID);
+            commonOperation.fillCorporationInfo(dataFact,reqIdStr);
         }
     }
 

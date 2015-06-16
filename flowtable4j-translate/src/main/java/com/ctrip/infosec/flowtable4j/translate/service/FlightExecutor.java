@@ -95,7 +95,7 @@ public class FlightExecutor implements Executor
     public void convertToBlackCheckItem(DataFact dataFact, Map data, Map bwList)
     {
         long now = System.currentTimeMillis();
-        bwList = commonExecutor.convertToBlackCheckItem(dataFact,data);
+        commonExecutor.convertToBlackCheckItem(dataFact,data,bwList);
         bwList.put("TakeOffToOrderDate",getValue(dataFact.otherInfo,"TakeOffToOrderDate"));
         Map flightsOrderInfo = getValueMap(dataFact.productInfoM,Flight.FlightsOrderInfo);
         //机票产品信息
@@ -128,7 +128,7 @@ public class FlightExecutor implements Executor
     public void convertToFlowRuleCheckItem(DataFact dataFact, Map data, Map flowData)
     {
         long now2 = System.currentTimeMillis();
-        flowData = commonExecutor.convertToFlowRuleCheckItem(dataFact,data);
+        commonExecutor.convertToFlowRuleCheckItem(dataFact,data,flowData);
         logger.info("通用流量实体执行时间:"+(System.currentTimeMillis()-now2));
         flowData.put("IsTempUser",getValue(dataFact.userInfo,"IsTempUser"));
         flowData.put("RelatedEMail",getValue(dataFact.userInfo,"RelatedEMail"));

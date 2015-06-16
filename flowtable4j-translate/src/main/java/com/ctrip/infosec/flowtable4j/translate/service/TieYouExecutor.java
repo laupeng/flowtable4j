@@ -83,7 +83,7 @@ public class TieYouExecutor implements Executor
     public void convertToBlackCheckItem(DataFact dataFact, Map data, Map bwList)
     {
         //二：黑白名单数据
-        bwList = commonExecutor.convertToBlackCheckItem(dataFact,data);
+        commonExecutor.convertToBlackCheckItem(dataFact,data,bwList);
         String TieYouPassengerName = "";
         String TieYouPassengerCardIDType = "";
         String TieYouPassengerCardID = "";
@@ -107,7 +107,7 @@ public class TieYouExecutor implements Executor
     @Override
     public void convertToFlowRuleCheckItem(DataFact dataFact, Map data, Map flowData)
     {
-        flowData = commonExecutor.convertToFlowRuleCheckItem(dataFact,data);
+        commonExecutor.convertToFlowRuleCheckItem(dataFact,data,flowData);
         //支付衍生字段
         List<Map> paymentInfos = dataFact.paymentInfoList;
         for(Map paymentInfo : paymentInfos)

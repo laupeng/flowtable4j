@@ -94,7 +94,7 @@ public class VacationExecutor implements Executor
     public void convertToBlackCheckItem(DataFact dataFact, Map data, Map bwList)
     {
         long now1 = System.currentTimeMillis();
-        bwList = commonExecutor.convertToBlackCheckItem(dataFact,data);
+        commonExecutor.convertToBlackCheckItem(dataFact,data,bwList);
         //产品信息
         Map vacationOrderInfo = getValueMap(dataFact.productInfoM,"VacationOrderInfo");
         if(vacationOrderInfo != null && vacationOrderInfo.size()>0)
@@ -138,7 +138,7 @@ public class VacationExecutor implements Executor
     public void convertToFlowRuleCheckItem(DataFact dataFact, Map data, Map flowData)
     {
         long now = System.currentTimeMillis();
-        flowData = commonExecutor.convertToFlowRuleCheckItem(dataFact,data);
+        commonExecutor.convertToFlowRuleCheckItem(dataFact,data,flowData);
         logger.info("通用流量实体执行时间:"+(System.currentTimeMillis()-now));
         //支付衍生字段
         List<Map> paymentInfos = dataFact.paymentInfoList;

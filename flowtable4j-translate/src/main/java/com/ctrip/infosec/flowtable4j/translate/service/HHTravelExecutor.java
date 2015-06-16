@@ -74,7 +74,7 @@ public class HHTravelExecutor implements Executor
     public void convertToBlackCheckItem(DataFact dataFact, Map data, Map bwList)
     {
         long now = System.currentTimeMillis();
-        bwList = commonExecutor.convertToBlackCheckItem(dataFact,data);
+        commonExecutor.convertToBlackCheckItem(dataFact,data,bwList);
         //产品信息
         List<Map<String,Object>> vacationUserInfo = (List<Map<String,Object>>)data.get("VacationUserInfo");
         if(vacationUserInfo != null && vacationUserInfo.size()>0)

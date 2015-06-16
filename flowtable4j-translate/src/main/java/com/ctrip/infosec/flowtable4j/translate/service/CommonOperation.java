@@ -142,7 +142,7 @@ public class CommonOperation
         if(mainInfo!=null)
         {
             try{
-                long reqId = Long.parseLong(getValue(mainInfo, Common.ReqID));
+                String reqId = getValue(mainInfo, Common.ReqID);
                 data.put(Common.OldReqID,reqId);//上一次写入产品信息的reqId
             }catch (Exception exp)
             {
@@ -161,7 +161,7 @@ public class CommonOperation
         if(mainInfo!=null)
         {
             try{
-                long reqId = Long.parseLong(getValue(mainInfo, Common.ReqID));
+                String reqId = getValue(mainInfo, Common.ReqID);
                 data.put(Common.OldReqID,reqId);//上一次写入产品信息的reqId
             }catch (Exception exp)
             {
@@ -340,7 +340,7 @@ public class CommonOperation
     }
     public void fillCorporationInfo(DataFact dataFact,String lastReqID)
     {
-        Map corporationInfo = commonSources.getIpInfo(lastReqID);
+        Map corporationInfo = commonSources.getCorporationInfo(lastReqID);
         if(corporationInfo!=null)
             dataFact.corporationInfo.putAll(corporationInfo);
     }
@@ -481,9 +481,9 @@ public class CommonOperation
     //判断是否需要写流量表数据
     public boolean isInsertToStaticTable(Map flowData,String id,List<Map<String,Object>> flowFilters)
     {
-        if(id.equals("78") || id.equals("301") || id.equals("306") || id.equals("2085")
+       /* if(id.equals("78") || id.equals("301") || id.equals("306") || id.equals("2085")
                     || id.equals("2136"))
-                logger.info("调试这里");
+                logger.info("调试这里");*/
         List<Map<String,Object>> newFlowFilters = new ArrayList<Map<String, Object>>();
         boolean isInsert = true;
         for(Map flowFilter:flowFilters)

@@ -50,8 +50,16 @@ public class UserInfoConvert implements Convert
     @Override
     public void completeData(DataFact dataFact, Map data)
     {
-        String uid = getValue(data, Common.Uid);
-        commonOperation.fillUserInfo(dataFact,uid);//这个做到并发里面去跑
+        String checkType = getValue(data,Common.CheckType);
+        if(checkType.equals("0") || checkType.equals("1"))
+        {
+            String uid = getValue(data, Common.Uid);
+            commonOperation.fillUserInfo(dataFact,uid);
+        }else if(checkType.equals("2"))
+        {
+            final String reqIdStr = getValue(data,Common.OldReqID);
+            commonOperation.fillProductUser(dataFact, reqIdStr);
+        }
     }
 
     @Override

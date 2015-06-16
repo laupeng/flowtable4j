@@ -20,9 +20,9 @@ import java.util.concurrent.*;
 public class PreProcessor
 {
     private Logger logger = LoggerFactory.getLogger(PreProcessor.class);
-    private ThreadPoolExecutor excutor = new ThreadPoolExecutor(64, 507, 60, TimeUnit.SECONDS, new SynchronousQueue(), new ThreadPoolExecutor.CallerRunsPolicy());
+    private ThreadPoolExecutor executor = new ThreadPoolExecutor(64, 507, 60, TimeUnit.SECONDS, new SynchronousQueue(), new ThreadPoolExecutor.CallerRunsPolicy());
     BlockingQueue<Runnable> queue = new LinkedBlockingQueue<Runnable>();
-    private ThreadPoolExecutor writeExcutor = new ThreadPoolExecutor(2, 5, 60, TimeUnit.SECONDS, queue);
+    private ThreadPoolExecutor writeExecutor = new ThreadPoolExecutor(2, 5, 60, TimeUnit.SECONDS, queue);
     @Autowired
     FlightExecutor flightExecutor;
     @Autowired
@@ -42,13 +42,13 @@ public class PreProcessor
         switch (orderType)
         {
             case 1:
-                return flightExecutor.executeFlight(data,excutor,writeExcutor,true,true);
+                return flightExecutor.executeFlight(data,executor,writeExecutor,true,true);
             case 2:
                 break;
             case 14:
-                return hotelGroupExecutor.executeHotelGroup(data,excutor,writeExcutor,true,true);//fixme 注意这里要调整 在上线后的写入和检查
+                return hotelGroupExecutor.executeHotelGroup(data,executor,writeExecutor,true,true);//fixme 注意这里要调整 在上线后的写入和检查
             case 18:
-                return tieYouExecutor.executeTieYou(data,excutor,writeExcutor,true,true);
+                return tieYouExecutor.executeTieYou(data,executor,writeExecutor,true,true);
             //...14-24
             default:
                 logger.info("没有找到相关的订单类型 : "+orderType);

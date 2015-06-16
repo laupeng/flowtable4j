@@ -39,6 +39,20 @@ public class CommonSources
         cUSRATDBTemplate = allTemplates.getcUSRATDBTemplate();
     }
 
+    public Map getCorporationInfo(String reqId)
+    {
+        long now = System.currentTimeMillis();
+        Map corporationInfo = null;
+        try{
+            String sqlCommand = "select top 1 * from infosecurity_corporationInfo where reqid=?";
+            corporationInfo = cardRiskDBTemplate.queryForMap(sqlCommand,reqId);
+        }catch(Exception exp)
+        {
+            logger.warn("查询ip对应的城市信息异常:"+exp.getMessage());
+        }
+        logger.info("getCorporationInfo的查询sqlServer的时间是："+(System.currentTimeMillis()-now));
+        return corporationInfo;
+    }
     /**
      * 通过手机号查询对应的城和市
      * @param mobilePhone 手机号
@@ -274,8 +288,8 @@ public class CommonSources
         long now = System.currentTimeMillis();
         Map payInfo = null;
         try{
-            String commandText = "select top 1 * from CardRiskDB.dbo.InfoSecurity_RiskLevelData with (nolock) where [InfoSecurity_RiskLevelData].OrderType" +
-                    " = ?"+" and [InfoSecurity_RiskLevelData].OrderId = ?" +" ORDER BY [InfoSecurity_RiskLevelData].ReqID DESC";
+            String commandText = "select top 1 * from CardRiskDB.dbo.InfoSecurity_RiskLevelData with (nolock) where OrderType" +
+                    " = ?"+" and OrderId = ?";
             payInfo = cardRiskDBTemplate.queryForMap(commandText,orderType,orderId);
         }catch(Exception exp)
         {

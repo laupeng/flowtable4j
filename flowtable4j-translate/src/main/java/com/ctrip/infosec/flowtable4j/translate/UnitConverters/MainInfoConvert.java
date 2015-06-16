@@ -3,8 +3,10 @@ package com.ctrip.infosec.flowtable4j.translate.UnitConverters;
 import com.ctrip.infosec.flowtable4j.translate.dao.Jndi.AllTemplates;
 import com.ctrip.infosec.flowtable4j.translate.model.Common;
 import com.ctrip.infosec.flowtable4j.translate.model.DataFact;
+import com.ctrip.infosec.flowtable4j.translate.service.CommonOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.CallableStatementCallback;
 import org.springframework.jdbc.core.CallableStatementCreator;
@@ -35,6 +37,9 @@ public class MainInfoConvert implements Convert
     JdbcTemplate riskCtrlPreProcDBTemplate = null;
     JdbcTemplate cUSRATDBTemplate = null;
 
+    @Autowired
+    CommonOperation commonOperation;
+
     /**
      * 初始化jndi
      */
@@ -48,32 +53,54 @@ public class MainInfoConvert implements Convert
     @Override
     public void completeData(DataFact dataFact,Map data)
     {
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        dataFact.mainInfo.put(Common.CheckType,getValue(data,Common.CheckType));
-        dataFact.mainInfo.put(Common.CorporationID,"");
-        try{
-            long nowTime = System.currentTimeMillis();
-            dataFact.mainInfo.put(Common.CreateDate,format.format(new Date(nowTime)));
-        }catch (Exception exp)
+        String checkType = getValue(data,Common.CheckType);
+        if(checkType.equals("0") || checkType.equals("1"))
         {
-            logger.warn("MainInfoConvert.completeData获取当前时间异常"+exp.getMessage());
+            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            dataFact.mainInfo.put(Common.CheckType,getValue(data,Common.CheckType));
+            dataFact.mainInfo.put(Common.CorporationID,"");
+            try{
+                long nowTime = System.currentTimeMillis();
+                dataFact.mainInfo.put(Common.CreateDate,format.format(new Date(nowTime)));
+            }catch (Exception exp)
+            {
+                logger.warn("MainInfoConvert.completeData获取当前时间异常"+exp.getMessage());
+            }
+            dataFact.mainInfo.put(Common.LastCheck,"T");
+            dataFact.mainInfo.put(Common.OrderID,getValue(data,Common.OrderID));//OrderId
+            dataFact.mainInfo.put(Common.MerchantID,getValue(data,Common.MerchantID));
+            dataFact.mainInfo.put(Common.SubOrderType,getValue(data,Common.SubOrderType));
+            dataFact.mainInfo.put(Common.MerchantOrderID,getValue(data,Common.MerchantOrderID));
+            dataFact.mainInfo.put(Common.ClientID,getValue(data,Common.ClientID));
+            dataFact.mainInfo.put(Common.Amount,getValue(data,"OrderAmount"));
+            String subOrderType = getValue(data, Common.SubOrderType);
+            if(subOrderType.isEmpty())
+                subOrderType = "0";
+            dataFact.mainInfo.put(Common.SubOrderType,subOrderType);
+            dataFact.mainInfo.put(Common.OrderDate,getValue(data,Common.OrderDate));
+            dataFact.mainInfo.put(Common.IsOnline,getValue(data,Common.IsOnline));
+            dataFact.mainInfo.put(Common.OrderType,getValue(data,Common.OrderType));
+            dataFact.mainInfo.put(Common.Serverfrom,getValue(data,Common.Serverfrom));
+            dataFact.mainInfo.put(Common.CorporationID,getValue(data,Common.CorporationID));
         }
-        dataFact.mainInfo.put(Common.LastCheck,"T");
-        dataFact.mainInfo.put(Common.OrderID,getValue(data,Common.OrderID));//OrderId
-        dataFact.mainInfo.put(Common.MerchantID,getValue(data,Common.MerchantID));
-        dataFact.mainInfo.put(Common.SubOrderType,getValue(data,Common.SubOrderType));
-        dataFact.mainInfo.put(Common.MerchantOrderID,getValue(data,Common.MerchantOrderID));
-        dataFact.mainInfo.put(Common.ClientID,getValue(data,Common.ClientID));
-        dataFact.mainInfo.put(Common.Amount,getValue(data,"OrderAmount"));
-        String subOrderType = getValue(data, Common.SubOrderType);
-        if(subOrderType.isEmpty())
-            subOrderType = "0";
-        dataFact.mainInfo.put(Common.SubOrderType,subOrderType);
-        dataFact.mainInfo.put(Common.OrderDate,getValue(data,Common.OrderDate));
-        dataFact.mainInfo.put(Common.IsOnline,getValue(data,Common.IsOnline));
-        dataFact.mainInfo.put(Common.OrderType,getValue(data,Common.OrderType));
-        dataFact.mainInfo.put(Common.Serverfrom,getValue(data,Common.Serverfrom));
-        dataFact.mainInfo.put(Common.CorporationID,getValue(data,Common.CorporationID));
+        else if(checkType.equals("2"))
+        {
+            Map mainInfo = null;
+            if(getValue(data,Common.OrderType).equals("18"))
+            {
+                //铁有特殊处理 订单号是商户订单号
+                mainInfo = commonOperation.getTieYouLastReqID(data);//这里暂时存储OldReqID 在后面从data里面取出来   添加mainInfo信息
+            }else
+            {
+                mainInfo = commonOperation.getLastReqID(data);//这里暂时存储OldReqID 在后面从data里面取出来   添加mainInfo信息
+            }
+
+            if(mainInfo!=null)
+                dataFact.mainInfo.putAll(mainInfo);
+
+            dataFact.mainInfo.put(Common.OrderID,getValue(data,Common.OrderID));//添加订单id
+            dataFact.mainInfo.put(Common.CheckType,getValue(data,Common.CheckType));//要改成2
+        }
     }
 
     @Override

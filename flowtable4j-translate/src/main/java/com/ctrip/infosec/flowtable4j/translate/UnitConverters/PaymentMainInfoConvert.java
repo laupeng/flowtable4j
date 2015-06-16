@@ -51,14 +51,23 @@ public class PaymentMainInfoConvert implements Convert
     @Override
     public void completeData(DataFact dataFact, Map data)
     {
-        dataFact.paymentMainInfo.put(Common.BankValidationMethod,getValue(data,Common.BankValidationMethod));
-        dataFact.paymentMainInfo.put(Common.ClientIDOrIP,getValue(data,Common.ClientIDOrIP));
-        dataFact.paymentMainInfo.put(Common.ClientOS,getValue(data,Common.ClientOS));
-        dataFact.paymentMainInfo.put(Common.DeductType,getValue(data,Common.DeductType));
-        dataFact.paymentMainInfo.put(Common.IsPrepaID,getValue(data,Common.IsPrepaID));
-        dataFact.paymentMainInfo.put(Common.PayMethod,getValue(data,Common.PayMethod));
-        dataFact.paymentMainInfo.put(Common.PayValidationMethod,getValue(data,Common.PayValidationMethod));
-        dataFact.paymentMainInfo.put(Common.ValidationFailsReason,getValue(data,Common.ValidationFailsReason));
+        String checkType = getValue(data,Common.CheckType);
+        if(checkType.equals("0") || checkType.equals("2"))
+        {
+            dataFact.paymentMainInfo.put(Common.BankValidationMethod,getValue(data,Common.BankValidationMethod));
+            dataFact.paymentMainInfo.put(Common.ClientIDOrIP,getValue(data,Common.ClientIDOrIP));
+            dataFact.paymentMainInfo.put(Common.ClientOS,getValue(data,Common.ClientOS));
+            dataFact.paymentMainInfo.put(Common.DeductType,getValue(data,Common.DeductType));
+            dataFact.paymentMainInfo.put(Common.IsPrepaID,getValue(data,Common.IsPrepaID));
+            dataFact.paymentMainInfo.put(Common.PayMethod,getValue(data,Common.PayMethod));
+            dataFact.paymentMainInfo.put(Common.PayValidationMethod,getValue(data,Common.PayValidationMethod));
+            dataFact.paymentMainInfo.put(Common.ValidationFailsReason,getValue(data,Common.ValidationFailsReason));
+        }else if(checkType.equals("1"))
+        {
+            final String reqIdStr = getValue(data,Common.OldReqID);
+            commonOperation.fillPaymentMainInfo(dataFact,reqIdStr);
+        }
+
     }
 
     @Override
