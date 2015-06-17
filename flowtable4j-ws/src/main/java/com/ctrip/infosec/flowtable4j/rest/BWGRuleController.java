@@ -50,12 +50,4 @@ public class BWGRuleController {
         }
         return "OK";
     }
-
-    @RequestMapping("/loadBWGRule")
-    public
-    @ResponseBody
-    String loadBWGRule(long reqId) {
-       return  processor.loadExistBWGRule(reqId);
-    }
-
 }

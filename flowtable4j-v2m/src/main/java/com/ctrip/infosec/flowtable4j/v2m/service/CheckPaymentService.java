@@ -9,11 +9,13 @@ import com.ctrip.infosec.flowtable4j.v2m.converter.BlackWhiteConverter;
 import com.ctrip.infosec.flowtable4j.v2m.converter.FlowConverter;
 import com.ctrip.infosec.flowtable4j.v2m.converter.POConverter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * Created by thyang on 2015-06-12.
  */
-public class VerifyService {
+@Component
+public class CheckPaymentService {
     @Autowired
     POConverter poConverter;
 
@@ -33,5 +35,9 @@ public class VerifyService {
         //flowConverter
         //accountConverter
         return fact;
+    }
+
+    public ResponseBody checkRisk(RequestBody requestBody){
+        return  new ResponseBody();
     }
 }

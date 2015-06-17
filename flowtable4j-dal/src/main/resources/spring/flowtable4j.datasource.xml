@@ -2,20 +2,43 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
-       xmlns:task="http://www.springframework.org/schema/task"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
        <!-- GlobalConfig -->
        <context:property-placeholder ignore-unresolvable="true"
                                      location="classpath*:/GlobalConfig.properties" />
+
+       <bean id="cardRiskDBDataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
+              <property name="jndiName">
+                     <value>java:comp/env/jdbc/CardRiskDB_SELECT_1${DBDataCenter}</value>
+              </property>
+       </bean>
        <bean id="riskCtrlPreProcDBDataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
               <property name="jndiName">
-                     <value>java:comp/env/jdbc/RiskCtrlPreProcDB_SELECT_1${DBDataCenter}</value>
+                     <value>java:comp/env/jdbc/RiskCtrlPreProcDB_INSERT_1${DBDataCenter}</value>
+              </property>
+       </bean>
+       <bean id="cusRATDBDataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
+              <property name="jndiName">
+                     <value>java:comp/env/jdbc/CUSRATDB_INSERT_1${DBDataCenter}</value>
               </property>
        </bean>
 
        <!-- JDBC模板 -->
+       <bean id="cardRiskDBTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+              <property name="dataSource" ref="cardRiskDBDataSource"/>
+       </bean>
+
+       <bean id="flowDbTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+              <property name="dataSource" ref="riskCtrlPreProcDBDataSource"/>
+       </bean>
+
+       <bean id="cusDbTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+              <property name="dataSource" ref="cusRATDBDataSource"/>
+       </bean>
+
        <bean id="riskCtrlPreProcDBNamedTemplate" class="org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate">
               <constructor-arg type="javax.sql.DataSource" ref="riskCtrlPreProcDBDataSource"/>
        </bean>
+
 </beans>

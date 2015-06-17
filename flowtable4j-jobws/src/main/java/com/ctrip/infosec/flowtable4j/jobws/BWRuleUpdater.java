@@ -3,6 +3,7 @@ package com.ctrip.infosec.flowtable4j.jobws;
 import com.ctrip.infosec.flowtable4j.bwlist.BWManager;
 import com.ctrip.infosec.flowtable4j.bwlist.RuleStatement;
 import com.ctrip.infosec.flowtable4j.bwlist.RuleTerm;
+import com.ctrip.infosec.flowtable4j.dal.RuleUpdaterDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,15 +16,17 @@ import java.util.*;
 /**
  * Created by zhangsx on 2015/3/24.
  */
-@Component("simpleProcessor4BW")
-public class SimpleProcessor4BW implements Processor {
+@Component
+public class BWRuleUpdater {
     @Autowired
-    private RuleGetter ruleGetter;
+    private RuleUpdaterDAO ruleGetter;
+    @Autowired
+    private BWManager bwManager;
+
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-    private Logger logger = LoggerFactory.getLogger(SimpleProcessor4BW.class);
+    private Logger logger = LoggerFactory.getLogger(BWRuleUpdater.class);
     private Status status = Status.FIRST;
 
-    @Override
     public void execute() {
         if (status == Status.FIRST) {
             //全量更新bw 规则
@@ -72,7 +75,7 @@ public class SimpleProcessor4BW implements Processor {
              }
         }
         logger.info("total load active blackWhite rules:"+bwAll.size());
-        BWManager.addRule(bwAll);
+        bwManager.addRule(bwAll);
     }
 
     /**
@@ -129,7 +132,7 @@ public class SimpleProcessor4BW implements Processor {
             logger.info(">>> remove rules");
             logger.info("total remove blackWhite rules:"+bwSub.size());
             logger.info("<<<");
-            BWManager.removeRule(bwSub);
+            bwManager.removeRule(bwSub);
         }
     }
 

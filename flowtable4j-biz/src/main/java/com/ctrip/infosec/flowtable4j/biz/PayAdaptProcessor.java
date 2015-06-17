@@ -1,7 +1,7 @@
 package com.ctrip.infosec.flowtable4j.biz;
 
 import com.ctrip.infosec.common.model.RiskFact;
-import com.ctrip.infosec.flowtable4j.accountsecurity.AccountBWGRuleHandle;
+import com.ctrip.infosec.flowtable4j.accountsecurity.AccountBWGHandler;
 import com.ctrip.infosec.flowtable4j.bwlist.BWManager;
 import com.ctrip.infosec.flowtable4j.core.utils.SimpleStaticThreadPool;
 import com.ctrip.infosec.flowtable4j.dal.PayAdaptService;
@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class PayAdaptProcessor {
     @Autowired
-    private AccountBWGRuleHandle accountBWGRuleHandle;
+    private AccountBWGHandler accountBWGHandler;
     private static Logger logger = LoggerFactory.getLogger(PayAdaptProcessor.class);
     private static final String EVENTWS = GlobalConfig.getString("EventWS");
     private static final String APPID = GlobalConfig.getString("APPID");
@@ -238,7 +238,7 @@ public class PayAdaptProcessor {
             }
         }
         // 账户风控校验
-        accountBWGRuleHandle.checkBWGRule(accountFact, accountResults);
+        accountBWGHandler.checkBWGRule(accountFact, accountResults);
     }
 
     private void mergeResult(RiskResult bwResults, List<PayAdaptResultItem> bwResults4j,

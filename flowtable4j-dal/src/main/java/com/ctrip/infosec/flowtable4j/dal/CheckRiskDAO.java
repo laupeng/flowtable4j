@@ -1,27 +1,23 @@
-package com.ctrip.infosec.flowtable4j.v2m.converter;
+package com.ctrip.infosec.flowtable4j.dal;
 
-import com.ctrip.infosec.flowtable4j.dal.CUSDbService;
-import com.ctrip.infosec.flowtable4j.dal.CardRiskService;
-import com.ctrip.infosec.flowtable4j.dal.ESBClient;
-import com.ctrip.infosec.flowtable4j.dal.FlowtableService;
 import com.google.common.base.Strings;
-import org.dom4j.DocumentException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-import java.lang.reflect.Type;
-import java.math.BigDecimal;
 import java.sql.Types;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 放入工具类方法
  * Created by thyang on 2015-06-10.
  */
-public class ConverterBase {
+@Component
+public class CheckRiskDAO {
 
-    private static Logger logger = LoggerFactory.getLogger(ConverterBase.class);
+    private static Logger logger = LoggerFactory.getLogger(CheckRiskDAO.class);
 
     @Autowired
     CardRiskService cardRiskDb;

@@ -1,6 +1,7 @@
 package com.ctrip.infosec.flowtable4j.accountsecurity;
 
 import com.ctrip.infosec.flowtable4j.core.utils.SimpleStaticThreadPool;
+import com.ctrip.infosec.flowtable4j.dal.RedisProvider;
 import com.ctrip.infosec.flowtable4j.model.AccountFact;
 import com.ctrip.infosec.flowtable4j.model.AccountItem;
 import com.ctrip.infosec.flowtable4j.model.RuleContent;
@@ -13,21 +14,26 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 按SceneType、CheckType组装的黑白名单
  * Created by zhangsx on 2015/3/17.
  */
 @Component
-public class AccountBWGRuleHandle {
+public class AccountBWGHandler {
     //超时 ms
     final int TIMEOUT = 2000;
 
     @Autowired
     private RedisProvider redisProvider;
+
     private FastDateFormat format = FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ss");
-    private Logger logger = LoggerFactory.getLogger(AccountBWGRuleHandle.class);
+
+    private Logger logger = LoggerFactory.getLogger(AccountBWGHandler.class);
 
     /**
      * 保存黑白名单到Redis
@@ -45,12 +51,12 @@ public class AccountBWGRuleHandle {
                     if (!(Strings.isNullOrEmpty(checkType) || Strings.isNullOrEmpty(checkValue))) {
                         RuleStore ruleStore = new RuleStore();
                         ruleStore.setE(item.getExpiryDate());
-                        ruleStore.setS(item.getSceneType().toUpperCase());
+                        ruleStore.setS(item.getSceneType().toUpperCase()); //Upper
                         ruleStore.setR(item.getResultLevel());
                         //CheckValue,CheckType,SceneType should be uppercase
                         String key = String.format("BW|%s|%s", checkType, checkValue).toUpperCase();
                         String value = Utils.JSON.toJSONString(ruleStore);
-                        redisProvider.getCache().sadd(key, value);
+                        redisProvider.set2Set(key, value);
                     }
                     return null;
                 }
@@ -88,7 +94,7 @@ public class AccountBWGRuleHandle {
                 //CheckValue,CheckType,SceneType should be uppercase
                 String key = String.format("BW|%s|%s", checkType, checkValue).toUpperCase();
                 String value = Utils.JSON.toJSONString(ruleStore);
-                redisProvider.getCache().sadd(key, value);
+                redisProvider.set2Set(key, value);
             }
         }
     }
@@ -111,10 +117,10 @@ public class AccountBWGRuleHandle {
                         ruleStore.setE(item.getExpiryDate());
                         ruleStore.setS(item.getSceneType().toUpperCase());
                         ruleStore.setR(item.getResultLevel());
-
+                        //CheckValue,CheckType,SceneType should be uppercase
                         String key = String.format("BW|%s|%s", checkType, checkValue).toUpperCase();
                         String value = Utils.JSON.toJSONString(ruleStore);
-                        redisProvider.getCache().srem(key, value);
+                        redisProvider.rmSetValue(key, value);
                     }
                     return null;
                 }
@@ -151,7 +157,7 @@ public class AccountBWGRuleHandle {
         List<Callable<Object>> tasks = new ArrayList<Callable<Object>>();
         final Set<String> redisKeys = new HashSet<String>();
         final Set<String> sceneTypes = new HashSet<String>();
-
+        //找出需要校验的SceneType
         for (AccountItem item : fact.getCheckItems()) {
             redisKeys.add(String.format("BW|%s|%s", item.getCheckType().toUpperCase(), item.getCheckValue()).toUpperCase());
             sceneTypes.add(item.getSceneType().toUpperCase());
@@ -168,6 +174,7 @@ public class AccountBWGRuleHandle {
                 }
             });
         }
+        //在支付适配场景中，应该只有2~3个Key，可以并发
         try {
             List<Future<Object>> futures = SimpleStaticThreadPool.getInstance().invokeAll(tasks, TIMEOUT, TimeUnit.MILLISECONDS);
             for(Future<Object> future:futures){
@@ -223,11 +230,12 @@ public class AccountBWGRuleHandle {
      * @param searchKey
      */
     private void getRuleByKey(Map<String, List<RuleStore>> dic_allRules, String currentDate, String searchKey, Set<String> sceneTypes) {
-        List<RuleStore> redisStoreItems = redisProvider.getBWGValue(searchKey, RuleStore.class);
+        List<RuleStore> redisStoreItems = redisProvider.mgetBySet(searchKey, RuleStore.class);
         if (redisStoreItems != null && redisStoreItems.size() > 0) {
             for (int i = redisStoreItems.size() - 1; i >= 0; i--) {
                 RuleStore item = redisStoreItems.get(i);
                 String exp = item.getE();
+                //如果已经过期或不再指定的SceneType中，废弃
                 if (exp.compareTo(currentDate) < 0 || !sceneTypes.contains(item.getS())) {
                     redisStoreItems.remove(i);
                 } else {

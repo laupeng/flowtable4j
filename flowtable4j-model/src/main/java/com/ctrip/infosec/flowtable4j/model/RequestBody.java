@@ -1,11 +1,12 @@
 package com.ctrip.infosec.flowtable4j.model;
 
+import java.util.List;
 import java.util.Map;
 
 /**
  * Created by zhangsx on 2015/5/21.
  */
-public class RequestBody {
+public class RequestBody extends BaseFact {
     /**
      * 接入点
      */
@@ -70,5 +71,10 @@ public class RequestBody {
 
     public void setEventBody(Map<String,Object> eventBody) {
         this.eventBody = eventBody;
+    }
+
+    @Override
+    protected Map<String, Object> getRootMap() {
+        return eventBody;
     }
 }

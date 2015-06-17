@@ -12,6 +12,7 @@ import com.ctrip.infosec.flowtable4j.model.PayAdaptFact;
 import com.ctrip.infosec.flowtable4j.model.PayAdaptResult;
 import com.ctrip.infosec.flowtable4j.model.RiskResult;
 import com.ctrip.infosec.flowtable4j.translate.PreProcessor;
+import com.ctrip.infosec.flowtable4j.v2m.service.CheckPaymentService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +40,8 @@ public class FlowTableRESTfulController {
     @Autowired
     PayAdaptProcessor payAdaptProcessor;
 
+    @Autowired
+    CheckPaymentService checkPaymentService;
 
     private static Logger logger = LoggerFactory.getLogger(FlowTableRESTfulController.class);
 
@@ -59,7 +62,7 @@ public class FlowTableRESTfulController {
         long now1 = System.currentTimeMillis();
         checkFact.processOrderTypes();
         RiskResult riskResult = flowtableProcessor.handle(checkFact);
-        logger.info("---------------------------执行规则引擎的时间是："+(System.currentTimeMillis()-now1));
+        logger.info("---------------------------执行规则引擎的时间是：" + (System.currentTimeMillis() - now1));
         return riskResult;
     }
 
@@ -80,5 +83,13 @@ public class FlowTableRESTfulController {
     PayAdaptResult checkPayAdapt(@RequestBody PayAdaptFact checkEntity) {
         return payAdaptProcessor.handle4PayAdapt(checkEntity);
     }
+
+    @RequestMapping(value = "/checkPayment")
+    public
+    @ResponseBody
+    com.ctrip.infosec.flowtable4j.model.ResponseBody checkPayAdapt(@RequestBody com.ctrip.infosec.flowtable4j.model.RequestBody checkEntity) {
+        return checkPaymentService.checkRisk(checkEntity);
+    }
+
 
 }

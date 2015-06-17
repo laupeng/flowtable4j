@@ -1,9 +1,11 @@
 package com.ctrip.infosec.flowtable4j.biz;
 
-import com.ctrip.infosec.flowtable4j.accountsecurity.AccountBWGRuleHandle;
+import com.ctrip.infosec.flowtable4j.accountsecurity.AccountBWGHandler;
 import com.ctrip.infosec.flowtable4j.bwlist.BWManager;
 import com.ctrip.infosec.flowtable4j.core.utils.SimpleStaticThreadPool;
+import com.ctrip.infosec.flowtable4j.dal.CardRiskService;
 import com.ctrip.infosec.flowtable4j.flowlist.FlowRuleManager;
+import com.ctrip.infosec.flowtable4j.jobws.FlowRuleUpdater;
 import com.ctrip.infosec.flowtable4j.model.*;
 import com.ctrip.infosec.sars.monitor.util.Utils;
 import org.slf4j.Logger;
@@ -28,15 +30,23 @@ import java.util.concurrent.TimeUnit;
  */
 @Component
 public class FlowtableProcessor {
+
     private static Logger logger = LoggerFactory.getLogger(FlowtableProcessor.class);
 
     @Autowired
-    private AccountBWGRuleHandle accountBWGRuleHandle;
+    private BWManager bwManager;
+
     @Autowired
-    @Qualifier("cardRiskDBInsertTemplate")
-    private JdbcTemplate cardRiskDBTemplate;
+    private FlowRuleManager flowRuleManager;
+
+    @Autowired
+    private AccountBWGHandler accountBWGHandler;
+
+    @Autowired
+    private CardRiskService cardRiskService;
 
     private static final long FLOWTIMEOUT = 10000;
+
     private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
     /**
@@ -60,7 +70,7 @@ public class FlowtableProcessor {
          */
         for (CheckType type : checkEntity.getCheckTypes()) {
             if (type == CheckType.BW) {
-                if (BWManager.checkWhite(checkEntity.getBwFact(), listResult_w)) {
+                if (bwManager.checkWhite(checkEntity.getBwFact(), listResult_w)) {
                     listResult.merge(listResult_w);
                     isWhite = true;
                 }
@@ -80,7 +90,7 @@ public class FlowtableProcessor {
         }
         listResult.setReqId(checkEntity.getReqId());
         //保存结果
-        saveResult(listResult);
+        cardRiskService.saveCheckResultLog(listResult);
         return listResult;
     }
 
@@ -96,7 +106,7 @@ public class FlowtableProcessor {
                     @Override
                     public Object call() throws Exception {
                         long now = System.currentTimeMillis();
-                        BWManager.checkBlack(checkEntity.getBwFact(), listResult_b);
+                        bwManager.checkBlack(checkEntity.getBwFact(), listResult_b);
                         long eps = System.currentTimeMillis() - now;
                         String info = String.format("ReqId:%d,CheckBlack elapse %d ms", checkEntity.getReqId(), eps);
                         CheckResultLog result = new CheckResultLog();
@@ -115,7 +125,7 @@ public class FlowtableProcessor {
                         long now = System.currentTimeMillis();
                         AccountFact item = checkEntity.getAccountFact();
                         if (item != null && item.getCheckItems() != null && item.getCheckItems().size() > 0) {
-                            accountBWGRuleHandle.checkBWGRule(item, mapAccount);
+                            accountBWGHandler.checkBWGRule(item, mapAccount);
                         }
                         long eps = System.currentTimeMillis() - now;
                         String info = String.format("ReqId:%d,CheckBWGRule elapse %d ms", checkEntity.getReqId(), eps);
@@ -134,7 +144,7 @@ public class FlowtableProcessor {
                     public Object call() {
                         long now = System.currentTimeMillis();
                         FlowFact flowFact = checkEntity.getFlowFact();
-                        FlowRuleManager.check(flowFact, listFlow);
+                        flowRuleManager.check(flowFact, listFlow);
                         long eps = System.currentTimeMillis() - now;
                         String info = String.format("ReqId:%d,CheckFlowRule elapse %d ms", checkEntity.getReqId(), eps);
                         CheckResultLog result = new CheckResultLog();
@@ -172,36 +182,4 @@ public class FlowtableProcessor {
         listResult.merge(listFlow);
     }
 
-    private void saveResult(RiskResult result) {
-        final long reqId = result.getReqId();
-        List<Callable<Object>> tasks = new ArrayList<Callable<Object>>();
-        for (final CheckResultLog item : result.getResults()) {
-            SimpleStaticThreadPool.getInstance().submit(new Runnable() {
-                @Override
-                public void run() {
-                    cardRiskDBTemplate.execute(
-                            new CallableStatementCreator() {
-                                public CallableStatement createCallableStatement(Connection con) throws SQLException {
-                                    String storedProc = "{call spA_InfoSecurity_CheckResult4j_i ( ?,?,?,?,?,?,?,?)}";// 调用的sql
-                                    CallableStatement cs = con.prepareCall(storedProc);
-                                    cs.setLong(2, reqId);
-                                    cs.setString(3, item.getRuleType());
-                                    cs.setInt(4, item.getRuleID());
-                                    cs.setString(5, Objects.toString(item.getRuleName(), ""));
-                                    cs.setInt(6, item.getRiskLevel());
-                                    cs.setString(7, Objects.toString(item.getRuleRemark(), ""));
-                                    cs.setTimestamp(8, new Timestamp(System.currentTimeMillis()));
-                                    cs.registerOutParameter(1, Types.BIGINT);// 注册输出参数的类型
-                                    return cs;
-                                }
-                            }, new CallableStatementCallback() {
-                                public Object doInCallableStatement(CallableStatement cs) throws SQLException, DataAccessException {
-                                    cs.execute();
-                                    return null;
-                                }
-                            });
-                }
-            });
-        }
-    }
 }

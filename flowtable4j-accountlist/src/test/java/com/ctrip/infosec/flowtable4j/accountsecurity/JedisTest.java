@@ -18,7 +18,7 @@ import java.util.*;
 @ContextConfiguration(locations = { "classpath:/spring/flowtable4j.xml"})
 public class JedisTest {
     @Autowired
-    private AccountBWGRuleHandle accountBWGRuleHandle;
+    private AccountBWGHandler accountBWGHandler;
     @Test
     public void testMerge(){
         List<RuleContent> list = new ArrayList<RuleContent>();
@@ -77,7 +77,7 @@ public class JedisTest {
 //        items.add(item1);
         fact.setCheckItems(items);
         Map<String,Integer> map = new HashMap<String, Integer>();
-        accountBWGRuleHandle.checkBWGRule(fact, map);
+        accountBWGHandler.checkBWGRule(fact, map);
 
         final int i=0;
 
