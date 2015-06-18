@@ -1,5 +1,6 @@
 package com.ctrip.infosec.flowtable4j.dal;
 
+import com.ctrip.infosec.flowtable4j.model.persist.PO;
 import com.ctrip.infosec.sars.util.GlobalConfig;
 import com.ctrip.infosec.sars.util.mapper.JsonMapper;
 import com.google.common.base.Strings;
@@ -183,5 +184,13 @@ public class RedisProvider {
 
     private CacheProvider getCache() {
         return CacheFactory.GetProvider(redisCluster);
+    }
+
+    public void cacheProductInfo(String orderId,String orderType,PO po){
+
+    }
+
+    public PO getCachedProductInfo(String orderId,String orderType,PO po){
+       return new PO();
     }
 }

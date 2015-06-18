@@ -25,15 +25,12 @@ public class CounterTest {
     }
     @Test
     public void testReplace(){
-        Map<String, Object> parentMap = new HashMap<String, Object>();
-        parentMap.put("AA",12233);
-        Object obj = parentMap.get("AA");
-        if(obj != null)
-        {
-            System.out.println(obj.toString());
+        String mobile = null;
+        if (!Strings.isNullOrEmpty(mobile)) {
+            while (mobile.startsWith("0")) {
+                mobile = mobile.substring(1);
+            }
         }
-        String aa=null;
-        System.out.println(f1()|f2());
-        System.out.println(String.format("%d GT %d",2,1));
+        System.out.println(mobile);
   }
 }

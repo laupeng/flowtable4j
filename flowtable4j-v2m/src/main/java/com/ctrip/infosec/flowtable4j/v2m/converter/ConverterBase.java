@@ -1,18 +1,17 @@
 package com.ctrip.infosec.flowtable4j.v2m.converter;
 
-import com.ctrip.infosec.flowtable4j.dal.CUSDbService;
-import com.ctrip.infosec.flowtable4j.dal.CardRiskService;
+import com.ctrip.infosec.flowtable4j.dal.CheckRiskDAO;
 import com.ctrip.infosec.flowtable4j.dal.ESBClient;
-import com.ctrip.infosec.flowtable4j.dal.FlowtableService;
+import com.ctrip.infosec.flowtable4j.dal.RedisProvider;
+import com.ctrip.infosec.flowtable4j.model.RequestBody;
+import com.ctrip.infosec.flowtable4j.model.persist.PO;
+import com.ctrip.infosec.flowtable4j.model.persist.PaymentInfo;
 import com.google.common.base.Strings;
-import org.dom4j.DocumentException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.lang.reflect.Type;
-import java.math.BigDecimal;
-import java.sql.Types;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -21,410 +20,310 @@ import java.util.*;
  */
 public class ConverterBase {
 
-    private static Logger logger = LoggerFactory.getLogger(ConverterBase.class);
+    protected static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+    private Logger logger = LoggerFactory.getLogger(ConverterBase.class);
 
     @Autowired
-    CardRiskService cardRiskDb;
+    protected CheckRiskDAO checkRiskDAO;
 
     @Autowired
-    FlowtableService flowDb;
+    protected ESBClient esbClient;
 
     @Autowired
-    CUSDbService cusDb;
-
-    @Autowired
-    ESBClient esbClient;
-
+    protected RedisProvider redisProvider;
     /**
-     * 获取InfoSecurity_AppInfo
+     * 根据字段映射从RequestBody取数据
      *
-     * @param reqId long
-     * @return
+     * @param requestBody 请求报文
+     * @param targetMap   目标Map
+     * @param dbEntity    表名
      */
-    public Map getAppInfo(String reqId) {
-        return getRecordByKey("InfoSecurity_AppInfo","ReqID",reqId,new int[]{Types.BIGINT});
+    protected void fillEntity(RequestBody requestBody, Map<String, Object> targetMap, String dbEntity) {
+        Map<String, String> dbMeta = new HashMap<String, String>();
+        //Fetch DbMeta by dbEntity
+        for (String field : dbMeta.keySet()) {
+            targetMap.put(field, requestBody.getString(field));
+        }
+    }
+
+    public String getValue(Map data, String key) {
+        Object obj = data.get(key);
+        return obj == null ? "" : String.valueOf(obj);
     }
 
     /**
-     * 获取七天内均值消费金额
+     * 根据字段映射从RequestBody取数据
      *
-     * @param CCardNoCode char
-     * @param startTimeLimit char yyyy-MM-dd hh:mm:ss
-     * @param timeLimit char yyyy-MM-dd hh:mm:ss
-     * @return
+     * @param requestBody 请求报文
+     * @param targetMap   目标Map
+     * @param fieldMap    entity的字段，对应eventBody的路径，用A.B分层级
      */
-    public Double getAvgAmount7(String CCardNoCode, String startTimeLimit, String timeLimit) {
-        try {
-            String sql = "SELECT avg(Amount) AS AMT FROM CTRIP_FLT_CCardNoCode_Amount WITH(NOLOCK) " +
-                    "WHERE CCardNoCode=? and CreateDate>=? and CreateDate<=?";
-            Map avgAmount = flowDb.queryForMap(sql, new Object[]{CCardNoCode, startTimeLimit, timeLimit}, new int[]{Types.VARCHAR, Types.TIMESTAMP, Types.TIMESTAMP});
-            if (avgAmount != null) {
-                return Double.parseDouble(avgAmount.get("AMT").toString());
+    protected void fillEntity(RequestBody requestBody, Map<String, Object> targetMap, Map<String, String> fieldMap) {
+        //有字段映射
+        for (String field : fieldMap.keySet()) {
+            targetMap.put(field, requestBody.getString(fieldMap.get(field).split("[.]")));
+        }
+    }
+
+    /**
+     * 根据表定义，从 Src Map取数据
+     *
+     * @param srcMap    原始Map
+     * @param targetMap 目标Map
+     * @param dbEntity  数据表，读目的数据
+     */
+    protected void fillEntity(Map<String, Object> srcMap, Map<String, Object> targetMap, String dbEntity) {
+        Map<String, String> dbMeta = new HashMap<String, String>();
+        //Fetch DbMeta by dbEntity
+        for (String field : dbMeta.keySet()) {
+            targetMap.put(field, srcMap.get(field));
+        }
+    }
+
+    /**
+     * 根据字段映射从srcMap取数据取数据
+     *
+     * @param targetMap
+     * @param fieldMap
+     */
+    protected void fillEntity(Map<String, Object> srcMap, Map<String, Object> targetMap, Map<String, String> fieldMap) {
+        //有字段映射
+        for (String field : fieldMap.keySet()) {
+            targetMap.put(field, srcMap.get(fieldMap.get(field)));
+        }
+    }
+
+    /**
+     * 检查 MobilePhone、UserIP的合法性
+     */
+    protected void validateMobilePhoneUserIP(RequestBody requestBody) {
+        String mobile = requestBody.getString("MobilePhone");
+        if (!Strings.isNullOrEmpty(mobile)) {
+            while (mobile.startsWith("0")) {
+                mobile = mobile.substring(1);
             }
-        } catch (Exception exp) {
-            logger.warn("查询CTRIP_FLT_CCardNoCode_Amount信息异常",exp);
+            //去掉默认为13000000000及13800000000的手机号
+            if (mobile.indexOf("13000000000") >= 0 || mobile.indexOf("13800000000") >= 0) {
+                mobile = "";
+            }
         }
-        return 0d;
+        requestBody.getEventBody().put("MobilePhone", mobile);
+
+        String userIp = requestBody.getString("UserIP");
+        //去掉非法IP
+        if (!Strings.isNullOrEmpty(userIp)) {
+            if (userIp.startsWith("10.168.26.11") || userIp.startsWith("10.168.154.11") || userIp.startsWith("69.28.59.7")) {
+                userIp = "";
+            }
+        }
+        requestBody.getEventBody().put("UserIP", userIp);
+
+        String email = requestBody.getString("ContactEMail");
+        //非法Email
+        if (!Strings.isNullOrEmpty(email)) {
+            if (email.equals("noemail@ctrip.com") || email.equals("10.168.154.11") || email.equals("69.28.59.7")) {
+                email = "";
+            }
+        }
+        requestBody.getEventBody().put("ContactEMail", email);
     }
 
-    /**
-     * 添加用户的用户等级信息
-     *
-     * @param uid
-     */
-    public String getCusCharacter(String uid, String vipFlag) {
-        if (vipFlag.equals("T")) {
-            return "VIP";
+    private String ipConvertToStr(long Ip) {
+        long a = (Ip & 0xFF000000) >> 24;
+        long b = (Ip & 0x00FF0000) >> 16;
+        long c = (Ip & 0x0000FF00) >> 8;
+        long d = Ip & 0x000000FF;
+        return a + "." + b + "." + c + "." + d;
+    }
+
+    private long ipConvertToValue(String ip) {
+        long n_Ip = 0;
+        if (ip != null && ip.length() > 7) {
+            String[] arr = ip.split("[.]|[:]");
+            if (arr.length >= 4) {
+                long a = Long.parseLong(arr[0].toString());
+                long b = Long.parseLong(arr[1].toString());
+                long c = Long.parseLong(arr[2].toString());
+                long d = Long.parseLong(arr[3].toString());
+                n_Ip = (((((a << 8) | b) << 8) | c) << 8) | d;
+            }
         }
-        String cuscharacter = "";
-        String contentType = "Customer.User.GetCustomerInfo";
-        String contentBody = "<GetCustomerInfoRequest><UID>" + uid + "</UID></GetCustomerInfoRequest>";
-        String xpath = "/Response/GetCustomerInfoResponse";
-        String customerInfo = null;
+        return n_Ip;
+    }
+
+    public void fillDIDInfo(PO po, String orderId, String orderType) {
+        po.deviceId = new HashMap<String, Object>();
+        Map DIDInfo = checkRiskDAO.getDIDInfo(orderId, orderType);
+        if (DIDInfo != null && DIDInfo.size() > 0) {
+            po.deviceId.put("DID", DIDInfo.get("Did"));
+        }
+    }
+
+
+    /**
+     * 填充 订单信息
+     *
+     * @param requestBody
+     * @param po
+     */
+    public void fillPaymentInfo(RequestBody requestBody, PO po) {
+        po.paymentInfoList = new ArrayList<PaymentInfo>();
+        List<Map<String, Object>> paymentInfos = (List<Map<String, Object>>) requestBody.getList("PaymentInfos");
+        if (paymentInfos == null || paymentInfos.size() == 0) {
+            return;
+        }
+        for (Map paymentEntity : paymentInfos) {
+            PaymentInfo paymentInfo = new PaymentInfo();
+            Map<String, Object> payment = new HashMap<String, Object>();
+            String prepayType = getValue(paymentEntity, "PrepayType");
+            payment.put("PrepayType", prepayType);
+            payment.put("Amount", getValue(paymentEntity, "Amount"));
+            payment.put("RefNo", getValue(paymentEntity, "RefNo"));
+
+            String cardInfoId = getValue(paymentEntity, "CardInfoID");
+            payment.put("CardInfoID", cardInfoId);
+
+            List<Map<String, Object>> cardInfoList = new ArrayList<Map<String, Object>>();
+
+            Map<String, Object> cardInfo = new HashMap<String, Object>();
+
+            if (prepayType.toUpperCase().equals("CCARD") || prepayType.toUpperCase().equals("DCARD")) {
+                cardInfo.put("CardInfoID", cardInfoId);
+                cardInfo.put("InfoID", 0);
+                if (!Strings.isNullOrEmpty(cardInfoId)) {
+                    Map cardInfoResult = esbClient.getCardInfo(cardInfoId);//从esb取出相关数据
+                    if (cardInfoResult != null && cardInfoResult.size() > 0) {
+                        String creditCardType = getValue(cardInfoResult, "CreditCardType");
+                        String cardBin = getValue(cardInfoResult, "CardBin");
+                        cardInfo.put("BillingAddress", getValue(cardInfoResult, "BillingAddress"));
+                        cardInfo.put("CardBin", cardBin);
+                        cardInfo.put("CardHolder", getValue(cardInfoResult, "CardHolder"));
+                        cardInfo.put("CCardLastNoCode", getValue(cardInfoResult, "CardRiskNoLastCode"));
+                        cardInfo.put("CCardNoCode", getValue(cardInfoResult, "CCardNoCode"));
+                        cardInfo.put("CardNoRefID", getValue(cardInfoResult, "CardNoRefID"));
+                        cardInfo.put("CCardPreNoCode", getValue(cardInfoResult, "CardRiskNoPreCode"));
+                        cardInfo.put("CreditCardType", creditCardType);
+                        cardInfo.put("CValidityCode", getValue(cardInfoResult, "CValidityCode"));
+                        cardInfo.put("IsForigenCard", getValue(cardInfoResult, "IsForeignCard"));
+                        cardInfo.put("Nationality", getValue(cardInfoResult, "Nationality"));
+                        cardInfo.put("Nationalityofisuue", getValue(cardInfoResult, "Nationalityofisuue"));
+                        cardInfo.put("BankOfCardIssue", getValue(cardInfoResult, "BankOfCardIssue"));
+                        cardInfo.put("StateName", getValue(cardInfoResult, "StateName"));
+                        cardInfo.put("CardNoRefID", getValue(cardInfoResult, "CardNoRefID"));
+                        //取出branchCity 和 branchProvince
+                        String creditCardNumber = getValue(cardInfoResult, "CreditCardNumber");
+                        if (creditCardType.equals("3") && !Strings.isNullOrEmpty(creditCardNumber))//这里只针对类型为3的卡进行处理
+                        {
+                            String decryptText = null;
+                            try {
+                                decryptText = Crypto.decrypt(creditCardNumber);
+                            } catch (Exception exp) {
+                                logger.warn("解密卡号异常" + exp.getMessage());
+                            }
+                            if (decryptText != null && !decryptText.isEmpty() && decryptText.length() > 12) {
+                                String branchNo = decryptText.substring(6, 9);
+                                if (!branchNo.isEmpty()) {
+                                    Map cardBankInfo = checkRiskDAO.getCardBankInfo(creditCardType, branchNo);
+                                    if (cardBankInfo != null) {
+                                        cardInfo.put("BranchCity", getValue(cardBankInfo, "BranchCity"));
+                                        cardInfo.put("BranchProvince", getValue(cardBankInfo, "BranchProvince"));
+                                    }
+                                }
+                            }
+                            Map subCardInfo = checkRiskDAO.getForeignCardInfo(creditCardType, cardBin);
+                            if (subCardInfo != null && subCardInfo.size() > 0) {
+                                cardInfo.put("CardBinIssue", getValue(subCardInfo, "Nationality"));
+                                cardInfo.put("CardBinBankOfCardIssue", getValue(subCardInfo, "BankOfCardIssue"));
+                            }
+                        }
+                    }
+                }
+                cardInfoList.add(cardInfo);
+            }
+            paymentInfo.setPayment(payment);
+            paymentInfo.setCardInfoList(cardInfoList);
+            po.paymentInfoList.add(paymentInfo);
+        }
+    }
+
+
+    //通过uid补充用户信息
+    protected String fillUserInfo(RequestBody requestBody, PO po, String uid) {
+        String signupDate="";
+        po.userInfo = new HashMap<String, Object>();
+        po.userInfo.put("Uid", uid);
+        po.userInfo.put("CusCharacter", "NEW");
         try {
-            customerInfo = esbClient.requestESB(contentType, contentBody);
+            Map crmInfo = esbClient.getMemberInfo(uid);
+            if (crmInfo != null) {
+                po.userInfo.put("RelatedEMail", getValue(crmInfo, "Email"));
+                po.userInfo.put("RelatedMobilephone", getValue(crmInfo, "MobilePhone"));
+                po.userInfo.put("BindedEmail", getValue(crmInfo, "BindedEmail"));
+                po.userInfo.put("BindedMobilePhone", getValue(crmInfo, "BindedMobilePhone"));
+                String experience = getValue(crmInfo, "Experience");
+                if (experience.isEmpty()) {
+                    experience = "0";
+                }
+                po.userInfo.put("Experience", experience);
+                signupDate = getValue(crmInfo, "Signupdate");
+                po.userInfo.put("SignUpDate",signupDate);
+
+                po.userInfo.put("UserPassword", getValue(crmInfo, "MD5Password"));
+                po.userInfo.put("VipGrade", getValue(crmInfo, "VipGrade"));
+                if (!"T".equals(getValue(crmInfo, "Vip"))) {
+                    Map customer = esbClient.getCustomerInfo(uid);
+                    if (customer != null && "1900-01-01".compareTo(getValue(customer, "CustomerDate")) > 0) {
+                        po.userInfo.put("CusCharacter", "REPEAT");
+                    }
+                } else {
+                    po.userInfo.put("CusCharacter", "VIP");
+                }
+            }
         } catch (Exception e) {
-            logger.warn("查询用户" + uid + "的Customer的信息异常" + e.getMessage());
+            logger.warn("查询用户" + uid + "的userInfo的信息异常" + e.getMessage());
         }
-//        String FirstPkgOrderDate = customerInfo.get("FirstPkgOrderDate") == null ? "" : customerInfo.get("FirstPkgOrderDate").toString();
-//        String FirstHotelOrderDate = customerInfo.get("FirstHotelOrderDate") == null ? "" : customerInfo.get("FirstHotelOrderDate").toString();
-//        String FirstFlightOrderDate = customerInfo.get("FirstFlightOrderDate") == null ? "" : customerInfo.get("FirstFlightOrderDate").toString();
-//        if(FirstPkgOrderDate.equals("0001-01-01T00:00:00") && FirstHotelOrderDate.equals("0001-01-01T00:00:00") && FirstFlightOrderDate.equals("0001-01-01T00:00:00"))
-//        {
-        cuscharacter = "NEW";
-//        }else
-//        {
-//            cuscharacter = "REPEAT";
-//        }
-        return cuscharacter;
+        return signupDate;
     }
 
-    private Map getRecordByKey(String tableName, String keyFieldName, String keyValue, int[] argType) {
+    public void fillOtherInfo(PO po, String orderDate, String signupDate,String takeOffTime) {
+        po.otherInfo = new HashMap<String, Object>();
+        po.otherInfo.put("OrderToSignUpDate",dateDiffHour(orderDate,signupDate));
+        po.otherInfo.put("TakeOffToOrderDate",dateDiffHour(takeOffTime,orderDate));
+    }
+
+    private String dateDiffHour(String startDate,String endDate) {
+        if(startDate ==null || endDate ==null){
+            return "0";
+        }
         try {
-            return cardRiskDb.queryForMap(String.format("SELECT * FROM %s WITH(NOLOCK) WHERE %s = ?", tableName), new Object[]{keyValue}, argType);
-        } catch (Exception exp) {
-            logger.warn(String.format("查询%s信息异常:", tableName), exp);
+            long S = sdf.parse(startDate).getTime();
+            long E = sdf.parse(endDate).getTime();
+            return  String.valueOf(Math.abs((S - E) / 1000 / 60 / 60));
         }
-        return null;
-    }
-
-    private Map getTop1RecordByKey(String tableName, String keyFieldName, String keyValue, int[] argType) {
-        try {
-            return cardRiskDb.queryForMap(String.format("SELECT TOP 1 * FROM %s WITH(NOLOCK) WHERE %s =?", tableName), new Object[]{keyValue}, argType);
-        } catch (Exception exp) {
-            logger.warn(String.format("查询%s信息异常:", tableName), exp);
+        catch (Exception ex){
+            return "0";
         }
-        return null;
     }
 
-    private List<Map<String, Object>> getListByKey(String tableName, String keyFieldName, String keyValue, int[] argType) {
-        try {
-            return cardRiskDb.queryForList(String.format("SELECT * FROM %s WITH(NOLOCK) WHERE %s = ?", tableName), new Object[]{keyValue}, argType);
-        } catch (Exception exp) {
-            logger.warn(String.format("查询%s信息异常:", tableName), exp);
+    protected void fillContactInfo(RequestBody requestBody, PO po) {
+        po.contactInfo = new HashMap<String, Object>();
+        fillEntity(requestBody, po.contactInfo, "InfoSecurity_ContactInfo");
+        Map city = checkRiskDAO.getMobileCityAndProv(requestBody.getString("MobilePhone"));
+        if (city != null) {
+            po.contactInfo.put("MobilePhoneCity", city.get("CityName"));
+            po.contactInfo.put("MobilePhoneProvince", city.get("ProvinceName"));
         }
-        return null;
     }
 
-    /**
-     * 获取机票订单信息 InfoSecurity_FlightsOrderInfo
-     *
-     * @param reqId
-     * @return
-     */
-    public Map getFlightsOrderInfo(String reqId) {
-        return getRecordByKey("InfoSecurity_FlightsOrderInfo", "ReqId", reqId, new int[]{Types.BIGINT});
-    }
-
-    /**
-     * 获取InfoSecurity_PassengerInfo
-     *
-     * @param flightsOrderId
-     * @return
-     */
-    public List<Map<String, Object>> getPassengerInfo(String flightsOrderId) {
-        return getListByKey("InfoSecurity_PassengerInfo", "FlightsOrderID", flightsOrderId, new int[]{Types.BIGINT});
-    }
-
-    /**
-     * 获取InfoSecurity_SegmentInfo
-     *
-     * @param flightsOrderId
-     * @return
-     */
-    public List<Map<String, Object>> getSegmentInfo(String flightsOrderId) {
-        return getListByKey("InfoSecurity_SegmentInfo", "FlightsOrderID", flightsOrderId, new int[]{Types.BIGINT});
-    }
-
-    /**
-     * 根据CityId获取城市名称与省
-     *
-     * @param city
-     * @return
-     */
-    public Map getCityNameProvince(String city) {
-        return getTop1RecordByKey("BaseData_City", "City", city, new int[]{Types.BIGINT});
-    }
-
-    /**
-     * 获取省份证归属省信息  BaseData_IDCardInfo
-     * @param iDCardNumber
-     * @return
-     */
-    public Map getIDCardProvince(String iDCardNumber) {
-      return getTop1RecordByKey("BaseData_IDCardInfo","IDCardNumber",iDCardNumber,new int[]{Types.VARCHAR});
-    }
-
-    /**
-     *
-     * @param uid char
-     * @param startTimeLimit char yyyy-MM-dd HH:mm:ss
-     * @param timeLimit char yyyy-MM-dd HH:mm:ss
-     * @return
-     */
-    public String getUidOrderDate(String uid, String startTimeLimit, String timeLimit) {
-        try {
-            String sql = "SELECT TOP 1 OrderDate FROM CTRIP_ALL_UID_OrderDate with (nolock) where " +
-                    "Uid = ? and CreateDate>=? and CreateDate<=?";
-            Map orderDate = flowDb.queryForMap(sql,new Object[]{uid, startTimeLimit, timeLimit},new int[]{Types.VARCHAR,Types.TIMESTAMP,Types.TIMESTAMP});
-            if(orderDate!=null){
-               return orderDate.get("OrderDate").toString();
-            }
-        } catch (Exception exp) {
-            logger.warn("查询CTRIP_ALL_UID_OrderDate异常" ,exp);
+    protected void fillIPInfo(Map<String, Object> ipInfo, String userIP) {
+        ipInfo.put("UserIPAdd", userIP);
+        long ipValue = ipConvertToValue(userIP);
+        ipInfo.put("UserIPValue", ipValue);
+        Map ip = checkRiskDAO.getIpCountryCity(ipValue);
+        if (ip != null) {
+            ipInfo.put("Continent", ip.get("ContinentID"));
+            ipInfo.put("IPCity", ip.get("CityId"));
+            ipInfo.put("IPCountry", ip.get("NationCode"));
         }
-        return null;
-    }
-
-    /**
-     * 获取InfoSecurity_CorporationInfo
-     *
-     * @param reqId long
-     * @return
-     */
-    public Map getCorporationInfo(String reqId) {
-        return getTop1RecordByKey("InfoSecurity_CorporationInfo","ReqId",reqId,new int[]{Types.BIGINT});
-    }
-
-    /**
-     * 通过手机号查询对应的城和市
-     * CityName,ProvinceName
-     *
-     * @param mobilePhone char
-     * @return 返回手机号对应的城市信息
-     */
-    public Map getMobileCityAndProv(String mobilePhone) {
-        try {
-            if (!Strings.isNullOrEmpty(mobilePhone)) {
-                mobilePhone = mobilePhone.substring(0, 7);
-                return getTop1RecordByKey("BaseData_MobilePhoneInfo", "MobileNumber", mobilePhone, new int[]{Types.BIGINT});
-            }
-        } catch (Exception exp) {
-            logger.warn("从sql查询手机号对应的城市信息异常", exp);
-        }
-        return null;
-    }
-
-    /**
-     * 获取IP地址对应信息
-     *
-     * @param ipValue long
-     * @return
-     */
-    public Map getIpCountryCity(long ipValue) {
-        try {
-            String sql = "SELECT TOP 1 *  FROM IpCountryCity WITH(NOLOCK) WHERE IpStart <= ? ORDER BY IpStart DESC ";
-            return cardRiskDb.queryForMap(sql, new Object[]{ipValue}, new int[]{Types.BIGINT});
-        } catch (Exception exp) {
-            logger.warn("查询ip对应的城市信息异常:", exp);
-        }
-        return null;
-    }
-
-    /**
-     * 获取DID相关信息
-     *
-     * @param orderId char
-     * @param payId char
-     * @return
-     */
-    public Map getDIDInfo(String orderId, String payId) {
-        try {
-            String sql = "SELECT TOP 1 *  FROM CacheData_DeviceIDInfo WITH(NOLOCK) WHERE Oid = ? AND Payid = ? ORDER BY RecordID desc";
-            return flowDb.queryForMap(sql, new Object[]{orderId, payId}, new int[]{Types.VARCHAR, Types.VARCHAR});
-        } catch (Exception exp) {
-            logger.warn("查询DID信息异常", exp);
-        }
-        return null;
-    }
-
-    /**
-     * 获取 InfoSecurity_MainInfo
-     * 铁友除外
-     *
-     * @param orderType int
-     * @param orderId long
-     * @return
-     */
-    public Map getMainInfo(String orderType, String orderId) {
-        try {
-            String sql = "SELECT TOP 1 *  FROM InfoSecurity_MainInfo WITH(NOLOCK) " +
-                    "WHERE OrderId = ? and OrderType = ? ORDER BY  ReqID DESC ";
-            return cardRiskDb.queryForMap(sql, new Object[]{orderId, orderType}, new int[]{Types.BIGINT, Types.INTEGER});
-        } catch (Exception exp) {
-            logger.warn("查询MainInfo信息异常", exp);
-        }
-        return null;
-    }
-
-    /**
-     * 获取铁友 InfoSecurity_MainInfo
-     *
-     * @param orderType int
-     * @param merchantOrderID char
-     * @return
-     */
-    public Map getTieYouMainInfo(String orderType, String merchantOrderID) {
-        try {
-            String sql = "SELECT TOP 1 *  FROM InfoSecurity_MainInfo WITH(NOLOCK) " +
-                    "WHERE  OrderType  = ? and MerchantOrderID = ?  ORDER BY ReqID DESC";
-            return cardRiskDb.queryForMap(sql, new Object[]{orderType, merchantOrderID}, new int[]{Types.INTEGER, Types.VARCHAR});
-        } catch (Exception exp) {
-            logger.warn("查询MainInfo信息异常", exp);
-        }
-        return null;
-    }
-
-    /**
-     * 获取 CreditCardRule_ForeignCard
-     * @param cardTypeId int
-     * @param cardBin  char
-     * @return
-     */
-    public Map getForeignCardInfo(String cardTypeId, String cardBin) {
-        try {
-            String sql = "SELECT *  FROM CreditCardRule_ForeignCard WITH(NOLOCK) WHERE CardTypeID = ? and CardRule = ?";
-            return cardRiskDb.queryForMap(sql, new Object[]{cardTypeId, cardBin}, new int[]{Types.INTEGER, Types.VARCHAR});
-        } catch (Exception exp) {
-            logger.warn("getForeignCardInfo异常", exp);
-        }
-        return null;
-    }
-
-    /**
-     * 获取 InfoSecurity_PaymentInfo
-     *
-     * @param lastReqID long
-     * @return
-     */
-    public List<Map<String, Object>> getListPaymentInfo(String lastReqID) {
-        return getListByKey("InfoSecurity_PaymentInfo","ReqID",lastReqID,new int[]{Types.BIGINT});
-    }
-
-    /**
-     * 获取 InfoSecurity_CardInfo
-     *
-     * @param paymentInfoId long
-     * @return
-     */
-    public List<Map<String, Object>> getCardInfoList(String paymentInfoId) {
-        return getListByKey("InfoSecurity_CardInfo","PaymentInfoID",paymentInfoId,new int[]{Types.BIGINT});
-    }
-
-    /**
-     * 获取InfoSecurity_PaymentMainInfo
-     *
-     * @param reqId long
-     * @return
-     */
-    public Map getPaymentMainInfo(String reqId) {
-        return getRecordByKey("InfoSecurity_PaymentMainInfo","ReqID",reqId,new int[]{Types.BIGINT});
-    }
-
-    /**
-     * 获取 InfoSecurity_ContactInfo
-     *
-     * @param reqId long
-     * @return
-     */
-    public Map getContactInfo(String reqId) {
-        return  getRecordByKey("InfoSecurity_ContactInfo","ReqID",reqId,new int[]{Types.BIGINT});
-    }
-
-    /**
-     * 获取InfoSecurity_UserInfo
-     *
-     * @param reqId long
-     * @return
-     */
-    public Map getUserInfo(String reqId) {
-        return getRecordByKey("InfoSecurity_UserInfo","ReqID",reqId,new int[]{Types.BIGINT});
-    }
-
-    /**
-     * 获取 InfoSecurity_IPInfo
-     *
-     * @param reqId long
-     * @return
-     */
-    public Map getIpInfo(String reqId) {
-        return getRecordByKey("InfoSecurity_IPInfo","ReqID",reqId,new int[]{Types.BIGINT});
-    }
-
-    /**
-     * 获取InfoSecurity_OtherInfo
-     *
-     * @param reqId long
-     * @return
-     */
-    public Map getOtherInfo(String reqId) {
-        return getRecordByKey("InfoSecurity_OtherInfo","ReqID",reqId,new int[]{Types.BIGINT});
-    }
-
-    /**
-     * 获取CardRisk_Leaked_Uid
-     *
-     * @param uid char
-     * @return
-     */
-    public Map getLeakedInfo(String uid) {
-        return getTop1RecordByKey("CardRisk_Leaked_Uid","Uid",uid, new int[]{Types.VARCHAR});
-    }
-
-    /**
-     * 获取 InfoSecurity_HotelGroupInfo
-     *
-     * @param reqId long
-     * @return
-     */
-    public List<Map<String, Object>> getHotelGroupInfo(String reqId) {
-        return getListByKey("InfoSecurity_HotelGroupInfo", "ReqID",reqId,new int[]{Types.BIGINT});
-    }
-
-    /**
-     * 获取 BaseData_CardBankInfo
-     *
-     * @param creditCardType int
-     * @param branchNo str
-     * @return
-     */
-    public Map getCardBankInfo(String creditCardType, String branchNo) {
-        try {
-            String sql = "SELECT TOP 1 *  FROM BaseData_CardBankInfo WITH(NOLOCK) WHERE CreditCardType =? and BranchNo = ?";
-            return cardRiskDb.queryForMap(sql, new Object[]{creditCardType, branchNo}, new int[]{Types.INTEGER, Types.VARCHAR});
-        } catch (Exception exp) {
-            logger.warn("获取BaseData_CardBankInfo查询异常", exp);
-        }
-        return null;
-    }
-
-    /**
-     * 根据国家编号获取国家的名称和国际
-     *
-     * @param country Int
-     * @return
-     */
-    public Map getCountryNameNationality(String country) {
-      return  getTop1RecordByKey("BaseData_CountryInfo","Country",country,new int[]{Types.BIGINT});
     }
 }

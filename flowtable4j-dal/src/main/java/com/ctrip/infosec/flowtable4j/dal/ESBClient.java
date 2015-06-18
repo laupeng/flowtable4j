@@ -15,6 +15,7 @@ import org.xml.sax.InputSource;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.Map;
 
 /*
  Created by lpxie on 15-3-20.
@@ -27,7 +28,7 @@ public class ESBClient {
     static final String esbUrl = GlobalConfig.getString("SOA.ESB.URL");
     static final String appId = GlobalConfig.getString("appId");
 
-    private static String requestWithSoap(String soapRequestContent) throws IOException {
+    private String requestWithSoap(String soapRequestContent) throws IOException {
         StringBuilder soapRequestSOAPData = new StringBuilder();
         soapRequestSOAPData.append("<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://www.w3.org/2003/05/soap-envelope\" xmlns:SOAP-ENC=\"http://www.w3.org/2003/05/soap-encoding\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">");
         soapRequestSOAPData.append("<SOAP-ENV:Body>");
@@ -43,7 +44,7 @@ public class ESBClient {
         return response;
     }
 
-    private static String response(String soapResponseData) throws DocumentException {
+    private String response(String soapResponseData) throws DocumentException {
         SAXReader reader = new SAXReader();
         StringReader read = new StringReader(soapResponseData);
         InputSource source = new InputSource(read);
@@ -53,7 +54,7 @@ public class ESBClient {
         return bodyElement.getStringValue();
     }
 
-    public static String requestESB(String requestType, String requestBody) throws Exception {
+    public String requestESB(String requestType, String requestBody) throws Exception {
         String responseBody = null;
         StringBuilder requestContent = new StringBuilder();
         requestContent.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
@@ -67,5 +68,49 @@ public class ESBClient {
             responseBody = response(soapResponseData);
         }
         return responseBody;
+    }
+
+    /**
+     * @param cardInfoId
+     * @return
+     */
+    public Map getCardInfo(String cardInfoId){
+        String requestType = "AccCash.CreditCard.GetCreditCardInfo";
+        String xpath = "/Response/GetCreditCardInfoResponse/CreditCardItems/CreditCardInfoResponseItem";
+        StringBuffer requestXml = new StringBuffer();
+        requestXml.append("<GetCreditCardInfoRequest>");
+        requestXml.append("<CardInfoId>");
+        requestXml.append(cardInfoId);
+        requestXml.append("</CardInfoId>");
+        requestXml.append("</GetCreditCardInfoRequest>");
+        try
+        {
+            //Map cardInfo = getResponse(requestXml.toString(),requestType,xpath);
+            //return cardInfo;
+        }catch (Exception exp)
+        {
+            return null;
+        }
+        return null;
+    }
+
+    public Map getMemberInfo(String uid){
+        String contentType = "Customer.User.GetMemberInfo";
+        String contentBody = "<MemberInfoRequest><Uid>" + uid + "</Uid><Type>M</Type></MemberInfoRequest>";
+        String xpath = "/Response/MemberInfoResponse";
+        return null;
+    }
+
+    public Map getCustomerInfo(String uid){
+        String cuscharacter = "";
+        String contentType = "Customer.User.GetCustomerInfo";
+        String contentBody = "<GetCustomerInfoRequest><UID>" + uid + "</UID></GetCustomerInfoRequest>";
+        String xpath = "/Response/GetCustomerInfoResponse";
+        String customerInfo = null;
+        try {
+           // customerInfo = esbClient.requestESB(contentType, contentBody);
+        } catch (Exception e) {
+        }
+        return null;
     }
 }

@@ -2,6 +2,7 @@ package com.ctrip.infosec.flowtable4j.payAdapt;
 
 import com.ctrip.infosec.flowtable4j.dal.Counter;
 import com.ctrip.infosec.flowtable4j.model.FlowFact;
+import com.ctrip.infosec.sars.util.SpringContextHolder;
 import com.google.common.base.Strings;
 
 import java.util.List;
@@ -17,6 +18,11 @@ public class CounterMatchRuleTerm extends PayAdaptRuleTerm {
     private Integer endOffset;
     private String sqlStatement;
     private String keyFieldName;
+
+    private static Counter counter;
+    static {
+        counter = SpringContextHolder.getBean("counter");
+    }
 
     public CounterMatchRuleTerm(String fieldName, String operator, String matchValue) {
         super(fieldName, operator, matchValue);
@@ -52,7 +58,7 @@ public class CounterMatchRuleTerm extends PayAdaptRuleTerm {
                 if (fact.requestCache.containsKey(key)) {
                     matched = executor.match(fact.requestCache.get(key), matchValue);
                 } else {
-                    String count = Counter.getCounter(countType, sqlStatement, keyFieldName, startOffset,
+                    String count = counter.getCounter(countType, sqlStatement, keyFieldName, startOffset,
                             endOffset, fact.getString(countField), keyFieldValue);
                     fact.requestCache.put(key, count);
                     matched = executor.match(count, matchValue);
@@ -72,7 +78,7 @@ public class CounterMatchRuleTerm extends PayAdaptRuleTerm {
                         if (fact.requestCache.containsKey(key)) {
                             matched = executor.match(fact.requestCache.get(key), matchValue);
                         } else {
-                            String count = Counter.getCounter(countType, sqlStatement, keyFieldName, startOffset,
+                            String count = counter.getCounter(countType, sqlStatement, keyFieldName, startOffset,
                                     endOffset, getString(row, countField), keyFieldValue);
                             fact.requestCache.put(key, count);
                             matched = executor.match(count, matchValue);

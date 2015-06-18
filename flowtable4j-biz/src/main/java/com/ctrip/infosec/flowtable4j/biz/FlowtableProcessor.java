@@ -1,24 +1,17 @@
 package com.ctrip.infosec.flowtable4j.biz;
 
-import com.ctrip.infosec.flowtable4j.accountsecurity.AccountBWGHandler;
+import com.ctrip.infosec.flowtable4j.accountsecurity.AccountBWGManager;
 import com.ctrip.infosec.flowtable4j.bwlist.BWManager;
 import com.ctrip.infosec.flowtable4j.core.utils.SimpleStaticThreadPool;
 import com.ctrip.infosec.flowtable4j.dal.CardRiskService;
 import com.ctrip.infosec.flowtable4j.flowlist.FlowRuleManager;
-import com.ctrip.infosec.flowtable4j.jobws.FlowRuleUpdater;
 import com.ctrip.infosec.flowtable4j.model.*;
 import com.ctrip.infosec.sars.monitor.util.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.CallableStatementCallback;
-import org.springframework.jdbc.core.CallableStatementCreator;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
-import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.Callable;
@@ -40,7 +33,7 @@ public class FlowtableProcessor {
     private FlowRuleManager flowRuleManager;
 
     @Autowired
-    private AccountBWGHandler accountBWGHandler;
+    private AccountBWGManager accountBWGManager;
 
     @Autowired
     private CardRiskService cardRiskService;
@@ -125,7 +118,7 @@ public class FlowtableProcessor {
                         long now = System.currentTimeMillis();
                         AccountFact item = checkEntity.getAccountFact();
                         if (item != null && item.getCheckItems() != null && item.getCheckItems().size() > 0) {
-                            accountBWGHandler.checkBWGRule(item, mapAccount);
+                            accountBWGManager.checkBWGRule(item, mapAccount);
                         }
                         long eps = System.currentTimeMillis() - now;
                         String info = String.format("ReqId:%d,CheckBWGRule elapse %d ms", checkEntity.getReqId(), eps);

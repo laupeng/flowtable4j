@@ -1,6 +1,6 @@
 package com.ctrip.infosec.flowtable4j.biz;
 
-import com.ctrip.infosec.flowtable4j.accountsecurity.AccountBWGHandler;
+import com.ctrip.infosec.flowtable4j.accountsecurity.AccountBWGManager;
 import com.ctrip.infosec.flowtable4j.model.AccountFact;
 import com.ctrip.infosec.flowtable4j.model.AccountResult;
 import com.ctrip.infosec.flowtable4j.model.RuleContent;
@@ -18,7 +18,7 @@ import java.util.List;
 public class BWGProcessor {
 
     @Autowired
-    private AccountBWGHandler accountBWGHandler;
+    private AccountBWGManager accountBWGManager;
 
     private static Logger logger = LoggerFactory.getLogger(BWGProcessor.class);
 
@@ -27,7 +27,7 @@ public class BWGProcessor {
      * @param rules
      */
     public String setBWGRule(List<RuleContent> rules) {
-        return accountBWGHandler.setBWGRule(rules);
+        return accountBWGManager.setBWGRule(rules);
     }
 
     /**
@@ -35,7 +35,7 @@ public class BWGProcessor {
      * @param rules
      */
     public String removeBWGRule(List<RuleContent> rules) {
-        return accountBWGHandler.removeBWGRule(rules);
+        return accountBWGManager.removeBWGRule(rules);
     }
 
     /**
@@ -45,7 +45,7 @@ public class BWGProcessor {
      */
     public void checkBWGRule(AccountFact fact,AccountResult result){
         try {
-            accountBWGHandler.checkBWGRule(fact, result.getResult());
+            accountBWGManager.checkBWGRule(fact, result.getResult());
         }
         catch (Exception ex){
             result.setStatus("FAIL");

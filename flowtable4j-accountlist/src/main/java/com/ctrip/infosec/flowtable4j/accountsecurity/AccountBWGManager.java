@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit;
  * Created by zhangsx on 2015/3/17.
  */
 @Component
-public class AccountBWGHandler {
+public class AccountBWGManager {
     //超时 ms
     final int TIMEOUT = 2000;
 
@@ -33,7 +33,7 @@ public class AccountBWGHandler {
 
     private FastDateFormat format = FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ss");
 
-    private Logger logger = LoggerFactory.getLogger(AccountBWGHandler.class);
+    private Logger logger = LoggerFactory.getLogger(AccountBWGManager.class);
 
     /**
      * 保存黑白名单到Redis

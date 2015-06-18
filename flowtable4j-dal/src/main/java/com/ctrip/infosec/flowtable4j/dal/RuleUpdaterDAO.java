@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * 规则更新，读取数据库配置
  * Created by zhangsx on 2015/3/13.
  */
 @Component

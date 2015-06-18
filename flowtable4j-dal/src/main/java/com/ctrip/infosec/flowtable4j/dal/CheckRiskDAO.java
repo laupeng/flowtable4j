@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * CheckEnitity转换为PO Entity
  * 放入工具类方法
  * Created by thyang on 2015-06-10.
  */
@@ -80,7 +81,7 @@ public class CheckRiskDAO {
         try {
             customerInfo = esbClient.requestESB(contentType, contentBody);
         } catch (Exception e) {
-            logger.warn("查询用户" + uid + "的Customer的信息异常" + e.getMessage());
+            //logger.warn("查询用户" + uid + "的Customer的信息异常" ,e);
         }
 //        String FirstPkgOrderDate = customerInfo.get("FirstPkgOrderDate") == null ? "" : customerInfo.get("FirstPkgOrderDate").toString();
 //        String FirstHotelOrderDate = customerInfo.get("FirstHotelOrderDate") == null ? "" : customerInfo.get("FirstHotelOrderDate").toString();
@@ -211,7 +212,7 @@ public class CheckRiskDAO {
      */
     public Map getMobileCityAndProv(String mobilePhone) {
         try {
-            if (!Strings.isNullOrEmpty(mobilePhone)) {
+            if (!Strings.isNullOrEmpty(mobilePhone) && mobilePhone.length()> 6) {
                 mobilePhone = mobilePhone.substring(0, 7);
                 return getTop1RecordByKey("BaseData_MobilePhoneInfo", "MobileNumber", mobilePhone, new int[]{Types.BIGINT});
             }
@@ -219,6 +220,11 @@ public class CheckRiskDAO {
             logger.warn("从sql查询手机号对应的城市信息异常", exp);
         }
         return null;
+    }
+
+    public String getValue(Map data, String key) {
+        Object obj = data.get(key);
+        return obj == null ? "" : String.valueOf(obj);
     }
 
     /**
@@ -255,36 +261,29 @@ public class CheckRiskDAO {
     }
 
     /**
-     * 获取 InfoSecurity_MainInfo
-     * 铁友除外
-     *
+     * 获取
+     * 铁友除外     *
      * @param orderType int
      * @param orderId long
      * @return
      */
-    public Map getMainInfo(String orderType, String orderId) {
+    public String getLastReqId(String orderId,String orderType,String merchantOrderID) {
         try {
-            String sql = "SELECT TOP 1 *  FROM InfoSecurity_MainInfo WITH(NOLOCK) " +
-                    "WHERE OrderId = ? and OrderType = ? ORDER BY  ReqID DESC ";
-            return cardRiskDb.queryForMap(sql, new Object[]{orderId, orderType}, new int[]{Types.BIGINT, Types.INTEGER});
-        } catch (Exception exp) {
-            logger.warn("查询MainInfo信息异常", exp);
-        }
-        return null;
-    }
-
-    /**
-     * 获取铁友 InfoSecurity_MainInfo
-     *
-     * @param orderType int
-     * @param merchantOrderID char
-     * @return
-     */
-    public Map getTieYouMainInfo(String orderType, String merchantOrderID) {
-        try {
-            String sql = "SELECT TOP 1 *  FROM InfoSecurity_MainInfo WITH(NOLOCK) " +
-                    "WHERE  OrderType  = ? and MerchantOrderID = ?  ORDER BY ReqID DESC";
-            return cardRiskDb.queryForMap(sql, new Object[]{orderType, merchantOrderID}, new int[]{Types.INTEGER, Types.VARCHAR});
+            Map kv=null;
+            if(orderType.equals("18")) {
+                String sql = "SELECT TOP 1 ReqID FROM InfoSecurity_MainInfo WITH(NOLOCK) " +
+                        "WHERE OrderId = ? and OrderType = ? ORDER BY  ReqID DESC ";
+                kv = cardRiskDb.queryForMap(sql, new Object[]{orderId, orderType}, new int[]{Types.BIGINT, Types.INTEGER});
+            }
+            else
+            {
+                String sql = "SELECT TOP 1 ReqID  FROM InfoSecurity_MainInfo WITH(NOLOCK) " +
+                        "WHERE  OrderType = ? and MerchantOrderID = ?  ORDER BY ReqID DESC";
+                kv = cardRiskDb.queryForMap(sql, new Object[]{orderType, merchantOrderID}, new int[]{Types.INTEGER, Types.VARCHAR});
+            }
+            if(kv!=null){
+                return getValue(kv,"ReqID");
+            }
         } catch (Exception exp) {
             logger.warn("查询MainInfo信息异常", exp);
         }
@@ -398,6 +397,67 @@ public class CheckRiskDAO {
     }
 
     /**
+     * 获取 InfoSecurity_HotelInfo
+     *
+     * @param reqId long
+     * @return
+     */
+    public Map getHotelInfo(String reqId) {
+        return getRecordByKey("InfoSecurity_HotelInfo", "ReqID", reqId, new int[]{Types.BIGINT});
+    }
+
+    /**
+     * 获取 InfoSecurity_ExRailUserInfo
+     * @param exRailId
+     * @return
+     */
+    public Map getExRailUserInfo(String exRailId)
+    {
+        return  getTop1RecordByKey("InfoSecurity_ExRailUserInfo","ExRailInfoID",exRailId,new int[]{Types.BIGINT});
+    }
+
+    /**
+     * 获取 InfoSecurity_VacationInfo
+     * @param reqId
+     * @return
+     */
+    public Map getVacationInfo(String reqId)
+    {
+        return  getTop1RecordByKey("InfoSecurity_VacationInfo","ReqID",reqId,new int[]{Types.BIGINT});
+    }
+
+    /**
+     * 获取 InfoSecurity_VacationOptionInfo
+     * @param vacationInfoID
+     * @return
+     */
+    public List<Map<String,Object>> getVacationOptionInfoList(String vacationInfoID)
+    {
+        return  getListByKey("InfoSecurity_VacationOptionInfo","VacationInfoID",vacationInfoID,new int[]{Types.BIGINT});
+    }
+
+    /**
+     * 获取 InfoSecurity_VacationUserInfo
+     * @param vacationInfoID
+     * @return
+     */
+    public List<Map<String,Object>> getVacationUserInfoList(String vacationInfoID)
+    {
+        return  getListByKey("InfoSecurity_VacationUserInfo","VacationInfoID",vacationInfoID,new int[]{Types.BIGINT});
+    }
+
+    /**
+     * 获取 InfoSecurity_MiceInfo
+     * @param reqId
+     * @return
+     */
+    public Map<String,Object> getMiceInfo(String reqId)
+    {
+        return  getTop1RecordByKey("InfoSecurity_MiceInfo","ReqID",reqId,new int[]{Types.BIGINT});
+    }
+
+
+    /**
      * 获取 BaseData_CardBankInfo
      *
      * @param creditCardType int
@@ -421,6 +481,7 @@ public class CheckRiskDAO {
      * @return
      */
     public Map getCountryNameNationality(String country) {
-      return  getTop1RecordByKey("BaseData_CountryInfo","Country",country,new int[]{Types.BIGINT});
+       return  getTop1RecordByKey("BaseData_CountryInfo","Country",country,new int[]{Types.BIGINT});
     }
+
 }

@@ -15,10 +15,10 @@ import java.util.*;
  * Created by zhangsx on 2015/3/18.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:/spring/flowtable4j.xml"})
+@ContextConfiguration(locations = { "classpath*:/spring/flowtable4j*.xml"})
 public class JedisTest {
     @Autowired
-    private AccountBWGHandler accountBWGHandler;
+    private AccountBWGManager accountBWGManager;
     @Test
     public void testMerge(){
         List<RuleContent> list = new ArrayList<RuleContent>();
@@ -77,7 +77,7 @@ public class JedisTest {
 //        items.add(item1);
         fact.setCheckItems(items);
         Map<String,Integer> map = new HashMap<String, Integer>();
-        accountBWGHandler.checkBWGRule(fact, map);
+        accountBWGManager.checkBWGRule(fact, map);
 
         final int i=0;
 

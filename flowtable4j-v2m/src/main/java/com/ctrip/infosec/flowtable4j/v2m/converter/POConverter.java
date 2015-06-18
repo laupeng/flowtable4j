@@ -5,20 +5,11 @@ import com.ctrip.infosec.flowtable4j.model.persist.PO;
 import com.ctrip.infosec.flowtable4j.model.persist.PaymentInfo;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
-import org.dom4j.DocumentException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * 请求报文转换为PO Entity
@@ -27,714 +18,82 @@ import java.util.regex.Pattern;
  * Created by thyang on 2015-06-10.
  */
 public class POConverter extends ConverterBase {
-    private RequestBody requestBody;
-    private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
     public PO convert(RequestBody requestBody) {
         PO po = new PO();
-        requestBody.getEventBody().put("ZERO",0);
-        requestBody.getEventBody().put("NOW", sdf.format(System.currentTimeMillis()));
-        this.requestBody = requestBody;
-        validateMobilePhoneUserIP();
+        String orderId =  requestBody.getString("OrderID");
+        String orderType =  requestBody.getString("OrderType");
+        String checkType = requestBody.getString("CheckType");
+        String lastReqId = checkRiskDAO.getLastReqId(requestBody.getString("OrderID"),requestBody.getString("OrderType"),requestBody.getString("MerchantOrderID"));
+        if(!Strings.isNullOrEmpty(lastReqId)){
+            if("1".equals(checkType)) {
+                fillLastPaymentInfo(requestBody, po);
+            } else if("2".equals(checkType)){
+                fillLastProductInfo(requestBody,po);
+            }
+        }
+
+        requestBody.getEventBody().put("Amount",requestBody.getString("OrderAmount"));
+
+        validateMobilePhoneUserIP(requestBody);
 
         // fill DealInfo
         po.dealInfo = new HashMap<String, Object>();
-        fillPOEntity(po.dealInfo, ImmutableMap.of("CheckStatus", "ZERO", "ReferenceID","ReferenceNo"));
+        po.dealInfo.put("CheckStatus",0);
+        po.dealInfo.put("ReferenceID", requestBody.getString("ReferenceNo"));
 
-        //fill MainInfo
-        requestBody.getEventBody().put("Amount",requestBody.getString("OrderAmount"));
+        //订单校验
+        if(checkType.equals("1")) {     //订单校验，补充上次的支付信息
 
-        po.mainInfo = new HashMap<String, Object>();
-        fillPOEntity(po.mainInfo,"InfoSecurity_MainInfo");
-        po.mainInfo.put("LastCheck","T");
-        po.mainInfo.put("OrderType",14);
+            //fill MainInfo
+            po.mainInfo = new HashMap<String, Object>();
+            fillEntity(requestBody, po.mainInfo, "InfoSecurity_MainInfo");
+            po.mainInfo.put("LastCheck","T");
+            po.mainInfo.put("OrderType",14);
+            po.mainInfo.put("CorporationID","");
 
-        //fill Member Info
-        String uid = requestBody.getString("Uid");
-        if(uid!=null){
-            requestBody.getEventBody().put("memberInfo",getMemberInfo(uid));
+            //fill contactInfo
+            fillContactInfo(requestBody, po);
+
+            //fill User Info Info
+            String signupDate = fillUserInfo(requestBody, po,requestBody.getString("Uid"));
+
+            //fill IP Info
+            po.IPInfo = new HashMap<String, Object>();
+            fillIPInfo(po.IPInfo, requestBody.getString("UserIP"));
+
+            //fill Hotel Group
+            po.hotelGroup = new HashMap<String, Object>();
+            fillEntity(requestBody, po.hotelGroup, "InfoSecurity_HotelGroupInfo");
+
+            //fill Other Info
+            fillOtherInfo(po,requestBody.getString("OrderDate"),signupDate,requestBody.getString("TakeOffTime"));
+
+        } else if(checkType.equals("2")) { //支付校验，补充订单信息
+
+            //fill PaymentMainInfo
+            po.paymentMainInfo = new HashMap<String, Object>();
+            fillEntity(requestBody, po.paymentMainInfo, "InfoSecurity_PaymentMainInfo");
+
+            po.paymentInfoList = new ArrayList<PaymentInfo>();
+            fillPaymentInfo(requestBody, po);
         }
 
-        //fill contactInfo
-        po.contactInfo = new HashMap<String, Object>();
-        fillPOEntity(po.contactInfo, "InfoSecurity_ContactInfo");
-        fillMobilePhoneCity(po.contactInfo, requestBody.getString("MobilePhone"));
-
-        //fill User Info
-        po.userInfo = new HashMap<String, Object>();
-        fillPOEntity(po.userInfo, requestBody.getMap("memberInfo"), "InfoSecurity_UserInfo");
-        po.userInfo.put("Uid", uid);
-        fillCUSCharater(po.userInfo, requestBody.getString(new String[]{"memberInfo", "VIP"}));
-
-        //fill IP Info
-        po.IPInfo = new HashMap<String, Object>();
-        fillIPInfo(po.IPInfo, requestBody.getString("UserIP"));
-
-       //fill Hotel Group
-        po.hotelGroup = new HashMap<String, Object>();
-        fillPOEntity(po.hotelGroup, "InfoSecurity_HotelGroupInfo");
-
-        //fill PaymentMainInfo
-        po.paymentMainInfo = new HashMap<String, Object>();
-        fillPOEntity(po.paymentMainInfo,"InfoSecurity_PaymentMainInfo");
-
-        po.paymentInfoList = new ArrayList<PaymentInfo>();
-
-
-        //fill Other Info
-        po.otherInfo = new HashMap<String, Object>();
-        po.otherInfo.put("OrderToSignUpDate","");
-        po.otherInfo.put("TakeOffToOrderDate","");
-
-
-
-        return null;
-    }
-
-    private void fillIPInfo(Map<String, Object> ipInfo, String userIP) {
-        ipInfo.put("UserIPAdd",userIP);
-        //ipInfo.put("UserIPValue",get)
-        Map ip = getIpCountryCity(1111);
-        if(ip!=null){
-            ipInfo.put("Continent",ip.get("ContinentID"));
-            ipInfo.put("IPCity",ip.get("CityId"));
-            ipInfo.put("IPCountry",ip.get("NationCode"));
-        }
-    }
-
-    private void fillMobilePhoneCity(Map<String, Object> contactInfo, String mobilePhone) {
-        //Map city = getCityAndProv(mobilePhone);
-       // contactInfo.put("MobilePhoneCity",city.get("CityName"));
-       // contactInfo.put("MobilePhoneProvince",city.get("ProvinceName"));
-    }
-
-    private Map getMemberInfo(String uid){
-        return new HashMap<String,Object>();
-    }
-
-    private void fillCUSCharater(Map<String,Object> userInfo,String vipFlag){
-        if(!vipFlag.equals("T")){
-            //Call Customer Info
-            userInfo.put("CusCharacter",vipFlag);
-        }
+        fillDIDInfo(po,orderId,orderType);
+        return po;
     }
 
     /**
-     * 根据表定义，从Request取数据
-     *
-     * @param entity
-     * @param Dbentity
+     * 当CheckType = 2 时，只带支付信息，需要从上次已保存的数据中恢复
+     * @param requestBody
+     * @param po
      */
-    private void fillPOEntity(Map<String, Object> entity, String Dbentity) {
-        Map<String, String> dbMeta = new HashMap<String, String>();
-        //To
-        for (String field : dbMeta.keySet()) {
-            entity.put(field, requestBody.getString(field));
-        }
+    public void fillLastProductInfo(RequestBody requestBody,PO po){
+        //首先从Redis获取，如果没有，取最近一次的提交
     }
 
-    /**
-     * 根据字段映射从RequestBody取数据
-     *
-     * @param entity
-     * @param fieldMap
-     */
-    private void fillPOEntity(Map<String, Object> entity, Map<String, String> fieldMap) {
-        //有字段映射
-        for (String field : fieldMap.keySet()) {
-            entity.put(field, requestBody.getString(fieldMap.get(field).split("[.]")));
-        }
+    public void fillLastPaymentInfo(RequestBody requestBody,PO po){
+        //首先从Redis获取，如果没有，取最近一次的提交
     }
 
-    /**
-     * 根据表定义，从Request取数据
-     *
-     * @param entity
-     * @param Dbentity
-     */
-    private void fillPOEntity(Map<String, Object> entity,Map<String, Object> src,String Dbentity) {
-        Map<String, String> dbMeta = new HashMap<String, String>();
-        for (String field : dbMeta.keySet()) {
-            entity.put(field, src.get(field));
-        }
-    }
-
-    /**
-     * 根据字段映射从RequestBody取数据
-     *
-     * @param entity
-     * @param fieldMap
-     */
-    private void fillPOEntity(Map<String, Object> entity,Map<String, Object> src, Map<String, String> fieldMap) {
-        //有字段映射
-        for (String field : fieldMap.keySet()) {
-            entity.put(field, src.get(fieldMap.get(field)));
-        }
-    }
-
-    /**
-     * 检查 MobilePhone、UserIP的合法性
-     */
-    private void validateMobilePhoneUserIP() {
-        String mobile = requestBody.getString("MobilePhone");
-        if (!Strings.isNullOrEmpty(mobile)) {
-            while (mobile.startsWith("0")) {
-                mobile = mobile.substring(1);
-            }
-            //去掉默认为13000000000及13800000000的手机号
-            if (mobile.indexOf("13000000000") >= 0 || mobile.indexOf("13800000000") >= 0) {
-                mobile = "";
-            }
-        }
-        requestBody.getEventBody().put("MobilePhone", mobile);
-
-        String userIp = requestBody.getString("UserIP");
-        //去掉IP
-        if (!Strings.isNullOrEmpty(userIp)) {
-            if (userIp.startsWith("10.168.26.11") || userIp.startsWith("10.168.154.11") || userIp.startsWith("69.28.59.7")) {
-                userIp = "";
-            }
-        }
-        requestBody.getEventBody().put("UserIP", userIp);
-    }
-
-//    private Logger logger = LoggerFactory.getLogger(CommonOperation.class);
-//
-//    @Autowired
-//    CommonSources commonSources;
-//    @Autowired
-//    CommonWriteSources commonWriteSources;
-//    @Autowired
-//    RedisSources redisSources;
-//    @Autowired
-//    ESBSources esbSources;
-//    @Autowired
-//    DataProxySources dataProxySources;
-//
-//    /**
-//     * 添加手机对应的省市信息
-//     */
-//    public void fillMobilePhone(DataFact dataFact,String mobilePhone)
-//    {
-//        if(mobilePhone == null || mobilePhone.length() <= 6)
-//            return;
-//        Map mobileInfo = commonSources.getCityAndProv(mobilePhone);
-//        if(mobileInfo != null && mobileInfo.size()>0)
-//        {
-//            dataFact.contactInfo.put(Common.MobilePhoneCity,getValue(mobileInfo,"CityName"));
-//            dataFact.contactInfo.put(Common.MobilePhoneProvince,getValue(mobileInfo,"ProvinceName"));
-//        }
-//    }
-//
-//
-//    /**
-//     * 补充ip对应的城市信息
-//     * @param userIp
-//     */
-//    public void fillIpInfo(DataFact dataFact,String userIp)
-//    {
-//        dataFact.ipInfo.put(Common.UserIPAdd, userIp);
-//        Long userIPValue = IpConvert.ipConvertTo10(userIp);
-//        dataFact.ipInfo.put(Common.UserIPValue,userIPValue);
-//
-//        Map ipInfo = commonSources.getIpCountryCity(userIPValue);
-//        if(ipInfo != null && ipInfo.size()>0)
-//        {
-//            String ContinentID = getValue(ipInfo,"ContinentID");
-//            String CityId = getValue(ipInfo,"CityID");
-//            String NationCode = getValue(ipInfo,"CountryCode");
-//            dataFact.ipInfo.put(Common.Continent,ContinentID);
-//            dataFact.ipInfo.put(Common.IPCity,CityId);
-//            dataFact.ipInfo.put(Common.IPCountry,NationCode);
-//        }
-//    }
-//
-//    public void getDIDInfo(DataFact dataFact,String orderId,String orderType)
-//    {
-//        Map DIDInfo = commonSources.getDIDInfo(orderId,orderType);
-//        if(DIDInfo !=null && DIDInfo.size()>0)
-//            dataFact.DIDInfo.put(Common.DID,getValue(DIDInfo,"Did"));
-//    }
-//
-//    public Map getLastReqID(Map data)
-//    {
-//        /*if(data.containsKey(Common.ReqID))
-//            return;*/
-//        String orderId = getValue(data,Common.OrderID);
-//        String orderType = getValue(data,Common.OrderType);
-//        Map mainInfo = commonSources.getMainInfo(orderType, orderId);
-//        if(mainInfo!=null)
-//        {
-//            try{
-//                String reqId = getValue(mainInfo, Common.ReqID);
-//                data.put(Common.OldReqID,reqId);//上一次写入产品信息的reqId
-//            }catch (Exception exp)
-//            {
-//                logger.warn("getLastReqID获取lastReqID异常:",exp);
-//            }
-//        }
-//        return mainInfo;
-//    }
-//
-//    //获取tieYou的特殊reqId 根据订单类型和MerchantOrderID来获取
-//    public Map getTieYouLastReqID(Map data)
-//    {
-//        String merchantOrderID = getValue(data, "MerchantOrderID");
-//        String orderType = getValue(data,Common.OrderType);
-//        Map mainInfo = commonSources.getTieYouMainInfo(orderType,merchantOrderID);
-//        if(mainInfo!=null)
-//        {
-//            try{
-//                String reqId = getValue(mainInfo, Common.ReqID);
-//                data.put(Common.OldReqID,reqId);//上一次写入产品信息的reqId
-//            }catch (Exception exp)
-//            {
-//                logger.warn("getLastReqID获取lastReqID异常:",exp);
-//            }
-//        }
-//        return mainInfo;
-//    }
-//
-//    /**
-//     * 这个方法其实是把原来的标签PaymentInfos改成PaymentInfoList
-//     * 原来的结构：
-//     *    PaymentInfos
-//     *    PaymentInfo:PrepayType(String),...;CreditCardInfo(Map)
-//     *新的结构：
-//     *      PaymentInfoListConvert
-//     * PaymentInfo(Map);CardInfoList(List):cardInfo(Map)
-//     * @param data
-//     */
-//    public void fillPaymentInfo0(DataFact dataFact,Map data)
-//    {
-//        List<Map> paymentInfos = (List<Map>)data.get(Common.PaymentInfos);//这里在转换的时候注意是否需要转换成Json格式
-//        if(paymentInfos == null || paymentInfos.size()<1)
-//            return;
-//        for(Map payment : paymentInfos)
-//        {
-//            Map<String,Object> subPaymentInfoList = new HashMap<String, Object>();
-//
-//            Map<String,Object> PaymentInfo = new HashMap();
-//            List<Map> CardInfoList = new ArrayList<Map>();
-//
-//            Map<String,Object> cardInfo = new HashMap<String, Object>();
-//
-//            String prepayType = getValue(payment,Common.PrepayType);
-//            PaymentInfo.put(Common.PrepayType, prepayType);
-//            PaymentInfo.put(Common.Amount,getValue(payment, Common.Amount));
-//            if(prepayType.toUpperCase().equals("CCARD") || prepayType.toUpperCase().equals("DCARD"))
-//            {
-//                cardInfo.put(Common.CardInfoID,getValue(payment, Common.CardInfoID));
-//                cardInfo.put(Common.InfoID,"0");
-//
-//                ///从wsdl里面获取卡信息
-//                String cardInfoId = getValue(payment,Common.CardInfoID);
-//                if(cardInfoId.isEmpty())
-//                    continue;
-//                Map cardInfoResult = getCardInfo(cardInfoId);//从esb取出相关数据
-//                if(cardInfoResult != null && cardInfoResult.size()>0)
-//                {
-//                    cardInfo.put(Common.BillingAddress,getValue(cardInfoResult,Common.BillingAddress));
-//                    cardInfo.put(Common.CardBin,getValue(cardInfoResult,Common.CardBin));
-//                    cardInfo.put(Common.CardHolder,getValue(cardInfoResult,Common.CardHolder));
-//                    cardInfo.put(Common.CCardLastNoCode,getValue(cardInfoResult,"CardRiskNoLastCode"));
-//
-//                    cardInfo.put(Common.CCardNoCode,getValue(cardInfoResult,Common.CCardNoCode));
-//
-//                    cardInfo.put("CardNoRefID",getValue(cardInfoResult,"CardNoRefID"));
-//
-//                    cardInfo.put(Common.CCardPreNoCode,getValue(cardInfoResult,"CardRiskNoPreCode"));
-//                    cardInfo.put(Common.CreditCardType,getValue(cardInfoResult,Common.CreditCardType));
-//
-//                    cardInfo.put(Common.CValidityCode,getValue(cardInfoResult,Common.CValidityCode));
-//                    cardInfo.put(Common.IsForigenCard,getValue(cardInfoResult,Common.IsForeignCard));
-//                    cardInfo.put(Common.Nationality,getValue(cardInfoResult,Common.Nationality));
-//
-//                    cardInfo.put(Common.Nationalityofisuue,getValue(cardInfoResult,Common.Nationalityofisuue));
-//                    cardInfo.put(Common.BankOfCardIssue,getValue(cardInfoResult,Common.BankOfCardIssue));
-//                    cardInfo.put(Common.StateName,getValue(cardInfoResult,Common.StateName));
-//                    cardInfo.put("CardNoRefID",getValue(cardInfoResult,"CardNoRefID"));
-//                }
-//                //取出branchCity 和 branchProvince
-//                String creditCardType = getValue(cardInfoResult,Common.CreditCardType);
-//                String creditCardNumber = getValue(cardInfoResult,"CreditCardNumber");
-//                if(creditCardType.equals("3") && !creditCardNumber.isEmpty())//这里只针对类型为3的卡进行处理
-//                {
-//                    String decryptText = null;
-//                    try
-//                    {
-//                        decryptText = Crypto.decrypt(creditCardNumber);
-//                    }catch (Exception exp)
-//                    {
-//                        logger.warn("解密卡号异常"+exp.getMessage());
-//                    }
-//                    if(decryptText !=null && !decryptText.isEmpty()&&decryptText.length()>12)
-//                    {
-//                        String branchNo = decryptText.substring(6,9);
-//                        if(!branchNo.isEmpty())
-//                        {
-//                            Map cardBankInfo = commonSources.getInfo(creditCardType,branchNo);
-//                            if(cardBankInfo != null)
-//                            {
-//                                cardInfo.put("BranchCity",getValue(cardBankInfo,"BranchCity"));
-//                                cardInfo.put("BranchProvince",getValue(cardBankInfo,"BranchProvince"));
-//                            }
-//                        }
-//                    }
-//                }
-//                //通过卡种和卡BIN获取系统中维护的信用卡信息
-//                String cardTypeId = getValue(cardInfoResult,Common.CreditCardType);
-//                String cardBin = getValue(cardInfoResult,Common.CardBin);
-//                Map subCardInfo = commonSources.getCardInfo(cardTypeId,cardBin);
-//                if(subCardInfo != null && subCardInfo.size()>0)
-//                {
-//                    cardInfo.put(Common.CardBinIssue,getValue(subCardInfo,"Nationality"));
-//                    cardInfo.put(Common.CardBinBankOfCardIssue,getValue(subCardInfo,"BankOfCardIssue"));
-//                }
-//                CardInfoList.add(cardInfo);
-//            }
-//            subPaymentInfoList.put(Common.PaymentInfo,PaymentInfo);
-//            subPaymentInfoList.put(Common.CardInfoList,CardInfoList);
-//            dataFact.paymentInfoList.add(subPaymentInfoList);
-//        }
-//    }
-//
-//    //同上解释
-//    public void fillPaymentInfo1(DataFact dataFact,String lastReqID)//reqId :7186418
-//    {
-//        List<Map<String, Object>> paymentInfos = commonSources.getListPaymentInfo(lastReqID);
-//        if(paymentInfos == null || paymentInfos.size()<1)
-//            return;
-//        for(Map payment : paymentInfos)
-//        {
-//            Map subPayInfo = new HashMap();
-//            subPayInfo.put(Common.PaymentInfo,payment);
-//            String paymentInfoId = getValue(payment,"PaymentInfoID");
-//            subPayInfo.put(Common.CardInfoList, commonSources.getListCardInfo(paymentInfoId));
-//            dataFact.paymentInfoList.add(subPayInfo);
-//        }
-//    }
-//
-//    public void fillPaymentMainInfo(DataFact dataFact,String lastReq)
-//    {
-//        Map paymentMainInfo = commonSources.getPaymentMainInfo(lastReq);
-//        if(paymentMainInfo != null && paymentMainInfo.size()>0)
-//            dataFact.paymentMainInfo.putAll(paymentMainInfo);
-//    }
-//
-//    public Map getCardInfo(String cardInfoId)
-//    {
-//        //从esb获取数据 根据CardInfoID取出卡的信息
-//        String requestType = "AccCash.CreditCard.GetCreditCardInfo";
-//        String xpath = "/Response/GetCreditCardInfoResponse/CreditCardItems/CreditCardInfoResponseItem";
-//        StringBuffer requestXml = new StringBuffer();
-//        requestXml.append("<GetCreditCardInfoRequest>");
-//        requestXml.append("<CardInfoId>");
-//        requestXml.append(cardInfoId);
-//        requestXml.append("</CardInfoId>");
-//        requestXml.append("</GetCreditCardInfoRequest>");
-//        try
-//        {
-//            Map cardInfo = esbSources.getResponse(requestXml.toString(),requestType,xpath);
-//            return cardInfo;
-//        }catch (Exception exp)
-//        {
-//            return null;
-//        }
-//    }
-//
-//    //补充产品信息  fixme 这里是要并发的
-//    public void fillProductContact(DataFact dataFact,String lastReqID)
-//    {
-//        Map contactInfo = commonSources.getContactInfo(lastReqID);
-//        if(contactInfo!=null)
-//            dataFact.contactInfo.putAll(contactInfo);
-//    }
-//    public void fillProductUser(DataFact dataFact,String lastReqID)
-//    {
-//        Map userInfo = commonSources.getUserInfo(lastReqID);
-//        if(userInfo!=null)
-//            dataFact.userInfo.putAll(userInfo);
-//    }
-//    public void fillProductIp(DataFact dataFact,String lastReqID)
-//    {
-//        Map ipInfo = commonSources.getIpInfo(lastReqID);
-//        if(ipInfo!=null)
-//            dataFact.ipInfo.putAll(ipInfo);
-//    }
-//    public void fillCorporationInfo(DataFact dataFact,String lastReqID)
-//    {
-//        Map corporationInfo = commonSources.getCorporationInfo(lastReqID);
-//        if(corporationInfo!=null)
-//            dataFact.corporationInfo.putAll(corporationInfo);
-//    }
-//    public void fillProductOther(DataFact dataFact,String lastReqID)
-//    {
-//        Map otherInfo = commonSources.getOtherInfo(lastReqID);
-//        if(otherInfo!=null)
-//            dataFact.otherInfo.putAll(otherInfo);
-//    }
-//
-//    //获取appInfo
-//    public void fillProductAppInfo(DataFact dataFact,String lastReqID)
-//    {
-//        Map appInfo = commonSources.getAppInfo(lastReqID);
-//        if(appInfo!=null)
-//            dataFact.appInfo.putAll(appInfo);
-//    }
-//    //补充主要支付方式
-//    public void fillMainOrderType(Map data)
-//    {
-//        String orderPrepayType = getValue(data,Common.OrderPrepayType);
-//        if(orderPrepayType.isEmpty())
-//        {
-//            //如果主要支付方式为空，则用订单号和订单类型到risk_levelData取上次的主要支付方式
-//            String orderType = getValue(data,Common.OrderType);
-//            String orderId = getValue(data,Common.OrderID);
-//            Map payInfo = commonSources.getMainPrepayType(orderType,orderId);
-//            if(payInfo != null && !payInfo.isEmpty())
-//            {
-//                data.put(Common.OrderPrepayType,payInfo.get(Common.PrepayType));
-//            }
-//        }
-//
-//        //补充主要支付方式自动判断逻辑
-//        if(getValue(data,Common.OrderPrepayType).isEmpty() || getValue(data,Common.CheckType).equals("2"))
-//        {
-//            if(data.get(Common.PaymentInfos) == null)//FIXME 这里确认所有的产品支付的字段名称是PaymentInfos
-//                return;
-//            List<Map> paymentInfoList = (List<Map>)data.get(Common.PaymentInfos);
-//            for(Map paymentInfos : paymentInfoList)
-//            {
-//                if(paymentInfos.get(Common.PaymentInfo) == null )
-//                    continue;
-//                Map payment = (Map)paymentInfos.get(Common.PaymentInfo);
-//                if(payment == null || payment.get(Common.PrepayType) == null)
-//                    continue;
-//                if(payment.get(Common.PrepayType).toString().toUpperCase().equals("CCARD") || payment.get(Common.PrepayType).toString().toUpperCase().equals("DCARD"))
-//                {
-//                    data.put(Common.OrderPrepayType,payment.get(Common.PrepayType).toString().toUpperCase());
-//                    break;
-//                }else
-//                {
-//                    data.put(Common.OrderPrepayType,payment.get(Common.PrepayType).toString().toUpperCase());//这句没看懂？？？//fixme
-//                }
-//            }
-//        }
-//    }
-//
-//    //通过uid补充用户信息
-//    public void fillUserInfo(DataFact dataFact,String uid)
-//    {
-//        String contentType = "Customer.User.GetMemberInfo";
-//        String contentBody = "<MemberInfoRequest><Uid>" + uid + "</Uid><Type>M</Type></MemberInfoRequest>";
-//        String xpath = "/Response/MemberInfoResponse";
-//        Map crmInfo = null;
-//        try
-//        {
-//            crmInfo = esbSources.getResponse(contentBody,contentType,xpath);
-//        } catch (DocumentException e)
-//        {
-//            logger.warn("查询用户"+uid+"的userInfo的信息异常"+e.getMessage());
-//        }
-//
-//        /*String serviceName = "CRMService";
-//        String operationName = "getMemberInfo";
-//        Map params = ImmutableMap.of("uid", uid);//根据uid取值
-//        Map crmInfo = DataProxySources.queryForMap(serviceName, operationName, params);//fixme dataProxy的数据不稳定,等郁伟那边稳定了再切回来*/
-//        if(crmInfo !=null && crmInfo.size()>0)
-//        {
-//            dataFact.userInfo.put(Common.RelatedEMail,getValue(crmInfo,"Email"));
-//            dataFact.userInfo.put(Common.RelatedMobilephone,getValue(crmInfo,"MobilePhone"));
-//            dataFact.userInfo.put(Common.BindedEmail,getValue(crmInfo,"BindedEmail"));
-//            dataFact.userInfo.put(Common.BindedMobilePhone,getValue(crmInfo,"BindedMobilePhone"));
-//            String experience = getValue(crmInfo, "Experience");
-//            if(experience.isEmpty())
-//                experience = "0";
-//            dataFact.userInfo.put(Common.Experience,experience);
-//            dataFact.userInfo.put(Common.SignUpDate,getValue(crmInfo,"Signupdate"));
-//            dataFact.userInfo.put(Common.UserPassword,getValue(crmInfo,"MD5Password"));
-//            dataFact.userInfo.put(Common.VipGrade,getValue(crmInfo,"VipGrade"));
-//            dataFact.userInfo.put("vip",getValue(crmInfo,"Vip"));
-//        }
-//    }
-//
-//    //写流量数据到数据库
-//    public void writeFlowData(final Map flowData,ThreadPoolExecutor excutor,final boolean isWrite,final boolean isCheck)
-//    {
-//        final String orderType = getValue(flowData,Common.OrderType);
-//        if(orderType.isEmpty())
-//            return;
-//        List<Map<String,Object>> flowRules = (List<Map<String,Object>>)CacheFlowRuleData.flowRules.get(orderType);
-//        if(flowRules == null || flowRules.size()<1)
-//        {
-//            flowRules = commonSources.getFlowRules(orderType);
-//            CacheFlowRuleData.flowRules.put(orderType,flowRules);//添加到缓存中
-//        }
-//        List<Map<String,Object>> flowFilters = CacheFlowRuleData.getFlowFilters();
-//        if(flowFilters == null || flowFilters.size()<1)
-//        {
-//            flowFilters = commonSources.getFlowRuleFilter();
-//            CacheFlowRuleData.setFlowFilters(flowFilters);//添加到缓存中
-//        }
-//        String StatisticTableId = "";
-//        for(Map flowRule : flowRules)
-//        {
-//            StatisticTableId = flowRule.get("StatisticTableId").toString();
-//            /*if(StatisticTableId.equals("78") || StatisticTableId.equals("301") || StatisticTableId.equals("306") || StatisticTableId.equals("2085")
-//                    || StatisticTableId.equals("2136"))
-//                logger.info("调试这里");*/
-//            //fixme 这里验证StatisticTableId是78  301 306 2085 2136
-//            if(isInsertToStaticTable(flowData,StatisticTableId,flowFilters))
-//            {
-//                //写到数据库
-//                final String StatisticTableName = flowRule.get("StatisticTableName").toString();
-//                final String KeyFieldName1 = flowRule.get("KeyFieldID1").toString();
-//                final String KeyFieldName2 = flowRule.get("KeyFieldID2").toString();
-//                excutor.submit(new Callable<DataFact>() {
-//                    @Override
-//                    public DataFact call() throws Exception {
-//                        commonWriteSources.insertFlowInfo(flowData, KeyFieldName1, KeyFieldName2, StatisticTableName,isWrite,isCheck);
-//                        return null;
-//                    }
-//                });
-//            }
-//        }
-//    }
-//
-//    //判断是否需要写流量表数据
-//    public boolean isInsertToStaticTable(Map flowData,String id,List<Map<String,Object>> flowFilters)
-//    {
-//       /* if(id.equals("78") || id.equals("301") || id.equals("306") || id.equals("2085")
-//                    || id.equals("2136"))
-//                logger.info("调试这里");*/
-//        List<Map<String,Object>> newFlowFilters = new ArrayList<Map<String, Object>>();
-//        boolean isInsert = true;
-//        for(Map flowFilter:flowFilters)
-//        {
-//            if(flowFilter.get("StatisticTableID").toString().equals(id))
-//                newFlowFilters.add(flowFilter);
-//        }
-//        if(newFlowFilters == null || newFlowFilters.size()<1)//没有过滤条件直接落地
-//            return true;
-//        String currentValue = "";
-//        for(Map flowFilter:newFlowFilters)
-//        {
-//            currentValue = getValue(flowData,getValue(flowFilter,"KeyColumnName")).trim();
-//            String tempMatchValue = "", tempMatchType = "";
-//            String matchType = getValue(flowFilter,"MatchType");
-//            if(matchType.toUpperCase().equals("FEQ")||matchType.toUpperCase().equals("FNE")
-//                    ||matchType.toUpperCase().equals("FIN")||matchType.toUpperCase().equals("FNA"))
-//            {
-//                tempMatchType = matchType.substring(1,2);
-//                tempMatchValue = getValue(flowData,getValue(flowFilter,"MatchValue")).trim();
-//                if(tempMatchValue.isEmpty())
-//                    return false;
-//            }else
-//            {
-//                tempMatchType = matchType;
-//                tempMatchValue = getValue(flowFilter,"MatchValue");
-//            }
-//            if(!isMatch(tempMatchType,currentValue,tempMatchValue))
-//                return false;
-//        }
-//        return isInsert;
-//    }
-//
-//    //匹配值是否
-//    public boolean isMatch(String matchType,String currentValue,String matchValue)
-//    {
-//        matchValue = convertValueToRegValue(matchType,matchValue);
-//        if(currentValue.isEmpty() && !matchType.toUpperCase().equals("REGEX"))
-//        {
-//            return false;
-//        }
-//
-//        if(matchType.toUpperCase().equals("EQ"))
-//        {
-//            return currentValue.equalsIgnoreCase(matchValue);
-//        }else if(matchType.toUpperCase().equals("NE"))
-//        {
-//            return !currentValue.equalsIgnoreCase(matchValue);
-//        }else if(matchType.toUpperCase().equals("GE"))
-//        {
-//            try
-//            {
-//                long longCurrent = Long.parseLong(currentValue);
-//                long longMatch = Long.parseLong(matchValue);
-//                if(longCurrent>longMatch)
-//                    return true;
-//                return false;
-//            }catch (Exception exp)
-//            {
-//                return false;
-//            }
-//        }else if(matchType.toUpperCase().equals("LE"))
-//        {
-//            try
-//            {
-//                long longCurrent = Long.parseLong(currentValue);
-//                long longMatch = Long.parseLong(matchValue);
-//                if(longCurrent <= longMatch)
-//                    return true;
-//                return false;
-//            }catch (Exception exp)
-//            {
-//                return false;
-//            }
-//        }else if(matchType.toUpperCase().equals("LESS"))
-//        {
-//            try
-//            {
-//                long longCurrent = Long.parseLong(currentValue);
-//                long longMatch = Long.parseLong(matchValue);
-//                if(longCurrent < longMatch)
-//                    return true;
-//                return false;
-//            }catch (Exception exp)
-//            {
-//                return false;
-//            }
-//        }
-//        else
-//        {
-//            Pattern pattern = Pattern.compile(matchValue);
-//            Matcher matcher = pattern.matcher(currentValue);
-//            if(matchType.toUpperCase().equals("IN")||matchType.toUpperCase().equals("LLIKE")||matchType.toUpperCase().equals("RLIKE")||matchType.toUpperCase().equals("REGEX"))
-//            {
-//                return matcher.find();
-//            }
-//            else if(matchType.toUpperCase().equals("NA"))//fixme 301的时候  301	UserIPAdd	NA	^(192)|^(10)|^(172)
-//            //fixme 306的时候 306	UserIPAdd	NA	^(192)|^(10)|^(172)
-//            //fixme 2136的时候 2136	UserIPAdd	NA	^(192)|^(10)|^(172)
-//            {
-//                return !matcher.find();
-//            }
-//        }
-//        return true;
-//    }
-//    public String convertValueToRegValue(String checkType,String checkValue)
-//    {
-//        String regexValue = "";
-//        if(checkType.toUpperCase().equals("EQ") || checkType.toUpperCase().equals("NE"))
-//        {
-//            regexValue = checkValue;
-//        }else if(checkType.toUpperCase().equals("IN") || checkType.toUpperCase().equals("NA"))
-//        {
-//            regexValue = "("+checkValue.toUpperCase()+")+";
-//        }else if(checkType.toUpperCase().equals("LLIKE"))
-//        {
-//            regexValue = "^("+checkValue.toUpperCase()+")";
-//        }else if(checkType.toUpperCase().equals("RLIKE"))
-//        {
-//            regexValue = "("+checkValue.toUpperCase()+")+$";
-//        }else if(checkType.toUpperCase().equals("REGEX"))
-//        {
-//            regexValue = checkValue;
-//        }else
-//        {
-//            regexValue = checkValue;
-//        }
-//        return regexValue;
-//    }
 }
