@@ -21,79 +21,85 @@ public class POConverter extends ConverterBase {
 
     public PO convert(RequestBody requestBody) {
         PO po = new PO();
-        String orderId =  requestBody.getString("OrderID");
-        String orderType =  requestBody.getString("OrderType");
-        String checkType = requestBody.getString("CheckType");
-        String lastReqId = checkRiskDAO.getLastReqId(requestBody.getString("OrderID"),requestBody.getString("OrderType"),requestBody.getString("MerchantOrderID"));
-        if(!Strings.isNullOrEmpty(lastReqId)){
-            if("1".equals(checkType)) {
-                fillLastPaymentInfo(requestBody, po);
-            } else if("2".equals(checkType)){
-                fillLastProductInfo(requestBody,po);
-            }
+        Map<String,Object> eventBody = requestBody.getEventBody();
+        String orderId = getString(eventBody, "OrderID");
+        String orderType =getString(eventBody, "OrderType");
+        String merchantOrderId = getString(eventBody, "MerchantOrderID");
+        String checkType =  getString(eventBody, "CheckType");
+
+        if(Strings.isNullOrEmpty(orderId)||"0".equals(orderId)){
+            return null;
+        }
+        Map<String,Object> paymentInfo = null;
+        Map<String,Object> productInfo=null;
+        if ("1".equals(checkType)) {
+            paymentInfo = checkRiskDAO.getLastPaymentInfo(orderId, orderType, merchantOrderId);
+        } else if ("2".equals(checkType)) {
+            productInfo = checkRiskDAO.getLastProductInfo(orderId, orderType, merchantOrderId);
         }
 
-        requestBody.getEventBody().put("Amount",requestBody.getString("OrderAmount"));
+        if(productInfo==null){
+            productInfo = new HashMap<String, Object>();
+            po.setProductInfo(productInfo);
+        }
 
-        validateMobilePhoneUserIP(requestBody);
+
+        if(paymentInfo==null){
+            paymentInfo = new HashMap<String, Object>();
+            po.setPaymentInfo(paymentInfo);
+        }
+        // 处理 Email、UserIp、MobilePhone
+        validateData(requestBody);
 
         // fill DealInfo
-        po.dealInfo = new HashMap<String, Object>();
-        po.dealInfo.put("CheckStatus",0);
-        po.dealInfo.put("ReferenceID", requestBody.getString("ReferenceNo"));
+       Map<String,Object> dealInfo = new HashMap<String, Object>();
+       setValue(dealInfo,"CheckStatus", 0);
+       setValue(dealInfo,"ReferenceID", getString(eventBody,"ReferenceNo"));
+       setValue(productInfo,"dealInfo",dealInfo);
 
         //订单校验
-        if(checkType.equals("1")) {     //订单校验，补充上次的支付信息
-
+        if (checkType.equals("1")) {     //订单校验，补充上次的支付信息
             //fill MainInfo
-            po.mainInfo = new HashMap<String, Object>();
-            fillEntity(requestBody, po.mainInfo, "InfoSecurity_MainInfo");
-            po.mainInfo.put("LastCheck","T");
-            po.mainInfo.put("OrderType",14);
-            po.mainInfo.put("CorporationID","");
+            Map<String,Object> mainInfo = new HashMap<String, Object>();
+            fillEntity(requestBody,mainInfo, "InfoSecurity_MainInfo");
+            setValue(mainInfo, "LastCheck", "T");
+            setValue(mainInfo, "OrderType", 14);
+            setValue(mainInfo, "CorporationID", "");
+            setValue(mainInfo, "Amount", getObject(eventBody, "OrderAmount"));
+            setValue(productInfo,"mainInfo",mainInfo);
 
             //fill contactInfo
-            fillContactInfo(requestBody, po);
+            fillContactInfo(requestBody,productInfo);
 
             //fill User Info Info
-            String signupDate = fillUserInfo(requestBody, po,requestBody.getString("Uid"));
+            String signupDate = fillUserInfo(requestBody,productInfo,getString(eventBody, "Uid"));
 
             //fill IP Info
-            po.IPInfo = new HashMap<String, Object>();
-            fillIPInfo(po.IPInfo, requestBody.getString("UserIP"));
+            fillIPInfo(productInfo,getString(eventBody, "UserIP"));
 
             //fill Hotel Group
-            po.hotelGroup = new HashMap<String, Object>();
-            fillEntity(requestBody, po.hotelGroup, "InfoSecurity_HotelGroupInfo");
+            Map<String,Object> hotelGroup = new HashMap<String, Object>();
+            fillEntity(requestBody,hotelGroup, "InfoSecurity_HotelGroupInfo");
+            setValue(productInfo,"hotelGroup",hotelGroup);
 
             //fill Other Info
-            fillOtherInfo(po,requestBody.getString("OrderDate"),signupDate,requestBody.getString("TakeOffTime"));
+            fillOtherInfo(productInfo, getString(eventBody, "OrderDate"), signupDate, getString(eventBody, "TakeOffTime"));
 
-        } else if(checkType.equals("2")) { //支付校验，补充订单信息
+            checkRiskDAO.saveLastProductInfo(orderId, orderType, merchantOrderId, productInfo);
+
+        } else if (checkType.equals("2")) { //支付校验，补充订单信息
 
             //fill PaymentMainInfo
-            po.paymentMainInfo = new HashMap<String, Object>();
-            fillEntity(requestBody, po.paymentMainInfo, "InfoSecurity_PaymentMainInfo");
+            Map<String,Object> paymentMainInfo = new HashMap<String, Object>();
+            fillEntity(requestBody, paymentMainInfo, "InfoSecurity_PaymentMainInfo");
+            setValue(paymentInfo,"paymentMainInfo",paymentMainInfo);
 
-            po.paymentInfoList = new ArrayList<PaymentInfo>();
-            fillPaymentInfo(requestBody, po);
+            fillPaymentInfo(requestBody, paymentInfo);
+            checkRiskDAO.saveLastPaymentInfo(orderId, orderType, merchantOrderId, "", paymentInfo);
         }
 
-        fillDIDInfo(po,orderId,orderType);
+        fillDIDInfo(productInfo,orderId,orderType);
+
         return po;
     }
-
-    /**
-     * 当CheckType = 2 时，只带支付信息，需要从上次已保存的数据中恢复
-     * @param requestBody
-     * @param po
-     */
-    public void fillLastProductInfo(RequestBody requestBody,PO po){
-        //首先从Redis获取，如果没有，取最近一次的提交
-    }
-
-    public void fillLastPaymentInfo(RequestBody requestBody,PO po){
-        //首先从Redis获取，如果没有，取最近一次的提交
-    }
-
 }

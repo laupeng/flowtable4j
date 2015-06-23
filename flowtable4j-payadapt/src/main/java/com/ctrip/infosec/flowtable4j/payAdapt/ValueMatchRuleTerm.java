@@ -1,6 +1,7 @@
 package com.ctrip.infosec.flowtable4j.payAdapt;
 
 import com.ctrip.infosec.flowtable4j.model.FlowFact;
+import com.ctrip.infosec.flowtable4j.model.MapX;
 
 import java.util.List;
 import java.util.Map;
@@ -24,7 +25,7 @@ public class ValueMatchRuleTerm extends PayAdaptRuleTerm {
             String fn = fact.getString(fieldName);
             matched = executor.match(fn, matchValue);
         } else {
-            List<Map<String, Object>> rows = (List<Map<String, Object>>) fact.getList(prefix);
+            List<Map<String, Object>> rows =(List<Map<String,Object>>) fact.getList(prefix);
             if (rows != null && rows.size()>0) {
                 for (Map<String, Object> row : rows) {
                     String fn = getString(row, fieldName);

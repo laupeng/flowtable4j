@@ -34,7 +34,7 @@ public class CardRiskService {
 
     public Map<String, Object> queryForMap(String sql, Object args, int argTypes)
     {
-        return  cardRiskDBTemplate.queryForMap(sql,args,argTypes);
+        return  cardRiskDBTemplate.queryForMap(sql,new Object[]{args},new int[]{argTypes});
     }
 
     public List<Map<String, Object>> queryForList(String sql, Object[] args, int[] argTypes)

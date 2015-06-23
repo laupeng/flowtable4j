@@ -9,7 +9,7 @@ import java.util.Map;
  * 黑白名单校验实体
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class BWFact extends BaseFact {
+public class BWFact {
 
     /**
      * 订单类型
@@ -38,11 +38,6 @@ public class BWFact extends BaseFact {
         this.content = content;
     }
 
-    @Override
-    protected Map<String, Object> getRootMap() {
-       return content;
-    }
-
     /**
      * 自定义 OrderTypes，包括 0
      */
@@ -52,5 +47,9 @@ public class BWFact extends BaseFact {
 
     public void setOrderTypes(List<Integer> orderTypes) {
         this.orderTypes = orderTypes;
+    }
+
+    public String getString(String key){
+        return MapX.getString(content,key);
     }
 }

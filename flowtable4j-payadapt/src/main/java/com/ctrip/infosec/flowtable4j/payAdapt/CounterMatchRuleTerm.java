@@ -2,6 +2,7 @@ package com.ctrip.infosec.flowtable4j.payAdapt;
 
 import com.ctrip.infosec.flowtable4j.dal.Counter;
 import com.ctrip.infosec.flowtable4j.model.FlowFact;
+import com.ctrip.infosec.flowtable4j.model.MapX;
 import com.ctrip.infosec.sars.util.SpringContextHolder;
 import com.google.common.base.Strings;
 
@@ -69,7 +70,7 @@ public class CounterMatchRuleTerm extends PayAdaptRuleTerm {
              * C#原型为List；数组 + List在Java中反序列化为ArrayList
              * 比较乘客时需要遍历所有乘客
              */
-            List<Map<String, Object>> rows = (List<Map<String, Object>>) fact.getList(prefix);
+            List<Map<String, Object>> rows =(List<Map<String,Object>>) fact.getList(prefix);
             if (rows != null && rows.size() > 0) {
                 for (Map<String, Object> row : rows) {
                     String keyFieldValue = getString(row, fieldName);

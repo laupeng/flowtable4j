@@ -17,6 +17,11 @@
     <groupId>com.fasterxml.jackson.module</groupId>
     <artifactId>jackson-module-jaxb-annotations</artifactId>
   </dependency>
+  <!-- google guava -->
+  <dependency>
+    <groupId>com.google.guava</groupId>
+    <artifactId>guava</artifactId>
+  </dependency>
   <!-- test -->
   <dependency>
     <groupId>org.springframework</groupId>

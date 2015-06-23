@@ -2,10 +2,11 @@ package com.ctrip.infosec.flowtable4j.v2m.converter;
 
 import com.ctrip.infosec.flowtable4j.dal.CheckRiskDAO;
 import com.ctrip.infosec.flowtable4j.dal.ESBClient;
-import com.ctrip.infosec.flowtable4j.dal.RedisProvider;
+import com.ctrip.infosec.flowtable4j.model.MapX;
 import com.ctrip.infosec.flowtable4j.model.RequestBody;
 import com.ctrip.infosec.flowtable4j.model.persist.PO;
 import com.ctrip.infosec.flowtable4j.model.persist.PaymentInfo;
+import com.ctrip.infosec.flowtable4j.v2m.service.Save2DbService;
 import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +31,9 @@ public class ConverterBase {
     protected ESBClient esbClient;
 
     @Autowired
-    protected RedisProvider redisProvider;
+    protected Save2DbService dbService;
+
+
     /**
      * 根据字段映射从RequestBody取数据
      *
@@ -39,29 +42,24 @@ public class ConverterBase {
      * @param dbEntity    表名
      */
     protected void fillEntity(RequestBody requestBody, Map<String, Object> targetMap, String dbEntity) {
-        Map<String, String> dbMeta = new HashMap<String, String>();
-        //Fetch DbMeta by dbEntity
+        Map<String, String> dbMeta = dbService.getDbMeta(dbEntity);
+        Map<String,Object> root=requestBody.getEventBody();
         for (String field : dbMeta.keySet()) {
-            targetMap.put(field, requestBody.getString(field));
+           setValue(targetMap, field, getObject(root, field));
         }
     }
 
-    public String getValue(Map data, String key) {
-        Object obj = data.get(key);
-        return obj == null ? "" : String.valueOf(obj);
-    }
-
     /**
-     * 根据字段映射从RequestBody取数据
-     *
+     * 根据字段映射从RequestBody取数据     *
      * @param requestBody 请求报文
      * @param targetMap   目标Map
-     * @param fieldMap    entity的字段，对应eventBody的路径，用A.B分层级
+     * @param fieldMap    entity的字段
      */
     protected void fillEntity(RequestBody requestBody, Map<String, Object> targetMap, Map<String, String> fieldMap) {
         //有字段映射
+        Map<String,Object> root = requestBody.getEventBody();
         for (String field : fieldMap.keySet()) {
-            targetMap.put(field, requestBody.getString(fieldMap.get(field).split("[.]")));
+           setValue(targetMap, field, getObject(root,fieldMap.get(field)));
         }
     }
 
@@ -73,10 +71,10 @@ public class ConverterBase {
      * @param dbEntity  数据表，读目的数据
      */
     protected void fillEntity(Map<String, Object> srcMap, Map<String, Object> targetMap, String dbEntity) {
-        Map<String, String> dbMeta = new HashMap<String, String>();
+        Map<String, String> dbMeta = dbService.getDbMeta(dbEntity);
         //Fetch DbMeta by dbEntity
         for (String field : dbMeta.keySet()) {
-            targetMap.put(field, srcMap.get(field));
+            setValue(targetMap, field, getObject(srcMap, field));
         }
     }
 
@@ -89,15 +87,58 @@ public class ConverterBase {
     protected void fillEntity(Map<String, Object> srcMap, Map<String, Object> targetMap, Map<String, String> fieldMap) {
         //有字段映射
         for (String field : fieldMap.keySet()) {
-            targetMap.put(field, srcMap.get(fieldMap.get(field)));
+            setValue(targetMap, field, getObject(srcMap, fieldMap.get(field)));
         }
+    }
+
+    /**
+     * 获取主要支付方式
+     * @param paymentInfos
+     * @return
+     */
+    public String getPrepayType(Map<String,Object> paymentInfos){
+         List<Map<String,Object>> paymentInfoList = (List<Map<String,Object>>) MapX.getList(paymentInfos,"paymentInfoList");
+         String prePay="";
+         if(paymentInfoList!=null){
+             for(Map<String,Object> p:paymentInfoList){
+                 prePay = getString(p,"PrepayType").toUpperCase();
+                 if(prePay.equals("CCARD")||prePay.equals("DCARD")){
+                     break;
+                 }
+             }
+         }
+        return prePay;
+    }
+
+    public String getString(Map<String,Object> data, String key) {
+        return MapX.getString(data,key);
+    }
+
+    public String getString(Map<String,Object> data, String[] key) {
+        return MapX.getString(data,key);
+    }
+
+    public Object getObject(Map<String,Object> data, String key) {
+        return MapX.getObject(data, key);
+    }
+
+    public Object getObject(Map<String,Object> data, String[] key) {
+        return MapX.getObject(data, key);
+    }
+
+    public boolean setValue(Map<String,Object> target,String key,Object value){
+        return MapX.setValue(target,key,value);
+    }
+
+    public boolean setValue(Map<String,Object> target,String[] key,Object value){
+        return MapX.setValue(target,key,value);
     }
 
     /**
      * 检查 MobilePhone、UserIP的合法性
      */
-    protected void validateMobilePhoneUserIP(RequestBody requestBody) {
-        String mobile = requestBody.getString("MobilePhone");
+    protected void validateData(RequestBody requestBody) {
+        String mobile = getString(requestBody.getEventBody(), "MobilePhone");
         if (!Strings.isNullOrEmpty(mobile)) {
             while (mobile.startsWith("0")) {
                 mobile = mobile.substring(1);
@@ -107,25 +148,25 @@ public class ConverterBase {
                 mobile = "";
             }
         }
-        requestBody.getEventBody().put("MobilePhone", mobile);
+        setValue(requestBody.getEventBody(), "MobilePhone", mobile);
 
-        String userIp = requestBody.getString("UserIP");
+        String userIp = getString(requestBody.getEventBody(), "UserIP");
         //去掉非法IP
         if (!Strings.isNullOrEmpty(userIp)) {
             if (userIp.startsWith("10.168.26.11") || userIp.startsWith("10.168.154.11") || userIp.startsWith("69.28.59.7")) {
                 userIp = "";
             }
         }
-        requestBody.getEventBody().put("UserIP", userIp);
+        setValue(requestBody.getEventBody(), "UserIP", userIp);
 
-        String email = requestBody.getString("ContactEMail");
+        String email = getString(requestBody.getEventBody(), "ContactEMail");
         //非法Email
         if (!Strings.isNullOrEmpty(email)) {
             if (email.equals("noemail@ctrip.com") || email.equals("10.168.154.11") || email.equals("69.28.59.7")) {
                 email = "";
             }
         }
-        requestBody.getEventBody().put("ContactEMail", email);
+        setValue(requestBody.getEventBody(), "ContactEMail", email);
     }
 
     private String ipConvertToStr(long Ip) {
@@ -151,67 +192,70 @@ public class ConverterBase {
         return n_Ip;
     }
 
-    public void fillDIDInfo(PO po, String orderId, String orderType) {
-        po.deviceId = new HashMap<String, Object>();
-        Map DIDInfo = checkRiskDAO.getDIDInfo(orderId, orderType);
+    /**
+     * 填充DID信息
+     * @param root
+     * @param orderId
+     * @param orderType
+     */
+    protected void fillDIDInfo(Map<String,Object> root, String orderId, String orderType) {
+        Map<String,Object> deviceId = new HashMap<String, Object>();
+        Map<String,Object> DIDInfo = checkRiskDAO.getDIDInfo(orderId, orderType);
         if (DIDInfo != null && DIDInfo.size() > 0) {
-            po.deviceId.put("DID", DIDInfo.get("Did"));
+            setValue(deviceId,"DID",getString(DIDInfo,"Did"));
         }
+        setValue(root,"deviceId",deviceId);
     }
 
 
     /**
-     * 填充 订单信息
-     *
+     * 填充 支付信息
      * @param requestBody
-     * @param po
+     * @param root
      */
-    public void fillPaymentInfo(RequestBody requestBody, PO po) {
-        po.paymentInfoList = new ArrayList<PaymentInfo>();
-        List<Map<String, Object>> paymentInfos = (List<Map<String, Object>>) requestBody.getList("PaymentInfos");
-        if (paymentInfos == null || paymentInfos.size() == 0) {
+    public void fillPaymentInfo(RequestBody requestBody, Map<String,Object> root) {
+        List<Map<String, Object>> paymentInfoList  = new ArrayList<Map<String, Object>>();
+        List<Map<String, Object>> paymentInfoListSrc = (List<Map<String, Object>>) MapX.getList(requestBody.getEventBody(),"PaymentInfos");
+        if (paymentInfoListSrc == null || paymentInfoListSrc.size() == 0) {
             return;
         }
-        for (Map paymentEntity : paymentInfos) {
-            PaymentInfo paymentInfo = new PaymentInfo();
+        for (Map<String, Object> paymentSrc : paymentInfoListSrc) {
+            Map<String, Object> paymentInfo = new HashMap<String, Object>();
             Map<String, Object> payment = new HashMap<String, Object>();
-            String prepayType = getValue(paymentEntity, "PrepayType");
-            payment.put("PrepayType", prepayType);
-            payment.put("Amount", getValue(paymentEntity, "Amount"));
-            payment.put("RefNo", getValue(paymentEntity, "RefNo"));
-
-            String cardInfoId = getValue(paymentEntity, "CardInfoID");
-            payment.put("CardInfoID", cardInfoId);
-
+            String prepayType = getString(paymentSrc, "PrepayType");
+            setValue(payment, "PrepayType", prepayType);
+            setValue(payment, "Amount", getObject(paymentSrc, "Amount"));
+            setValue(payment, "RefNo", getObject(paymentSrc, "RefNo"));
+            String cardInfoId = getString(paymentSrc, "CardInfoID");
+            setValue(payment, "CardInfoID", cardInfoId);
+            setValue(paymentInfo,"payment",payment);
             List<Map<String, Object>> cardInfoList = new ArrayList<Map<String, Object>>();
-
             Map<String, Object> cardInfo = new HashMap<String, Object>();
-
             if (prepayType.toUpperCase().equals("CCARD") || prepayType.toUpperCase().equals("DCARD")) {
-                cardInfo.put("CardInfoID", cardInfoId);
-                cardInfo.put("InfoID", 0);
+                setValue(cardInfo, "CardInfoID", cardInfoId);
+                setValue(cardInfo, "InfoID", 0);
                 if (!Strings.isNullOrEmpty(cardInfoId)) {
                     Map cardInfoResult = esbClient.getCardInfo(cardInfoId);//从esb取出相关数据
                     if (cardInfoResult != null && cardInfoResult.size() > 0) {
-                        String creditCardType = getValue(cardInfoResult, "CreditCardType");
-                        String cardBin = getValue(cardInfoResult, "CardBin");
-                        cardInfo.put("BillingAddress", getValue(cardInfoResult, "BillingAddress"));
-                        cardInfo.put("CardBin", cardBin);
-                        cardInfo.put("CardHolder", getValue(cardInfoResult, "CardHolder"));
-                        cardInfo.put("CCardLastNoCode", getValue(cardInfoResult, "CardRiskNoLastCode"));
-                        cardInfo.put("CCardNoCode", getValue(cardInfoResult, "CCardNoCode"));
-                        cardInfo.put("CardNoRefID", getValue(cardInfoResult, "CardNoRefID"));
-                        cardInfo.put("CCardPreNoCode", getValue(cardInfoResult, "CardRiskNoPreCode"));
-                        cardInfo.put("CreditCardType", creditCardType);
-                        cardInfo.put("CValidityCode", getValue(cardInfoResult, "CValidityCode"));
-                        cardInfo.put("IsForigenCard", getValue(cardInfoResult, "IsForeignCard"));
-                        cardInfo.put("Nationality", getValue(cardInfoResult, "Nationality"));
-                        cardInfo.put("Nationalityofisuue", getValue(cardInfoResult, "Nationalityofisuue"));
-                        cardInfo.put("BankOfCardIssue", getValue(cardInfoResult, "BankOfCardIssue"));
-                        cardInfo.put("StateName", getValue(cardInfoResult, "StateName"));
-                        cardInfo.put("CardNoRefID", getValue(cardInfoResult, "CardNoRefID"));
+                        String creditCardType = getString(cardInfoResult, "CreditCardType");
+                        String cardBin = getString(cardInfoResult, "CardBin");
+                        setValue(cardInfo, "BillingAddress", getString(cardInfoResult, "BillingAddress"));
+                        setValue(cardInfo, "CardBin", cardBin);
+                        setValue(cardInfo, "CardHolder", getString(cardInfoResult, "CardHolder"));
+                        setValue(cardInfo, "CCardLastNoCode", getString(cardInfoResult, "CardRiskNoLastCode"));
+                        setValue(cardInfo, "CCardNoCode", getString(cardInfoResult, "CCardNoCode"));
+                        setValue(cardInfo, "CardNoRefID", getString(cardInfoResult, "CardNoRefID"));
+                        setValue(cardInfo, "CCardPreNoCode", getString(cardInfoResult, "CardRiskNoPreCode"));
+                        setValue(cardInfo, "CreditCardType", creditCardType);
+                        setValue(cardInfo, "CValidityCode", getString(cardInfoResult, "CValidityCode"));
+                        setValue(cardInfo, "IsForigenCard", getString(cardInfoResult, "IsForeignCard"));
+                        setValue(cardInfo, "Nationality", getString(cardInfoResult, "Nationality"));
+                        setValue(cardInfo, "Nationalityofisuue", getString(cardInfoResult, "Nationalityofisuue"));
+                        setValue(cardInfo, "BankOfCardIssue", getString(cardInfoResult, "BankOfCardIssue"));
+                        setValue(cardInfo, "StateName", getString(cardInfoResult, "StateName"));
+                        setValue(cardInfo, "CardNoRefID", getString(cardInfoResult, "CardNoRefID"));
                         //取出branchCity 和 branchProvince
-                        String creditCardNumber = getValue(cardInfoResult, "CreditCardNumber");
+                        String creditCardNumber = getString(cardInfoResult, "CreditCardNumber");
                         if (creditCardType.equals("3") && !Strings.isNullOrEmpty(creditCardNumber))//这里只针对类型为3的卡进行处理
                         {
                             String decryptText = null;
@@ -225,70 +269,84 @@ public class ConverterBase {
                                 if (!branchNo.isEmpty()) {
                                     Map cardBankInfo = checkRiskDAO.getCardBankInfo(creditCardType, branchNo);
                                     if (cardBankInfo != null) {
-                                        cardInfo.put("BranchCity", getValue(cardBankInfo, "BranchCity"));
-                                        cardInfo.put("BranchProvince", getValue(cardBankInfo, "BranchProvince"));
+                                        setValue(cardInfo, "BranchCity", getString(cardBankInfo, "BranchCity"));
+                                        setValue(cardInfo, "BranchProvince", getString(cardBankInfo, "BranchProvince"));
                                     }
                                 }
                             }
                             Map subCardInfo = checkRiskDAO.getForeignCardInfo(creditCardType, cardBin);
                             if (subCardInfo != null && subCardInfo.size() > 0) {
-                                cardInfo.put("CardBinIssue", getValue(subCardInfo, "Nationality"));
-                                cardInfo.put("CardBinBankOfCardIssue", getValue(subCardInfo, "BankOfCardIssue"));
+                                setValue(cardInfo, "CardBinIssue", getString(subCardInfo, "Nationality"));
+                                setValue(cardInfo, "CardBinBankOfCardIssue", getString(subCardInfo, "BankOfCardIssue"));
                             }
                         }
                     }
                 }
                 cardInfoList.add(cardInfo);
             }
-            paymentInfo.setPayment(payment);
-            paymentInfo.setCardInfoList(cardInfoList);
-            po.paymentInfoList.add(paymentInfo);
+            setValue(paymentInfo,"cardInfoList",cardInfoList);
+            paymentInfoList.add(paymentInfo);
         }
+        setValue(root,"paymentInfoList",paymentInfoList);
     }
 
 
-    //通过uid补充用户信息
-    protected String fillUserInfo(RequestBody requestBody, PO po, String uid) {
+    /**
+     * 填充用户信息
+     * @param requestBody
+     * @param root
+     * @param uid
+     * @return
+     */
+    protected String fillUserInfo(RequestBody requestBody, Map<String,Object> root, String uid) {
         String signupDate="";
-        po.userInfo = new HashMap<String, Object>();
-        po.userInfo.put("Uid", uid);
-        po.userInfo.put("CusCharacter", "NEW");
+        Map<String,Object> userInfo = new HashMap<String, Object>();
+        setValue(userInfo, "Uid", uid);
+        setValue(userInfo, "CusCharacter", "NEW");
         try {
-            Map crmInfo = esbClient.getMemberInfo(uid);
+            Map<String,Object> crmInfo = esbClient.getMemberInfo(uid);
             if (crmInfo != null) {
-                po.userInfo.put("RelatedEMail", getValue(crmInfo, "Email"));
-                po.userInfo.put("RelatedMobilephone", getValue(crmInfo, "MobilePhone"));
-                po.userInfo.put("BindedEmail", getValue(crmInfo, "BindedEmail"));
-                po.userInfo.put("BindedMobilePhone", getValue(crmInfo, "BindedMobilePhone"));
-                String experience = getValue(crmInfo, "Experience");
+                setValue(userInfo, "RelatedEMail", getString(crmInfo, "Email"));
+                setValue(userInfo, "RelatedMobilephone", getString(crmInfo, "MobilePhone"));
+                setValue(userInfo, "BindedEmail", getString(crmInfo, "BindedEmail"));
+                setValue(userInfo, "BindedMobilePhone", getString(crmInfo, "BindedMobilePhone"));
+                String experience = getString(crmInfo, "Experience");
                 if (experience.isEmpty()) {
                     experience = "0";
                 }
-                po.userInfo.put("Experience", experience);
-                signupDate = getValue(crmInfo, "Signupdate");
-                po.userInfo.put("SignUpDate",signupDate);
-
-                po.userInfo.put("UserPassword", getValue(crmInfo, "MD5Password"));
-                po.userInfo.put("VipGrade", getValue(crmInfo, "VipGrade"));
-                if (!"T".equals(getValue(crmInfo, "Vip"))) {
+                setValue(userInfo, "Experience", experience);
+                signupDate = getString(crmInfo, "Signupdate");
+                setValue(userInfo, "SignUpDate", signupDate);
+                setValue(userInfo, "UserPassword", getString(crmInfo, "MD5Password"));
+                setValue(userInfo, "VipGrade", getString(crmInfo, "VipGrade"));
+                if (!"T".equals(getString(crmInfo, "Vip"))) {
                     Map customer = esbClient.getCustomerInfo(uid);
-                    if (customer != null && "1900-01-01".compareTo(getValue(customer, "CustomerDate")) > 0) {
-                        po.userInfo.put("CusCharacter", "REPEAT");
+                    if (customer != null && "1900-01-01".compareTo(getString(customer, "CustomerDate")) < 0) {
+                        setValue(userInfo, "CusCharacter", "REPEAT");
                     }
                 } else {
-                    po.userInfo.put("CusCharacter", "VIP");
+                    setValue(userInfo, "CusCharacter", "VIP");
                 }
             }
         } catch (Exception e) {
             logger.warn("查询用户" + uid + "的userInfo的信息异常" + e.getMessage());
         }
+        setValue(root,"userInfo",userInfo);
         return signupDate;
     }
 
-    public void fillOtherInfo(PO po, String orderDate, String signupDate,String takeOffTime) {
-        po.otherInfo = new HashMap<String, Object>();
-        po.otherInfo.put("OrderToSignUpDate",dateDiffHour(orderDate,signupDate));
-        po.otherInfo.put("TakeOffToOrderDate",dateDiffHour(takeOffTime,orderDate));
+    /**
+     * 填充OtherInfo
+     * @param root
+     * @param orderDate
+     * @param signupDate
+     * @param takeOffTime
+     */
+    protected void fillOtherInfo(Map<String,Object> root,String orderDate, String signupDate,String takeOffTime) {
+        Map<String,Object> otherInfo = new HashMap<String, Object>();
+        setValue(otherInfo,"OrderToSignUpDate", dateDiffHour(orderDate, signupDate));
+        setValue(otherInfo,"TakeOffToOrderDate", dateDiffHour(takeOffTime, orderDate));
+        setValue(root,"otherInfo",otherInfo);
     }
 
     private String dateDiffHour(String startDate,String endDate) {
@@ -305,25 +363,38 @@ public class ConverterBase {
         }
     }
 
-    protected void fillContactInfo(RequestBody requestBody, PO po) {
-        po.contactInfo = new HashMap<String, Object>();
-        fillEntity(requestBody, po.contactInfo, "InfoSecurity_ContactInfo");
-        Map city = checkRiskDAO.getMobileCityAndProv(requestBody.getString("MobilePhone"));
+    /**
+     * 填充联系信息
+     * @param requestBody
+     * @param root
+     */
+    protected void fillContactInfo(RequestBody requestBody, Map<String,Object> root) {
+        Map<String,Object> contactInfo = new HashMap<String, Object>();
+        fillEntity(requestBody,contactInfo, "InfoSecurity_ContactInfo");
+        Map<String,Object> city = checkRiskDAO.getMobileCityAndProv(getString(requestBody.getEventBody(), "MobilePhone"));
         if (city != null) {
-            po.contactInfo.put("MobilePhoneCity", city.get("CityName"));
-            po.contactInfo.put("MobilePhoneProvince", city.get("ProvinceName"));
+            setValue(contactInfo, "MobilePhoneCity", getString(city, "CityName"));
+            setValue(contactInfo, "MobilePhoneProvince", getString(city, "ProvinceName"));
         }
+        setValue(root,"contactInfo",contactInfo);
     }
 
-    protected void fillIPInfo(Map<String, Object> ipInfo, String userIP) {
-        ipInfo.put("UserIPAdd", userIP);
+    /**
+     * 填充IP相关信息
+     * @param root
+     * @param userIP
+     */
+    protected void fillIPInfo(Map<String, Object> root, String userIP) {
+        Map<String,Object> ipInfo = new HashMap<String, Object>();
+        setValue(ipInfo, "UserIPAdd", userIP);
         long ipValue = ipConvertToValue(userIP);
-        ipInfo.put("UserIPValue", ipValue);
-        Map ip = checkRiskDAO.getIpCountryCity(ipValue);
+        setValue(ipInfo, "UserIPValue", ipValue);
+        Map<String,Object> ip = checkRiskDAO.getIpCountryCity(ipValue);
         if (ip != null) {
-            ipInfo.put("Continent", ip.get("ContinentID"));
-            ipInfo.put("IPCity", ip.get("CityId"));
-            ipInfo.put("IPCountry", ip.get("NationCode"));
+            setValue(ipInfo, "Continent", getObject(ip, "ContinentID"));
+            setValue(ipInfo, "IPCity", getObject(ip, "CityId"));
+            setValue(ipInfo, "IPCountry", getObject(ip, "NationCode"));
         }
+        setValue(root,"ipInfo",ipInfo);
     }
 }

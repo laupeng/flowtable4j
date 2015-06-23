@@ -11,7 +11,7 @@ import java.util.Map;
  * 黑白名单校验实体
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class FlowFact extends BaseFact {
+public class FlowFact {
 
     /**
      * 订单类型
@@ -72,9 +72,13 @@ public class FlowFact extends BaseFact {
         this.reqId = reqId;
     }
 
-    @Override
-    protected Map<String, Object> getRootMap() {
-        return content;
+    public String getString(String key){
+        return MapX.getString(content,key);
     }
+
+    public List getList(String prefix){
+        return MapX.getList(content,prefix);
+    }
+
 }
 

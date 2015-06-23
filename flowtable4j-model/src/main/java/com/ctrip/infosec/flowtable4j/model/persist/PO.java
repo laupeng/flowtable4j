@@ -1,5 +1,7 @@
 package com.ctrip.infosec.flowtable4j.model.persist;
 
+import com.ctrip.infosec.flowtable4j.model.MapX;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -8,7 +10,16 @@ import java.util.Map;
 /**
  * Created by thyang on 2015-06-05.
  */
-public class PO {
+public class PO extends MapX {
+
+    private Map<String,Object> productInfo;
+    private Map<String,Object> paymentInfo;
+
+    private String prepayType;
+    private String orderId;
+    private String orderType;
+    private String checkType;
+
     private static Map<String, String> prop2Table = new HashMap<String, String>();
 
     public static Map<String, String> getProp2Table() {
@@ -477,5 +488,53 @@ public class PO {
 
     //Y
     public Map<String, Object> yongChe;
+
+    public Map<String, Object> getProductInfo() {
+        return productInfo;
+    }
+
+    public void setProductInfo(Map<String, Object> productInfo) {
+        this.productInfo = productInfo;
+    }
+
+    public Map<String, Object> getPaymentInfo() {
+        return paymentInfo;
+    }
+
+    public void setPaymentInfo(Map<String, Object> paymentInfo) {
+        this.paymentInfo = paymentInfo;
+    }
+
+    public String getPrepayType() {
+        return prepayType;
+    }
+
+    public void setPrepayType(String prepayType) {
+        this.prepayType = prepayType;
+    }
+
+    public String getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(String orderId) {
+        this.orderId = orderId;
+    }
+
+    public String getOrderType() {
+        return orderType;
+    }
+
+    public void setOrderType(String orderType) {
+        this.orderType = orderType;
+    }
+
+    public String getCheckType() {
+        return checkType;
+    }
+
+    public void setCheckType(String checkType) {
+        this.checkType = checkType;
+    }
 }
 

@@ -37,7 +37,11 @@
               <property name="dataSource" ref="cusRATDBDataSource"/>
        </bean>
 
-       <bean id="riskCtrlPreProcDBNamedTemplate" class="org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate">
+       <bean id="flowDbNamedTemplate" class="org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate">
+              <constructor-arg type="javax.sql.DataSource" ref="riskCtrlPreProcDBDataSource"/>
+       </bean>
+
+       <bean id="cardDbNamedTemplate" class="org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate">
               <constructor-arg type="javax.sql.DataSource" ref="riskCtrlPreProcDBDataSource"/>
        </bean>
 

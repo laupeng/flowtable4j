@@ -25,7 +25,7 @@ import java.util.Set;
 public class Counter {
 
     @Autowired
-    @Qualifier("riskCtrlPreProcDBNamedTemplate")
+    @Qualifier("flowDbNamedTemplate")
     private  NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     private static Logger logger = LoggerFactory.getLogger(Counter.class);
