@@ -90,4 +90,34 @@ public class CardRiskService {
             });
         }
     }
+
+    //通用的save方法
+    public long saveImpl(final Map<String, Object> toSave, final Map<String,String> tableInfo, final String tableName) {
+//        final Map<String,String> tableInfo = tableInfoService.getTableInfo(tableName);
+        return cardRiskDBTemplate.<Long>execute(new CallableStatementCreator() {
+            @Override
+            public CallableStatement createCallableStatement(Connection connection) throws SQLException {
+                String storedProc = "{call spA_%s_i (%s)}";
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < tableInfo.keySet().size(); i++) {
+                    sb.append("?,");
+                }
+                sb.append("?,");
+                String.format(storedProc, tableName, sb.toString());
+                CallableStatement callableStatement = connection.prepareCall(storedProc);
+                callableStatement.registerOutParameter(1, Types.BIGINT);
+                for (String k : tableInfo.keySet()) {
+                    Object v = toSave.get(k);
+                    callableStatement.setObject(k,v);
+                }
+                return callableStatement;
+            }
+        }, new CallableStatementCallback<Long>() {
+            @Override
+            public Long doInCallableStatement(CallableStatement callableStatement) throws SQLException, DataAccessException {
+                callableStatement.execute();
+                return callableStatement.getLong(1);
+            }
+        });
+    }
 }

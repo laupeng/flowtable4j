@@ -21,6 +21,10 @@
       <groupId>com.ctrip.infosec.flowtable4j</groupId>
       <artifactId>flowtable4j-dal</artifactId>
     </dependency>
+    <dependency>
+      <groupId>com.ctrip.infosec.flowtable4j</groupId>
+      <artifactId>flowtable4j-jobws</artifactId>
+    </dependency>
     <!-- Data Config Server -->
     <dependency>
       <groupId>com.ctrip.infosec.antifraud</groupId>
