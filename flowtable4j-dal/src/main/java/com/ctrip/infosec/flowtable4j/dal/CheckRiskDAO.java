@@ -2,6 +2,7 @@ package com.ctrip.infosec.flowtable4j.dal;
 
 import com.ctrip.infosec.sars.util.mapper.JsonMapper;
 import com.google.common.base.Strings;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -157,8 +158,10 @@ public class CheckRiskDAO {
         try {
             if (!Strings.isNullOrEmpty(mobilePhone) && mobilePhone.length() > 6) {
                 mobilePhone = mobilePhone.substring(0, 7);
-                String sql = "SELECT TOP 1 provincename,cityname  FROM BaseData_MobilePhoneInfo WITH(NOLOCK) WHERE MobileNumber=? ";
-                return cardRiskDb.queryForMap(sql, new Object[]{mobilePhone}, new int[]{Types.BIGINT});
+                if(StringUtils.isNumeric(mobilePhone)) {
+                    String sql = "SELECT TOP 1 provincename,cityname  FROM BaseData_MobilePhoneInfo WITH(NOLOCK) WHERE MobileNumber=? ";
+                    return cardRiskDb.queryForMap(sql, new Object[]{mobilePhone}, new int[]{Types.BIGINT});
+                }
             }
         } catch (Exception exp) {
             logger.warn("从sql查询手机号对应的城市信息异常", exp);

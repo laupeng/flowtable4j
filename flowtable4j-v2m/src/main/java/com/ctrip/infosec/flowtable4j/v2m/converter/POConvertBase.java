@@ -74,11 +74,12 @@ public class POConvertBase  extends ConverterBase {
      * @param requestBody
      * @param root
      */
-    public void fillPaymentInfo(RequestBody requestBody, Map<String,Object> root) {
+    public String fillPaymentInfo(RequestBody requestBody, Map<String,Object> root) {
+        String totalPreyType="";
         List<Map<String, Object>> paymentInfoList  = new ArrayList<Map<String, Object>>();
         List<Map<String, Object>> paymentInfoListSrc = (List<Map<String, Object>>) MapX.getList(requestBody.getEventBody(), "paymentinfos");
         if (paymentInfoListSrc == null || paymentInfoListSrc.size() == 0) {
-            return;
+            return "";
         }
         for (Map<String, Object> paymentSrc : paymentInfoListSrc) {
             Map<String, Object> paymentInfo = new HashMap<String, Object>();
@@ -90,6 +91,7 @@ public class POConvertBase  extends ConverterBase {
             String cardInfoId = getString(paymentSrc, "cardinfoid");
             setValue(payment, "cardinfoid", cardInfoId);
             setValue(paymentInfo,"payment",payment);
+            totalPreyType =  ("CCARD".equals(totalPreyType)||("DCARD").equals(totalPreyType))? totalPreyType:prepayType;
             List<Map<String, Object>> cardInfoList = new ArrayList<Map<String, Object>>();
             Map<String, Object> cardInfo = new HashMap<String, Object>();
             if (prepayType.toUpperCase().equals("CCARD") || prepayType.toUpperCase().equals("DCARD")) {
@@ -149,6 +151,7 @@ public class POConvertBase  extends ConverterBase {
             paymentInfoList.add(paymentInfo);
         }
         setValue(root,"paymentinfolist",paymentInfoList);
+        return totalPreyType;
     }
 
 
@@ -218,7 +221,7 @@ public class POConvertBase  extends ConverterBase {
     protected void fillContactInfo(RequestBody requestBody, Map<String,Object> root) {
         Map<String,Object> contactInfo = new HashMap<String, Object>();
         copyMap(requestBody.getEventBody(),contactInfo,"infosecurity_contactinfo");
-        Map<String,Object> city = checkRiskDAO.getMobileCityAndProv(getString(requestBody.getEventBody(), "mobilephone"));
+        Map<String,Object> city = checkRiskDAO.getMobileCityAndProv(getString(contactInfo,"mobilephone"));
         if (city != null) {
             setValue(contactInfo, "mobilephonecity", getString(city, "cityname"));
             setValue(contactInfo, "mobilephoneprovince", getString(city, "provincename"));

@@ -23,9 +23,10 @@ public class POConverter extends POConvertBase {
         String orderType = getString(eventBody, "ordertype");
         String merchantOrderId = getString(eventBody, "merchantorderid");
         String checkType = getString(eventBody, "checktype");
+        po.setPrepaytype(getString(eventBody, "orderprepaytype"));
 
         if (Strings.isNullOrEmpty(orderId) || "0".equals(orderId)) {
-            return null;
+            throw new RuntimeException("ORDERID IS ZERO");
         }
         Map<String, Object> paymentInfo = null;
         Map<String, Object> productInfo = null;
@@ -48,8 +49,8 @@ public class POConverter extends POConvertBase {
         if (tmpPay != null) {
             paymentInfo = mapper.fromJson(getString(tmpPay, "content"), HashMap.class);
             po.setPaymentinfo(paymentInfo);
-            if (Strings.isNullOrEmpty(getString(eventBody, "orderprepaytype"))) {
-                setValue(eventBody, "orderprepaytype", getString(tmpPay, "prepaytype"));
+            if (Strings.isNullOrEmpty(po.getPrepaytype())) {
+                po.setPrepaytype(getString(tmpPay, "prepaytype"));
             }
         } else {
             paymentInfo = new HashMap<String, Object>();
@@ -71,7 +72,7 @@ public class POConverter extends POConvertBase {
             Map<String, Object> mainInfo = new HashMap<String, Object>();
             copyMap(requestBody.getEventBody(), mainInfo, "infosecurity_maininfo");
             setValue(mainInfo, "lastcheck", "T");
-            setValue(mainInfo, "ordertype", 14);
+            setValue(mainInfo, "ordertype", orderType);
             setValue(mainInfo, "corporationid", "");
             setValue(mainInfo, "amount", getObject(eventBody, "orderamount"));
             setValue(productInfo, "maininfo", mainInfo);
@@ -102,7 +103,10 @@ public class POConverter extends POConvertBase {
             copyMap(requestBody.getEventBody(), paymentMainInfo, "infosecurity_paymentmaininfo");
             setValue(paymentInfo, "paymentmaininfo", paymentMainInfo);
 
-            fillPaymentInfo(requestBody, paymentInfo);
+            String prepayType = fillPaymentInfo(requestBody, paymentInfo);
+            if (Strings.isNullOrEmpty(po.getPrepaytype())) {
+                po.setPrepaytype(prepayType);
+            }
             checkRiskDAO.saveLastPaymentInfo(orderId, orderType, merchantOrderId, "", paymentInfo);
         }
 
