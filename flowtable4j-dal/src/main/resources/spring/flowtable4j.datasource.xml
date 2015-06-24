@@ -42,7 +42,7 @@
        </bean>
 
        <bean id="cardDbNamedTemplate" class="org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate">
-              <constructor-arg type="javax.sql.DataSource" ref="riskCtrlPreProcDBDataSource"/>
+              <constructor-arg type="javax.sql.DataSource" ref="cardRiskDBDataSource"/>
        </bean>
 
 </beans>

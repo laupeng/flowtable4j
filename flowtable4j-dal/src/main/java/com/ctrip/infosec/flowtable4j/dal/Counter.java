@@ -44,13 +44,10 @@ public class Counter {
         SqlParameterValue value0 = new SqlParameterValue(Types.VARCHAR, whereFieldValue);
         SqlParameterValue value1 = new SqlParameterValue(Types.TIMESTAMP, start);
         SqlParameterValue value2 = new SqlParameterValue(Types.TIMESTAMP, limit);
-//        params.addValue(whereField,whereFieldValue,Types.VARCHAR);
-//        params.addValue("STARTTIMELIMIT", start, Types.TIMESTAMP);
-//        params.addValue("TIMELIMIT", limit, Types.TIMESTAMP);
 
         params.addValue(whereField, value0);
-        params.addValue("STARTTIMELIMIT", value1);
-        params.addValue("TIMELIMIT", value2);
+        params.addValue("starttimelimit", value1);
+        params.addValue("timelimit", value2);
         List<Map<String, Object>> results = namedParameterJdbcTemplate.queryForList(sqlStatement, params);
 
         if ("SUM".equals(countType)) {

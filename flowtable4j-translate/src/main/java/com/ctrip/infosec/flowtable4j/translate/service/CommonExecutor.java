@@ -774,6 +774,7 @@ public class CommonExecutor
                 Date orderDate = DateUtils.parseDate(orderDateStr,"yyyy-MM-dd HH:mm:ss","yyyy-MM-dd HH:mm:ss.sss");//format.parse(orderDateStr);
                 SimpleDateFormat format2 = new SimpleDateFormat("yyyyMMdd");
                 String mergerOrderDate = format2.format(orderDate);
+
                 flowData.put(Common.MergerOrderDate,mergerOrderDate);
                 int hours = orderDate.getHours();//fixme 这个方法回头改下
                 flowData.put(Common.OrderDateHour,hours);

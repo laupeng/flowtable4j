@@ -83,7 +83,7 @@ public class ESBClient {
             Iterator iterator = creditCard.elements().iterator();
             while (iterator.hasNext()) {
                 Element element = (Element) iterator.next();
-                resultMap.put(element.getName(), element.getStringValue());
+                resultMap.put(element.getName().toLowerCase(), element.getStringValue());
             }
         }
         return resultMap;

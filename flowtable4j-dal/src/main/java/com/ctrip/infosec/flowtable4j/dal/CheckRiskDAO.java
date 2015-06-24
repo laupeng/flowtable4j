@@ -1,15 +1,20 @@
 package com.ctrip.infosec.flowtable4j.dal;
 
-import com.ctrip.infosec.flowtable4j.model.MapX;
-import com.ctrip.infosec.flowtable4j.model.persist.PO;
+import com.ctrip.infosec.sars.util.mapper.JsonMapper;
 import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.PreparedStatementCallback;
+import org.springframework.jdbc.core.SqlParameterValue;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Component;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.sql.Types;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -21,6 +26,10 @@ import java.util.Map;
 public class CheckRiskDAO {
 
     private static Logger logger = LoggerFactory.getLogger(CheckRiskDAO.class);
+
+    protected static JsonMapper mapper = new JsonMapper();
+
+    private static Map<String, String> originalRiskLevel = new HashMap<String, String>();
 
     @Autowired
     CardRiskService cardRiskDb;
@@ -34,93 +43,55 @@ public class CheckRiskDAO {
     @Autowired
     ESBClient esbClient;
 
-    /**
-     * 获取InfoSecurity_AppInfo
-     *
-     * @param reqId long
-     * @return
-     */
-    public Map<String,Object> getAppInfo(String reqId) {
-        return getRecordByKey("InfoSecurity_AppInfo","ReqID",reqId,new int[]{Types.BIGINT});
+    @Autowired
+    Counter counter;
+
+    public String getTableName(String keyField, Integer orderType) {
+        return originalRiskLevel.get(String.format("%s|%s", keyField, orderType).toUpperCase());
     }
+
+    public String getOriginRiskLevelCount(Map<String, String> kv, Integer orderType) {
+        Integer[] orderTypes = new Integer[]{0, orderType};
+        for (String k : kv.keySet()) {
+            String v = kv.get(k);
+            if (!Strings.isNullOrEmpty(v)) {
+                for (Integer orderTy : orderTypes) {
+                    String tableName = getTableName(k, orderType);
+                    String field = k.toLowerCase();
+                    if (!Strings.isNullOrEmpty(tableName)) {
+                        String sql = String.format("SELECT DISTINCT originalrisklevel FROM %s WITH(NOLOCK) WHERE %s=:%s AND originalrisklevel >=195 and CreateDate>=:starttimelimit and CreateDate<=:timelimit", tableName.toUpperCase(), field, field);
+                        String count = counter.getCounter("COUNT", sql, field, -720, 0, "", v);
+                        if (!count.equals("0")) {
+                            return "1";
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
 
     /**
      * 获取七天内均值消费金额
      *
-     * @param CCardNoCode char
+     * @param CCardNoCode    char
      * @param startTimeLimit char yyyy-MM-dd hh:mm:ss
-     * @param timeLimit char yyyy-MM-dd hh:mm:ss
+     * @param timeLimit      char yyyy-MM-dd hh:mm:ss
      * @return
      */
     public Double getAvgAmount7(String CCardNoCode, String startTimeLimit, String timeLimit) {
         try {
-            String sql = "SELECT avg(Amount) AS AMT FROM CTRIP_FLT_CCardNoCode_Amount WITH(NOLOCK) " +
+            String sql = "SELECT avg(Amount) AS amt FROM CTRIP_FLT_CCardNoCode_Amount WITH(NOLOCK) " +
                     "WHERE CCardNoCode=? and CreateDate>=? and CreateDate<=?";
             Map avgAmount = flowDb.queryForMap(sql, new Object[]{CCardNoCode, startTimeLimit, timeLimit}, new int[]{Types.VARCHAR, Types.TIMESTAMP, Types.TIMESTAMP});
             if (avgAmount != null) {
-                return Double.parseDouble(avgAmount.get("AMT").toString());
+                return Double.parseDouble(avgAmount.get("amt").toString());
             }
         } catch (Exception exp) {
-            logger.warn("查询CTRIP_FLT_CCardNoCode_Amount信息异常",exp);
+            logger.warn("查询CTRIP_FLT_CCardNoCode_Amount信息异常", exp);
         }
         return 0d;
-    }
-
-    private Map<String,Object> getRecordByKey(String tableName, String keyFieldName, String keyValue, int[] argType) {
-        try {
-            return cardRiskDb.queryForMap(String.format("SELECT * FROM %s WITH(NOLOCK) WHERE %s = ?", tableName), new Object[]{keyValue}, argType);
-        } catch (Exception exp) {
-            logger.warn(String.format("查询%s信息异常:", tableName), exp);
-        }
-        return null;
-    }
-
-    private Map<String,Object> getTop1RecordByKey(String tableName, String keyFieldName, String keyValue, int[] argType) {
-        try {
-            return cardRiskDb.queryForMap(String.format("SELECT TOP 1 * FROM %s WITH(NOLOCK) WHERE %s =?", tableName), new Object[]{keyValue}, argType);
-        } catch (Exception exp) {
-            logger.warn(String.format("查询%s信息异常:", tableName), exp);
-        }
-        return null;
-    }
-
-    private List<Map<String, Object>> getListByKey(String tableName, String keyFieldName, String keyValue, int[] argType) {
-        try {
-            return cardRiskDb.queryForList(String.format("SELECT * FROM %s WITH(NOLOCK) WHERE %s = ?", tableName), new Object[]{keyValue}, argType);
-        } catch (Exception exp) {
-            logger.warn(String.format("查询%s信息异常:", tableName), exp);
-        }
-        return null;
-    }
-
-    /**
-     * 获取机票订单信息 InfoSecurity_FlightsOrderInfo
-     *
-     * @param reqId
-     * @return
-     */
-    public Map<String,Object> getFlightsOrderInfo(String reqId) {
-        return getRecordByKey("InfoSecurity_FlightsOrderInfo", "ReqId", reqId, new int[]{Types.BIGINT});
-    }
-
-    /**
-     * 获取InfoSecurity_PassengerInfo
-     *
-     * @param flightsOrderId
-     * @return
-     */
-    public List<Map<String, Object>> getPassengerInfo(String flightsOrderId) {
-        return getListByKey("InfoSecurity_PassengerInfo", "FlightsOrderID", flightsOrderId, new int[]{Types.BIGINT});
-    }
-
-    /**
-     * 获取InfoSecurity_SegmentInfo
-     *
-     * @param flightsOrderId
-     * @return
-     */
-    public List<Map<String, Object>> getSegmentInfo(String flightsOrderId) {
-        return getListByKey("InfoSecurity_SegmentInfo", "FlightsOrderID", flightsOrderId, new int[]{Types.BIGINT});
     }
 
     /**
@@ -129,48 +100,50 @@ public class CheckRiskDAO {
      * @param city
      * @return
      */
-    public Map<String,Object> getCityNameProvince(String city) {
-        return getTop1RecordByKey("BaseData_City", "City", city, new int[]{Types.BIGINT});
-    }
-
-    /**
-     * 获取省份证归属省信息  BaseData_IDCardInfo
-     * @param iDCardNumber
-     * @return
-     */
-    public Map<String,Object> getIDCardProvince(String iDCardNumber) {
-      return getTop1RecordByKey("BaseData_IDCardInfo","IDCardNumber",iDCardNumber,new int[]{Types.VARCHAR});
-    }
-
-    /**
-     *
-     * @param uid char
-     * @param startTimeLimit char yyyy-MM-dd HH:mm:ss
-     * @param timeLimit char yyyy-MM-dd HH:mm:ss
-     * @return
-     */
-    public String getUidOrderDate(String uid, String startTimeLimit, String timeLimit) {
+    public Map<String, Object> getCityNameProvince(String city) {
         try {
-            String sql = "SELECT TOP 1 OrderDate FROM CTRIP_ALL_UID_OrderDate with (nolock) where " +
-                    "Uid = ? and CreateDate>=? and CreateDate<=?";
-            Map orderDate = flowDb.queryForMap(sql,new Object[]{uid, startTimeLimit, timeLimit},new int[]{Types.VARCHAR,Types.TIMESTAMP,Types.TIMESTAMP});
-            if(orderDate!=null){
-               return orderDate.get("OrderDate").toString();
-            }
+            String sql = "SELECT TOP 1 cityname,province,country,provincename,hotelprovince FROM BaseData_City WITH(NOLOCK) WHERE City=? ";
+            return cardRiskDb.queryForMap(sql, new Object[]{city}, new int[]{Types.BIGINT});
         } catch (Exception exp) {
-            logger.warn("查询CTRIP_ALL_UID_OrderDate异常" ,exp);
+            logger.warn("查询ip对应的城市信息异常:", exp);
         }
         return null;
     }
 
     /**
-     * 获取InfoSecurity_CorporationInfo
+     * 获取省份证归属省信息  BaseData_IDCardInfo
      *
-     * @param reqId long
+     * @param iDCardNumber
      * @return
      */
-    public Map<String,Object> getCorporationInfo(String reqId) {
-        return getTop1RecordByKey("InfoSecurity_CorporationInfo","ReqId",reqId,new int[]{Types.BIGINT});
+    public Map<String, Object> getIDCardProvince(String iDCardNumber) {
+        try {
+            String sql = "SELECT TOP 1 provincename,cityname FROM BaseData_IDCardInfo WITH(NOLOCK) WHERE IDCardNumber=? ";
+            return cardRiskDb.queryForMap(sql, new Object[]{iDCardNumber}, new int[]{Types.VARCHAR});
+        } catch (Exception exp) {
+            logger.warn("获取省份证归属省信息:", exp);
+        }
+        return null;
+    }
+
+    /**
+     * @param uid            char
+     * @param startTimeLimit char yyyy-MM-dd HH:mm:ss
+     * @param timeLimit      char yyyy-MM-dd HH:mm:ss
+     * @return
+     */
+    public String getUidOrderDate(String uid, String startTimeLimit, String timeLimit) {
+        try {
+            String sql = "SELECT TOP 1 orderdate FROM CTRIP_ALL_UID_OrderDate WITH (NOLOCK) WHERE " +
+                    "Uid = ? and CreateDate>=? and CreateDate<=?";
+            Map orderDate = flowDb.queryForMap(sql, new Object[]{uid, startTimeLimit, timeLimit}, new int[]{Types.VARCHAR, Types.TIMESTAMP, Types.TIMESTAMP});
+            if (orderDate != null) {
+                return orderDate.get("orderdate").toString();
+            }
+        } catch (Exception exp) {
+            logger.warn("查询CTRIP_ALL_UID_OrderDate异常", exp);
+        }
+        return null;
     }
 
     /**
@@ -180,11 +153,12 @@ public class CheckRiskDAO {
      * @param mobilePhone char
      * @return 返回手机号对应的城市信息
      */
-    public Map<String,Object> getMobileCityAndProv(String mobilePhone) {
+    public Map<String, Object> getMobileCityAndProv(String mobilePhone) {
         try {
-            if (!Strings.isNullOrEmpty(mobilePhone) && mobilePhone.length()> 6) {
+            if (!Strings.isNullOrEmpty(mobilePhone) && mobilePhone.length() > 6) {
                 mobilePhone = mobilePhone.substring(0, 7);
-                return getTop1RecordByKey("BaseData_MobilePhoneInfo", "MobileNumber", mobilePhone, new int[]{Types.BIGINT});
+                String sql = "SELECT TOP 1 provincename,cityname  FROM BaseData_MobilePhoneInfo WITH(NOLOCK) WHERE MobileNumber=? ";
+                return cardRiskDb.queryForMap(sql, new Object[]{mobilePhone}, new int[]{Types.BIGINT});
             }
         } catch (Exception exp) {
             logger.warn("从sql查询手机号对应的城市信息异常", exp);
@@ -198,9 +172,9 @@ public class CheckRiskDAO {
      * @param ipValue long
      * @return
      */
-    public Map<String,Object> getIpCountryCity(long ipValue) {
+    public Map<String, Object> getIpCountryCity(long ipValue) {
         try {
-            String sql = "SELECT TOP 1 *  FROM IpCountryCity WITH(NOLOCK) WHERE IpStart <= ? ORDER BY IpStart DESC ";
+            String sql = "SELECT TOP 1 countrycode,countryname,city,cityid,continent,continentid,citynamech,countrynamech  FROM IpCountryCity WITH(NOLOCK) WHERE IpStart <= ? ORDER BY IpStart DESC ";
             return cardRiskDb.queryForMap(sql, new Object[]{ipValue}, new int[]{Types.BIGINT});
         } catch (Exception exp) {
             logger.warn("查询ip对应的城市信息异常:", exp);
@@ -212,12 +186,12 @@ public class CheckRiskDAO {
      * 获取DID相关信息
      *
      * @param orderId char
-     * @param payId char
+     * @param payId   char
      * @return
      */
-    public Map<String,Object> getDIDInfo(String orderId, String payId) {
+    public Map<String, Object> getDIDInfo(String orderId, String payId) {
         try {
-            String sql = "SELECT TOP 1 *  FROM CacheData_DeviceIDInfo WITH(NOLOCK) WHERE Oid = ? AND Payid = ? ORDER BY RecordID desc";
+            String sql = "SELECT TOP 1 did  FROM CacheData_DeviceIDInfo WITH(NOLOCK) WHERE Oid = ? AND Payid = ? ORDER BY RecordID desc";
             return flowDb.queryForMap(sql, new Object[]{orderId, payId}, new int[]{Types.VARCHAR, Types.VARCHAR});
         } catch (Exception exp) {
             logger.warn("查询DID信息异常", exp);
@@ -226,44 +200,15 @@ public class CheckRiskDAO {
     }
 
     /**
-     * 获取
-     * 铁友除外     *
-     * @param orderType int
-     * @param orderId long
-     * @return
-     */
-    public String getLastReqId(String orderId,String orderType,String merchantOrderID) {
-        try {
-            Map kv=null;
-            if(!orderType.equals("18")) {
-                String sql = "SELECT TOP 1 ReqID FROM InfoSecurity_MainInfo WITH(NOLOCK) " +
-                        "WHERE OrderId = ? and OrderType = ? ORDER BY  ReqID DESC ";
-                kv = cardRiskDb.queryForMap(sql, new Object[]{orderId, orderType}, new int[]{Types.BIGINT, Types.INTEGER});
-            }
-            else
-            {
-                String sql = "SELECT TOP 1 ReqID  FROM InfoSecurity_MainInfo WITH(NOLOCK) " +
-                        "WHERE  OrderType = ? and MerchantOrderID = ?  ORDER BY ReqID DESC";
-                kv = cardRiskDb.queryForMap(sql, new Object[]{orderType, merchantOrderID}, new int[]{Types.INTEGER, Types.VARCHAR});
-            }
-            if(kv!=null){
-                return MapX.getString(kv, "ReqID");
-            }
-        } catch (Exception exp) {
-            logger.warn("查询MainInfo信息异常", exp);
-        }
-        return null;
-    }
-
-    /**
      * 获取 CreditCardRule_ForeignCard
+     *
      * @param cardTypeId int
-     * @param cardBin  char
+     * @param cardBin    char
      * @return
      */
-    public Map<String,Object> getForeignCardInfo(String cardTypeId, String cardBin) {
+    public Map<String, Object> getForeignCardInfo(String cardTypeId, String cardBin) {
         try {
-            String sql = "SELECT *  FROM CreditCardRule_ForeignCard WITH(NOLOCK) WHERE CardTypeID = ? and CardRule = ?";
+            String sql = "SELECT city,bankofcardissue,nationality,cardname FROM CreditCardRule_ForeignCard WITH(NOLOCK) WHERE CardTypeID = ? and CardRule = ?";
             return cardRiskDb.queryForMap(sql, new Object[]{cardTypeId, cardBin}, new int[]{Types.INTEGER, Types.VARCHAR});
         } catch (Exception exp) {
             logger.warn("getForeignCardInfo异常", exp);
@@ -272,166 +217,31 @@ public class CheckRiskDAO {
     }
 
     /**
-     * 获取 InfoSecurity_PaymentInfo
-     *
-     * @param lastReqID long
-     * @return
-     */
-    public List<Map<String, Object>> getListPaymentInfo(String lastReqID) {
-        return getListByKey("InfoSecurity_PaymentInfo","ReqID",lastReqID,new int[]{Types.BIGINT});
-    }
-
-    /**
-     * 获取 InfoSecurity_CardInfo
-     *
-     * @param paymentInfoId long
-     * @return
-     */
-    public List<Map<String, Object>> getCardInfoList(String paymentInfoId) {
-        return getListByKey("InfoSecurity_CardInfo","PaymentInfoID",paymentInfoId,new int[]{Types.BIGINT});
-    }
-
-    /**
-     * 获取InfoSecurity_PaymentMainInfo
-     *
-     * @param reqId long
-     * @return
-     */
-    public Map getPaymentMainInfo(String reqId) {
-        return getRecordByKey("InfoSecurity_PaymentMainInfo","ReqID",reqId,new int[]{Types.BIGINT});
-    }
-
-    /**
-     * 获取 InfoSecurity_ContactInfo
-     *
-     * @param reqId long
-     * @return
-     */
-    public Map<String,Object> getContactInfo(String reqId) {
-        return  getRecordByKey("InfoSecurity_ContactInfo","ReqID",reqId,new int[]{Types.BIGINT});
-    }
-
-    /**
-     * 获取InfoSecurity_UserInfo
-     *
-     * @param reqId long
-     * @return
-     */
-    public Map<String,Object> getUserInfo(String reqId) {
-        return getRecordByKey("InfoSecurity_UserInfo","ReqID",reqId,new int[]{Types.BIGINT});
-    }
-
-    /**
-     * 获取 InfoSecurity_IPInfo
-     *
-     * @param reqId long
-     * @return
-     */
-    public Map<String,Object> getIpInfo(String reqId) {
-        return getRecordByKey("InfoSecurity_IPInfo","ReqID",reqId,new int[]{Types.BIGINT});
-    }
-
-    /**
-     * 获取InfoSecurity_OtherInfo
-     *
-     * @param reqId long
-     * @return
-     */
-    public Map<String,Object> getOtherInfo(String reqId) {
-        return getRecordByKey("InfoSecurity_OtherInfo","ReqID",reqId,new int[]{Types.BIGINT});
-    }
-
-    /**
      * 获取CardRisk_Leaked_Uid
      *
      * @param uid char
      * @return
      */
-    public Map<String,Object> getLeakedInfo(String uid) {
-        return getTop1RecordByKey("CardRisk_Leaked_Uid","Uid",uid, new int[]{Types.VARCHAR});
+    public Map<String, Object> getLeakedInfo(String uid) {
+        try {
+            String sql = "SELECT active FROM CardRisk_Leaked_Uid WITH(NOLOCK) WHERE Uid =?";
+            return cusDb.queryForMap(sql, new Object[]{uid}, new int[]{Types.VARCHAR});
+        } catch (Exception exp) {
+            logger.warn("获取CardRisk_Leaked_Uid异常", exp);
+        }
+        return null;
     }
-
-    /**
-     * 获取 InfoSecurity_HotelGroupInfo
-     *
-     * @param reqId long
-     * @return
-     */
-    public List<Map<String, Object>> getHotelGroupInfo(String reqId) {
-        return getListByKey("InfoSecurity_HotelGroupInfo", "ReqID",reqId,new int[]{Types.BIGINT});
-    }
-
-    /**
-     * 获取 InfoSecurity_HotelInfo
-     *
-     * @param reqId long
-     * @return
-     */
-    public Map<String,Object> getHotelInfo(String reqId) {
-        return getRecordByKey("InfoSecurity_HotelInfo", "ReqID", reqId, new int[]{Types.BIGINT});
-    }
-
-    /**
-     * 获取 InfoSecurity_ExRailUserInfo
-     * @param exRailId
-     * @return
-     */
-    public Map<String,Object> getExRailUserInfo(String exRailId)
-    {
-        return  getTop1RecordByKey("InfoSecurity_ExRailUserInfo","ExRailInfoID",exRailId,new int[]{Types.BIGINT});
-    }
-
-    /**
-     * 获取 InfoSecurity_VacationInfo
-     * @param reqId
-     * @return
-     */
-    public Map<String,Object> getVacationInfo(String reqId)
-    {
-        return  getTop1RecordByKey("InfoSecurity_VacationInfo","ReqID",reqId,new int[]{Types.BIGINT});
-    }
-
-    /**
-     * 获取 InfoSecurity_VacationOptionInfo
-     * @param vacationInfoID
-     * @return
-     */
-    public List<Map<String,Object>> getVacationOptionInfoList(String vacationInfoID)
-    {
-        return  getListByKey("InfoSecurity_VacationOptionInfo","VacationInfoID",vacationInfoID,new int[]{Types.BIGINT});
-    }
-
-    /**
-     * 获取 InfoSecurity_VacationUserInfo
-     * @param vacationInfoID
-     * @return
-     */
-    public List<Map<String,Object>> getVacationUserInfoList(String vacationInfoID)
-    {
-        return  getListByKey("InfoSecurity_VacationUserInfo","VacationInfoID",vacationInfoID,new int[]{Types.BIGINT});
-    }
-
-    /**
-     * 获取 InfoSecurity_MiceInfo
-     * @param reqId
-     * @return
-     */
-    public Map<String,Object> getMiceInfo(String reqId)
-    {
-        return  getTop1RecordByKey("InfoSecurity_MiceInfo","ReqID",reqId,new int[]{Types.BIGINT});
-    }
-
 
     /**
      * 获取 BaseData_CardBankInfo
      *
      * @param creditCardType int
-     * @param branchNo str
+     * @param branchNo       str
      * @return
      */
-    public Map<String,Object> getCardBankInfo(String creditCardType, String branchNo) {
+    public Map<String, Object> getCardBankInfo(String creditCardType, String branchNo) {
         try {
-            String sql = "SELECT TOP 1 *  FROM BaseData_CardBankInfo WITH(NOLOCK) WHERE CreditCardType =? and BranchNo = ?";
+            String sql = "SELECT TOP 1 branchcity,branchprovince  FROM BaseData_CardBankInfo WITH(NOLOCK) WHERE CreditCardType =? and BranchNo = ?";
             return cardRiskDb.queryForMap(sql, new Object[]{creditCardType, branchNo}, new int[]{Types.INTEGER, Types.VARCHAR});
         } catch (Exception exp) {
             logger.warn("获取BaseData_CardBankInfo查询异常", exp);
@@ -445,50 +255,92 @@ public class CheckRiskDAO {
      * @param country Int
      * @return
      */
-    public Map<String,Object> getCountryNameNationality(String country) {
-       return  getTop1RecordByKey("BaseData_CountryInfo","Country",country,new int[]{Types.BIGINT});
-    }
-
-    public Map<String,Object> getLastProductInfo(String orderId,String orderType,String merchantId){
+    public Map<String, Object> getCountryNameNationality(String country) {
         try {
-            long id = Long.parseLong(orderId) % 4;
-            String sql = String.format("SELECT Content FROM InfoSecurity_LastProductInfo%s WITH(NOLOCK) WHERE PID=?", id);
-            return cardRiskDb.queryForMap(sql, String.format("%s|%s|%s", orderId, orderType, merchantId), Types.VARCHAR);
-        } catch (Exception ex){
-            logger.warn(String.format("获取历史产品数据失败:%s",orderId),ex);
+            String sql = "SELECT TOP 1 nationality,countryname  FROM BaseData_CountryInfo WITH(NOLOCK) WHERE Country =? ";
+            return cardRiskDb.queryForMap(sql, new Object[]{country}, new int[]{Types.BIGINT});
+        } catch (Exception exp) {
+            logger.warn("根据国家编号获取国家的名称和国际异常", exp);
         }
         return null;
     }
 
-    public Map<String,Object> getLastPaymentInfo(String orderId,String orderType,String merchantId){
+    public Map<String, Object> getLastProductInfo(String orderId, String orderType, String merchantId) {
         try {
             long id = Long.parseLong(orderId) % 4;
-            String sql = String.format("SELECT Content,RiskLevel,PrepayType FROM InfoSecurity_LastPaymentInfo%s WITH(NOLOCK) WHERE PID=?", id);
+            String sql = String.format("SELECT content FROM InfoSecurity_LastProductInfo%s WITH(NOLOCK) WHERE pid=?", id);
             return cardRiskDb.queryForMap(sql, String.format("%s|%s|%s", orderId, orderType, merchantId), Types.VARCHAR);
-        } catch (Exception ex){
-            logger.warn(String.format("获取历史支付数据失败:%s",orderId),ex);
+        } catch (Exception ex) {
+            logger.warn(String.format("获取历史产品数据失败:%s", orderId), ex);
         }
         return null;
     }
 
-    public void saveLastProductInfo(String orderId,String orderType,String merchantId,Map<String,Object> productInfo){
+    public Map<String, Object> getLastPaymentInfo(String orderId, String orderType, String merchantId) {
         try {
             long id = Long.parseLong(orderId) % 4;
-            String sql = String.format(" IF EXISTS (SELECT 'X' FROM InfoSecurity_LastProductInfo%s WITH(NOLOCK) WHERE PID=?)", id);
-            cardRiskDb.queryForMap(sql, String.format("%s|%s|%s", orderId, orderType, merchantId), Types.VARCHAR);
-        } catch (Exception ex){
-            logger.warn(String.format("获取历史产品数据失败:%s",orderId),ex);
+            String sql = String.format("SELECT content,risklevel,prepaytype FROM InfoSecurity_LastPaymentInfo%s WITH(NOLOCK) WHERE pid=?", id);
+            return cardRiskDb.queryForMap(sql, String.format("%s|%s", orderId, orderType), Types.VARCHAR);
+        } catch (Exception ex) {
+            logger.warn(String.format("获取历史支付数据失败:%s", orderId), ex);
+        }
+        return null;
+    }
+
+    public void saveLastProductInfo(String orderId, String orderType, String merchantId, Map<String, Object> productInfo) {
+        try {
+            long id = Long.parseLong(orderId) % 4;
+            String sql = String.format(
+                    "IF EXISTS (SELECT 'X' FROM InfoSecurity_LastProductInfo%s WITH(NOLOCK) WHERE PID=:p1)\n" +
+                            "   EXEC spA_InfoSecurity_LastProductInfo%s_u @PID=:p1,@Content=:p2\n" +
+                            "ELSE\n" +
+                            "   EXEC spA_InfoSecurity_LastProductInfo%s_i @PID=:p1,@Content=:p2", id);
+
+            MapSqlParameterSource params = new MapSqlParameterSource();
+            SqlParameterValue value0 = new SqlParameterValue(Types.VARCHAR, String.format("%s|%s", orderId, orderType));
+            SqlParameterValue value1 = new SqlParameterValue(Types.VARCHAR, mapper.toJson(productInfo));
+            params.addValue("p1", value0);
+            params.addValue("p2", value1);
+
+            cardRiskDb.cardDbNamedTemplate.execute(sql, params, new PreparedStatementCallback<Object>() {
+                @Override
+                public Object doInPreparedStatement(PreparedStatement ps) throws SQLException, DataAccessException {
+                    ps.execute();
+                    return null;
+                }
+            });
+
+        } catch (Exception ex) {
+            logger.warn(String.format("保存历史产品数据失败:%s", orderId), ex);
         }
     }
 
-    public void saveLastPaymentInfo(String orderId,String orderType,String merchantId,String prePayType,Map<String,Object> paymentInfo){
+    public void saveLastPaymentInfo(String orderId, String orderType, String merchantId, String prePayType, Map<String, Object> paymentInfo) {
         try {
             long id = Long.parseLong(orderId) % 4;
+            String sql = String.format(
+                    "IF EXISTS (SELECT 'X' FROM InfoSecurity_LastPaymentInfo%s WITH(NOLOCK) WHERE PID=:p1)\n" +
+                            "   EXEC spA_InfoSecurity_LastPaymentInfo%s_u @PID=:p1,@Content=:p2,PrepayType=:p3\n" +
+                            "ELSE\n" +
+                            "   EXEC spA_InfoSecurity_LastPaymentInfo%s_i @PID=:p1,@Content=:p2,PrepayType=:p3", id);
 
-            String sql = String.format("SELECT Content,RiskLevel,PrepayType FROM InfoSecurity_LastPaymentInfo%s WITH(NOLOCK) WHERE PID=?", id);
-            cardRiskDb.queryForMap(sql, String.format("%s|%s|%s", orderId, orderType, merchantId), Types.VARCHAR);
-        } catch (Exception ex){
-            logger.warn(String.format("获取历史支付数据失败:%s",orderId),ex);
+            MapSqlParameterSource params = new MapSqlParameterSource();
+            SqlParameterValue value0 = new SqlParameterValue(Types.VARCHAR, String.format("%s|%s", orderId, orderType));
+            SqlParameterValue value1 = new SqlParameterValue(Types.VARCHAR, mapper.toJson(paymentInfo));
+            SqlParameterValue value2 = new SqlParameterValue(Types.VARCHAR, prePayType);
+            params.addValue("p1", value0);
+            params.addValue("p2", value1);
+            params.addValue("p3", value2);
+
+            cardRiskDb.cardDbNamedTemplate.execute(sql, params, new PreparedStatementCallback<Object>() {
+                @Override
+                public Object doInPreparedStatement(PreparedStatement ps) throws SQLException, DataAccessException {
+                    ps.execute();
+                    return null;
+                }
+            });
+        } catch (Exception ex) {
+            logger.warn(String.format("保存历史支付数据失败:%s", orderId), ex);
         }
     }
 

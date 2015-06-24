@@ -9,6 +9,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.CallableStatementCallback;
 import org.springframework.jdbc.core.CallableStatementCreator;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import java.sql.*;
@@ -27,6 +28,11 @@ public class CardRiskService {
     @Autowired
     @Qualifier("cardRiskDBTemplate")
     JdbcTemplate cardRiskDBTemplate;
+
+    @Autowired
+    @Qualifier("cardDbNamedTemplate")
+    public NamedParameterJdbcTemplate cardDbNamedTemplate;
+
     public Map<String, Object> queryForMap(String sql, Object[] args, int[] argTypes)
     {
         return  cardRiskDBTemplate.queryForMap(sql,args,argTypes);
