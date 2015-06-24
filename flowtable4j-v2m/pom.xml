@@ -23,6 +23,10 @@
     </dependency>
     <dependency>
       <groupId>com.ctrip.infosec.flowtable4j</groupId>
+      <artifactId>flowtable4j-biz</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.ctrip.infosec.flowtable4j</groupId>
       <artifactId>flowtable4j-jobws</artifactId>
     </dependency>
     <!-- Data Config Server -->

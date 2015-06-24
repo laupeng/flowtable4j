@@ -1,8 +1,7 @@
 package com.ctrip.infosec.flowtable4j.v2m.service;
 
-import com.ctrip.infosec.flowtable4j.model.CheckFact;
-import com.ctrip.infosec.flowtable4j.model.RequestBody;
-import com.ctrip.infosec.flowtable4j.model.ResponseBody;
+import com.ctrip.infosec.flowtable4j.biz.FlowtableProcessor;
+import com.ctrip.infosec.flowtable4j.model.*;
 import com.ctrip.infosec.flowtable4j.model.persist.PO;
 import com.ctrip.infosec.flowtable4j.v2m.converter.AccountConverter;
 import com.ctrip.infosec.flowtable4j.v2m.converter.BlackWhiteConverter;
@@ -27,17 +26,27 @@ public class CheckPaymentService {
 
     @Autowired
     AccountConverter accountConverter;
+
+    @Autowired
+    Save2DbService save2DbService;
+
+    @Autowired
+    FlowtableProcessor flowtableProcessor;
+
     public CheckFact process(RequestBody request){
-        CheckFact fact =null;
-        PO po = null;
-        //poConverter
-        //blackWhiteConverter
-        //flowConverter
-        //accountConverter
+        CheckFact fact =new CheckFact();
+        PO po = poConverter.convert(request);
+        fact.setAccountFact(accountConverter.convert(po));
+        fact.setBwFact(blackWhiteConverter.convert(po));
+        fact.setFlowFact(flowConverter.convert(po));
+        fact.setCheckTypes(new CheckType[]{ CheckType.ACCOUNT, CheckType.BW, CheckType.FLOWRULE});
+        fact.setReqId(save2DbService.saveDealInfo(po));
         return fact;
     }
 
     public ResponseBody checkRisk(RequestBody requestBody){
+        CheckFact fact = process(requestBody);
+        RiskResult result = flowtableProcessor.handle(fact);
         return  new ResponseBody();
     }
 }

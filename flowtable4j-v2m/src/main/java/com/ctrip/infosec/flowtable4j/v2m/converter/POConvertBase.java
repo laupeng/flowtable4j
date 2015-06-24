@@ -3,6 +3,7 @@ package com.ctrip.infosec.flowtable4j.v2m.converter;
 import com.ctrip.infosec.flowtable4j.model.MapX;
 import com.ctrip.infosec.flowtable4j.model.RequestBody;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,14 +85,14 @@ public class POConvertBase  extends ConverterBase {
         for (Map<String, Object> paymentSrc : paymentInfoListSrc) {
             Map<String, Object> paymentInfo = new HashMap<String, Object>();
             Map<String, Object> payment = new HashMap<String, Object>();
-            String prepayType = getString(paymentSrc, "prepaytype");
+            String prepayType = MapX.getStringEmpty(paymentSrc, "prepaytype");
+            totalPreyType =  ("CCARD".equals(totalPreyType)||("DCARD").equals(totalPreyType))? totalPreyType:prepayType;
             setValue(payment, "prepaytype", prepayType);
             setValue(payment, "amount", getObject(paymentSrc, "amount"));
             setValue(payment, "refno", getObject(paymentSrc, "refno"));
             String cardInfoId = getString(paymentSrc, "cardinfoid");
             setValue(payment, "cardinfoid", cardInfoId);
             setValue(paymentInfo,"payment",payment);
-            totalPreyType =  ("CCARD".equals(totalPreyType)||("DCARD").equals(totalPreyType))? totalPreyType:prepayType;
             List<Map<String, Object>> cardInfoList = new ArrayList<Map<String, Object>>();
             Map<String, Object> cardInfo = new HashMap<String, Object>();
             if (prepayType.toUpperCase().equals("CCARD") || prepayType.toUpperCase().equals("DCARD")) {
@@ -116,7 +117,13 @@ public class POConvertBase  extends ConverterBase {
                         setValue(cardInfo, "nationalityofisuue", getString(cardInfoResult, "nationalityofisuue"));
                         setValue(cardInfo, "bankofcardissue", getString(cardInfoResult, "bankofcardissue"));
                         setValue(cardInfo, "statename", getString(cardInfoResult, "statename"));
-                        setValue(cardInfo, "cardnorefid", getString(cardInfoResult, "cardnorefid"));
+
+                        Map subCardInfo = checkRiskDAO.getForeignCardInfo(creditCardType, cardBin);
+                        if (subCardInfo != null && subCardInfo.size() > 0) {
+                            setValue(cardInfo, "cardbinissue", getString(subCardInfo, "nationality"));
+                            setValue(cardInfo, "cardbinbankofcardissue", getString(subCardInfo, "bankofcardissue"));
+                        }
+
                         //取出branchCity 和 branchProvince
                         String creditCardNumber = getString(cardInfoResult, "creditcardnumber");
                         if (creditCardType.equals("3") && !Strings.isNullOrEmpty(creditCardNumber))//这里只针对类型为3的卡进行处理
@@ -127,7 +134,7 @@ public class POConvertBase  extends ConverterBase {
                             } catch (Exception exp) {
                                 logger.warn("解密卡号异常" + exp.getMessage());
                             }
-                            if (decryptText != null && !decryptText.isEmpty() && decryptText.length() > 12) {
+                            if (!Strings.isNullOrEmpty(decryptText) && decryptText.length() > 12) {
                                 String branchNo = decryptText.substring(6, 9);
                                 if (!branchNo.isEmpty()) {
                                     Map cardBankInfo = checkRiskDAO.getCardBankInfo(creditCardType, branchNo);
@@ -136,11 +143,6 @@ public class POConvertBase  extends ConverterBase {
                                         setValue(cardInfo, "branchprovince", getString(cardBankInfo, "branchprovince"));
                                     }
                                 }
-                            }
-                            Map subCardInfo = checkRiskDAO.getForeignCardInfo(creditCardType, cardBin);
-                            if (subCardInfo != null && subCardInfo.size() > 0) {
-                                setValue(cardInfo, "cardbinissue", getString(subCardInfo, "nationality"));
-                                setValue(cardInfo, "cardbinbankofcardissue", getString(subCardInfo, "bankofcardissue"));
                             }
                         }
                     }
@@ -175,7 +177,7 @@ public class POConvertBase  extends ConverterBase {
                 setValue(userInfo, "bindedemail", getString(crmInfo, "bindedemail"));
                 setValue(userInfo, "bindedmobilephone", getString(crmInfo, "bindedmobilephone"));
                 String experience = getString(crmInfo, "experience");
-                if (experience.isEmpty()) {
+                if (Strings.isNullOrEmpty(experience)) {
                     experience = "0";
                 }
                 setValue(userInfo, "experience", experience);
@@ -183,13 +185,13 @@ public class POConvertBase  extends ConverterBase {
                 setValue(userInfo, "signupdate", signupDate);
                 setValue(userInfo, "userpassword", getString(crmInfo, "md5password"));
                 setValue(userInfo, "vipgrade", getString(crmInfo, "vipgrade"));
-                if (!"T".equals(getString(crmInfo, "vip"))) {
+                if ("T".equals(getString(crmInfo, "vip"))) {
+                    setValue(userInfo, "cuscharacter", "VIP");
+                } else {
                     Map customer = esbClient.getCustomerInfo(uid);
                     if (customer != null && "1900-01-01".compareTo(getString(customer, "customerdate")) < 0) {
                         setValue(userInfo, "cuscharacter", "REPEAT");
                     }
-                } else {
-                    setValue(userInfo, "cuscharacter", "VIP");
                 }
             }
         } catch (Exception e) {
@@ -229,6 +231,31 @@ public class POConvertBase  extends ConverterBase {
         setValue(root,"contactinfo",contactInfo);
     }
 
+    /**
+     * 填充VactionInfoList
+     * @param productInfo
+     * @param eventBody
+     */
+    protected void fillVactionInfo(Map<String, Object> productInfo, Map<String, Object> eventBody) {
+        List<Map<String, Object>> vacationinfolist = new ArrayList<Map<String, Object>>();
+        Map<String, Object> order = new HashMap<String, Object>();
+        setValue(order, "productname", getString(eventBody, "productname"));
+        setValue(order, "productid", getString(eventBody, "productid"));
+        List<Map<String, Object>> userlist = new ArrayList<Map<String, Object>>();
+        List<Map<String, Object>> userInfos = (List<Map<String, Object>>) MapX.getList(eventBody, "userinfos");
+        if (userInfos != null && userInfos.size() > 0) {
+            for (Map<String, Object> u : userInfos) {
+                Map<String, Object> vu = new HashMap<String, Object>();
+                setValue(vu, "visitoridcardtype", getObject(u, "idtype"));
+                setValue(vu, "visitorname", getObject(u, "visitorname"));
+                setValue(vu, "visitorcontactinfo", getObject(u, "visitorcontactinfo"));
+                setValue(vu, "visitoridcode", getObject(u, "visitorcardno"));
+                userlist.add(vu);
+            }
+        }
+        vacationinfolist.add(ImmutableMap.of("order", order, "userlist", userlist));
+        setValue(productInfo,"vacationinfolist",vacationinfolist);
+    }
     /**
      * 填充IP相关信息
      * @param root

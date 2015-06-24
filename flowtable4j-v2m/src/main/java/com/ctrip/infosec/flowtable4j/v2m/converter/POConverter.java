@@ -1,10 +1,14 @@
 package com.ctrip.infosec.flowtable4j.v2m.converter;
 
+import com.ctrip.infosec.flowtable4j.model.MapX;
 import com.ctrip.infosec.flowtable4j.model.RequestBody;
 import com.ctrip.infosec.flowtable4j.model.persist.PO;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableMap;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -86,6 +90,9 @@ public class POConverter extends POConvertBase {
             //fill IP Info
             fillIPInfo(productInfo, getString(eventBody, "userip"));
 
+            //fill Vaction Info
+            fillVactionInfo(productInfo, requestBody.getEventBody());
+
             //fill Hotel Group
             Map<String, Object> hotelGroup = new HashMap<String, Object>();
             copyMap(requestBody.getEventBody(), hotelGroup, "infosecurity_hotelgroupinfo");
@@ -114,4 +121,5 @@ public class POConverter extends POConvertBase {
 
         return po;
     }
+
 }

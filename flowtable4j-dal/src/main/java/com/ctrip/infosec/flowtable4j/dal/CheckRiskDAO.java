@@ -1,5 +1,6 @@
 package com.ctrip.infosec.flowtable4j.dal;
 
+import com.ctrip.infosec.flowtable4j.model.MapX;
 import com.ctrip.infosec.sars.util.mapper.JsonMapper;
 import com.google.common.base.Strings;
 import org.apache.commons.lang.StringUtils;
@@ -51,10 +52,10 @@ public class CheckRiskDAO {
         return originalRiskLevel.get(String.format("%s|%s", keyField, orderType).toUpperCase());
     }
 
-    public String getOriginRiskLevelCount(Map<String, String> kv, Integer orderType) {
+    public String getOriginRiskLevelCount(Map<String, Object> kv, Integer orderType) {
         Integer[] orderTypes = new Integer[]{0, orderType};
         for (String k : kv.keySet()) {
-            String v = kv.get(k);
+            String v = MapX.getString(kv,k);
             if (!Strings.isNullOrEmpty(v)) {
                 for (Integer orderTy : orderTypes) {
                     String tableName = getTableName(k, orderType);
@@ -177,7 +178,7 @@ public class CheckRiskDAO {
      */
     public Map<String, Object> getIpCountryCity(long ipValue) {
         try {
-            String sql = "SELECT TOP 1 countrycode,countryname,city,cityid,continent,continentid,citynamech,countrynamech  FROM IpCountryCity WITH(NOLOCK) WHERE IpStart <= ? ORDER BY IpStart DESC ";
+            String sql = "SELECT TOP 1 countrycode,countryname,city,cityid,continent,continentid,citynamech,countrynamech FROM IpCountryCity WITH(NOLOCK) WHERE IpStart <= ? ORDER BY IpStart DESC ";
             return cardRiskDb.queryForMap(sql, new Object[]{ipValue}, new int[]{Types.BIGINT});
         } catch (Exception exp) {
             logger.warn("查询ip对应的城市信息异常:", exp);

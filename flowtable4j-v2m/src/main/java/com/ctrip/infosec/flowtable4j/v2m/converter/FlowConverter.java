@@ -30,18 +30,15 @@ public class FlowConverter extends ConverterBase {
 
         copyMap(po, "hotelgroupinfo", target,new String[]{"quantity", "city", "productid", "productname", "producttype", "price"});
 
-        copyMap(po, "userinfo",target,new String[]{"cuscharacter", "bindedmobilephone", "userpassword", "experience", "bindedemail","vipgrade","relatedemail","relatedmobilephone"});
+        copyMap(po, "userinfo",target,new String[]{"cuscharacter", "bindedmobilephone", "userpassword", "experience", "bindedemail","vipgrade","relatedemail","relatedmobilephone","uid"});
 
         fillMobileProvince(target,getString(target, "bindedmobilephone"),getString(target,"relatedmobilephone"));
 
         fillIPCity(po,target);
 
-        copyMap(po,"didinfo",target,new String[]{"did"});
+        copyMap(po,"deviceid",target,new String[]{"did"});
 
-        copyMap(po,"userinfo",target,ImmutableMap.of("uid","uid"));
-
-        getOriginalRiskLevel(po,target);
-
+        //字段已经在前面的处理步骤写入
         mergeField(target,"cardbinuid","cardbin","uid");
         mergeField(target,"cardbinmobilephone","cardbin","mobilephone");
         mergeField(target,"cardbinuseripadd","cardbin","useripadd");
@@ -50,6 +47,8 @@ public class FlowConverter extends ConverterBase {
         mergeMobile7(target, "uidmobilenumber", "uid");
 
         setUidActive(target);
+
+        getOriginalRiskLevel(po,target);
 
         return fact;
     }
@@ -87,7 +86,6 @@ public class FlowConverter extends ConverterBase {
             setValue(target,"ipcityname",getString(map,"cityname"));
             setValue(target,"ipprovince",getString(map,"provincename"));
         }
-        setValue(target,"ip",getString(target,"useripadd"));
     }
 
     private void fillMobileProvince(Map<String, Object> target, String bindedMobilePhone, String relatedMobilephone) {
@@ -96,7 +94,9 @@ public class FlowConverter extends ConverterBase {
              setValue(target,"bindedmobilephonecity",getString(map,"cityname"));
              setValue(target,"bindedmobilephoneprovince",getString(map,"provincename"));
          }
-        map = checkRiskDAO.getMobileCityAndProv(relatedMobilephone);
+        if(!bindedMobilePhone.equals(relatedMobilephone)) {
+            map = checkRiskDAO.getMobileCityAndProv(relatedMobilephone);
+        }
         if(map!=null){
             setValue(target,"relatedmobilephonecity",getString(map,"cityname"));
             setValue(target,"relatedmobilephoneprovince",getString(map,"provincename"));
@@ -174,7 +174,12 @@ public class FlowConverter extends ConverterBase {
     }
 
     protected void getOriginalRiskLevel(PO po,Map<String, Object> target){
-        Map<String,String> dim = new HashMap<String, String>();
+        Map<String,Object> dim = new HashMap<String,Object>();
+        setValueIfNotEmpty(dim,"uid",getString(target,"uid"));
+        setValueIfNotEmpty(dim,"contactemail",getString(target,"contactemail"));
+        setValueIfNotEmpty(dim,"mobilephone",getString(target,"mobilephone"));
+        setValueIfNotEmpty(dim,"ccardnocode",getString(target,"ccardnocode"));
+        setValueIfNotEmpty(dim,"cardnorefid",getString(target,"cardnorefid"));
         String count =checkRiskDAO.getOriginRiskLevelCount(dim, po.getOrdertype());
         if(!Strings.isNullOrEmpty(count)){
             setValue(target,"originalrisklevelcount",count);

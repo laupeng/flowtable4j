@@ -5,6 +5,7 @@ import com.ctrip.infosec.flowtable4j.dal.ESBClient;
 import com.ctrip.infosec.flowtable4j.model.MapX;
 import com.ctrip.infosec.flowtable4j.v2m.service.Save2DbService;
 import com.ctrip.infosec.sars.util.mapper.JsonMapper;
+import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -132,6 +133,14 @@ public class ConverterBase {
     public boolean setValue(Map<String,Object> target,String key,Object value){
         return MapX.setValue(target,key,value);
     }
+
+    public boolean setValueIfNotEmpty(Map<String,Object> target,String key,String value){
+        if(!Strings.isNullOrEmpty(value)) {
+            return MapX.setValue(target, key, value);
+        }
+        return false;
+    }
+
 
     public boolean setValue(Map<String,Object> target,String[] key,Object value){
         return MapX.setValue(target,key,value);

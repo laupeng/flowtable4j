@@ -34,8 +34,12 @@ public class Save2DbService {
 //    ThreadLocal<List<MMap>> local = new ThreadLocal();
 //    ThreadLocal<Map<String,MMap>> localBase = new ThreadLocal();
 
-    public void save(PO po) {
-        loopList(po.toMap(), "");
+    public long saveDealInfo(PO po){
+        return 10000;
+    }
+
+    public Map<String,String> getDbMeta(String tableName){
+        return  null;
     }
 
     public void loopList(Map<String, Object> toSave, String name) {
@@ -139,8 +143,8 @@ public class Save2DbService {
         Map<String, String> tableInfo_passenger = tableInfoService.getTableInfo(table_passenger);
         Map<String, String> tableInfo_segment = tableInfoService.getTableInfo(table_segment);
         Map<String, Object> order = (Map) toSave.get("order");
-        List<Map<String, Object>> passengerList = (List) toSave.get("passengerList");
-        List<Map<String, Object>> segmentList = (List) toSave.get("segmentList");
+        List<Map<String, Object>> passengerList = (List) toSave.get("passengerlist");
+        List<Map<String, Object>> segmentList = (List) toSave.get("segmentlist");
 
         long id = cardRiskService.saveImpl(order, tableInfo_order, table_order);
         for (Map<String, Object> passenger : passengerList) {
@@ -161,11 +165,11 @@ public class Save2DbService {
         Map<String, String> tableInfo_goods = tableInfoService.getTableInfo(table_goods);
         Map<String, String> tableInfo_goodsItem = tableInfoService.getTableInfo(table_goodsItem);
         Map<String, Object> goods = (Map) toSave.get("goods");
-        List<Map<String, Object>> goodsItemList = (List) toSave.get("goodsItemList");
+        List<Map<String, Object>> goodsItemList = (List) toSave.get("goodsitemlist");
 
         long id = cardRiskService.saveImpl(goods, tableInfo_goods, table_goods);
         for (Map<String, Object> passenger : goodsItemList) {
-            passenger.put("GoodsListInfoID",id);
+            passenger.put("goodslistinfoid",id);
             cardRiskService.saveImpl(passenger, tableInfo_goodsItem, table_goodsItem);
         }
     }
@@ -181,9 +185,9 @@ public class Save2DbService {
         Map<String, String> tableInfo_prizeDetail = tableInfoService.getTableInfo(table_prizeDetail);
         Map<String, String> tableInfo_paymentItem = tableInfoService.getTableInfo(table_paymentItem);
         Map<String, Object> order = (Map) toSave.get("order");
-        Map<String, Object> greetingCard = (Map) toSave.get("greetingCard");
-        Map<String, Object> prizeDetail = (Map) toSave.get("prizeDetail");
-        Map<String, Object> paymentItem = (Map) toSave.get("paymentItem");
+        Map<String, Object> greetingCard = (Map) toSave.get("greetingcard");
+        Map<String, Object> prizeDetail = (Map) toSave.get("prizedetail");
+        Map<String, Object> paymentItem = (Map) toSave.get("paymentitem");
 
         long id = cardRiskService.saveImpl(order, tableInfo_order, table_order);
 
