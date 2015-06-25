@@ -30,7 +30,17 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class PayAdaptProcessor {
     @Autowired
-    private AccountBWGManager accountBWGManager;
+    AccountBWGManager accountBWGManager;
+
+    @Autowired
+    BWManager bwManager;
+
+    @Autowired
+    PayAdaptManager payAdaptManager;
+
+    @Autowired
+    PayAdaptService payAdaptService;
+
     private static Logger logger = LoggerFactory.getLogger(PayAdaptProcessor.class);
     private static final String EVENTWS = GlobalConfig.getString("EventWS");
     private static final String APPID = GlobalConfig.getString("APPID");
@@ -71,6 +81,8 @@ public class PayAdaptProcessor {
 
         List<Callable<Object>> tasks = new ArrayList<Callable<Object>>();
 
+        final Map<String,Object> productInfo = payAdaptService.getLastProductInfo(checkEntity.getOrderID(),checkEntity.getOrderType());
+
         //支付适配流量规则是否开启
         if (isPayAdaptFlowRuleDefined(checkEntity)) {
             tasks.add(new Callable<Object>() {
@@ -84,28 +96,30 @@ public class PayAdaptProcessor {
                     return null;
                 }
             });
-            tasks.add(new Callable<Object>() {
-                @Override
-                public Object call() throws Exception {
-                    //调用黑白名单模块
-                    long start = System.currentTimeMillis();
-                    checkPaymentBWGRule(checkEntity, bwResults);
-                    long end = System.currentTimeMillis();
-                    logger.debug("check Payment BWG Rule costs " + (end - start) + "ms");
-                    return null;
-                }
-            });
-            tasks.add(new Callable<Object>() {
-                @Override
-                public Object call() throws Exception {
-                    long start = System.currentTimeMillis();
-                    //调用支付适配流量规则
-                    checkPayAdaptFlowRule(checkEntity, payRuleResults);
-                    long end = System.currentTimeMillis();
-                    logger.debug("check PayAdapt FlowRule costs " + (end - start) + "ms");
-                    return null;
-                }
-            });
+            if(productInfo!=null && productInfo.size()>0) {
+                tasks.add(new Callable<Object>() {
+                    @Override
+                    public Object call() throws Exception {
+                        //调用黑白名单模块
+                        long start = System.currentTimeMillis();
+                        checkPaymentBWGRule(checkEntity, bwResults,productInfo);
+                        long end = System.currentTimeMillis();
+                        logger.debug("check Payment BWG Rule costs " + (end - start) + "ms");
+                        return null;
+                    }
+                });
+                tasks.add(new Callable<Object>() {
+                    @Override
+                    public Object call() throws Exception {
+                        long start = System.currentTimeMillis();
+                        //调用支付适配流量规则
+                        checkPayAdaptFlowRule(checkEntity, payRuleResults,productInfo);
+                        long end = System.currentTimeMillis();
+                        logger.debug("check PayAdapt FlowRule costs " + (end - start) + "ms");
+                        return null;
+                    }
+                });
+            }
         }
         tasks.add(new Callable<Object>() {
             @Override
@@ -181,34 +195,27 @@ public class PayAdaptProcessor {
         }
     }
 
-    private void checkPaymentBWGRule(PayAdaptFact checkEntity, RiskResult riskResult) {
+    private void checkPaymentBWGRule(PayAdaptFact checkEntity, RiskResult riskResult,Map<String,Object> productInfo) {
         BWFact fact = new BWFact();
         fact.setOrderTypes(new ArrayList<Integer>());
         fact.setContent(new HashMap<String, Object>());
         fact.getOrderTypes().add(checkEntity.getOrderType());
         fact.getOrderTypes().add(0);
-        fact.setContent(PayAdaptService.fillBWGCheckEntity(checkEntity.getOrderType(), checkEntity.getOrderID()));
-        if (!BWManager.checkWhite(fact, riskResult)) {
-            BWManager.checkBlack(fact, riskResult);
+        fact.setContent(payAdaptService.fillBWGCheckEntity(productInfo));
+        if (!bwManager.checkWhite(fact, riskResult)) {
+            bwManager.checkBlack(fact, riskResult);
         }
     }
 
-    private void checkPayAdaptFlowRule(PayAdaptFact checkEntity, List<PayAdaptResultItem> payRuleResults) {
+    private void checkPayAdaptFlowRule(PayAdaptFact checkEntity, List<PayAdaptResultItem> payRuleResults,Map<String,Object> productInfo) {
 
-        Map<String, Object> data2Check = PayAdaptService.fillPayAdaptCheckEntity(checkEntity.getOrderType(), checkEntity.getOrderID());
-
-        //补充ip信息
-        PayAdaptService.getIPInfo(checkEntity.getOrderType(), data2Check);
-
-        //补充补充OptionName信息
-        PayAdaptService.getOptions(checkEntity.getOrderType(), data2Check);
-
+        Map<String, Object> data2Check = payAdaptService.fillPayAdaptCheckEntity(productInfo,checkEntity.getOrderType());
         FlowFact fact = new FlowFact();
         fact.setOrderTypes(new ArrayList<Integer>());
         fact.getOrderTypes().add(checkEntity.getOrderType());
         fact.getOrderTypes().add(0);
         fact.setContent(data2Check);
-        PayAdaptManager.check(fact, payRuleResults);
+        payAdaptManager.check(fact, payRuleResults);
     }
 
     private void checkAccountBWGService(PayAdaptFact checkEntity, Map<String, Integer> accountResults) {

@@ -22,20 +22,20 @@ public class RuleTerm {
     private ConditionComparer executor;
 
     public RuleTerm(String fieldName, String operator, String matchValue) {
-        this.setFieldName(fieldName);
+        this.setFieldName(fieldName.toLowerCase());
         //兼容性考虑，用matchValue作为字典的Key，需要不区分大小写
-        this.setMatchValue(Strings.nullToEmpty(matchValue).toUpperCase());
-        this.operator = Strings.nullToEmpty(operator).toUpperCase();
+        this.setMatchValue(Strings.nullToEmpty(matchValue).toLowerCase());
+        this.operator = Strings.nullToEmpty(operator).toLowerCase();
 
-        if ("EQ".equals(operator)) {
+        if ("eq".equals(operator)) {
             executor = eqOper;
-        } else if ("LE".equals(operator)) {
+        } else if ("le".equals(operator)) {
             executor = leOper;
-        } else if ("IN".equals(operator)) {
+        } else if ("in".equals(operator)) {
             executor = inOper;
-        } else if ("GE".equals(operator)) {
+        } else if ("ge".equals(operator)) {
             executor = geOper;
-        } else if ("LLIKE".equals(operator)) {
+        } else if ("llike".equals(operator)) {
             executor = llOper;
         }
     }

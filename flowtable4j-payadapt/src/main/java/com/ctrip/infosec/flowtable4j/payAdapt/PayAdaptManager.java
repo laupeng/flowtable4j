@@ -4,12 +4,15 @@ import com.ctrip.infosec.flowtable4j.model.FlowFact;
 import com.ctrip.infosec.flowtable4j.model.PayAdaptResultItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+
 import java.util.List;
 
 /**
  * 流量规则管理器
  * Created by thyang on 2015/3/13 0013. *
  */
+@Component
 public class PayAdaptManager {
 
     final static Logger logger = LoggerFactory.getLogger(PayAdaptManager.class);
@@ -17,7 +20,7 @@ public class PayAdaptManager {
     /**
      * 流量规则
      */
-    private final static PayAdaptRule payAdaptRule = new PayAdaptRule();
+    private final PayAdaptRule payAdaptRule = new PayAdaptRule();
 
     /**
      * 检查流量规则
@@ -27,7 +30,7 @@ public class PayAdaptManager {
      * @param results
      * @return
      */
-    public static boolean check(FlowFact fact, List<PayAdaptResultItem> results) {
+    public boolean check(FlowFact fact, List<PayAdaptResultItem> results) {
         try {
             if (payAdaptRule != null) {
                 return payAdaptRule.check(fact, results);
@@ -45,7 +48,7 @@ public class PayAdaptManager {
      * @param flowRules
      * @return
      */
-    public static boolean addRule(List<PayAdaptStatement> flowRules) {
+    public boolean addRule(List<PayAdaptStatement> flowRules) {
         try {
             if (payAdaptRule != null && flowRules != null) {
                 payAdaptRule.addRule(flowRules);

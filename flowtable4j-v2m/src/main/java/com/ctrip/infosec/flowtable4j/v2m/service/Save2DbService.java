@@ -2,26 +2,25 @@ package com.ctrip.infosec.flowtable4j.v2m.service;
 
 import com.ctrip.infosec.flowtable4j.dal.CardRiskService;
 import com.ctrip.infosec.flowtable4j.jobws.TableInfoService;
-import com.ctrip.infosec.flowtable4j.model.persist.MMap;
 import com.ctrip.infosec.flowtable4j.model.persist.PO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.PreparedStatementCallback;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.stereotype.Component;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by thyang on 2015-06-12.
  */
+@Component
 public class Save2DbService {
     @Autowired
     private CardRiskService cardRiskService;
@@ -39,7 +38,7 @@ public class Save2DbService {
     }
 
     public Map<String,String> getDbMeta(String tableName){
-        return  null;
+        return  tableInfoService.getTableInfo(tableName);
     }
 
     public void loopList(Map<String, Object> toSave, String name) {

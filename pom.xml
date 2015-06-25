@@ -567,26 +567,26 @@
 			</dependency>
 
 			<!-- servlet -->
-			<dependency>
-				<groupId>javax.servlet</groupId>
-				<artifactId>javax.servlet-api</artifactId>
-				<version>3.0.1</version>
-			</dependency>
-			<dependency>
-				<groupId>javax.servlet.jsp</groupId>
-				<artifactId>javax.servlet.jsp-api</artifactId>
-				<version>2.2.1</version>
-			</dependency>
-			<dependency>
-				<groupId>jstl</groupId>
-				<artifactId>jstl</artifactId>
-				<version>1.2</version>
-			</dependency>
-			<dependency>
-				<groupId>taglibs</groupId>
-				<artifactId>standard</artifactId>
-				<version>1.1.2</version>
-			</dependency>
+			<!--<dependency>-->
+				<!--<groupId>javax.servlet</groupId>-->
+				<!--<artifactId>javax.servlet-api</artifactId>-->
+				<!--<version>3.0.1</version>-->
+			<!--</dependency>-->
+			<!--<dependency>-->
+				<!--<groupId>javax.servlet.jsp</groupId>-->
+				<!--<artifactId>javax.servlet.jsp-api</artifactId>-->
+				<!--<version>2.2.1</version>-->
+			<!--</dependency>-->
+			<!--<dependency>-->
+				<!--<groupId>jstl</groupId>-->
+				<!--<artifactId>jstl</artifactId>-->
+				<!--<version>1.2</version>-->
+			<!--</dependency>-->
+			<!--<dependency>-->
+				<!--<groupId>taglibs</groupId>-->
+				<!--<artifactId>standard</artifactId>-->
+				<!--<version>1.1.2</version>-->
+			<!--</dependency>-->
 
 			<!-- unit test -->
 			<dependency>
@@ -633,7 +633,6 @@
 		<module>flowtable4j-dal</module>
 		<module>flowtable4j-model</module>
         <module>flowtable4j-flowlist</module>
-        <module>flowtable4j-translate</module>
     	<module>flowtable4j-payadapt</module>
 		<module>flowtable4j-biz</module>
         <module>flowtable4j-v2m</module>

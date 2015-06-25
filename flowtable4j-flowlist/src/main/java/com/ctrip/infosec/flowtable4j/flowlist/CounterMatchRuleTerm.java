@@ -34,7 +34,7 @@ public class CounterMatchRuleTerm extends FlowRuleTerm {
     public void setCountType(String countType, String countField, String sqlStatement) {
         this.countType = countType;
         this.countField = countField;
-        this.sqlStatement = sqlStatement.replace('@', ':').toUpperCase();
+        this.sqlStatement = sqlStatement.replace('@', ':').toLowerCase();
     }
 
     public void setTimeOffset(Integer startOffset, Integer endOffset) {

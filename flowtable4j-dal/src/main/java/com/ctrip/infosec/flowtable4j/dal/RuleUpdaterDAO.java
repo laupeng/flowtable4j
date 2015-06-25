@@ -128,7 +128,7 @@ public class RuleUpdaterDAO {
     public List<Map<String, Object>> getPayadaptCounterMatchTerms() {
         String sql = "SELECT r.FlowRuleID,d.ColumnName as KeyColumnName,d1.ColumnName as MatchColumnName," +
                 "r.MatchType,r.MatchValue,r.StatisticType,r.StartTimeLimit,r.TimeLimit,r.SqlValue " +
-                "FROM  InfoSecurity_PayAdapterRuleStatistic (NOLOCK) " +
+                "FROM  InfoSecurity_PayAdapterRuleStatistic r (NOLOCK) " +
                 "  INNER JOIN Def_RuleMatchField d (NOLOCK) on r.KeyFieldID=d.FieldID " +
                 "  INNER JOIN Def_RuleMatchField d1 (NOLOCK) on r.MatchFieldID=d1.FieldID " +
                 "ORDER BY r.FlowRuleID,r.MatchIndex";

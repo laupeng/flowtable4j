@@ -126,7 +126,7 @@ public class BWRuleUpdater {
             logger.info(">>> add rules");
             logger.info("total update blackWhite rules:"+bwAdd.size());
             logger.info("<<<");
-            BWManager.addRule(bwAdd);
+            bwManager.addRule(bwAdd);
         }
         if(bwSub.size()>0){
             logger.info(">>> remove rules");

@@ -21,6 +21,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * 按SceneType、CheckType组装的黑白名单
+ * 注意作为Redis的Key，在程序中对 CheckType，CheckValue，SceneType全部大写处理
  * Created by zhangsx on 2015/3/17.
  */
 @Component
@@ -76,27 +77,6 @@ public class AccountBWGManager {
             result="FAIL";
         }
         return  result;
-    }
-
-    /**
-     * 批量增加黑白名单，单线程
-     * @param rules
-     */
-    public void setBWGRule4Job(List<RuleContent> rules){
-        for (final RuleContent item : rules) {
-            String checkType = item.getCheckType();
-            String checkValue = item.getCheckValue();
-            if (!(Strings.isNullOrEmpty(checkType) || Strings.isNullOrEmpty(checkValue))) {
-                RuleStore ruleStore = new RuleStore();
-                ruleStore.setE(item.getExpiryDate());
-                ruleStore.setS(item.getSceneType().toUpperCase());
-                ruleStore.setR(item.getResultLevel());
-                //CheckValue,CheckType,SceneType should be uppercase
-                String key = String.format("BW|%s|%s", checkType, checkValue).toUpperCase();
-                String value = Utils.JSON.toJSONString(ruleStore);
-                redisProvider.set2Set(key, value);
-            }
-        }
     }
 
     /**
@@ -159,7 +139,7 @@ public class AccountBWGManager {
         final Set<String> sceneTypes = new HashSet<String>();
         //找出需要校验的SceneType
         for (AccountItem item : fact.getCheckItems()) {
-            redisKeys.add(String.format("BW|%s|%s", item.getCheckType().toUpperCase(), item.getCheckValue()).toUpperCase());
+            redisKeys.add(String.format("BW|%s|%s", item.getCheckType(),item.getCheckValue()).toUpperCase());
             sceneTypes.add(item.getSceneType().toUpperCase());
         }
 
@@ -236,7 +216,7 @@ public class AccountBWGManager {
                 RuleStore item = redisStoreItems.get(i);
                 String exp = item.getE();
                 //如果已经过期或不再指定的SceneType中，废弃
-                if (exp.compareTo(currentDate) < 0 || !sceneTypes.contains(item.getS())) {
+                if (exp.compareTo(currentDate) < 0 || !sceneTypes.contains(item.getS().toUpperCase())) {
                     redisStoreItems.remove(i);
                 } else {
                     item.setS(item.getS().toUpperCase());

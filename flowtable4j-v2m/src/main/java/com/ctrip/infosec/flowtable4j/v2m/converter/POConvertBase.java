@@ -66,7 +66,7 @@ public class POConvertBase  extends ConverterBase {
         if (DIDInfo != null && DIDInfo.size() > 0) {
             setValue(deviceId,"did",getString(DIDInfo,"did"));
         }
-        setValue(root,"deviceid",deviceId);
+        setValue(root,"didinfo",deviceId);
     }
 
 
@@ -198,7 +198,7 @@ public class POConvertBase  extends ConverterBase {
             logger.warn("查询用户" + uid + "的userInfo的信息异常" + e.getMessage());
         }
         setValue(root,"userinfo",userInfo);
-        return signupDate;
+        return  Strings.isNullOrEmpty(signupDate)? signupDate:signupDate.replace("T"," ")+".000";
     }
 
     /**
@@ -268,9 +268,9 @@ public class POConvertBase  extends ConverterBase {
         setValue(ipInfo, "useripvalue", ipValue);
         Map<String,Object> ip = checkRiskDAO.getIpCountryCity(ipValue);
         if (ip != null) {
-            setValue(ipInfo, "continent", getObject(ip, "continentid"));
-            setValue(ipInfo, "ipcity", getObject(ip, "cityid"));
-            setValue(ipInfo, "ipcountry", getObject(ip, "countrycode"));
+            setValue(ipInfo, "continent", getObject(ip,"continentid"));
+            setValue(ipInfo, "ipcity", getObject(ip,"cityid"));
+            setValue(ipInfo, "ipcountry", getObject(ip,"countrycode"));
         }
         setValue(root,"ipinfo",ipInfo);
     }

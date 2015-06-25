@@ -1,22 +1,5 @@
-import com.ctrip.infosec.common.model.RiskFact;
-import com.ctrip.infosec.flowtable4j.model.persist.GoodsInfo;
 import com.ctrip.infosec.flowtable4j.model.persist.PO;
 import com.ctrip.infosec.flowtable4j.v2m.converter.POConverter;
-import com.ctrip.infosec.flowtable4j.v2m.service.Save2DbService;
-import com.microsoft.sqlserver.jdbc.SQLServerConnectionPoolDataSource;
-import org.apache.commons.dbcp.BasicDataSource;
-import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.CallableStatementCallback;
-import org.springframework.jdbc.core.CallableStatementCreator;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.web.bind.annotation.RequestBody;
-
-import javax.sql.DataSource;
-import java.sql.CallableStatement;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Types;
-import java.util.*;
 
 /**
  * Created by zhangsx on 2015/6/17.

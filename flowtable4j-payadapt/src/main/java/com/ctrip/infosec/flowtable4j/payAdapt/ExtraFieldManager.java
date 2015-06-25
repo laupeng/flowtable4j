@@ -9,31 +9,31 @@ import java.util.Map;
  */
 public class ExtraFieldManager {
 
-    private final static Map<String, String> listFieldMap = new HashMap<String, String>();
+    private final static Map<String, String> listfieldmap = new HashMap<String, String>();
     static {
-        listFieldMap.put("PassengerIDCode@16", "PassengerList");
-        listFieldMap.put("MergePassengerIDCode6@16", "PassengerList");
-        listFieldMap.put("OptionQty@19", "DIYFlowRuleInfo");
-        listFieldMap.put("VacationType@19", "DIYFlowRuleInfo");
-        listFieldMap.put("PassengerName@1", "PassengerList");
-        listFieldMap.put("PassengerNationality@1", "PassengerList");
-        listFieldMap.put("PassengerCardID@1", "PassengerList");
-        listFieldMap.put("PassengerNameCardID@1", "PassengerList");
-        listFieldMap.put("PassengerCardID6@1", "PassengerList");
-        listFieldMap.put("PassengerCardIDLengthOne@1", "PassengerList");
-        listFieldMap.put("UidPassengerName@1", "PassengerList");
-        listFieldMap.put("UidPassengerNameCardID@1", "PassengerList");
-        listFieldMap.put("CCardNoCodePassengerNameCardID@1", "PassengerList");
-        listFieldMap.put("MobilePhonePassengerCardID@1", "PassengerList");
-        listFieldMap.put("EMailPassengerNameCardID@1", "PassengerList");
-        listFieldMap.put("SingleGuestName@32", "GuestNameList");
-        listFieldMap.put("SingleGuestName@2", "GuestNameList");
-        listFieldMap.put("PassengerIDCode@18", "PassengerList");
+        listfieldmap.put("passengeridcode@16", "passengerlist");
+        listfieldmap.put("mergepassengeridcode6@16", "passengerlist");
+        listfieldmap.put("optionqty@19", "diyflowruleinfo");
+        listfieldmap.put("vacationtype@19", "diyflowruleinfo");
+        listfieldmap.put("passengername@1", "passengerlist");
+        listfieldmap.put("passengernationality@1", "passengerlist");
+        listfieldmap.put("passengercardid@1", "passengerlist");
+        listfieldmap.put("passengernamecardid@1", "passengerlist");
+        listfieldmap.put("passengercardid6@1", "passengerlist");
+        listfieldmap.put("passengercardidlengthone@1", "passengerlist");
+        listfieldmap.put("uidpassengername@1", "passengerlist");
+        listfieldmap.put("uidpassengernamecardid@1", "passengerlist");
+        listfieldmap.put("ccardnocodepassengernamecardid@1", "passengerlist");
+        listfieldmap.put("mobilephonepassengercardid@1", "passengerlist");
+        listfieldmap.put("emailpassengernamecardid@1", "passengerlist");
+        listfieldmap.put("singleguestname@32", "guestnamelist");
+        listfieldmap.put("singleguestname@2", "guestnamelist");
+        listfieldmap.put("passengeridcode@18", "passengerlist");
     }
     public static String getParentNode(String fieldName,Integer orderType){
         String key=String.format("%s@%d",fieldName,orderType);
-        if(listFieldMap.containsKey(key)){
-            return listFieldMap.get(key);
+        if(listfieldmap.containsKey(key)){
+            return listfieldmap.get(key);
         }
         return null;
     }

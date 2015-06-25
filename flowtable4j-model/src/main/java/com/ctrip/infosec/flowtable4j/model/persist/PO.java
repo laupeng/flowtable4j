@@ -39,7 +39,7 @@ public class PO extends MapX {
 
         //d
         prop2table.put("dealinfo", "infosecurity_dealinfo");
-        prop2table.put("deviceid", "infosecurity_deviceidinfo");
+        prop2table.put("didinfo", "infosecurity_deviceidinfo");
         prop2table.put("devoteinfoviewbyjifen","infosecurity_devoterinfoviewbyjifen");
         prop2table.put("distribution","infosecurity_distributioninfo");
         prop2table.put("distributioncompany","infosecurity_distributioncompany");

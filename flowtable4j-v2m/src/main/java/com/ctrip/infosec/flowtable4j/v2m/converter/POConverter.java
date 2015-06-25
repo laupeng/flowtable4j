@@ -1,14 +1,12 @@
 package com.ctrip.infosec.flowtable4j.v2m.converter;
 
-import com.ctrip.infosec.flowtable4j.model.MapX;
 import com.ctrip.infosec.flowtable4j.model.RequestBody;
 import com.ctrip.infosec.flowtable4j.model.persist.PO;
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableMap;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -17,6 +15,7 @@ import java.util.Map;
  * 内部操作模式为对象类
  * Created by thyang on 2015-06-10.
  */
+@Component
 public class POConverter extends POConvertBase {
 
     public PO convert(RequestBody requestBody) {
@@ -27,7 +26,17 @@ public class POConverter extends POConvertBase {
         String orderType = getString(eventBody, "ordertype");
         String merchantOrderId = getString(eventBody, "merchantorderid");
         String checkType = getString(eventBody, "checktype");
+        String suborderType = getString(eventBody, "subordertype");
         po.setPrepaytype(getString(eventBody, "orderprepaytype"));
+        if(StringUtils.isNumeric(orderId)) {
+            po.setOrderid(Long.parseLong(orderId));
+        }
+        if(StringUtils.isNumeric(orderType)){
+           po.setOrdertype(Integer.parseInt(orderType));
+        }
+        if(StringUtils.isNumeric(suborderType)) {
+            po.setSubordertype(Integer.parseInt(suborderType));
+        }
 
         if (Strings.isNullOrEmpty(orderId) || "0".equals(orderId)) {
             throw new RuntimeException("ORDERID IS ZERO");
@@ -96,7 +105,7 @@ public class POConverter extends POConvertBase {
             //fill Hotel Group
             Map<String, Object> hotelGroup = new HashMap<String, Object>();
             copyMap(requestBody.getEventBody(), hotelGroup, "infosecurity_hotelgroupinfo");
-            setValue(productInfo, "hotelgroup", hotelGroup);
+            setValue(productInfo, "hotelgroupinfo", hotelGroup);
 
             //fill Other Info
             fillOtherInfo(productInfo, getString(eventBody, "orderdate"), signupDate, getString(eventBody, "takeofftime"));

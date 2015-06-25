@@ -40,9 +40,7 @@ public class FlowtableProcessor {
 
     private static final long FLOWTIMEOUT = 10000;
 
-    private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-
-    /**
+     /**
      * 支付校验
      *
      * @param checkEntity

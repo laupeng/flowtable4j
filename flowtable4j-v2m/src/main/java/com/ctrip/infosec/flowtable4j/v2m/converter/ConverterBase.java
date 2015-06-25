@@ -170,7 +170,7 @@ public class ConverterBase {
     }
 
     protected String dateDiffHour(String startDate,String endDate) {
-        if(startDate ==null || endDate ==null){
+        if(Strings.isNullOrEmpty(startDate) || Strings.isNullOrEmpty(endDate)){
             return "0";
         }
         try {

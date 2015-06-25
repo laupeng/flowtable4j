@@ -4,6 +4,7 @@ import com.ctrip.infosec.flowtable4j.model.AccountFact;
 import com.ctrip.infosec.flowtable4j.model.AccountItem;
 import com.ctrip.infosec.flowtable4j.model.persist.PO;
 import com.google.common.base.Strings;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.List;
  * Convert PO Entity to for Account BWG Check
  * Created by thyang on 2015-06-10.
  */
+@Component
 public class AccountConverter extends ConverterBase {
     private static List<String> sceneTypes = new ArrayList<String>();
     static {

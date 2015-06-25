@@ -4,6 +4,7 @@ import com.ctrip.infosec.flowtable4j.model.BWFact;
 import com.ctrip.infosec.flowtable4j.model.MapX;
 import com.ctrip.infosec.flowtable4j.model.persist.PO;
 import com.google.common.collect.ImmutableMap;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,6 +15,7 @@ import java.util.Map;
  * 转换PO为黑白名单，支付风控黑白名单
  * Created by thyang on 2015-06-10.
  */
+@Component
 public class BlackWhiteConverter extends ConverterBase {
 
     public BWFact convert(PO po) {

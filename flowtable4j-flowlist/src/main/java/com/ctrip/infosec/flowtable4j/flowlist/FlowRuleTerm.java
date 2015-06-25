@@ -38,10 +38,10 @@ public abstract class FlowRuleTerm {
 
 
     public FlowRuleTerm(String fieldName,String operator,String matchValue){
-        this.fieldName = fieldName;
-        this.operator =operator;
-        this.matchValue = matchValue;
-        this.matchField = matchValue;
+        this.fieldName = fieldName.toLowerCase();
+        this.operator =operator.toLowerCase();
+        this.matchValue = Strings.nullToEmpty(matchValue).toLowerCase();
+        this.matchField = this.matchValue;
         setComparer();
     }
 
@@ -49,37 +49,37 @@ public abstract class FlowRuleTerm {
 
     //缺少FLESS,SCORE
     private void setComparer(){
-        if("EQ".equals(operator) || "FEQ".equals(operator)){
+        if("eq".equals(operator) || "feq".equals(operator)){
             executor = eqOper;
         }
-        else if("NE".equals(operator)||"FNE".equals(operator)){
+        else if("ne".equals(operator)||"fne".equals(operator)){
             executor = neOper;
         }
-        else if("GE".equals(operator)||"FGE".equals(operator)){
+        else if("ge".equals(operator)||"fge".equals(operator)){
             executor = geOper;
         }
-        else if("IN".equals(operator)||"FIN".equals(operator)){
+        else if("in".equals(operator)||"fin".equals(operator)){
             executor = inOper;
         }
-        else if("LE".equals(operator)||"FLE".equals(operator)){
+        else if("le".equals(operator)||"fle".equals(operator)){
             executor = leOper;
         }
-        else if("GT".equals(operator)||"GREAT".equals(operator)||"FGT".equals(operator)){
+        else if("gt".equals(operator)||"great".equals(operator)||"fgt".equals(operator)){
             executor = gtOper;
         }
-        else if("NA".equals(operator)|| "FNA".equals(operator)){
+        else if("na".equals(operator)|| "fna".equals(operator)){
             executor = naOper;
         }
-        else if("LT".equals(operator)||"LESS".equals(operator)||"FLT".equals(operator)||"FLESS".equals(operator)){
+        else if("lt".equals(operator)||"less".equals(operator)||"flt".equals(operator)||"fless".equals(operator)){
             executor = ltOper;
         }
-        else if("LLIKE".equals(operator)){
+        else if("llike".equals(operator)){
             executor = llOper;
         }
-        else if("RLIKE".equals(operator)){
+        else if("rlike".equals(operator)){
             executor = rlOper;
         }
-        else if("REGEX".equals(operator)){
+        else if("regex".equals(operator)){
             executor = rgOper;
         }
     }

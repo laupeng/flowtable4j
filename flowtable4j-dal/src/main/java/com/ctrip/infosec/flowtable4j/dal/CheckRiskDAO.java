@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.PreparedStatementCallback;
 import org.springframework.jdbc.core.SqlParameterValue;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -55,7 +56,7 @@ public class CheckRiskDAO {
     public String getOriginRiskLevelCount(Map<String, Object> kv, Integer orderType) {
         Integer[] orderTypes = new Integer[]{0, orderType};
         for (String k : kv.keySet()) {
-            String v = MapX.getString(kv,k);
+            String v = MapX.getString(kv, k);
             if (!Strings.isNullOrEmpty(v)) {
                 for (Integer orderTy : orderTypes) {
                     String tableName = getTableName(k, orderType);
@@ -106,6 +107,8 @@ public class CheckRiskDAO {
         try {
             String sql = "SELECT TOP 1 cityname,province,country,provincename,hotelprovince FROM BaseData_City WITH(NOLOCK) WHERE City=? ";
             return cardRiskDb.queryForMap(sql, new Object[]{city}, new int[]{Types.BIGINT});
+        } catch (EmptyResultDataAccessException ex) {
+            //Skip
         } catch (Exception exp) {
             logger.warn("查询ip对应的城市信息异常:", exp);
         }
@@ -122,6 +125,8 @@ public class CheckRiskDAO {
         try {
             String sql = "SELECT TOP 1 provincename,cityname FROM BaseData_IDCardInfo WITH(NOLOCK) WHERE IDCardNumber=? ";
             return cardRiskDb.queryForMap(sql, new Object[]{iDCardNumber}, new int[]{Types.VARCHAR});
+        } catch (EmptyResultDataAccessException ex) {
+            //Skip
         } catch (Exception exp) {
             logger.warn("获取省份证归属省信息:", exp);
         }
@@ -142,6 +147,8 @@ public class CheckRiskDAO {
             if (orderDate != null) {
                 return orderDate.get("orderdate").toString();
             }
+        } catch (EmptyResultDataAccessException ex) {
+            //Skip
         } catch (Exception exp) {
             logger.warn("查询CTRIP_ALL_UID_OrderDate异常", exp);
         }
@@ -159,11 +166,13 @@ public class CheckRiskDAO {
         try {
             if (!Strings.isNullOrEmpty(mobilePhone) && mobilePhone.length() > 6) {
                 mobilePhone = mobilePhone.substring(0, 7);
-                if(StringUtils.isNumeric(mobilePhone)) {
+                if (StringUtils.isNumeric(mobilePhone)) {
                     String sql = "SELECT TOP 1 provincename,cityname  FROM BaseData_MobilePhoneInfo WITH(NOLOCK) WHERE MobileNumber=? ";
                     return cardRiskDb.queryForMap(sql, new Object[]{mobilePhone}, new int[]{Types.BIGINT});
                 }
             }
+        } catch (EmptyResultDataAccessException ex) {
+            //Skip
         } catch (Exception exp) {
             logger.warn("从sql查询手机号对应的城市信息异常", exp);
         }
@@ -180,6 +189,8 @@ public class CheckRiskDAO {
         try {
             String sql = "SELECT TOP 1 countrycode,countryname,city,cityid,continent,continentid,citynamech,countrynamech FROM IpCountryCity WITH(NOLOCK) WHERE IpStart <= ? ORDER BY IpStart DESC ";
             return cardRiskDb.queryForMap(sql, new Object[]{ipValue}, new int[]{Types.BIGINT});
+        } catch (EmptyResultDataAccessException ex) {
+            //Skip
         } catch (Exception exp) {
             logger.warn("查询ip对应的城市信息异常:", exp);
         }
@@ -197,6 +208,8 @@ public class CheckRiskDAO {
         try {
             String sql = "SELECT TOP 1 did  FROM CacheData_DeviceIDInfo WITH(NOLOCK) WHERE Oid = ? AND Payid = ? ORDER BY RecordID desc";
             return flowDb.queryForMap(sql, new Object[]{orderId, payId}, new int[]{Types.VARCHAR, Types.VARCHAR});
+        } catch (EmptyResultDataAccessException ex) {
+            //Skip
         } catch (Exception exp) {
             logger.warn("查询DID信息异常", exp);
         }
@@ -214,6 +227,8 @@ public class CheckRiskDAO {
         try {
             String sql = "SELECT city,bankofcardissue,nationality,cardname FROM CreditCardRule_ForeignCard WITH(NOLOCK) WHERE CardTypeID = ? and CardRule = ?";
             return cardRiskDb.queryForMap(sql, new Object[]{cardTypeId, cardBin}, new int[]{Types.INTEGER, Types.VARCHAR});
+        } catch (EmptyResultDataAccessException ex) {
+            //Skip
         } catch (Exception exp) {
             logger.warn("getForeignCardInfo异常", exp);
         }
@@ -230,6 +245,8 @@ public class CheckRiskDAO {
         try {
             String sql = "SELECT active FROM CardRisk_Leaked_Uid WITH(NOLOCK) WHERE Uid =?";
             return cusDb.queryForMap(sql, new Object[]{uid}, new int[]{Types.VARCHAR});
+        } catch (EmptyResultDataAccessException ex) {
+            //Skip
         } catch (Exception exp) {
             logger.warn("获取CardRisk_Leaked_Uid异常", exp);
         }
@@ -247,6 +264,8 @@ public class CheckRiskDAO {
         try {
             String sql = "SELECT TOP 1 branchcity,branchprovince  FROM BaseData_CardBankInfo WITH(NOLOCK) WHERE CreditCardType =? and BranchNo = ?";
             return cardRiskDb.queryForMap(sql, new Object[]{creditCardType, branchNo}, new int[]{Types.INTEGER, Types.VARCHAR});
+        } catch (EmptyResultDataAccessException ex) {
+            //Skip
         } catch (Exception exp) {
             logger.warn("获取BaseData_CardBankInfo查询异常", exp);
         }
@@ -263,6 +282,8 @@ public class CheckRiskDAO {
         try {
             String sql = "SELECT TOP 1 nationality,countryname  FROM BaseData_CountryInfo WITH(NOLOCK) WHERE Country =? ";
             return cardRiskDb.queryForMap(sql, new Object[]{country}, new int[]{Types.BIGINT});
+        } catch (EmptyResultDataAccessException ex) {
+            //Skip
         } catch (Exception exp) {
             logger.warn("根据国家编号获取国家的名称和国际异常", exp);
         }
@@ -274,6 +295,8 @@ public class CheckRiskDAO {
             long id = Long.parseLong(orderId) % 4;
             String sql = String.format("SELECT content FROM InfoSecurity_LastProductInfo%s WITH(NOLOCK) WHERE pid=?", id);
             return cardRiskDb.queryForMap(sql, String.format("%s|%s|%s", orderId, orderType, merchantId), Types.VARCHAR);
+        } catch (EmptyResultDataAccessException ex) {
+            //Skip
         } catch (Exception ex) {
             logger.warn(String.format("获取历史产品数据失败:%s", orderId), ex);
         }
@@ -285,6 +308,8 @@ public class CheckRiskDAO {
             long id = Long.parseLong(orderId) % 4;
             String sql = String.format("SELECT content,risklevel,prepaytype FROM InfoSecurity_LastPaymentInfo%s WITH(NOLOCK) WHERE pid=?", id);
             return cardRiskDb.queryForMap(sql, String.format("%s|%s", orderId, orderType), Types.VARCHAR);
+        } catch (EmptyResultDataAccessException ex) {
+            //Skip
         } catch (Exception ex) {
             logger.warn(String.format("获取历史支付数据失败:%s", orderId), ex);
         }
@@ -298,7 +323,7 @@ public class CheckRiskDAO {
                     "IF EXISTS (SELECT 'X' FROM InfoSecurity_LastProductInfo%s WITH(NOLOCK) WHERE PID=:p1)\n" +
                             "   EXEC spA_InfoSecurity_LastProductInfo%s_u @PID=:p1,@Content=:p2\n" +
                             "ELSE\n" +
-                            "   EXEC spA_InfoSecurity_LastProductInfo%s_i @PID=:p1,@Content=:p2", id);
+                            "   EXEC spA_InfoSecurity_LastProductInfo%s_i @PID=:p1,@Content=:p2", id, id, id);
 
             MapSqlParameterSource params = new MapSqlParameterSource();
             SqlParameterValue value0 = new SqlParameterValue(Types.VARCHAR, String.format("%s|%s", orderId, orderType));
@@ -326,7 +351,7 @@ public class CheckRiskDAO {
                     "IF EXISTS (SELECT 'X' FROM InfoSecurity_LastPaymentInfo%s WITH(NOLOCK) WHERE PID=:p1)\n" +
                             "   EXEC spA_InfoSecurity_LastPaymentInfo%s_u @PID=:p1,@Content=:p2,PrepayType=:p3\n" +
                             "ELSE\n" +
-                            "   EXEC spA_InfoSecurity_LastPaymentInfo%s_i @PID=:p1,@Content=:p2,PrepayType=:p3", id);
+                            "   EXEC spA_InfoSecurity_LastPaymentInfo%s_i @PID=:p1,@Content=:p2,PrepayType=:p3", id, id, id);
 
             MapSqlParameterSource params = new MapSqlParameterSource();
             SqlParameterValue value0 = new SqlParameterValue(Types.VARCHAR, String.format("%s|%s", orderId, orderType));

@@ -9,12 +9,16 @@ public class RuleContent {
 
     @JsonProperty("CheckType")
     private String checkType;
+
     @JsonProperty("SceneType")
     private String sceneType;
+
     @JsonProperty("CheckValue")
     private String checkValue;
+
     @JsonProperty("ExpiryDate")
     private String expiryDate;
+
     @JsonProperty("ResultLevel")
     private Integer resultLevel;
 

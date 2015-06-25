@@ -55,7 +55,7 @@ public class FlowRuleUpdater  {
                 id = Integer.valueOf(Objects.toString(value.get("FlowRuleID"), "-1"));
                 if (currentRuleId == id) {      //属于当前规则的条款
                     String fieldName = Objects.toString(value.get("ColumnName"), "");
-                    String op = Objects.toString(value.get("MatchType"), "").toUpperCase();
+                    String op = Objects.toString(value.get("MatchType"), "");
                     String matchValue = Objects.toString(value.get("MatchValue"), "");
                     FlowRuleTerm valueTerm = new ValueMatchRuleTerm(fieldName, op, matchValue);
                     flowRuleStatement.getFlowRuleTerms().add(valueTerm);

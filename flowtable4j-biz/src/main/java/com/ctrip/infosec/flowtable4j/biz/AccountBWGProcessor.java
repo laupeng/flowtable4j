@@ -15,12 +15,12 @@ import java.util.List;
  * Created by zhangsx on 2015/5/19.
  */
 @Component
-public class BWGProcessor {
+public class AccountBWGProcessor {
 
     @Autowired
     private AccountBWGManager accountBWGManager;
 
-    private static Logger logger = LoggerFactory.getLogger(BWGProcessor.class);
+    private static Logger logger = LoggerFactory.getLogger(AccountBWGProcessor.class);
 
     /**
      * 新增黑白名单
