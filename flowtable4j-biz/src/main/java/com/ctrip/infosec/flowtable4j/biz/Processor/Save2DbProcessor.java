@@ -3,6 +3,7 @@ package com.ctrip.infosec.flowtable4j.biz.processor;
 import com.ctrip.infosec.flowtable4j.dal.CardRiskService;
 import com.ctrip.infosec.flowtable4j.jobws.TableInfoService;
 import com.ctrip.infosec.flowtable4j.model.persist.PO;
+import com.ctrip.infosec.flowtable4j.model.persist.TableInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
@@ -37,7 +38,7 @@ public class Save2DbProcessor {
         return 10000;
     }
 
-    public Map<String,String> getDbMeta(String tableName){
+    public List<TableInfo> getDbMeta(String tableName){
         return  tableInfoService.getTableInfo(tableName);
     }
 
@@ -81,7 +82,7 @@ public class Save2DbProcessor {
 
     private void saveMap(Map<String, Object> toSave, String tableName) {
 //        cardRiskService.saveByTableInfo(toSave, tableName);
-        Map<String, String> tableInfo = tableInfoService.getTableInfo(tableName);
+        List<TableInfo> tableInfo = tableInfoService.getTableInfo(tableName);
 //        if (toSave instanceof MMap) {
 //            MMap m = ((MMap) toSave);
 //            if (m.isBase()) {
@@ -138,9 +139,9 @@ public class Save2DbProcessor {
         String table_order = "infosecurity_flightsorderinfo";
         String table_passenger = "infosecurity_passengerinfo";
         String table_segment = "infosecurity_segmentinfo";
-        Map<String, String> tableInfo_order = tableInfoService.getTableInfo(table_order);
-        Map<String, String> tableInfo_passenger = tableInfoService.getTableInfo(table_passenger);
-        Map<String, String> tableInfo_segment = tableInfoService.getTableInfo(table_segment);
+        List<TableInfo> tableInfo_order = tableInfoService.getTableInfo(table_order);
+        List<TableInfo> tableInfo_passenger = tableInfoService.getTableInfo(table_passenger);
+        List<TableInfo> tableInfo_segment = tableInfoService.getTableInfo(table_segment);
         Map<String, Object> order = (Map) toSave.get("order");
         List<Map<String, Object>> passengerList = (List) toSave.get("passengerlist");
         List<Map<String, Object>> segmentList = (List) toSave.get("segmentlist");
@@ -161,8 +162,8 @@ public class Save2DbProcessor {
     private void saveGoodsInfo(Map<String, Object> toSave) {
         String table_goods = "infosecurity_goodslistinfo";
         String table_goodsItem = "infosecurity_goodsiteminfo";
-        Map<String, String> tableInfo_goods = tableInfoService.getTableInfo(table_goods);
-        Map<String, String> tableInfo_goodsItem = tableInfoService.getTableInfo(table_goodsItem);
+        List<TableInfo> tableInfo_goods = tableInfoService.getTableInfo(table_goods);
+        List<TableInfo> tableInfo_goodsItem = tableInfoService.getTableInfo(table_goodsItem);
         Map<String, Object> goods = (Map) toSave.get("goods");
         List<Map<String, Object>> goodsItemList = (List) toSave.get("goodsitemlist");
 
@@ -179,10 +180,10 @@ public class Save2DbProcessor {
         String table_prizeDetail = "infosecurity_prizedetailitembyjifen";
         String table_paymentItem = "infosecurity_paymentitemviewbyjifen";
 
-        Map<String, String> tableInfo_order = tableInfoService.getTableInfo(table_order);
-        Map<String, String> tableInfo_greetingCard = tableInfoService.getTableInfo(table_greetingCard);
-        Map<String, String> tableInfo_prizeDetail = tableInfoService.getTableInfo(table_prizeDetail);
-        Map<String, String> tableInfo_paymentItem = tableInfoService.getTableInfo(table_paymentItem);
+        List<TableInfo> tableInfo_order = tableInfoService.getTableInfo(table_order);
+        List<TableInfo> tableInfo_greetingCard = tableInfoService.getTableInfo(table_greetingCard);
+        List<TableInfo> tableInfo_prizeDetail = tableInfoService.getTableInfo(table_prizeDetail);
+        List<TableInfo> tableInfo_paymentItem = tableInfoService.getTableInfo(table_paymentItem);
         Map<String, Object> order = (Map) toSave.get("order");
         Map<String, Object> greetingCard = (Map) toSave.get("greetingcard");
         Map<String, Object> prizeDetail = (Map) toSave.get("prizedetail");
@@ -202,8 +203,8 @@ public class Save2DbProcessor {
     private void savePaymentInfo(Map<String, Object> toSave) {
         String table_payment = "infosecurity_paymentinfo";
         String table_cardInfo = "infosecurity_cardinfo";
-        Map<String, String> tableInfo_payment = tableInfoService.getTableInfo(table_payment);
-        Map<String, String> tableInfo_cardInfo = tableInfoService.getTableInfo(table_cardInfo);
+        List<TableInfo> tableInfo_payment = tableInfoService.getTableInfo(table_payment);
+        List<TableInfo> tableInfo_cardInfo = tableInfoService.getTableInfo(table_cardInfo);
         Map<String, Object> payment = (Map) toSave.get("rail");
         List<Map<String, Object>> cardInfoList = (List) toSave.get("user");
 
@@ -216,8 +217,8 @@ public class Save2DbProcessor {
     private void saveRailInfo(Map<String, Object> toSave) {
         String table_rail = "infosecurity_exrailinfo";
         String table_user = "infosecurity_exrailuserinfo";
-        Map<String, String> tableInfo_rail = tableInfoService.getTableInfo(table_rail);
-        Map<String, String> tableInfo_user = tableInfoService.getTableInfo(table_user);
+        List<TableInfo> tableInfo_rail = tableInfoService.getTableInfo(table_rail);
+        List<TableInfo> tableInfo_user = tableInfoService.getTableInfo(table_user);
         Map<String, Object> rail = (Map) toSave.get("rail");
         Map<String, Object> user = (Map) toSave.get("user");
 
@@ -229,8 +230,8 @@ public class Save2DbProcessor {
     private void saveTopShopMerchantItem(Map<String, Object> toSave) {
         String table_topShopMerchant = "infosecurity_topshopmerchantitem";
         String table_product = "infosecurity_topshopproductioninfo";
-        Map<String, String> tableInfo_topShopMerchant = tableInfoService.getTableInfo(table_topShopMerchant);
-        Map<String, String> tableInfo_product = tableInfoService.getTableInfo(table_product);
+        List<TableInfo> tableInfo_topShopMerchant = tableInfoService.getTableInfo(table_topShopMerchant);
+        List<TableInfo> tableInfo_product = tableInfoService.getTableInfo(table_product);
         Map<String, Object> topShopMerchant = (Map) toSave.get("topShopMerchant");
         List<Map<String, Object>> productList = (List) toSave.get("productList");
 
@@ -244,9 +245,9 @@ public class Save2DbProcessor {
         String table_order = "infosecurity_vacationinfo";
         String table_user = "infosecurity_vacationuserinfo";
         String table_option = "infosecurity_vacationoptioninfo";
-        Map<String, String> tableInfo_order = tableInfoService.getTableInfo(table_order);
-        Map<String, String> tableInfo_user = tableInfoService.getTableInfo(table_user);
-        Map<String, String> tableInfo_option = tableInfoService.getTableInfo(table_option);
+        List<TableInfo> tableInfo_order = tableInfoService.getTableInfo(table_order);
+        List<TableInfo> tableInfo_user = tableInfoService.getTableInfo(table_user);
+        List<TableInfo> tableInfo_option = tableInfoService.getTableInfo(table_option);
 
         Map<String, Object> order = (Map) toSave.get("order");
         List<Map<String, Object>> userList = (List) toSave.get("userList");

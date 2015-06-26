@@ -3,11 +3,13 @@ package com.ctrip.infosec.flowtable4j.biz.processor;
 import com.ctrip.infosec.flowtable4j.dal.CheckRiskDAO;
 import com.ctrip.infosec.flowtable4j.dal.ESBClient;
 import com.ctrip.infosec.flowtable4j.model.MapX;
+import com.ctrip.infosec.flowtable4j.model.persist.TableInfo;
 import com.ctrip.infosec.sars.util.mapper.JsonMapper;
 import com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.text.SimpleDateFormat;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -105,10 +107,10 @@ public class ConverterBase {
      * @param dbEntity    表名
      */
     protected void copyMap(Map<String, Object> src,Map<String, Object> targetMap, String dbEntity) {
-        Map<String, String> dbMeta = dbService.getDbMeta(dbEntity);
-        for (String field : dbMeta.keySet()) {
-            setValue(targetMap, field, getObject(src, field));
-        }
+        List<TableInfo> dbMeta = dbService.getDbMeta(dbEntity);
+//        for (String field : dbMeta.keySet()) {
+//            setValue(targetMap, field, getObject(src, field));
+//        }
     }
 
     public String getString(Map<String,Object> data, String key) {

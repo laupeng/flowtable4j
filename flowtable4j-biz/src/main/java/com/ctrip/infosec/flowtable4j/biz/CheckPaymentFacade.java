@@ -1,5 +1,4 @@
 package com.ctrip.infosec.flowtable4j.biz;
-
 import com.ctrip.infosec.flowtable4j.biz.processor.*;
 import com.ctrip.infosec.flowtable4j.model.*;
 import com.ctrip.infosec.flowtable4j.model.persist.PO;

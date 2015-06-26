@@ -1,6 +1,7 @@
 package com.ctrip.infosec.flowtable4j.jobws;
 
 import com.ctrip.infosec.flowtable4j.dal.CardRiskService;
+import com.ctrip.infosec.flowtable4j.model.persist.TableInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -46,7 +47,7 @@ public class TableInfoService {
         }
     }
 
-    public Map<String,String> getTableInfo(String tableName){
-        return tableInfos.get(tableName);
+    public List<TableInfo> getTableInfo(String tableName){
+        return null;
     }
 }
