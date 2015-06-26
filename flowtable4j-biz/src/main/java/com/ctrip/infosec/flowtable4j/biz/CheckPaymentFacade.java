@@ -1,13 +1,8 @@
 package com.ctrip.infosec.flowtable4j.biz;
 
-import com.ctrip.infosec.flowtable4j.biz.processor.FlowtableProcessor;
+import com.ctrip.infosec.flowtable4j.biz.processor.*;
 import com.ctrip.infosec.flowtable4j.model.*;
 import com.ctrip.infosec.flowtable4j.model.persist.PO;
-import com.ctrip.infosec.flowtable4j.v2m.converter.AccountConverter;
-import com.ctrip.infosec.flowtable4j.v2m.converter.BlackWhiteConverter;
-import com.ctrip.infosec.flowtable4j.v2m.converter.FlowConverter;
-import com.ctrip.infosec.flowtable4j.v2m.converter.POConverter;
-import com.ctrip.infosec.flowtable4j.biz.processor.Save2DbProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

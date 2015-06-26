@@ -635,6 +635,5 @@
         <module>flowtable4j-flowlist</module>
     	<module>flowtable4j-payadapt</module>
 		<module>flowtable4j-biz</module>
-        <module>flowtable4j-v2m</module>
   </modules>
 </project>
