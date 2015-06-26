@@ -1,5 +1,8 @@
 package com.ctrip.infosec.flowtable4j.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.List;
 
 /**
@@ -7,16 +10,22 @@ import java.util.List;
  */
 public class PayAdaptResultItem {
 
+    @JsonProperty(value = "ResultLevel")
     private int resultLevel;
 
+    @JsonProperty(value = "ResultList")
     private List<String> resultList;
 
+    @JsonProperty(value = "ResultType")
     private String resultType;
 
+    @JsonProperty(value = "SceneType")
     private String sceneType;
 
+    @JsonProperty(value = "RuleRemark")
     private String ruleRemark;
 
+    @JsonIgnore()
     private String paymentStatus;
 
     public int getResultLevel() {

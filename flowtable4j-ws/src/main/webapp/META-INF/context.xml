@@ -46,6 +46,30 @@
               connectionProperties="sendStringParametersAsUnicode=false"
     />
 
+    <Resource name="jdbc/PayBaseDB_INSERT_1"
+              auth="Container"
+              type="javax.sql.DataSource"
+              factory="com.ctrip.datasource.pool.CtripDataSourceFactory"
+              testWhileIdle="true"
+              testOnBorrow="true"
+              testOnReturn="false"
+              validationQuery="SELECT 1"
+              validationInterval="30000"
+              timeBetweenEvictionRunsMillis="30000"
+              maxActive="100"
+              minIdle="10"
+              maxWait="10000"
+              initialSize="10"
+              removeAbandonedTimeout="60"
+              removeAbandoned="true"
+              logAbandoned="true"
+              minEvictableIdleTimeMillis="30000"
+              jmxEnabled="true"
+              jdbcInterceptors="org.apache.tomcat.jdbc.pool.interceptor.ConnectionState;org.apache.tomcat.jdbc.pool.interceptor.StatementFinalizer"
+              connectionProperties="sendStringParametersAsUnicode=false"
+            />
+
+
     <Resource name="jdbc/RiskCtrlPreProcDB_INSERT_1"
               auth="Container"
               type="javax.sql.DataSource"

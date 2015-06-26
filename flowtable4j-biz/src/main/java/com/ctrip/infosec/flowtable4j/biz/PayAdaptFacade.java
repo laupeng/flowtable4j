@@ -5,6 +5,7 @@ import com.ctrip.infosec.flowtable4j.accountsecurity.AccountBWGManager;
 import com.ctrip.infosec.flowtable4j.biz.processor.PayAdaptProcessor;
 import com.ctrip.infosec.flowtable4j.bwlist.BWManager;
 import com.ctrip.infosec.flowtable4j.core.utils.SimpleStaticThreadPool;
+import com.ctrip.infosec.flowtable4j.dal.PaybaseDbService;
 import com.ctrip.infosec.flowtable4j.model.*;
 import com.ctrip.infosec.flowtable4j.payAdapt.PayAdaptManager;
 import com.ctrip.infosec.sars.monitor.util.Utils;
@@ -40,6 +41,9 @@ public class PayAdaptFacade {
 
     @Autowired
     PayAdaptProcessor payAdaptProcessor;
+
+    @Autowired
+    PaybaseDbService paybaseDbService;
 
     private static Logger logger = LoggerFactory.getLogger(PayAdaptFacade.class);
     private static final String EVENTWS = GlobalConfig.getString("EventWS");
@@ -150,6 +154,9 @@ public class PayAdaptFacade {
         long end = System.currentTimeMillis();
         logger.debug("merge pay adapt result costs " + (end - start) + "ms");
         result.setPayAdaptResultItems(results);
+
+        paybaseDbService.save(checkEntity.getMerchantID(), checkEntity.getOrderID(), checkEntity.getOrderType(),checkEntity.getUid(),results);
+
         return result;
     }
 

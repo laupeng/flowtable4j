@@ -60,7 +60,7 @@ public class CardRiskService {
 
     public void saveCheckResultLog(RiskResult result) {
         final long reqId = result.getReqId();
-        List<Callable<Object>> tasks = new ArrayList<Callable<Object>>();
+
         for (final CheckResultLog item : result.getResults()) {
             SimpleStaticThreadPool.getInstance().submit(new Runnable() {
                 @Override

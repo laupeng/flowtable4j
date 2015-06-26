@@ -24,6 +24,12 @@
               </property>
        </bean>
 
+       <bean id="payBaseDBDataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
+              <property name="jndiName">
+                     <value>java:comp/env/jdbc/PayBaseDB_INSERT_1${DBDataCenter}</value>
+              </property>
+       </bean>
+
 
 
        <!-- JDBC模板 -->
@@ -37,6 +43,10 @@
 
        <bean id="cusDbTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
               <property name="dataSource" ref="cusRATDBDataSource"/>
+       </bean>
+
+       <bean id="paybaseDbTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+              <property name="dataSource" ref="payBaseDBDataSource"/>
        </bean>
 
        <bean id="flowDbNamedTemplate" class="org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate">
