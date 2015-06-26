@@ -2,6 +2,7 @@ package com.ctrip.infosec.flowtable4j.biz.processor;
 
 import com.ctrip.infosec.flowtable4j.dal.CardRiskService;
 import com.ctrip.infosec.flowtable4j.jobws.TableInfoService;
+import com.ctrip.infosec.flowtable4j.model.MapX;
 import com.ctrip.infosec.flowtable4j.model.persist.PO;
 import com.ctrip.infosec.flowtable4j.model.persist.TableInfo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,15 +35,20 @@ public class Save2DbProcessor {
 //    ThreadLocal<List<MMap>> local = new ThreadLocal();
 //    ThreadLocal<Map<String,MMap>> localBase = new ThreadLocal();
 
-    public long saveDealInfo(PO po){
-        return 10000;
+    public void save(PO po) {
+        Map<String, Object> dealInfo = MapX.getMap(po.getProductinfo(), "dealinfo");
+        if (dealInfo != null) {
+            long reqId = saveDealInfo(dealInfo);
+            loopList(po.getPaymentinfo(), "", reqId);
+            loopList(po.getProductinfo(), "", reqId);
+        }
     }
 
     public List<TableInfo> getDbMeta(String tableName){
         return  tableInfoService.getTableInfo(tableName);
     }
 
-    public void loopList(Map<String, Object> toSave, String name) {
+    public void loopList(Map<String, Object> toSave, String name,long reqId) {
         if ("goodsList~.".equals(name)) {
             saveGoodsInfo(toSave);
         } else if ("flightInfoList~.".equals(name)) {
@@ -71,7 +77,7 @@ public class Save2DbProcessor {
                 Object v = toSave.get(k);
                 if (v instanceof List) {
                     for (Iterator<Map<String, Object>> itM = ((List<Map<String, Object>>) v).iterator(); itM.hasNext(); ) {
-                        loopList(itM.next(), name.length() == 0 ? k + "~." : name + k + "~.");
+                        loopList(itM.next(), name.length() == 0 ? k + "~." : name + k + "~.",reqId);
                     }
                 } else {
                     saveMap((Map<String, Object>) v, PO.getProp2Table().get(name.length() == 0 ? k : name + k));
@@ -275,5 +281,9 @@ public class Save2DbProcessor {
                 return null;
             }
         });
+    }
+
+    private long saveDealInfo(Map<String, Object> dealinfo) {
+        return cardRiskService.saveImpl(dealinfo, tableInfoService.getTableInfo("infosecurity_dealinfo"), "infosecurity_dealinfo");
     }
 }
