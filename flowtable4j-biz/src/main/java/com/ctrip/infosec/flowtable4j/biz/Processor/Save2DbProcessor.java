@@ -5,6 +5,7 @@ import com.ctrip.infosec.flowtable4j.jobws.TableInfoService;
 import com.ctrip.infosec.flowtable4j.model.MapX;
 import com.ctrip.infosec.flowtable4j.model.persist.PO;
 import com.ctrip.infosec.flowtable4j.model.persist.TableInfo;
+import org.bouncycastle.ocsp.Req;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
@@ -30,11 +31,6 @@ public class Save2DbProcessor {
     @Autowired
     private TableInfoService tableInfoService;
 
-    //local 待存储的map 依赖于localbase
-    //localbase key：token 依赖与被依赖之间有一致的token
-//    ThreadLocal<List<MMap>> local = new ThreadLocal();
-//    ThreadLocal<Map<String,MMap>> localBase = new ThreadLocal();
-
     public void save(PO po) {
         Map<String, Object> dealInfo = MapX.getMap(po.getProductinfo(), "dealinfo");
         if (dealInfo != null) {
@@ -50,27 +46,27 @@ public class Save2DbProcessor {
 
     public void loopList(Map<String, Object> toSave, String name,long reqId) {
         if ("goodsList~.".equals(name)) {
-            saveGoodsInfo(toSave);
-        } else if ("flightInfoList~.".equals(name)) {
-            saveFlightInfo(toSave);
-        } else if ("flightOtherInfoList~.".equals(name)) {
-            saveOtherInfo(toSave);
-        } else if ("hotelOtherInfoList~.".equals(name)) {
-            saveOtherInfo(toSave);
-        } else if ("IREOtherInfoList~.".equals(name)) {
-            saveOtherInfo(toSave);
-        } else if ("jiFenOrderItemList~.".equals(name)) {
-            saveJiFenOrderItem(toSave);
-        } else if ("paymentInfoList~.".equals(name)) {
-            savePaymentInfo(toSave);
-        } else if ("railInfoList~.".equals(name)) {
-            saveRailInfo(toSave);
-        } else if ("topShopMerchantList~.".equals(name)) {
-            saveTopShopMerchantItem(toSave);
-        } else if ("VIAOtherInfoList~.".equals(name)) {
-            saveVacationInfo(toSave);
-        } else if ("vacationInfoList~.".equals(name)) {
-            saveVacationInfo(toSave);
+            saveGoodsInfo(toSave, reqId);
+        } else if ("flightinfolist~.".equals(name)) {
+            saveFlightInfo(toSave,reqId);
+        } else if ("flightotherinfolist~.".equals(name)) {
+            saveOtherInfo(toSave,reqId);
+        } else if ("hotelotherinfolist~.".equals(name)) {
+            saveOtherInfo(toSave,reqId);
+        } else if ("ireotherinfolist~.".equals(name)) {
+            saveOtherInfo(toSave,reqId);
+        } else if ("jifenorderitemlist~.".equals(name)) {
+            saveJiFenOrderItem(toSave,reqId);
+        } else if ("paymentinfolist~.".equals(name)) {
+            savePaymentInfo(toSave,reqId);
+        } else if ("railinfolist~.".equals(name)) {
+            saveRailInfo(toSave,reqId);
+        } else if ("topshopmerchantlist~.".equals(name)) {
+            saveTopShopMerchantItem(toSave,reqId);
+        } else if ("viaotherinfolist~.".equals(name)) {
+            saveVacationInfo(toSave,reqId);
+        } else if ("vacationinfolist~.".equals(name)) {
+            saveVacationInfo(toSave,reqId);
         } else
             for (Iterator<String> it = toSave.keySet().iterator(); it.hasNext(); ) {
                 String k = it.next();
@@ -80,68 +76,17 @@ public class Save2DbProcessor {
                         loopList(itM.next(), name.length() == 0 ? k + "~." : name + k + "~.",reqId);
                     }
                 } else {
-                    saveMap((Map<String, Object>) v, PO.getProp2Table().get(name.length() == 0 ? k : name + k));
+                    saveMap((Map<String, Object>) v, PO.getProp2Table().get(name.length() == 0 ? k : name + k),reqId);
                 }
             }
-//        finishSave();
     }
 
-    private void saveMap(Map<String, Object> toSave, String tableName) {
-//        cardRiskService.saveByTableInfo(toSave, tableName);
+    private void saveMap(Map<String, Object> toSave, String tableName,long reqId) {
         List<TableInfo> tableInfo = tableInfoService.getTableInfo(tableName);
-//        if (toSave instanceof MMap) {
-//            MMap m = ((MMap) toSave);
-//            if (m.isBase()) {
-//                if (localBase.get() == null) {
-//                    localBase.set(new HashMap<String, MMap>());
-//                }
-////                DepB b = new DepB();
-////                b.setFieldName(((MMap) toSave).getTableNamesAndFields()[0]);
-////                b.setTableName(tableName);
-////                b.setId(saveImpl(toSave, tableName));
-////                localBase.get().add(b);
-//                m.setReturnId(cardRiskService.saveImpl(toSave, tableInfo, tableName));
-//                localBase.get().put(m.getToken(), m);
-//            } else {
-//                if (local.get() == null) {
-//                    local.set(new ArrayList<MMap>());
-//                }
-//                local.get().add(m);
-//            }
-//        } else {
-        //TODO save the map
-        cardRiskService.saveImpl(toSave, tableInfo, tableName);
-//        }
+        cardRiskService.saveImpl(toSave, tableInfo, tableName,reqId);
     }
 
-//    private void finishSave() {
-//        List<MMap> toFinishMaps = local.get();
-//        Map<String, MMap> baseMaps = localBase.get();
-//        if (toFinishMaps != null && toFinishMaps.size() > 0 && baseMaps != null && baseMaps.size() > 0) {
-//            for (MMap mMap : toFinishMaps) {
-////                boolean find = false;
-////                long value = 0;
-////                String[] tableNameAndField = mMap.getTableNamesAndFields();
-////                for (DepB depB : depBs) {
-////                    if (depB.getTableName().equals(tableNameAndField[0]) && depB.getFieldName().equals(tableNameAndField[1])) {
-////                        find = true;
-////                        value = depB.getId();
-////                        mMap.put(tableNameAndField[2], value);
-////                        break;
-////                    }
-////                }
-//                MMap baseMap = baseMaps.get(mMap.getToken());
-//                if (baseMap != null) {
-//                    mMap.put(mMap.getFieldName(), baseMap.getReturnId());
-//                    //TODO save 需完善
-//                    cardRiskService.saveImpl(mMap, null,"");
-//                }
-//            }
-//        }
-//    }
-
-
-    private void saveFlightInfo(Map<String, Object> toSave) {
+    private void saveFlightInfo(Map<String, Object> toSave,long reqId) {
         String table_order = "infosecurity_flightsorderinfo";
         String table_passenger = "infosecurity_passengerinfo";
         String table_segment = "infosecurity_segmentinfo";
@@ -152,20 +97,22 @@ public class Save2DbProcessor {
         List<Map<String, Object>> passengerList = (List) toSave.get("passengerlist");
         List<Map<String, Object>> segmentList = (List) toSave.get("segmentlist");
 
-        long id = cardRiskService.saveImpl(order, tableInfo_order, table_order);
+        long id = cardRiskService.saveImpl(order, tableInfo_order, table_order,reqId);
+        if(passengerList!=null)
         for (Map<String, Object> passenger : passengerList) {
-            passenger.put("FlightsOrderID",id);
-            cardRiskService.saveImpl(passenger, tableInfo_passenger, table_passenger);
+            passenger.put("flightsorderid",id);
+            cardRiskService.saveImpl(passenger, tableInfo_passenger, table_passenger,reqId);
         }
 
+        if(segmentList!=null)
         for (Map<String, Object> segment : segmentList) {
-            segment.put("FlightsOrderID",id);
-            cardRiskService.saveImpl(segment, tableInfo_segment, table_segment);
+            segment.put("flightsorderid",id);
+            cardRiskService.saveImpl(segment, tableInfo_segment, table_segment,reqId);
         }
 
     }
 
-    private void saveGoodsInfo(Map<String, Object> toSave) {
+    private void saveGoodsInfo(Map<String, Object> toSave,long reqId) {
         String table_goods = "infosecurity_goodslistinfo";
         String table_goodsItem = "infosecurity_goodsiteminfo";
         List<TableInfo> tableInfo_goods = tableInfoService.getTableInfo(table_goods);
@@ -173,14 +120,15 @@ public class Save2DbProcessor {
         Map<String, Object> goods = (Map) toSave.get("goods");
         List<Map<String, Object>> goodsItemList = (List) toSave.get("goodsitemlist");
 
-        long id = cardRiskService.saveImpl(goods, tableInfo_goods, table_goods);
+        long id = cardRiskService.saveImpl(goods, tableInfo_goods, table_goods, reqId);
+        if(goodsItemList!=null)
         for (Map<String, Object> passenger : goodsItemList) {
             passenger.put("goodslistinfoid",id);
-            cardRiskService.saveImpl(passenger, tableInfo_goodsItem, table_goodsItem);
+            cardRiskService.saveImpl(passenger, tableInfo_goodsItem, table_goodsItem,reqId);
         }
     }
 
-    private void saveJiFenOrderItem(Map<String, Object> toSave) {
+    private void saveJiFenOrderItem(Map<String, Object> toSave,long reqId) {
         String table_order = "infosecurity_suborderitermbyjifen";
         String table_greetingCard = "infosecurity_greetingcardinfoviewbyjifen";
         String table_prizeDetail = "infosecurity_prizedetailitembyjifen";
@@ -195,18 +143,18 @@ public class Save2DbProcessor {
         Map<String, Object> prizeDetail = (Map) toSave.get("prizedetail");
         Map<String, Object> paymentItem = (Map) toSave.get("paymentitem");
 
-        long id = cardRiskService.saveImpl(order, tableInfo_order, table_order);
+        long id = cardRiskService.saveImpl(order, tableInfo_order, table_order,reqId);
 
-        cardRiskService.saveImpl(greetingCard, tableInfo_greetingCard, table_greetingCard);
-        cardRiskService.saveImpl(prizeDetail, tableInfo_prizeDetail, table_prizeDetail);
-        cardRiskService.saveImpl(paymentItem, tableInfo_paymentItem, table_paymentItem);
+        cardRiskService.saveImpl(greetingCard, tableInfo_greetingCard, table_greetingCard,reqId);
+        cardRiskService.saveImpl(prizeDetail, tableInfo_prizeDetail, table_prizeDetail,reqId);
+        cardRiskService.saveImpl(paymentItem, tableInfo_paymentItem, table_paymentItem,reqId);
     }
 
-    private void saveOtherInfo(Map<String, Object> toSave) {
+    private void saveOtherInfo(Map<String, Object> toSave,long reqId) {
 
     }
 
-    private void savePaymentInfo(Map<String, Object> toSave) {
+    private void savePaymentInfo(Map<String, Object> toSave,long reqId) {
         String table_payment = "infosecurity_paymentinfo";
         String table_cardInfo = "infosecurity_cardinfo";
         List<TableInfo> tableInfo_payment = tableInfoService.getTableInfo(table_payment);
@@ -214,13 +162,14 @@ public class Save2DbProcessor {
         Map<String, Object> payment = (Map) toSave.get("rail");
         List<Map<String, Object>> cardInfoList = (List) toSave.get("user");
 
-        long id = cardRiskService.saveImpl(payment, tableInfo_payment, table_payment);
+        long id = cardRiskService.saveImpl(payment, tableInfo_payment, table_payment,reqId);
+        if(cardInfoList!=null)
         for (Map<String, Object> passenger : cardInfoList) {
-            cardRiskService.saveImpl(passenger, tableInfo_cardInfo, table_cardInfo);
+            cardRiskService.saveImpl(passenger, tableInfo_cardInfo, table_cardInfo,reqId);
         }
     }
 
-    private void saveRailInfo(Map<String, Object> toSave) {
+    private void saveRailInfo(Map<String, Object> toSave,long reqId) {
         String table_rail = "infosecurity_exrailinfo";
         String table_user = "infosecurity_exrailuserinfo";
         List<TableInfo> tableInfo_rail = tableInfoService.getTableInfo(table_rail);
@@ -228,12 +177,12 @@ public class Save2DbProcessor {
         Map<String, Object> rail = (Map) toSave.get("rail");
         Map<String, Object> user = (Map) toSave.get("user");
 
-        long id = cardRiskService.saveImpl(rail, tableInfo_rail, table_rail);
+        long id = cardRiskService.saveImpl(rail, tableInfo_rail, table_rail,reqId);
 
-        cardRiskService.saveImpl(user, tableInfo_user, table_user);
+        cardRiskService.saveImpl(user, tableInfo_user, table_user,reqId);
     }
 
-    private void saveTopShopMerchantItem(Map<String, Object> toSave) {
+    private void saveTopShopMerchantItem(Map<String, Object> toSave,long reqId) {
         String table_topShopMerchant = "infosecurity_topshopmerchantitem";
         String table_product = "infosecurity_topshopproductioninfo";
         List<TableInfo> tableInfo_topShopMerchant = tableInfoService.getTableInfo(table_topShopMerchant);
@@ -241,13 +190,14 @@ public class Save2DbProcessor {
         Map<String, Object> topShopMerchant = (Map) toSave.get("topShopMerchant");
         List<Map<String, Object>> productList = (List) toSave.get("productList");
 
-        long id = cardRiskService.saveImpl(topShopMerchant, tableInfo_topShopMerchant, table_topShopMerchant);
+        long id = cardRiskService.saveImpl(topShopMerchant, tableInfo_topShopMerchant, table_topShopMerchant,reqId);
+        if(productList!=null)
         for (Map<String, Object> passenger : productList) {
-            cardRiskService.saveImpl(passenger, tableInfo_product, table_product);
+            cardRiskService.saveImpl(passenger, tableInfo_product, table_product,reqId);
         }
     }
 
-    private void saveVacationInfo(Map<String, Object> toSave) {
+    private void saveVacationInfo(Map<String, Object> toSave,long reqId) {
         String table_order = "infosecurity_vacationinfo";
         String table_user = "infosecurity_vacationuserinfo";
         String table_option = "infosecurity_vacationoptioninfo";
@@ -259,31 +209,19 @@ public class Save2DbProcessor {
         List<Map<String, Object>> userList = (List) toSave.get("userList");
         List<Map<String, Object>> optionList = (List) toSave.get("optionList");
 
-        long id = cardRiskService.saveImpl(order, tableInfo_order, table_order);
+        long id = cardRiskService.saveImpl(order, tableInfo_order, table_order,reqId);
+        if(userList!=null)
         for (Map<String, Object> user : userList) {
-            cardRiskService.saveImpl(user, tableInfo_user, table_user);
+            cardRiskService.saveImpl(user, tableInfo_user, table_user,reqId);
         }
 
+        if(optionList!=null)
         for (Map<String, Object> option : optionList) {
-            cardRiskService.saveImpl(option, tableInfo_option, table_option);
+            cardRiskService.saveImpl(option, tableInfo_option, table_option,reqId);
         }
-
-        JdbcTemplate template = null;
-        template.query(new PreparedStatementCreator() {
-            @Override
-            public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
-                connection.prepareStatement("",new String[1]);
-                return null;
-            }
-        }, new RowMapper<Object>() {
-            @Override
-            public Object mapRow(ResultSet resultSet, int i) throws SQLException {
-                return null;
-            }
-        });
     }
 
-    private long saveDealInfo(Map<String, Object> dealinfo) {
-        return cardRiskService.saveImpl(dealinfo, tableInfoService.getTableInfo("infosecurity_dealinfo"), "infosecurity_dealinfo");
+    public long saveDealInfo(Map<String, Object> dealinfo) {
+        return cardRiskService.saveImpl(dealinfo, tableInfoService.getTableInfo("infosecurity_dealinfo"), "infosecurity_dealinfo",0);
     }
 }

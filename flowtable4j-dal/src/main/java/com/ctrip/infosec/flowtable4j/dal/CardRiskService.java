@@ -93,7 +93,8 @@ public class CardRiskService {
     }
 
     //通用的save方法
-    public long saveImpl(final Map<String, Object> toSave, final List<TableInfo> tableInfo, final String tableName) {
+    public long saveImpl(final Map<String, Object> toSave, final List<TableInfo> tableInfo, final String tableName, final long reqId) {
+        final String[] identityName = {""};
         if (toSave != null && tableInfo != null) {
             return cardRiskDBTemplate.<Long>execute(new CallableStatementCreator() {
                 @Override
@@ -110,9 +111,15 @@ public class CardRiskService {
                     CallableStatement callableStatement = connection.prepareCall(storedProc);
                     for (TableInfo t : tableInfo) {
                         if (t.getIs_identity() == 1) {
+                            identityName[0] = t.getName();
                             callableStatement.registerOutParameter(t.getName(), Types.BIGINT);
                         } else {
-                            callableStatement.setObject(t.getName(),t.getValue(toSave));
+                            Object value = null;
+                            if("reqid".equals(t.getName()))
+                                value = reqId;
+                            else
+                                value = t.getValue(toSave);
+                            callableStatement.setObject(t.getName(),value);
                         }
                     }
                     return callableStatement;
@@ -121,7 +128,9 @@ public class CardRiskService {
                 @Override
                 public Long doInCallableStatement(CallableStatement callableStatement) throws SQLException, DataAccessException {
                     callableStatement.execute();
-                    return callableStatement.getLong(1);
+                    if(identityName[0].length()>0)
+                        return callableStatement.getLong(identityName[0]);
+                    return Long.valueOf(0);
                 }
             });
         }

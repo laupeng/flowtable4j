@@ -60,8 +60,8 @@ public class TableInfoService {
                 Map<String, List<TableInfo>> result = new HashMap<String, List<TableInfo>>();
                 while(resultSet.next()){
                     TableInfo info = new TableInfo();
-                    info.setTableName(resultSet.getString("tableName"));
-                    info.setName(resultSet.getString("name"));
+                    info.setTableName(resultSet.getString("tableName").toLowerCase());
+                    info.setName(resultSet.getString("name").toLowerCase());
                     info.setIs_nullable(resultSet.getInt("is_nullable"));
                     info.setIs_identity(resultSet.getInt("is_identity"));
                     info.setData_type(resultSet.getString("data_type"));
