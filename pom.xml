@@ -81,85 +81,6 @@
 	<dependencyManagement>
 		<dependencies>
             <!--预处理-->
-            <dependency>
-                <groupId>com.ctrip.infosec.flowtable4j</groupId>
-                <artifactId>flowtable4j-translate</artifactId>
-                <version>${project.version}</version>
-                <exclusions>
-                    <!--<exclusion>
-                        <groupId>com.ctrip.infosec.flowtable4j</groupId>
-                        <artifactId>flowtable4j-model</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.drools</groupId>
-                        <artifactId>drools-core</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.drools</groupId>
-                        <artifactId>drools-compiler</artifactId>
-                    </exclusion>
-
-                    <exclusion>
-                        <groupId>com.meidusa.toolkit</groupId>
-                        <artifactId>fastbson</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>com.meidusa.toolkit</groupId>
-                        <artifactId>fastjson</artifactId>
-                    </exclusion>
-
-                    <exclusion>
-                        <groupId>com.meidusa.toolkit</groupId>
-                        <artifactId>fastmark</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>com.meidusa.toolkit.net</groupId>
-                        <artifactId>toolkit-net-nio</artifactId>
-                    </exclusion>
-&lt;!&ndash;venuse&ndash;&gt;
-                    <exclusion>
-                        <groupId>com.meidusa.toolkit.commons</groupId>
-                        <artifactId>toolkit-common-util</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>com.meidusa.toolkit.commons</groupId>
-                        <artifactId>toolkit-common-spring</artifactId>
-                    </exclusion>
-
-                    <exclusion>
-                        <groupId>com.meidusa.toolkit.commons</groupId>
-                        <artifactId>toolkit-common-pool</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>com.meidusa.toolkit.commons</groupId>
-                        <artifactId>toolkit-common-runtime</artifactId>
-                    </exclusion>
-
-                    <exclusion>
-                        <groupId>com.meidusa.toolkit.commons</groupId>
-                        <artifactId>toolkit-common-bean</artifactId>
-                    </exclusion>
-
-                    <exclusion>
-                        <groupId>com.meidusa.venus</groupId>
-                        <artifactId>venus-client</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>jaxen</groupId>
-                        <artifactId>jaxen</artifactId>
-                    </exclusion>
-
-                    <exclusion>
-                        <groupId>com.meidusa.venus</groupId>
-                        <artifactId>venus-backend</artifactId>
-                    </exclusion>-->
-
-                    <exclusion>
-                        <groupId>com.ctrip.datasource</groupId>
-                        <artifactId>datasource-local</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
 			<dependency>
 				<groupId>com.ctrip.infosec.flowtable4j</groupId>
 				<artifactId>flowtable4j-biz</artifactId>
@@ -168,12 +89,6 @@
 			<dependency>
 				<groupId>com.ctrip.infosec.flowtable4j</groupId>
 				<artifactId>flowtable4j-core</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-
-			<dependency>
-				<groupId>com.ctrip.infosec.flowtable4j</groupId>
-				<artifactId>flowtable4j-v2m</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 
