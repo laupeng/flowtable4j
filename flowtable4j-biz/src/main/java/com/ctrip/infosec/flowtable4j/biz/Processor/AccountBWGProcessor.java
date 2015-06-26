@@ -1,4 +1,4 @@
-package com.ctrip.infosec.flowtable4j.biz;
+package com.ctrip.infosec.flowtable4j.biz.processor;
 
 import com.ctrip.infosec.flowtable4j.accountsecurity.AccountBWGManager;
 import com.ctrip.infosec.flowtable4j.model.AccountFact;

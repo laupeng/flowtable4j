@@ -2,9 +2,9 @@ package com.ctrip.infosec.flowtable4j.biz;
 
 import com.ctrip.infosec.common.model.RiskFact;
 import com.ctrip.infosec.flowtable4j.accountsecurity.AccountBWGManager;
+import com.ctrip.infosec.flowtable4j.biz.processor.PayAdaptProcessor;
 import com.ctrip.infosec.flowtable4j.bwlist.BWManager;
 import com.ctrip.infosec.flowtable4j.core.utils.SimpleStaticThreadPool;
-import com.ctrip.infosec.flowtable4j.dal.PayAdaptService;
 import com.ctrip.infosec.flowtable4j.model.*;
 import com.ctrip.infosec.flowtable4j.payAdapt.PayAdaptManager;
 import com.ctrip.infosec.sars.monitor.util.Utils;
@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit;
  * Created by zhangsx on 2015/5/19.
  */
 @Component
-public class PayAdaptProcessor {
+public class PayAdaptFacade {
     @Autowired
     AccountBWGManager accountBWGManager;
 
@@ -39,9 +39,9 @@ public class PayAdaptProcessor {
     PayAdaptManager payAdaptManager;
 
     @Autowired
-    PayAdaptService payAdaptService;
+    PayAdaptProcessor payAdaptProcessor;
 
-    private static Logger logger = LoggerFactory.getLogger(PayAdaptProcessor.class);
+    private static Logger logger = LoggerFactory.getLogger(PayAdaptFacade.class);
     private static final String EVENTWS = GlobalConfig.getString("EventWS");
     private static final String APPID = GlobalConfig.getString("APPID");
     private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
@@ -81,7 +81,7 @@ public class PayAdaptProcessor {
 
         List<Callable<Object>> tasks = new ArrayList<Callable<Object>>();
 
-        final Map<String,Object> productInfo = payAdaptService.getLastProductInfo(checkEntity.getOrderID(),checkEntity.getOrderType());
+        final Map<String,Object> productInfo = payAdaptProcessor.getLastProductInfo(checkEntity.getOrderID(),checkEntity.getOrderType());
 
         //支付适配流量规则是否开启
         if (isPayAdaptFlowRuleDefined(checkEntity)) {
@@ -154,7 +154,7 @@ public class PayAdaptProcessor {
     }
 
     private boolean isPayAdaptFlowRuleDefined(PayAdaptFact checkEntity) {
-        return checkEntity.getOrderID() > 0 && CtripOrderType.contain(checkEntity.getOrderType()) && PayAdaptService.isPayAdapatFlowRuleOpen();
+        return checkEntity.getOrderID() > 0 && CtripOrderType.contain(checkEntity.getOrderType()) && payAdaptProcessor.isPayAdapatFlowRuleOpen();
     }
 
     /**
@@ -201,7 +201,7 @@ public class PayAdaptProcessor {
         fact.setContent(new HashMap<String, Object>());
         fact.getOrderTypes().add(checkEntity.getOrderType());
         fact.getOrderTypes().add(0);
-        fact.setContent(payAdaptService.fillBWGCheckEntity(productInfo));
+        fact.setContent(payAdaptProcessor.fillBWGCheckEntity(productInfo));
         if (!bwManager.checkWhite(fact, riskResult)) {
             bwManager.checkBlack(fact, riskResult);
         }
@@ -209,7 +209,7 @@ public class PayAdaptProcessor {
 
     private void checkPayAdaptFlowRule(PayAdaptFact checkEntity, List<PayAdaptResultItem> payRuleResults,Map<String,Object> productInfo) {
 
-        Map<String, Object> data2Check = payAdaptService.fillPayAdaptCheckEntity(productInfo,checkEntity.getOrderType());
+        Map<String, Object> data2Check = payAdaptProcessor.fillPayAdaptCheckEntity(productInfo,checkEntity.getOrderType());
         FlowFact fact = new FlowFact();
         fact.setOrderTypes(new ArrayList<Integer>());
         fact.getOrderTypes().add(checkEntity.getOrderType());

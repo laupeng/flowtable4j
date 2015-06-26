@@ -1,4 +1,4 @@
-package com.ctrip.infosec.flowtable4j.v2m.service;
+package com.ctrip.infosec.flowtable4j.biz.processor;
 
 import com.ctrip.infosec.flowtable4j.dal.CardRiskService;
 import com.ctrip.infosec.flowtable4j.jobws.TableInfoService;
@@ -21,7 +21,7 @@ import java.util.Map;
  * Created by thyang on 2015-06-12.
  */
 @Component
-public class Save2DbService {
+public class Save2DbProcessor {
     @Autowired
     private CardRiskService cardRiskService;
 

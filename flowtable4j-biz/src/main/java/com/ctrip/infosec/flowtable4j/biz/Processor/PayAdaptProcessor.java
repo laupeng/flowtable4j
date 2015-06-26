@@ -1,24 +1,23 @@
-package com.ctrip.infosec.flowtable4j.dal;
+package com.ctrip.infosec.flowtable4j.biz.processor;
 
+import com.ctrip.infosec.flowtable4j.dal.CheckRiskDAO;
+import com.ctrip.infosec.flowtable4j.dal.Counter;
+import com.ctrip.infosec.flowtable4j.dal.CtripOrderType;
 import com.ctrip.infosec.flowtable4j.model.MapX;
-import com.ctrip.infosec.sars.util.SpringContextHolder;
 import com.ctrip.infosec.sars.util.mapper.JsonMapper;
 import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.*;
 import org.springframework.stereotype.Component;
 
-import java.sql.*;
 import java.util.*;
 
 /**
  * Created by zhangsx on 2015/5/6.
  */
 @Component
-public class PayAdaptService {
+public class PayAdaptProcessor {
     @Autowired
     CheckRiskDAO checkRiskDAO;
     protected static JsonMapper mapper = new JsonMapper();

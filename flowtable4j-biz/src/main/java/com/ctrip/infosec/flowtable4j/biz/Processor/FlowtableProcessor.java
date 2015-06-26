@@ -1,4 +1,4 @@
-package com.ctrip.infosec.flowtable4j.biz;
+package com.ctrip.infosec.flowtable4j.biz.processor;
 
 import com.ctrip.infosec.flowtable4j.accountsecurity.AccountBWGManager;
 import com.ctrip.infosec.flowtable4j.bwlist.BWManager;
@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;

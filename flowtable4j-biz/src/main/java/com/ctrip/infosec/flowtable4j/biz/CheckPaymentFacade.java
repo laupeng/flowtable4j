@@ -1,12 +1,13 @@
 package com.ctrip.infosec.flowtable4j.biz;
 
+import com.ctrip.infosec.flowtable4j.biz.processor.FlowtableProcessor;
 import com.ctrip.infosec.flowtable4j.model.*;
 import com.ctrip.infosec.flowtable4j.model.persist.PO;
 import com.ctrip.infosec.flowtable4j.v2m.converter.AccountConverter;
 import com.ctrip.infosec.flowtable4j.v2m.converter.BlackWhiteConverter;
 import com.ctrip.infosec.flowtable4j.v2m.converter.FlowConverter;
 import com.ctrip.infosec.flowtable4j.v2m.converter.POConverter;
-import com.ctrip.infosec.flowtable4j.v2m.service.Save2DbService;
+import com.ctrip.infosec.flowtable4j.biz.processor.Save2DbProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -14,7 +15,7 @@ import org.springframework.stereotype.Component;
  * Created by thyang on 2015-06-12.
  */
 @Component
-public class CheckPaymentProcessor {
+public class CheckPaymentFacade {
     @Autowired
     POConverter poConverter;
 
@@ -28,7 +29,7 @@ public class CheckPaymentProcessor {
     AccountConverter accountConverter;
 
     @Autowired
-    Save2DbService save2DbService;
+    Save2DbProcessor save2DbService;
 
     @Autowired
     FlowtableProcessor flowtableProcessor;

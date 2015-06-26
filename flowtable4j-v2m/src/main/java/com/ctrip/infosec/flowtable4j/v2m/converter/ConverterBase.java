@@ -6,8 +6,6 @@ import com.ctrip.infosec.flowtable4j.model.MapX;
 import com.ctrip.infosec.flowtable4j.v2m.service.Save2DbService;
 import com.ctrip.infosec.sars.util.mapper.JsonMapper;
 import com.google.common.base.Strings;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.text.SimpleDateFormat;
