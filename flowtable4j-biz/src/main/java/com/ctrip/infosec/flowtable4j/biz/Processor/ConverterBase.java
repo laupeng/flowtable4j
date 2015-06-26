@@ -111,6 +111,9 @@ public class ConverterBase {
 //        for (String field : dbMeta.keySet()) {
 //            setValue(targetMap, field, getObject(src, field));
 //        }
+        for(TableInfo info : dbMeta){
+            setValue(targetMap, info.getName(),getObject(src,info.getName())) ;
+        }
     }
 
     public String getString(Map<String,Object> data, String key) {
