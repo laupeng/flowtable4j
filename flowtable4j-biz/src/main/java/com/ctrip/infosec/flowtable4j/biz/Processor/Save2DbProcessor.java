@@ -31,63 +31,54 @@ public class Save2DbProcessor {
     private TableInfoService tableInfoService;
 
     public Long saveDealInfo(Map<String,Object> map){
+
         Map<String,Long> keys = ImmutableMap.of("reqid", 0L);
-
-        //SaveMap方法，可以读取Keys的值，对于如果保存的时候为该Table的Identity，则写入
-
-        saveMap(map, PO.getProp2Table().get("dealinfo"), keys);
+        saveMap(map,PO.getProp2Table().get("dealinfo"), keys);
         return keys.get("reqid");
     }
 
     public void save(PO po,Long reqid) {
-
-        save(po.getPaymentinfo(), reqid);
         save(po.getProductinfo(), reqid);
+        save(po.getPaymentinfo(), reqid);
     }
 
     public void save(Map<String, Object> src, long reqId) {
         if (src != null && src.size() > 0) {
             for (String key : src.keySet()) {
-                if ("diyresourcexlist".equals(key)) {
-                    saveList(key, src, reqId);
+                if ("diyresourcexlist".equals(key)||"giftitemlist".equals(key)||"hotelinfolist".equals(key)
+                     ||"insureinfolist".equals(key)||"invoiceinfolist".equals(key)||"rechargesuborderlist".equals(key)
+                     ||"vacationproductlist".equals(key)) {
+                    saveList(key,src,reqId);
                 } else if ("flightinfolist".equals(key)) {
-                    Map<String,Long> fks=ImmutableMap.of("flightsorderid",0L,"reqid",reqId);
-                    saveList(key, src, fks, new String[]{"order"}, new String[]{"passengerlist", "segmentlist"});
+                    Map<String,Long> keys=ImmutableMap.of("flightsorderid",0L,"reqid",reqId);
+                    saveList(key, src, keys, new String[]{"order"}, new String[]{"passengerlist","segmentlist"});
                 } else if ("fncmalllist".equals(key)) {
-                    Map<String,Long> fks=ImmutableMap.of("fncmallid",0L,"reqid",reqId);
-                    saveList(key, src,fks, new String[]{"travelmoneyfncmall"}, new String[]{"suborderitemlist"});
-                } else if ("giftitemlist".equals(key)) {
-                    saveList(key, src, reqId);
-                } else if ("goodslist".equals(key)) {
-                    Map<String,Long> fks=ImmutableMap.of("goodslistinfoid",0L,"reqid",reqId);
-                    saveList(key, src, fks, new String[]{"goods"}, new String[]{"goodsitemlist"});
-                } else if ("hotelinfolist".equals(key)) {
-                    saveList(key, src, reqId);
-                } else if ("insureinfolist".equals(key)) {
-                    saveList(key, src, reqId);
-                } else if ("invoiceinfolist".equals(key)) {
-                    saveList(key, src, reqId);
-                } else if ("jifenorderitemlist".equals(key)) {
-                    Map<String,Long> fks=ImmutableMap.of("orderitemid",0L,"detailitemid",0L,"reqid",reqId);
-                    saveList(key,src,fks,new String[]{"order","greetingcard","prizedetail","paymentitem"},null);
+                    Map<String,Long> keys=ImmutableMap.of("fncmallid",0L,"reqid",reqId);
+                    saveList(key, src,keys, new String[]{"travelmoneyfncmall"}, new String[]{"suborderitemlist"});
+                }
+                else if ("goodslist".equals(key)) {
+                    Map<String,Long> keys=ImmutableMap.of("goodslistinfoid",0L,"reqid",reqId);
+                    saveList(key, src, keys, new String[]{"goods"}, new String[]{"goodsitemlist"});
+                }
+                else if ("jifenorderitemlist".equals(key)) {
+                    Map<String,Long> keys=ImmutableMap.of("orderitemid",0L,"detailitemid",0L,"reqid",reqId);
+                    saveList(key,src,keys,new String[]{"order","greetingcard","prizedetail","paymentitem"},null);
                 } else if ("paymentinfolist".equals(key)) {
-                    Map<String,Long> fks=ImmutableMap.of("paymentinfoid",0L,"reqid",reqId);
-                    saveList(key, src, fks, new String[]{"payment"}, new String[]{"cardinfolist"});
+                    Map<String,Long> keys=ImmutableMap.of("paymentinfoid",0L,"reqid",reqId);
+                    saveList(key, src, keys, new String[]{"payment"}, new String[]{"cardinfolist"});
                 } else if ("railinfolist".equals(key)) {
-                    Map<String,Long> fks=ImmutableMap.of("exrailinfoid",0L,"reqid",reqId);
-                    saveList(key, src, fks, new String[]{"rail"}, new String[]{"user"});
-                } else if ("rechargesuborderlist".equals(key)) {
-                    saveList(key, src, reqId);
-                } else if ("topshopcatalog".equals(key)) {
-                    Map<String,Long> fks=ImmutableMap.of("cataloginfoid",0L,"reqid",reqId);
-                    saveList(key,src,fks,new String[]{"cataloginfo"}, new String[]{"itemlist"});
+                    Map<String,Long> keys=ImmutableMap.of("exrailinfoid",0L,"reqid",reqId);
+                    saveList(key, src, keys, new String[]{"rail"}, new String[]{"user"});
+                }
+                else if ("topshopcatalog".equals(key)) {
+                    Map<String,Long> keys=ImmutableMap.of("cataloginfoid",0L,"reqid",reqId);
+                    saveList(key,src,keys,new String[]{"cataloginfo"}, new String[]{"itemlist"});
                 } else if ("travelmoneyproductlist".equals(key)) {
                     saveTopShopOrderList(src, reqId);
-                } else if ("vacationproductlist".equals(key)) {
-                    saveList(key, src, reqId);
-                } else if ("vacationinfolist".equals(key)) {
-                    Map<String,Long> fks=ImmutableMap.of("vacationinfoid",0L,"reqid",reqId);
-                    saveList(key, src, fks, new String[]{"order"}, new String[]{"userlist", "optionlist"});
+                }
+                else if ("vacationinfolist".equals(key)) {
+                    Map<String,Long> keys=ImmutableMap.of("vacationinfoid",0L,"reqid",reqId);
+                    saveList(key, src, keys, new String[]{"order"}, new String[]{"userlist", "optionlist"});
                 } else if (!"dealinfo".equals(key)) {
                     saveMap(MapX.getMap(src, key), PO.getProp2Table().get(key),ImmutableMap.of("reqid",reqId));
                 }
@@ -124,7 +115,7 @@ public class Save2DbProcessor {
         return tableInfoService.getTableInfo(tableName);
     }
 
-    private void saveList(String prefix, Map<String, Object> src, Map<String,Long> fks,String[] singleTables, String[] listTables) {
+    private void saveList(String prefix, Map<String, Object> src, Map<String,Long> keys,String[] singleTables, String[] listTables) {
         List<Map<String, Object>> list2Save = MapX.getList(src, prefix);
         if (list2Save != null && list2Save.size() > 0) {
             for (Map<String, Object> toSave : list2Save) {
@@ -133,7 +124,7 @@ public class Save2DbProcessor {
                         String tableName = PO.getProp2Table().get(prefix + "~." + s);
                         if (!Strings.isNullOrEmpty(tableName)) {
                             Map<String, Object> obj = MapX.getMap(toSave, s);
-                            saveMap(obj,tableName,fks);
+                            saveMap(obj,tableName, keys);
                         }
                     }
                 }
@@ -144,7 +135,7 @@ public class Save2DbProcessor {
                             List<Map<String, Object>> objs = MapX.getList(toSave, s);
                             if (objs != null && objs.size() > 0) {
                                 for (Map<String, Object> obj : objs) {
-                                    saveMap(obj, tableName,fks);
+                                    saveMap(obj, tableName, keys);
                                 }
                             }
                         }

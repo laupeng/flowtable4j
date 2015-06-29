@@ -1,6 +1,6 @@
 package com.ctrip.infosec.flowtable4j.dal;
 
-import com.ctrip.infosec.flowtable4j.savetablerules.core.utils.SimpleStaticThreadPool;
+import com.ctrip.infosec.flowtable4j.flowdispatch.core.utils.SimpleStaticThreadPool;
 import com.ctrip.infosec.flowtable4j.model.PayAdaptResultItem;
 import com.ctrip.infosec.sars.util.mapper.JsonMapper;
 import org.springframework.beans.factory.annotation.Autowired;

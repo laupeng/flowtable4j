@@ -1,9 +1,9 @@
 package com.ctrip.infosec.flowtable4j.biz.processor;
 
 import com.ctrip.infosec.flowtable4j.model.*;
-import com.ctrip.infosec.flowtable4j.savetablerules.accountsecurity.AccountBWGManager;
-import com.ctrip.infosec.flowtable4j.savetablerules.bwlist.BWManager;
-import com.ctrip.infosec.flowtable4j.savetablerules.core.utils.SimpleStaticThreadPool;
+import com.ctrip.infosec.flowtable4j.flowdispatch.accountsecurity.AccountBWGManager;
+import com.ctrip.infosec.flowtable4j.flowdispatch.bwlist.BWManager;
+import com.ctrip.infosec.flowtable4j.flowdispatch.core.utils.SimpleStaticThreadPool;
 import com.ctrip.infosec.flowtable4j.dal.CardRiskService;
 import com.ctrip.infosec.flowtable4j.flowlist.FlowRuleManager;
 import com.ctrip.infosec.sars.monitor.util.Utils;

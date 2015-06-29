@@ -1,9 +1,8 @@
 package com.ctrip.infosec.flowtable4j.dal;
 
-import com.ctrip.infosec.flowtable4j.savetablerules.core.utils.SimpleStaticThreadPool;
+import com.ctrip.infosec.flowtable4j.flowdispatch.core.utils.SimpleStaticThreadPool;
 import com.ctrip.infosec.flowtable4j.model.CheckResultLog;
 import com.ctrip.infosec.flowtable4j.model.RiskResult;
-import com.ctrip.infosec.flowtable4j.model.persist.ColumnInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataAccessException;

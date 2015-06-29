@@ -7,6 +7,7 @@ import java.util.Map;
  * Created by thyang on 2015-05-27.
  */
 public class AccountResult {
+
     private String status;
 
     private Map<String,Integer> results;
