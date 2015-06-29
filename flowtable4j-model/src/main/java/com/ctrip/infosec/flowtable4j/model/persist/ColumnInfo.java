@@ -6,25 +6,29 @@ import java.util.Objects;
 /**
  * Created by zhangsx on 2015/6/25.
  */
-public class TableInfo {
+public class ColumnInfo {
     private String tableName;
     private String name;
     private String data_type;
     private int is_nullable;
     private int is_identity;
 
-    public Object getValue(Map<String, Object> src) {
-        Object obj = src.get(name);
-        if (obj == null && is_nullable == 0) {
-            if (data_type.contains("char")) {
-                return "";
-            } else if (data_type.equals("datetime")) {
-                return "1900-01-01";
-            } else {
-                return "0";
-            }
+    public Object getValue(Map<String, Object> src, Map<String, Long> fks) {
+        if (fks != null && fks.containsKey(name)) {
+            return fks.get(name);
         } else {
-            return obj;
+            Object obj = src.get(name);
+            if (obj == null && is_nullable == 0) {
+                if (data_type.contains("char")) {
+                    return "";
+                } else if (data_type.equals("datetime")) {
+                    return "1900-01-01";
+                } else {
+                    return "0";
+                }
+            } else {
+                return obj;
+            }
         }
     }
 

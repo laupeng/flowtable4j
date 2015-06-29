@@ -49,17 +49,18 @@ public class PO extends MapX {
         prop2table.put("employee","infosecurity_employeeinfo");
 
         //f
-        prop2table.put("flightinfolist~.order","infosecurity_flightsorderinfo");
+        prop2table.put("flightinfolist~.order","infosecurity_flightsorderinfo");          //FlightsOrderID
         prop2table.put("flightinfolist~.passengerlist~","infosecurity_passengerinfo");
         prop2table.put("flightinfolist~.segmentlist~","infosecurity_segmentinfo");
         //flightotherinfolist
         prop2table.put("fncmallorder","infosecurity_fncmallorderinfo");
-        prop2table.put("fncmallsuborderitemlist~","infosecurity_fncmallsuborderitem");
+        prop2table.put("fncmalllist~.travelmoneyfncmall","infosecurity_travelmoneyfncmall"); //FNCMallId
+        prop2table.put("fncmalllist~.suborderitemlist~","infosecurity_fncmallsuborderitem");
         prop2table.put("fundcertificate","infosecurity_fundcertificateinfo");
 
         //g
         prop2table.put("giftitemlist~","infosecurity_giftitem");
-        prop2table.put("goodslist~.goods","infosecurity_goodslistinfo");
+        prop2table.put("goodslist~.goods","infosecurity_goodslistinfo");                  //GoodsListInfoID
         prop2table.put("goodslist~.goodsitemlist~","infosecurity_goodsiteminfo");
         prop2table.put("gps", "infosecurity_gpsinfo");
 
@@ -76,10 +77,10 @@ public class PO extends MapX {
         prop2table.put("ipinfo", "infosecurity_ipinfo");
 
         //j
-        prop2table.put("jifenorderitemlist~.order","infosecurity_suborderitermbyjifen");
+        prop2table.put("jifenorderitemlist~.order","infosecurity_suborderitermbyjifen");               //OrderItemId
         prop2table.put("jifenorderitemlist~.greetingcard","infosecurity_greetingcardinfoviewbyjifen");
+        prop2table.put("jifenorderitemlist~.prizedetail","infosecurity_prizedetailitembyjifen");     //DetailItemId
         prop2table.put("jifenorderitemlist~.paymentitem","infosecurity_paymentitemviewbyjifen");
-        prop2table.put("jifenorderitemlist~.prizedetail","infosecurity_prizedetailitembyjifen");
 
         //m
         prop2table.put("maininfo", "infosecurity_maininfo");
@@ -94,12 +95,12 @@ public class PO extends MapX {
         //p
         prop2table.put("passenger","infosecurity_passengerinfo");
         prop2table.put("paymentmaininfo", "infosecurity_paymentmaininfo");
-        prop2table.put("paymentinfolist~.payment", "infosecurity_paymentinfo");
+        prop2table.put("paymentinfolist~.payment", "infosecurity_paymentinfo");  //PaymentInfoID
         prop2table.put("paymentinfolist~.cardinfolist~", "infosecurity_cardinfo");
         prop2table.put("proposer","infosecurity_proposerinfo");
 
         //r
-        prop2table.put("railinfolist~.rail","infosecurity_exrailinfo");
+        prop2table.put("railinfolist~.rail","infosecurity_exrailinfo");   //ExRailInfoID
         prop2table.put("railinfolist~.user","infosecurity_exrailuserinfo");
         prop2table.put("rechargesuborderlist~","infosecurity_rechargesuborderinfo");
 
@@ -108,14 +109,14 @@ public class PO extends MapX {
 
         //t
         prop2table.put("tianhai","infosecurity_vacationbytianhaiinfo");
-        prop2table.put("topshopcatalog","infosecurity_topshopcataloginfo");
-        prop2table.put("topshopcatalogitemlist~","infosecurity_topshopcataloginfoitem");
-        prop2table.put("topshopmerchantlist~.topshopmerchant","infosecurity_topshopmerchantitem");
-        prop2table.put("topshopmerchantlist~.productlist~","infosecurity_topshopproductioninfo");
-        prop2table.put("topshoporder","infosecurity_topshoporderinfo");
-        prop2table.put("topshopproductitemlist~","infosecurity_topshopproductitem");
-        prop2table.put("travelmoneyproductlist~","infosecurity_travelmoneyproductinfo");
-        prop2table.put("travelmoneyfncmall","infosecurity_travelmoneyfncmall");
+        prop2table.put("topshopcatalog~.cataloginfo","infosecurity_topshopcataloginfo");     //CatalogInfoId
+        prop2table.put("topshopcatalog~.itemlist~","infosecurity_topshopcataloginfoitem");
+
+        prop2table.put("topshoporderlist~.order","infosecurity_topshoporderinfo");    //TopShopOrderId
+        prop2table.put("topshoporderlist~.productitemlist~","infosecurity_topshopproductitem");
+        prop2table.put("topshoporderlist~.merchantlist~.merchant","infosecurity_topshopmerchantitem"); //MerchantItemId
+        prop2table.put("topshoporderlist~.merchantlist~.productionlist~","infosecurity_topshopproductioninfo"); //MerchantItemId
+
         prop2table.put("travelmoneyretailer","infosecurity_travelmoneyretailerinfo");
         prop2table.put("travelmoneyproductlist~","infosecurity_travelmoneyproductinfo");
         prop2table.put("travelmoneyproductplus","infosecurity_travelmoneyproductinfoplus");
@@ -126,7 +127,7 @@ public class PO extends MapX {
         //v
         prop2table.put("vacationproductlist~","infosecurity_vacationproductinfo");
         //viaotherinfolist
-        prop2table.put("vacationinfolist~.order","infosecurity_vacationinfo");
+        prop2table.put("vacationinfolist~.order","infosecurity_vacationinfo");     //VacationInfoID
         prop2table.put("vacationinfolist~.userlist~","infosecurity_vacationuserinfo");
         prop2table.put("vacationinfolist~.optionlist~","infosecurity_vacationoptioninfo");
         //vacationotherinfolist

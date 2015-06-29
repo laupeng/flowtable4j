@@ -22,6 +22,9 @@ public class UpdaterManager {
     @Autowired
     private PayAdaptRuleUpdater payAdaptUpdater;
 
+    @Autowired
+    TableInfoUpdater tableInfoUpdater;
+
     private static final Logger logger = LoggerFactory.getLogger(UpdaterManager.class);
 
     @Scheduled(fixedDelay = 300000)
@@ -56,5 +59,17 @@ public class UpdaterManager {
         }
 
         logger.info("end execute update payAdapt rule...");
+    }
+
+    @Scheduled(fixedDelay = 300000)
+    public void executeTableInfo(){
+        logger.info("start execute update ColumnInfo...");
+        try {
+            tableInfoUpdater.execute();
+        }catch (Throwable ex){
+            logger.error("tableInfo updater error",ex);
+        }
+
+        logger.info("end execute update ColumnInfo...");
     }
 }
