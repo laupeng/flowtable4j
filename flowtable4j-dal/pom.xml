@@ -146,16 +146,22 @@
 			<artifactId>sqljdbc</artifactId>
 		</dependency>
 		<!--dataSource-->
-		<dependency>
-			<groupId>com.ctrip.datasource</groupId>
-			<artifactId>datasource-locator</artifactId>
-			<version>1.0</version>
-		</dependency>
-		<dependency>
-			<groupId>com.ctrip.datasource</groupId>
-			<artifactId>datasource-local</artifactId>
-			<version>1.0</version>
-		</dependency>
+		<!--<dependency>-->
+			<!--<groupId>com.ctrip.datasource</groupId>-->
+			<!--<artifactId>datasource-locator</artifactId>-->
+			<!--<version>1.0</version>-->
+		<!--</dependency>-->
+		<!--<dependency>-->
+			<!--<groupId>com.ctrip.datasource</groupId>-->
+			<!--<artifactId>datasource-local</artifactId>-->
+			<!--<version>1.0</version>-->
+			<!--<exclusions>-->
+				<!--<exclusion>-->
+					<!--<artifactId>tomcat-catalina</artifactId>-->
+					<!--<groupId>org.apache.tomcat</groupId>-->
+				<!--</exclusion>-->
+			<!--</exclusions>-->
+		<!--</dependency>-->
 
 		<!--fix bug jar-->
 		<dependency>

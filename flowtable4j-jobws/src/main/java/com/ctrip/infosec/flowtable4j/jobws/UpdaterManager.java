@@ -25,6 +25,9 @@ public class UpdaterManager {
     @Autowired
     TableInfoUpdater tableInfoUpdater;
 
+    @Autowired
+    TableSaveRuleUpdater tableSaveRuleUpdater;
+
     private static final Logger logger = LoggerFactory.getLogger(UpdaterManager.class);
 
     @Scheduled(fixedDelay = 300000)
@@ -33,7 +36,7 @@ public class UpdaterManager {
         try {
             bwUpdater.execute();
         } catch (Throwable ex) {
-            logger.error("bwUpdater error.",ex);
+            logger.error("bwUpdater error.", ex);
         }
         logger.info("end execute update blackWhite rule...");
     }
@@ -44,32 +47,44 @@ public class UpdaterManager {
         try {
             flowUpdater.execute();
         } catch (Throwable ex) {
-            logger.error("flowUpdater error",ex);
+            logger.error("flowUpdater error", ex);
         }
         logger.info("end execute update flow rule...");
     }
 
     @Scheduled(fixedDelay = 300000)
-    public void executePayadapt(){
+    public void executePayadapt() {
         logger.info("start execute update blackWhite rule...");
         try {
             payAdaptUpdater.execute();
-        }catch (Throwable ex){
-            logger.error("payAdaptUpdater error",ex);
+        } catch (Throwable ex) {
+            logger.error("payAdaptUpdater error", ex);
         }
 
         logger.info("end execute update payAdapt rule...");
     }
 
     @Scheduled(fixedDelay = 300000)
-    public void executeTableInfo(){
+    public void executeTableInfo() {
         logger.info("start execute update ColumnInfo...");
         try {
             tableInfoUpdater.execute();
-        }catch (Throwable ex){
-            logger.error("tableInfo updater error",ex);
+        } catch (Throwable ex) {
+            logger.error("tableInfo updater error", ex);
         }
 
         logger.info("end execute update ColumnInfo...");
+    }
+
+    @Scheduled(fixedDelay = 300000)
+    public void executeSaveTableRules() {
+        logger.info("start execute update saveTableRules");
+        try {
+            tableSaveRuleUpdater.execute();
+        }catch (Throwable ex){
+            logger.error("executeSaveTableRules update error",ex);
+        }
+
+        logger.info("end execute update saveTableRules");
     }
 }
