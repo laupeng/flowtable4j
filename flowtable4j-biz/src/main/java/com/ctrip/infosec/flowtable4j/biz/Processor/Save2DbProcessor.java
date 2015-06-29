@@ -30,17 +30,19 @@ public class Save2DbProcessor {
     @Autowired
     private TableInfoService tableInfoService;
 
-    public void save(PO po) {
-        Map<String, Object> dealInfo = MapX.getMap(po.getProductinfo(), "dealinfo");
-        if (dealInfo != null) {
-            Map<String,Long> keys = ImmutableMap.of("reqid",0L);
+    public Long saveDealInfo(Map<String,Object> map){
+        Map<String,Long> keys = ImmutableMap.of("reqid", 0L);
 
-            //SaveMap方法，可以读取Keys的值，对于如果保存的时候为该Table的Identity，则写入
+        //SaveMap方法，可以读取Keys的值，对于如果保存的时候为该Table的Identity，则写入
 
-            saveMap(dealInfo, PO.getProp2Table().get("dealinfo"), keys);
-            save(po.getPaymentinfo(), keys.get("reqid"));
-            save(po.getProductinfo(), keys.get("reqid"));
-        }
+        saveMap(map, PO.getProp2Table().get("dealinfo"), keys);
+        return keys.get("reqid");
+    }
+
+    public void save(PO po,Long reqid) {
+
+            save(po.getPaymentinfo(), reqid);
+            save(po.getProductinfo(), reqid);
     }
 
     public void save(Map<String, Object> src, long reqId) {
