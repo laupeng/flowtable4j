@@ -29,6 +29,10 @@
             <groupId>com.ctrip.infosec.flowtable4j</groupId>
             <artifactId>flowtable4j-bwlist</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.ctrip.infosec.flowtable4j</groupId>
+            <artifactId>flowtable4j-payadapt</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>com.ctrip.infosec.flowtable4j</groupId>
