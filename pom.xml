@@ -138,6 +138,12 @@
 				<artifactId>flowtable4j-flowlist</artifactId>
 				<version>${project.version}</version>
 			</dependency>
+
+			<dependency>
+				<groupId>com.ctrip.infosec.flowtable4j</groupId>
+				<artifactId>flowtable4j-tablesaverules</artifactId>
+				<version>${project.version}</version>
+			</dependency>
 			<!-- All In One -->
 			<dependency>
 				<groupId>com.ctrip.platform</groupId>
@@ -550,5 +556,6 @@
         <module>flowtable4j-flowlist</module>
     	<module>flowtable4j-payadapt</module>
 		<module>flowtable4j-biz</module>
-  </modules>
+		<module>flowtable4j-savetablerules</module>
+	</modules>
 </project>

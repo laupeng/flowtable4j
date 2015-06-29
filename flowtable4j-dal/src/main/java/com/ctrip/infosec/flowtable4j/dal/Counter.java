@@ -1,6 +1,5 @@
 package com.ctrip.infosec.flowtable4j.dal;
 
-import com.ctrip.infosec.sars.util.SpringContextHolder;
 import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

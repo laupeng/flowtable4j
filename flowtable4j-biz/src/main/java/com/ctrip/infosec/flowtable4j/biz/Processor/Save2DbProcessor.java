@@ -41,8 +41,8 @@ public class Save2DbProcessor {
 
     public void save(PO po,Long reqid) {
 
-            save(po.getPaymentinfo(), reqid);
-            save(po.getProductinfo(), reqid);
+        save(po.getPaymentinfo(), reqid);
+        save(po.getProductinfo(), reqid);
     }
 
     public void save(Map<String, Object> src, long reqId) {
@@ -103,8 +103,8 @@ public class Save2DbProcessor {
                 Map<String, Object> order = MapX.getMap(toSave, "order");
                 List<Map<String, Object>> productitemlist = MapX.getList(toSave, "productitemlist");
                 List<Map<String, Object>> merchantlist = MapX.getList(toSave, "merchantlist");
-                 //greetingcard,prizedetail ref --> order
-                 saveMap(order,PO.getProp2Table().get("topshoporderlist~.order"),keys);
+                //greetingcard,prizedetail ref --> order
+                saveMap(order,PO.getProp2Table().get("topshoporderlist~.order"),keys);
                 for (Map<String, Object> prod : productitemlist) {
                     saveMap(prod,PO.getProp2Table().get("topshoporderlist~.productitemlist~"), keys);
                 }
@@ -133,7 +133,7 @@ public class Save2DbProcessor {
                         String tableName = PO.getProp2Table().get(prefix + "~." + s);
                         if (!Strings.isNullOrEmpty(tableName)) {
                             Map<String, Object> obj = MapX.getMap(toSave, s);
-                             saveMap(obj,tableName,fks);
+                            saveMap(obj,tableName,fks);
                         }
                     }
                 }

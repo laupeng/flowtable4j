@@ -1,7 +1,7 @@
 package com.ctrip.infosec.flowtable4j.jobws;
 
-import com.ctrip.infosec.flowtable4j.dal.RuleUpdaterDAO;
 import com.ctrip.infosec.flowtable4j.flowlist.*;
+import com.ctrip.infosec.flowtable4j.dal.RuleUpdaterDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,6 +1,6 @@
 package com.ctrip.infosec.flowtable4j.dal;
 
-import com.ctrip.infosec.flowtable4j.core.utils.SimpleStaticThreadPool;
+import com.ctrip.infosec.flowtable4j.savetablerules.core.utils.SimpleStaticThreadPool;
 import com.ctrip.infosec.flowtable4j.model.CheckResultLog;
 import com.ctrip.infosec.flowtable4j.model.RiskResult;
 import com.ctrip.infosec.flowtable4j.model.persist.ColumnInfo;
@@ -39,7 +39,7 @@ public class CardRiskService {
 
     public Map<String, Object> queryForMap(String sql, Object args, int argTypes)
     {
-        return  cardRiskDBTemplate.queryForMap(sql,new Object[]{args},new int[]{argTypes});
+        return  cardRiskDBTemplate.queryForMap(sql, new Object[]{args}, new int[]{argTypes});
     }
 
     public List<Map<String, Object>> queryForList(String sql, Object[] args, int[] argTypes)

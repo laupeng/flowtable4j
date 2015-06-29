@@ -3,7 +3,6 @@ package com.ctrip.infosec.flowtable4j.model;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import org.junit.Assert;
 import org.junit.Test;
 
 /**

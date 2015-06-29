@@ -144,5 +144,26 @@ public class RuleUpdaterDAO {
         return cardRiskService.queryForList(sql);
     }
 
+    public List<Map<String,Object>> getRuleStatisticTable(){
+        String sql = "select t.StatisticTableId, t.StatisticTableName ,f1.ColumnName as KeyFieldID1,f2.ColumnName as KeyFieldID2,t.OrderType,t.Active,t.[TableType]\n" +
+                "from Def_RuleStatisticTable t (nolock)\n" +
+                "join Def_RuleMatchField f1 (nolock) on t.KeyFieldID1 = f1.FieldID\n" +
+                "join Def_RuleMatchField f2 (nolock) on t.KeyFieldID2 = f2.FieldID WHERE f1.Active='T' ORDER BY t.StatisticTableID";
+        return cardRiskService.queryForList(sql);
+    }
+
+    public List<Map<String,Object>> getStatisticTableFilterValue(){
+        String sql = "SELECT f.StatisticTableID,m.ColumnName as KeyColumnName,f.MatchType,f.MatchValue\n" +
+                "FROM [dbo].[Def_RuleStatisticTableFilter] f (nolock) join \n" +
+                "Def_RuleMatchField m (nolock) on f.FieldID=m.FieldID WHERE CHARINDEX('F',f.MatchType)<>1 order by f.StatisticTableID";
+        return cardRiskService.queryForList(sql);
+    }
+
+    public List<Map<String,Object>> getStatisticTableFilterField(){
+        String sql = "SELECT f.StatisticTableID,m.ColumnName as KeyColumnName,f.MatchType,f.MatchValue\n" +
+                "FROM [dbo].[Def_RuleStatisticTableFilter] f (nolock) join \n" +
+                "Def_RuleMatchField m (nolock) on f.FieldID=m.FieldID WHERE CHARINDEX('F',f.MatchType)=1 order by f.StatisticTableID ";
+        return cardRiskService.queryForList(sql);
+    }
 
 }

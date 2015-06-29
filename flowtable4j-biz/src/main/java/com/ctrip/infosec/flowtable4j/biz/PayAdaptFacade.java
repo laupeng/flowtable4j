@@ -1,13 +1,13 @@
 package com.ctrip.infosec.flowtable4j.biz;
 
 import com.ctrip.infosec.common.model.RiskFact;
-import com.ctrip.infosec.flowtable4j.accountsecurity.AccountBWGManager;
 import com.ctrip.infosec.flowtable4j.biz.processor.PayAdaptProcessor;
-import com.ctrip.infosec.flowtable4j.bwlist.BWManager;
-import com.ctrip.infosec.flowtable4j.core.utils.SimpleStaticThreadPool;
-import com.ctrip.infosec.flowtable4j.dal.PaybaseDbService;
 import com.ctrip.infosec.flowtable4j.model.*;
-import com.ctrip.infosec.flowtable4j.payAdapt.PayAdaptManager;
+import com.ctrip.infosec.flowtable4j.savetablerules.accountsecurity.AccountBWGManager;
+import com.ctrip.infosec.flowtable4j.savetablerules.bwlist.BWManager;
+import com.ctrip.infosec.flowtable4j.savetablerules.core.utils.SimpleStaticThreadPool;
+import com.ctrip.infosec.flowtable4j.dal.PaybaseDbService;
+import com.ctrip.infosec.flowtable4j.savetablerules.payAdapt.PayAdaptManager;
 import com.ctrip.infosec.sars.monitor.util.Utils;
 import com.ctrip.infosec.sars.util.GlobalConfig;
 import com.google.common.base.Strings;

@@ -1,8 +1,8 @@
 package com.ctrip.infosec.flowtable4j.jobws;
 
-import com.ctrip.infosec.flowtable4j.bwlist.BWManager;
-import com.ctrip.infosec.flowtable4j.bwlist.RuleStatement;
-import com.ctrip.infosec.flowtable4j.bwlist.RuleTerm;
+import com.ctrip.infosec.flowtable4j.savetablerules.bwlist.BWManager;
+import com.ctrip.infosec.flowtable4j.savetablerules.bwlist.RuleStatement;
+import com.ctrip.infosec.flowtable4j.savetablerules.bwlist.RuleTerm;
 import com.ctrip.infosec.flowtable4j.dal.RuleUpdaterDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
