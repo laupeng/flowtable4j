@@ -15,6 +15,7 @@ import java.util.List;
  */
 @Component
 public class TableSaveRuleManager {
+
     final static Logger logger = LoggerFactory.getLogger(TableSaveRuleManager.class);
     private final static Integer WHITE_LVL = 0;
     /**
