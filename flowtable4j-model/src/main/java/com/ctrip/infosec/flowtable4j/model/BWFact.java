@@ -39,61 +39,6 @@ public class BWFact {
     }
 
     /**
-     * 获取直接双亲
-     *
-     * @param keyPath 搜索路径
-     * @return 父节点Map
-     */
-    private Map<String, Object> getDirectParentMapNode(String... keyPath) {
-        Map<String, Object> prevMap = content;
-        if (keyPath.length > 1) {
-            for (int i = 0; i < keyPath.length - 1; i++) {
-                if (prevMap != null) {
-                    prevMap = getChildMap(prevMap, keyPath[i]);
-                } else {
-                    break;
-                }
-            }
-        }
-        return prevMap;
-    }
-
-    /**
-     * 获取String
-     *
-     * @param keyPath 搜索路径
-     * @return 字符串
-     */
-    public String getString(String... keyPath) {
-        Map<String, Object> parentMap = getDirectParentMapNode(keyPath);
-        if (parentMap != null) {
-            String key = keyPath[keyPath.length - 1];
-            if (parentMap.containsKey(key)) {
-                Object obj = parentMap.get(key);
-                if(obj != null)
-                {
-                    return obj.toString();
-                }
-            }
-        }
-        return null;
-    }
-
-    /**
-     * 获取子节点
-     *
-     * @param parentMapNode 父节点
-     * @param childNode     子节点名称
-     * @return 子节点Map
-     */
-    private Map<String, Object> getChildMap(Map<String, Object> parentMapNode, String childNode) {
-        if (parentMapNode.containsKey(childNode)) {
-            return (Map<String, Object>) parentMapNode.get(childNode);
-        }
-        return null;
-    }
-
-    /**
      * 自定义 OrderTypes，包括 0
      */
     public List<Integer> getOrderTypes() {
@@ -102,5 +47,9 @@ public class BWFact {
 
     public void setOrderTypes(List<Integer> orderTypes) {
         this.orderTypes = orderTypes;
+    }
+
+    public String getString(String key){
+        return MapX.getString(content,key);
     }
 }

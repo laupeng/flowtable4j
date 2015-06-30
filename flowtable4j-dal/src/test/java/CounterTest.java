@@ -1,13 +1,9 @@
+import com.ctrip.infosec.flowtable4j.dal.ESBClient;
 import com.google.common.base.Strings;
 //import org.junit.Test;
 import org.junit.Test;
 
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 //import org.junit.Test;
 
 /**
@@ -24,16 +20,30 @@ public class CounterTest {
         return true;
     }
     @Test
-    public void testReplace(){
-        Map<String, Object> parentMap = new HashMap<String, Object>();
-        parentMap.put("AA",12233);
-        Object obj = parentMap.get("AA");
-        if(obj != null)
-        {
-            System.out.println(obj.toString());
+    public void testReplace() throws Exception {
+        String mobile = null;
+        if (!Strings.isNullOrEmpty(mobile)) {
+            while (mobile.startsWith("0")) {
+                mobile = mobile.substring(1);
+            }
         }
-        String aa=null;
-        System.out.println(f1()|f2());
-        System.out.println(String.format("%d GT %d",2,1));
+        System.out.println(mobile);
+        ESBClient client= new ESBClient();
+//        System.out.println("======MemberInfo====");
+//        Map me =client.getMemberInfo("wwwwww");
+//        for(Object key:me.keySet()){
+//            System.out.println(key +": "+me.get(key));
+//        }
+//        System.out.println("======Customer Info====");
+//        Map cu = client.getCustomerInfo("bbbb");
+//        for(Object key:cu.keySet()){
+//            System.out.println(key +": "+cu.get(key));
+//        }
+
+        System.out.println("======Card Inf====");
+        Map cc = client.getCardInfo("28996388");
+        for(Object key:cc.keySet()){
+            System.out.println(key +": "+cc.get(key));
+        }
   }
 }

@@ -2,12 +2,12 @@ package com.ctrip.infosec.flowtable4j.flowlist;
 import com.ctrip.infosec.flowtable4j.model.CheckType;
 import com.ctrip.infosec.flowtable4j.model.FlowFact;
 import com.ctrip.infosec.flowtable4j.model.CheckResultLog;
+import com.ctrip.infosec.flowtable4j.model.RiskResult;
 import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import com.ctrip.infosec.flowtable4j.model.RiskResult;
 
 /**
  * Created by thyang on 2015/3/13 0013.

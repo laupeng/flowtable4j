@@ -71,4 +71,8 @@ public class RequestBody {
     public void setEventBody(Map<String,Object> eventBody) {
         this.eventBody = eventBody;
     }
+
+    protected Map<String, Object> getRootMap() {
+        return eventBody;
+    }
 }
