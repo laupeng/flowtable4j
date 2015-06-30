@@ -48,11 +48,13 @@ public class FlowConverter extends ConverterBase {
         if(po.getChecktype().equals(1)) {
             fillMobileProvince(target, getString(target, "bindedmobilephone"), getString(target, "relatedmobilephone"));
             //反写
-            Map<String, Object> userinfo = MapX.getMap(po.getPaymentinfo(), "userinfo");
-            setValue(userinfo, "bindedmobilephonecity", getString(target, "bindedmobilephonecity"));
-            setValue(userinfo, "bindedmobilephoneprovince", getString(target, "bindedmobilephoneprovince"));
-            setValue(userinfo, "relatedmobilephonecity", getString(target, "relatedmobilephonecity"));
-            setValue(userinfo, "relatedmobilephoneprovince", getString(target, "relatedmobilephoneprovince"));
+            Map<String, Object> userinfo = MapX.getMap(po.getProductinfo(), "userinfo");
+            if(userinfo!=null && userinfo.size()>0) {
+                setValue(userinfo, "bindedmobilephonecity", getString(target, "bindedmobilephonecity"));
+                setValue(userinfo, "bindedmobilephoneprovince", getString(target, "bindedmobilephoneprovince"));
+                setValue(userinfo, "relatedmobilephonecity", getString(target, "relatedmobilephonecity"));
+                setValue(userinfo, "relatedmobilephoneprovince", getString(target, "relatedmobilephoneprovince"));
+            }
         }
 
         fillIPCity(po,target);
@@ -153,7 +155,7 @@ public class FlowConverter extends ConverterBase {
 
     protected void copyMap(PO po, String keyPath, Map<String, Object> target, String[] fields) {
         Map<String, Object> src = (Map<String, Object>) MapX.getMap(po.getProductinfo(), keyPath);
-        if (src != null) {
+        if (src != null && target!=null) {
             for (String key : fields) {
                 setValue(target, key,getString(src, key));
             }
@@ -161,7 +163,7 @@ public class FlowConverter extends ConverterBase {
     }
 
     protected void copyMap(Map<String, Object> src, Map<String, Object> target, String[] fields) {
-        if (src != null) {
+        if (src != null && target!=null) {
             for (String key : fields) {
                 setValue(target, key,getString(src, key));
             }

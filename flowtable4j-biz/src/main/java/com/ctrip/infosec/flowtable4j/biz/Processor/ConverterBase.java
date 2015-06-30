@@ -34,15 +34,16 @@ public class ConverterBase {
 
     /**
      * 从一个Map里面取对应字段到Target
+     *
      * @param root
      * @param keyPath
      * @param target
      * @param fieldMap Src -> Targe映射
      */
-    protected void copyMap(Map<String,Object> root, String keyPath, Map<String, Object> target, Map<String, String> fieldMap) {
-        if(root!=null) {
+    protected void copyMap(Map<String, Object> root, String keyPath, Map<String, Object> target, Map<String, String> fieldMap) {
+        if (root != null && target!=null) {
             Map<String, Object> src = (Map<String, Object>) MapX.getMap(root, keyPath);
-            if (src != null) {
+            if (src != null && fieldMap!=null) {
                 for (String key : fieldMap.keySet()) {
                     setValue(target, fieldMap.get(key), getString(src, key));
                 }
@@ -53,29 +54,29 @@ public class ConverterBase {
 
     /**
      * Map拷贝
+     *
      * @param root
      * @param target
      * @param fieldMap src -> Targe
      */
-    protected void copyMap(Map<String,Object> root,Map<String, Object> target, Map<String, String> fieldMap) {
-        if(root!=null) {
-            if (root != null) {
-                for (String key : fieldMap.keySet()) {
-                    setValue(target, fieldMap.get(key), getString(root, key));
-                }
+    protected void copyMap(Map<String, Object> root, Map<String, Object> target, Map<String, String> fieldMap) {
+        if (root != null && target != null && fieldMap!=null) {
+            for (String key : fieldMap.keySet()) {
+                setValue(target, fieldMap.get(key), getString(root, key));
             }
         }
     }
 
     /**
      * 从一个Map拷贝对应字段到Target
+     *
      * @param root
      * @param keyPath
      * @param target
      * @param fields
      */
-    protected void copyMap(Map<String,Object> root,String keyPath, Map<String, Object> target, String[] fields) {
-        if(root!=null) {
+    protected void copyMap(Map<String, Object> root, String keyPath, Map<String, Object> target, String[] fields) {
+        if (root != null && target!=null && fields!=null) {
             Map<String, Object> src = (Map<String, Object>) MapX.getMap(root, keyPath);
             if (src != null) {
                 for (String key : fields) {
@@ -87,14 +88,15 @@ public class ConverterBase {
 
     /**
      * Map对拷指定字段
+     *
      * @param src
      * @param target
      * @param fields
      */
     protected void copyMap(Map<String, Object> src, Map<String, Object> target, String[] fields) {
-        if (src != null) {
+        if (src != null && target!=null && fields!=null) {
             for (String key : fields) {
-                setValue(target, key,getString(src, key));
+                setValue(target, key, getString(src, key));
             }
         }
     }
@@ -102,49 +104,49 @@ public class ConverterBase {
     /**
      * 根据字段映射从RequestBody取数据
      *
-     * @param src 原始Map
-     * @param targetMap   目标Map
-     * @param dbEntity    表名
+     * @param src       原始Map
+     * @param targetMap 目标Map
+     * @param dbEntity  表名
      */
-    protected void copyMap(Map<String, Object> src,Map<String, Object> targetMap, String dbEntity) {
+    protected void copyMap(Map<String, Object> src, Map<String, Object> targetMap, String dbEntity) {
         List<ColumnInfo> dbMeta = dbService.getDbMeta(dbEntity);
-        if(dbMeta!=null && dbMeta.size()>0) {
+        if (dbMeta != null && dbMeta.size() > 0 && targetMap!=null) {
             for (ColumnInfo info : dbMeta) {
                 setValue(targetMap, info.getName(), getObject(src, info.getName()));
             }
         }
     }
 
-    public String getString(Map<String,Object> data, String key) {
-        return MapX.getString(data,key);
+    public String getString(Map<String, Object> data, String key) {
+        return MapX.getString(data, key);
     }
 
-    public String getString(Map<String,Object> data, String[] key) {
-        return MapX.getString(data,key);
+    public String getString(Map<String, Object> data, String[] key) {
+        return MapX.getString(data, key);
     }
 
-    public Object getObject(Map<String,Object> data, String key) {
+    public Object getObject(Map<String, Object> data, String key) {
         return MapX.getObject(data, key);
     }
 
-    public Object getObject(Map<String,Object> data, String[] key) {
+    public Object getObject(Map<String, Object> data, String[] key) {
         return MapX.getObject(data, key);
     }
 
-    public boolean setValue(Map<String,Object> target,String key,Object value){
-        return MapX.setValue(target,key,value);
+    public boolean setValue(Map<String, Object> target, String key, Object value) {
+        return MapX.setValue(target, key, value);
     }
 
-    public boolean setValueIfNotEmpty(Map<String,Object> target,String key,String value){
-        if(!Strings.isNullOrEmpty(value)) {
+    public boolean setValueIfNotEmpty(Map<String, Object> target, String key, String value) {
+        if (!Strings.isNullOrEmpty(value)) {
             return MapX.setValue(target, key, value);
         }
         return false;
     }
 
 
-    public boolean setValue(Map<String,Object> target,String[] key,Object value){
-        return MapX.setValue(target,key,value);
+    public boolean setValue(Map<String, Object> target, String[] key, Object value) {
+        return MapX.setValue(target, key, value);
     }
 
     protected String ipConvertToStr(long Ip) {
@@ -170,16 +172,15 @@ public class ConverterBase {
         return n_Ip;
     }
 
-    protected String dateDiffHour(String startDate,String endDate) {
-        if(Strings.isNullOrEmpty(startDate) || Strings.isNullOrEmpty(endDate)){
+    protected String dateDiffHour(String startDate, String endDate) {
+        if (Strings.isNullOrEmpty(startDate) || Strings.isNullOrEmpty(endDate)) {
             return "0";
         }
         try {
             long S = sdf.parse(startDate).getTime();
             long E = sdf.parse(endDate).getTime();
-            return  String.valueOf(Math.abs((S - E) / 1000 / 60 / 60));
-        }
-        catch (Exception ex){
+            return String.valueOf(Math.abs((S - E) / 1000 / 60 / 60));
+        } catch (Exception ex) {
             return "0";
         }
     }
