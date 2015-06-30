@@ -43,7 +43,7 @@ public class TableInfoUpdater {
             public Map<String, List<ColumnInfo>> extractData(ResultSet resultSet) throws SQLException, DataAccessException {
                 Map<String, List<ColumnInfo>> tables = new HashMap<String, List<ColumnInfo>>();
                 while (resultSet.next()) {
-                    String tableName = resultSet.getString("tableName");
+                    String tableName = resultSet.getString("tableName").toLowerCase();
                     List<ColumnInfo> columns = null;
                     if (tables.containsKey(tableName)) {
                         columns = tables.get(tableName);
@@ -52,8 +52,8 @@ public class TableInfoUpdater {
                         tables.put(tableName, columns);
                     }
                     ColumnInfo info = new ColumnInfo();
-                    info.setTableName(resultSet.getString("tableName"));
-                    info.setName(resultSet.getString("name"));
+                    info.setTableName(resultSet.getString("tableName").toLowerCase());
+                    info.setName(resultSet.getString("name").toLowerCase());
                     info.setIs_nullable(resultSet.getInt("is_nullable"));
                     info.setIs_identity(resultSet.getInt("is_identity"));
                     info.setData_type(resultSet.getString("data_type"));

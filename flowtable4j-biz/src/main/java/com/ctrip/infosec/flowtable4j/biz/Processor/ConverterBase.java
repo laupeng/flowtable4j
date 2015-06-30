@@ -108,11 +108,10 @@ public class ConverterBase {
      */
     protected void copyMap(Map<String, Object> src,Map<String, Object> targetMap, String dbEntity) {
         List<ColumnInfo> dbMeta = dbService.getDbMeta(dbEntity);
-//        for (String field : dbMeta.keySet()) {
-//            setValue(targetMap, field, getObject(src, field));
-//        }
-        for(ColumnInfo info : dbMeta){
-            setValue(targetMap, info.getName(),getObject(src,info.getName())) ;
+        if(dbMeta!=null && dbMeta.size()>0) {
+            for (ColumnInfo info : dbMeta) {
+                setValue(targetMap, info.getName(), getObject(src, info.getName()));
+            }
         }
     }
 
