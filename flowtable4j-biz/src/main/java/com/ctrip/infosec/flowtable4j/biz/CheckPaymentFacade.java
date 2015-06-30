@@ -1,5 +1,6 @@
 package com.ctrip.infosec.flowtable4j.biz;
 import com.ctrip.infosec.flowtable4j.biz.processor.*;
+import com.ctrip.infosec.flowtable4j.flowdispatch.TableSaveRuleManager;
 import com.ctrip.infosec.flowtable4j.model.*;
 import com.ctrip.infosec.flowtable4j.model.persist.PO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,9 @@ public class CheckPaymentFacade {
     @Autowired
     FlowtableProcessor flowtableProcessor;
 
+    @Autowired
+    TableSaveRuleManager tableSaveRuleManager;
+    
     public CheckFact process(RequestBody request){
         CheckFact fact =new CheckFact();
         PO po = poConverter.convert(request);
@@ -43,6 +47,7 @@ public class CheckPaymentFacade {
     public ResponseBody checkRisk(RequestBody requestBody){
         CheckFact fact = process(requestBody);
         RiskResult result = flowtableProcessor.handle(fact);
+        tableSaveRuleManager.checkAndSave(fact.getFlowFact());
         return  new ResponseBody();
     }
 }

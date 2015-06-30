@@ -22,6 +22,10 @@
         </dependency>
         <dependency>
             <groupId>com.ctrip.infosec.flowtable4j</groupId>
+            <artifactId>flowtable4j-flowdispatch</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.ctrip.infosec.flowtable4j</groupId>
             <artifactId>flowtable4j-core</artifactId>
         </dependency>
         <!--预处理-->

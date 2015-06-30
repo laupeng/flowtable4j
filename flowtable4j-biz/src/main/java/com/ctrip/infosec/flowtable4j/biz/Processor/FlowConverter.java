@@ -31,9 +31,19 @@ public class FlowConverter extends ConverterBase {
 
         copyMap(po, "hotelgroupinfo", target,new String[]{"quantity", "city", "productid", "productname", "producttype", "price"});
 
-        copyMap(po, "userinfo",target,new String[]{"cuscharacter", "bindedmobilephone", "userpassword", "experience", "bindedemail","vipgrade","relatedemail","relatedmobilephone","uid"});
+        copyMap(po, "userinfo",target,new String[]{"cuscharacter", "bindedmobilephone", "userpassword", "experience",
+                "bindedemail","vipgrade","relatedemail","relatedmobilephone","uid","bindedmobilephonecity",
+                "bindedmobilephoneprovince","relatedmobilephonecity","relatedmobilephoneprovince"});
 
-        fillMobileProvince(target,getString(target, "bindedmobilephone"),getString(target,"relatedmobilephone"));
+        if(po.getChecktype().equals(1)) {
+            fillMobileProvince(target, getString(target, "bindedmobilephone"), getString(target, "relatedmobilephone"));
+            //反写
+            Map<String, Object> userinfo = MapX.getMap(po.getPaymentinfo(), "userinfo");
+            setValueIfNotEmpty(userinfo, "bindedmobilephonecity", getString(target, "bindedmobilephonecity"));
+            setValueIfNotEmpty(userinfo, "bindedmobilephoneprovince", getString(target, "bindedmobilephoneprovince"));
+            setValueIfNotEmpty(userinfo, "relatedmobilephonecity", getString(target, "relatedmobilephonecity"));
+            setValueIfNotEmpty(userinfo, "relatedmobilephoneprovince", getString(target, "relatedmobilephoneprovince"));
+        }
 
         fillIPCity(po,target);
 
@@ -81,11 +91,13 @@ public class FlowConverter extends ConverterBase {
     }
 
     private void fillIPCity(PO po, Map<String, Object> target) {
-        copyMap(po,"ipinfo",target,new String[]{"useripadd","useripvalue","ipcity","ipcountry"});
-        Map<String,Object> map= checkRiskDAO.getCityNameProvince(getString(target,"ipcity"));
-        if(map!=null){
-            setValue(target,"ipcityname",getString(map,"cityname"));
-            setValue(target,"ipprovince",getString(map,"provincename"));
+        copyMap(po,"ipinfo",target,new String[]{"useripadd","useripvalue","ipcity","ipcountry","ipcityname","ipprovince"});
+        if(po.getChecktype().equals(1)) {
+            Map<String, Object> map = checkRiskDAO.getCityNameProvince(getString(target, "ipcity"));
+            if (map != null) {
+                setValue(target, "ipcityname", getString(map, "cityname"));
+                setValue(target, "ipprovince", getString(map, "provincename"));
+            }
         }
     }
 
