@@ -22,7 +22,7 @@ public class WhiteRule extends BaseRule {
             if (orderTypeEQ.containsKey(orderType)) {     //遍历所有订单类型
                 HashMap<String, HashMap<String, List<RuleStatement>>> matchRules = orderTypeEQ.get(orderType);
                 for (String key : matchRules.keySet()) {  //遍历所有字段
-                    String val = Strings.nullToEmpty(fact.getString(key)).toUpperCase();
+                    String val = Strings.nullToEmpty(fact.getString(key)).toLowerCase();
                     if (!Strings.isNullOrEmpty(val)) {
                         HashMap<String, List<RuleStatement>> fieldRules = matchRules.get(key);// 遍历所有字段
                         if (fieldRules.containsKey(val)) {

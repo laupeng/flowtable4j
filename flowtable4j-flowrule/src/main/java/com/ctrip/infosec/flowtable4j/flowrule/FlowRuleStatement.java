@@ -151,7 +151,7 @@ public class FlowRuleStatement {
      * @param prepayType
      */
     public void setPrepayType(String prepayType) {
-        this.prepayType = Strings.nullToEmpty(prepayType).toUpperCase();
+        this.prepayType = Strings.nullToEmpty(prepayType).toLowerCase();
     }
 }
 

@@ -26,13 +26,13 @@ public class CounterMatchRuleTerm extends PayAdaptRuleTerm {
 
     public CounterMatchRuleTerm(String fieldName, String operator, String matchValue) {
         super(fieldName, operator, matchValue);
-        keyFieldName = fieldName.toUpperCase();
+        keyFieldName = fieldName.toLowerCase();
     }
 
     public void setCountType(String countType, String countField, String sqlStatement) {
         this.countType = countType;
-        this.countField = countField;
-        this.sqlStatement = sqlStatement.replace('@', ':').toUpperCase();
+        this.countField = countField.toLowerCase();
+        this.sqlStatement = sqlStatement.replace('@', ':').toLowerCase();
     }
 
     public void setTimeOffset(Integer startOffset, Integer endOffset) {

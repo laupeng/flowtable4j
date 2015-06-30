@@ -63,7 +63,7 @@ public class CheckRiskDAO {
             String v = MapX.getString(kv, k);
             if (!Strings.isNullOrEmpty(v)) {
                 for (Integer orderTy : orderTypes) {
-                    String tableName = getTableName(k, orderType);
+                    String tableName = getTableName(k, orderTy);
                     String field = k.toLowerCase();
                     if (!Strings.isNullOrEmpty(tableName)) {
                         String sql = String.format("SELECT DISTINCT originalrisklevel FROM %s WITH(NOLOCK) WHERE %s=:%s AND originalrisklevel >=195 and CreateDate>=:starttimelimit and CreateDate<=:timelimit", tableName.toUpperCase(), field, field);

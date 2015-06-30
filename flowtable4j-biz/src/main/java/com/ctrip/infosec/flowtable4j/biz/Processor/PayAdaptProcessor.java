@@ -190,14 +190,16 @@ public class PayAdaptProcessor {
 
     public Map<String, Object> fillPayAdaptCheckEntity(Map<String, Object> productInfo,int orderType) {
         Map<String, Object> payAdaptEntity = new HashMap<String, Object>();
-        if(CtripOrderType.CRH.getCode() == orderType){
-            fillCRH(productInfo,payAdaptEntity);
-        } else if(CtripOrderType.TTD.getCode()==orderType){
-            fillTTD(productInfo, payAdaptEntity);
-        } else if(CtripOrderType.Flights.getCode() == orderType){
-            fillFlight(productInfo,payAdaptEntity);
-        } else if (CtripOrderType.HotelGroup.getCode()== orderType){
-            fillHotelGroup(productInfo,payAdaptEntity);
+        if(productInfo!=null && productInfo.size()>0) {
+            if (CtripOrderType.CRH.getCode() == orderType) {
+                fillCRH(productInfo, payAdaptEntity);
+            } else if (CtripOrderType.TTD.getCode() == orderType) {
+                fillTTD(productInfo, payAdaptEntity);
+            } else if (CtripOrderType.Flights.getCode() == orderType) {
+                fillFlight(productInfo, payAdaptEntity);
+            } else if (CtripOrderType.HotelGroup.getCode() == orderType) {
+                fillHotelGroup(productInfo, payAdaptEntity);
+            }
         }
         return payAdaptEntity;
     }

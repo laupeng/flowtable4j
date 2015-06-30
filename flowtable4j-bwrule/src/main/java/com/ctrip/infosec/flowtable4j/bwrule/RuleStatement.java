@@ -32,7 +32,7 @@ public class RuleStatement {
     public RuleTerm getEQRuleTerm() {
         if (ruleTerms != null && ruleTerms.size() > 0) {
             for (RuleTerm term : ruleTerms) {
-                if ("EQ".equals(term.getOperator())) {
+                if ("eq".equals(term.getOperator())) {
                     return term;
                 }
             }
