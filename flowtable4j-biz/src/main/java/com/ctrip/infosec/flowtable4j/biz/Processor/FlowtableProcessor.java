@@ -1,8 +1,8 @@
 package com.ctrip.infosec.flowtable4j.biz.processor;
 
 import com.ctrip.infosec.flowtable4j.model.*;
-import com.ctrip.infosec.flowtable4j.flowdata.accountrule.AccountBWGManager;
-import com.ctrip.infosec.flowtable4j.flowdata.bwrule.BWManager;
+import com.ctrip.infosec.flowtable4j.accountrule.AccountBWGManager;
+import com.ctrip.infosec.flowtable4j.bwrule.BWManager;
 import com.ctrip.infosec.flowtable4j.dal.CardRiskService;
 import com.ctrip.infosec.flowtable4j.flowrule.FlowRuleManager;
 import com.ctrip.infosec.sars.monitor.util.Utils;

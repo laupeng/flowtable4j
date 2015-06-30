@@ -38,6 +38,7 @@ public class Save2DbProcessor {
     }
 
     public void save(PO po,Long reqid) {
+        //TODO 开启多线程保存
         save(po.getProductinfo(), reqid);
         save(po.getPaymentinfo(), reqid);
     }

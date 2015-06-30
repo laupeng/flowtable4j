@@ -1,6 +1,6 @@
 package com.ctrip.infosec.flowtable4j.biz.processor;
 
-import com.ctrip.infosec.flowtable4j.flowdata.accountrule.AccountBWGManager;
+import com.ctrip.infosec.flowtable4j.accountrule.AccountBWGManager;
 import com.ctrip.infosec.flowtable4j.model.AccountFact;
 import com.ctrip.infosec.flowtable4j.model.AccountResult;
 import com.ctrip.infosec.flowtable4j.model.RuleContent;

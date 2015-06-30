@@ -49,6 +49,10 @@ public class CheckRiskDAO {
     @Autowired
     Counter counter;
 
+    public void updateOriginRiskLevelTable(Map<String,String> src){
+        this.originalRiskLevel = src;
+    }
+
     public String getTableName(String keyField, Integer orderType) {
         return originalRiskLevel.get(String.format("%s|%s", keyField, orderType).toUpperCase());
     }
@@ -316,9 +320,9 @@ public class CheckRiskDAO {
         return null;
     }
 
-    public void saveLastProductInfo(String orderId, String orderType, String merchantId, Map<String, Object> productInfo) {
+    public void saveLastProductInfo(Long orderId, Integer orderType, String merchantId, Map<String, Object> productInfo) {
         try {
-            long id = Long.parseLong(orderId) % 4;
+            long id = orderId  % 4;
             String sql = String.format(
                     "IF EXISTS (SELECT 'X' FROM InfoSecurity_LastProductInfo%s WITH(NOLOCK) WHERE PID=:p1)\n" +
                             "   EXEC spA_InfoSecurity_LastProductInfo%s_u @PID=:p1,@Content=:p2\n" +
@@ -344,9 +348,9 @@ public class CheckRiskDAO {
         }
     }
 
-    public void saveLastPaymentInfo(String orderId, String orderType, String merchantId, String prePayType, Map<String, Object> paymentInfo) {
+    public void saveLastPaymentInfo(Long orderId, Integer orderType, String merchantId, String prePayType, Map<String, Object> paymentInfo) {
         try {
-            long id = Long.parseLong(orderId) % 4;
+            long id =  orderId  % 4;
             String sql = String.format(
                     "IF EXISTS (SELECT 'X' FROM InfoSecurity_LastPaymentInfo%s WITH(NOLOCK) WHERE PID=:p1)\n" +
                             "   EXEC spA_InfoSecurity_LastPaymentInfo%s_u @PID=:p1,@Content=:p2,PrepayType=:p3\n" +

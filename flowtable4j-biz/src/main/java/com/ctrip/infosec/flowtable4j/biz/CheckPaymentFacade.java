@@ -40,14 +40,20 @@ public class CheckPaymentFacade {
         fact.setFlowFact(flowConverter.convert(po));
         fact.setCheckTypes(new CheckType[]{ CheckType.ACCOUNT, CheckType.BW, CheckType.FLOWRULE});
         fact.setReqId(save2DbService.saveDealInfo(MapX.getMap(po.getProductinfo(),"dealinfo")));
+        poConverter.saveData4Next(po);
         save2DbService.save(po,fact.getReqId());
         return fact;
     }
 
-    public ResponseBody checkRisk(RequestBody requestBody){
+    public RiskResult checkRisk(RequestBody requestBody){
+        //数据准备
         CheckFact fact = process(requestBody);
+
+        //流量校验
         RiskResult result = flowtableProcessor.handle(fact);
+
+        //分流表数据落地
         tableSaveRuleManager.checkAndSave(fact.getFlowFact());
-        return  new ResponseBody();
+        return  result;
     }
 }

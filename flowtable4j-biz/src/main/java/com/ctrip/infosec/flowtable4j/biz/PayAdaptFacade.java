@@ -3,8 +3,8 @@ package com.ctrip.infosec.flowtable4j.biz;
 import com.ctrip.infosec.common.model.RiskFact;
 import com.ctrip.infosec.flowtable4j.biz.processor.PayAdaptProcessor;
 import com.ctrip.infosec.flowtable4j.model.*;
-import com.ctrip.infosec.flowtable4j.flowdata.accountrule.AccountBWGManager;
-import com.ctrip.infosec.flowtable4j.flowdata.bwrule.BWManager;
+import com.ctrip.infosec.flowtable4j.accountrule.AccountBWGManager;
+import com.ctrip.infosec.flowtable4j.bwrule.BWManager;
 import com.ctrip.infosec.flowtable4j.dal.PaybaseDbService;
 import com.ctrip.infosec.flowtable4j.flowdata.payAdapt.PayAdaptManager;
 import com.ctrip.infosec.sars.monitor.util.Utils;
@@ -67,10 +67,10 @@ public class PayAdaptFacade {
     /**
      * 支付适配校验
      *
-     * @param checkEntity
+     * @param fact
      * @return
      */
-    public PayAdaptResult handle4PayAdapt(final PayAdaptFact checkEntity) {
+    public PayAdaptResult handle4PayAdapt(final PayAdaptFact fact) {
 
         PayAdaptResult result = new PayAdaptResult();
         result.setRetCode(200);
@@ -84,16 +84,16 @@ public class PayAdaptFacade {
 
         List<Callable<Object>> tasks = new ArrayList<Callable<Object>>();
 
-        final Map<String,Object> productInfo = payAdaptProcessor.getLastProductInfo(checkEntity.getOrderID(),checkEntity.getOrderType());
+        final Map<String,Object> productInfo = payAdaptProcessor.getLastProductInfo(fact.getOrderID(), fact.getOrderType());
 
         //支付适配流量规则是否开启
-        if (isPayAdaptFlowRuleDefined(checkEntity)) {
+        if (isPayAdaptFlowRuleDefined(fact)) {
             tasks.add(new Callable<Object>() {
                 @Override
                 public Object call() throws Exception {
                     //调用反欺诈平台
                     long start = System.currentTimeMillis();
-                    checkRiskByDroolsEngine(checkEntity, bwResults4j);
+                    checkRiskByDroolsEngine(fact, bwResults4j);
                     long end = System.currentTimeMillis();
                     logger.debug("get RiskResult by Drools Engine costs "+(end-start)+"ms");
                     return null;
@@ -105,7 +105,7 @@ public class PayAdaptFacade {
                     public Object call() throws Exception {
                         //调用黑白名单模块
                         long start = System.currentTimeMillis();
-                        checkPaymentBWGRule(checkEntity, bwResults,productInfo);
+                        checkPaymentBWGRule(fact, bwResults,productInfo);
                         long end = System.currentTimeMillis();
                         logger.debug("check Payment BWG Rule costs " + (end - start) + "ms");
                         return null;
@@ -116,7 +116,7 @@ public class PayAdaptFacade {
                     public Object call() throws Exception {
                         long start = System.currentTimeMillis();
                         //调用支付适配流量规则
-                        checkPayAdaptFlowRule(checkEntity, payRuleResults,productInfo);
+                        checkPayAdaptFlowRule(fact, payRuleResults,productInfo);
                         long end = System.currentTimeMillis();
                         logger.debug("check PayAdapt FlowRule costs " + (end - start) + "ms");
                         return null;
@@ -129,7 +129,7 @@ public class PayAdaptFacade {
             public Object call() throws Exception {
                 long start = System.currentTimeMillis();
                 //调用账户风控黑白名单
-                checkAccountBWGService(checkEntity, accountResults);
+                checkAccountBWGService(fact, accountResults);
                 long end = System.currentTimeMillis();
                 logger.debug("check AccountBWG Service costs " + (end - start) + "ms");
                 return null;
@@ -154,7 +154,7 @@ public class PayAdaptFacade {
         logger.debug("merge pay adapt result costs " + (end - start) + "ms");
         result.setPayAdaptResultItems(results);
 
-        paybaseDbService.save(checkEntity.getMerchantID(), checkEntity.getOrderID(), checkEntity.getOrderType(),checkEntity.getUid(),results);
+        paybaseDbService.save(fact.getMerchantID(), fact.getOrderID(), fact.getOrderType(), fact.getUid(),results);
 
         return result;
     }
@@ -201,29 +201,46 @@ public class PayAdaptFacade {
         }
     }
 
+    /**
+     * 调用支付黑白名单
+     * @param checkEntity
+     * @param riskResult
+     * @param productInfo
+     */
     private void checkPaymentBWGRule(PayAdaptFact checkEntity, RiskResult riskResult,Map<String,Object> productInfo) {
         BWFact fact = new BWFact();
         fact.setOrderTypes(new ArrayList<Integer>());
         fact.setContent(new HashMap<String, Object>());
-        fact.getOrderTypes().add(checkEntity.getOrderType());
         fact.getOrderTypes().add(0);
+        fact.getOrderTypes().add(checkEntity.getOrderType());
         fact.setContent(payAdaptProcessor.fillBWGCheckEntity(productInfo));
         if (!bwManager.checkWhite(fact, riskResult)) {
             bwManager.checkBlack(fact, riskResult);
         }
     }
 
+    /**
+     * 调用支付适配规则
+     * @param checkEntity
+     * @param payRuleResults
+     * @param productInfo
+     */
     private void checkPayAdaptFlowRule(PayAdaptFact checkEntity, List<PayAdaptResultItem> payRuleResults,Map<String,Object> productInfo) {
 
         Map<String, Object> data2Check = payAdaptProcessor.fillPayAdaptCheckEntity(productInfo,checkEntity.getOrderType());
         FlowFact fact = new FlowFact();
         fact.setOrderTypes(new ArrayList<Integer>());
-        fact.getOrderTypes().add(checkEntity.getOrderType());
         fact.getOrderTypes().add(0);
+        fact.getOrderTypes().add(checkEntity.getOrderType());
         fact.setContent(data2Check);
         payAdaptManager.check(fact, payRuleResults);
     }
 
+    /**
+     * 调用账户风控
+     * @param checkEntity
+     * @param accountResults
+     */
     private void checkAccountBWGService(PayAdaptFact checkEntity, Map<String, Integer> accountResults) {
         AccountFact accountFact = new AccountFact();
         accountFact.setCheckItems(new ArrayList<AccountItem>());

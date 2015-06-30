@@ -1,14 +1,12 @@
 package com.ctrip.infosec.flowtable4j.jobws;
 
+import com.ctrip.infosec.flowtable4j.dal.CheckRiskDAO;
 import com.ctrip.infosec.flowtable4j.flowdata.*;
 import com.ctrip.infosec.flowtable4j.dal.RuleUpdaterDAO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Created by zhangsx on 2015/6/29.
@@ -20,11 +18,16 @@ public class TableSaveRuleUpdater {
     private RuleUpdaterDAO ruleUpdaterDAO;
 
     @Autowired
+    private CheckRiskDAO checkRiskDAO;
+
+    @Autowired
     private TableSaveRuleManager flowRuleManager;
     public void execute() {
         List<Map<String, Object>> statisticTables = ruleUpdaterDAO.getRuleStatisticTable();
         List<Map<String, Object>> statisticTableFiltersValue = ruleUpdaterDAO.getStatisticTableFilterValue();
         List<Map<String, Object>> statisticTableFiltersField = ruleUpdaterDAO.getStatisticTableFilterField();
+
+        Map<String,String> originalRiskLevelTables =  new HashMap<String, String>();
 
         List<FlowRuleStatement> results = new ArrayList<FlowRuleStatement>();
         int p_value = -1;
@@ -42,7 +45,9 @@ public class TableSaveRuleUpdater {
             flowRuleStatement.setTableType(Integer.parseInt(Objects.toString(master.get("TableType"), "0")));
             flowRuleStatement.setFlowRuleTerms(new ArrayList<FlowRuleTerm>());
             results.add(flowRuleStatement);
-
+            if(flowRuleStatement.getTableType()==1){
+                originalRiskLevelTables.put(String.format("%s|%s",flowRuleStatement.getKeyFieldID1(),flowRuleStatement.getOrderType()).toUpperCase(),flowRuleStatement.getStatisticTableName());
+            }
             for (p_value++; p_value < statisticTableFiltersValue.size(); p_value++) {
                 Map<String, Object> value = statisticTableFiltersValue.get(p_value);
                 id = Integer.valueOf(Objects.toString(value.get("StatisticTableID"), "-1"));
@@ -73,7 +78,7 @@ public class TableSaveRuleUpdater {
                 }
             }
         }
-
         flowRuleManager.addRule(results);
+        checkRiskDAO.updateOriginRiskLevelTable(originalRiskLevelTables);
     }
 }

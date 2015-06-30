@@ -1,4 +1,4 @@
-package com.ctrip.infosec.flowtable4j.flowdata.accountrule;
+package com.ctrip.infosec.flowtable4j.accountrule;
 
 /**
  * Created by thyang on 2015-05-12.

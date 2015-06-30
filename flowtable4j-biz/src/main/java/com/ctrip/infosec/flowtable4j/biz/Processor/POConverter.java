@@ -37,6 +37,10 @@ public class POConverter extends POConvertBase {
         if(StringUtils.isNumeric(suborderType)) {
             po.setSubordertype(Integer.parseInt(suborderType));
         }
+        if(StringUtils.isNumeric(checkType)) {
+            po.setChecktype(Integer.parseInt(checkType));
+        }
+
 
         if (Strings.isNullOrEmpty(orderId) || "0".equals(orderId)) {
             throw new RuntimeException("ORDERID IS ZERO");
@@ -110,8 +114,6 @@ public class POConverter extends POConvertBase {
             //fill Other Info
             fillOtherInfo(productInfo, getString(eventBody, "orderdate"), signupDate, getString(eventBody, "takeofftime"));
 
-            checkRiskDAO.saveLastProductInfo(orderId, orderType, merchantOrderId, productInfo);
-
         } else if (checkType.equals("2")) { //支付校验，补充订单信息
 
             //fill PaymentMainInfo
@@ -123,12 +125,19 @@ public class POConverter extends POConvertBase {
             if (Strings.isNullOrEmpty(po.getPrepaytype())) {
                 po.setPrepaytype(prepayType);
             }
-            checkRiskDAO.saveLastPaymentInfo(orderId, orderType, merchantOrderId, "", paymentInfo);
         }
 
         fillDIDInfo(productInfo, orderId, orderType);
 
         return po;
+    }
+
+    public void saveData4Next(PO po){
+        if(po.getChecktype().equals(1) && po.getProductinfo()!=null){
+            checkRiskDAO.saveLastProductInfo(po.getOrderid(),po.getOrdertype(),po.getMerchantid(),po.getProductinfo());
+        } else if(po.getChecktype().equals(2) && po.getPaymentinfo()!=null) {
+            checkRiskDAO.saveLastPaymentInfo(po.getOrderid(),po.getOrdertype(),po.getMerchantid(),po.getPrepaytype(),po.getPaymentinfo());
+        }
     }
 
 }

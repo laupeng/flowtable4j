@@ -1,4 +1,4 @@
-package com.ctrip.infosec.flowtable4j.flowdata.bwrule;
+package com.ctrip.infosec.flowtable4j.bwrule;
 
 import com.ctrip.infosec.flowtable4j.model.BWFact;
 import com.google.common.base.Strings;

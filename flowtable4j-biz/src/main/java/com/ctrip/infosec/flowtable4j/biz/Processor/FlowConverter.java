@@ -19,12 +19,21 @@ public class FlowConverter extends ConverterBase {
         FlowFact fact = new FlowFact();
         Map<String, Object> target = new HashMap<String, Object>();
         fact.setContent(target);
+        fact.setOrderType(po.getOrdertype());
+        fact.setOrderTypes(new ArrayList<Integer>());
+        fact.getOrderTypes().add(0);
+        fact.getOrderTypes().add(po.getOrdertype());
 
-        copyMap(po,"maininfo",target,new String[]{"clientid","ordertype","subordertype","orderid","amount","checktype","serverfrom","orderdate"});
+        //MainInfo
+        copyMap(po, "maininfo", target, new String[]{"clientid", "ordertype", "subordertype", "orderid", "amount", "checktype", "serverfrom", "orderdate"});
         processOrderDate(target);
 
-        fillPaymentInfoToMap(po,target,po.getOrderid());
+        //PaymentInfo，并设置PrepayTypes
+        HashSet<String> prepayTypes= new HashSet<String>();
+        fillPaymentInfoToMap(po,target,po.getOrderid(),prepayTypes);
+        fact.setPrepayType(new ArrayList<String>(prepayTypes));
 
+        //ContactInfo
         copyMap(po, "contactinfo", target, new String[]{"mobilephone", "mobilephonecity", "contactemail", "mobilephoneprovince"});
 
         copyMap(po, "otherinfo", target, new String[]{"ordertosignupdate"});
@@ -35,19 +44,20 @@ public class FlowConverter extends ConverterBase {
                 "bindedemail","vipgrade","relatedemail","relatedmobilephone","uid","bindedmobilephonecity",
                 "bindedmobilephoneprovince","relatedmobilephonecity","relatedmobilephoneprovince"});
 
+        //CheckType=2时可以略过
         if(po.getChecktype().equals(1)) {
             fillMobileProvince(target, getString(target, "bindedmobilephone"), getString(target, "relatedmobilephone"));
             //反写
             Map<String, Object> userinfo = MapX.getMap(po.getPaymentinfo(), "userinfo");
-            setValueIfNotEmpty(userinfo, "bindedmobilephonecity", getString(target, "bindedmobilephonecity"));
-            setValueIfNotEmpty(userinfo, "bindedmobilephoneprovince", getString(target, "bindedmobilephoneprovince"));
-            setValueIfNotEmpty(userinfo, "relatedmobilephonecity", getString(target, "relatedmobilephonecity"));
-            setValueIfNotEmpty(userinfo, "relatedmobilephoneprovince", getString(target, "relatedmobilephoneprovince"));
+            setValue(userinfo, "bindedmobilephonecity", getString(target, "bindedmobilephonecity"));
+            setValue(userinfo, "bindedmobilephoneprovince", getString(target, "bindedmobilephoneprovince"));
+            setValue(userinfo, "relatedmobilephonecity", getString(target, "relatedmobilephonecity"));
+            setValue(userinfo, "relatedmobilephoneprovince", getString(target, "relatedmobilephoneprovince"));
         }
 
         fillIPCity(po,target);
 
-        copyMap(po,"deviceid",target,new String[]{"did"});
+        copyMap(po,"didinfo",target,new String[]{"did"});
 
         //字段已经在前面的处理步骤写入
         mergeField(target,"cardbinuid","cardbin","uid");
@@ -158,7 +168,7 @@ public class FlowConverter extends ConverterBase {
         }
     }
 
-    protected void fillPaymentInfoToMap(PO po,Map<String, Object> target,Long orderId) {
+    protected void fillPaymentInfoToMap(PO po,Map<String, Object> target,Long orderId,HashSet<String> prepayTypes) {
 
         List<Map<String, Object>> payInfos = MapX.getList(po.getPaymentinfo(), "paymentinfolist");
         String prepayType;
@@ -168,6 +178,7 @@ public class FlowConverter extends ConverterBase {
                 Map<String, Object> payment = (Map<String, Object>) MapX.getMap(payInfo, "payment");
                 if (payInfo != null) {
                     prepayType = MapX.getStringEmpty(payment, "prepaytype").toUpperCase();
+                    prepayTypes.add(prepayType);
                     sb.append(prepayType).append("|");
                     if (prepayType.equals("CCARD") || prepayType.equals("DCARD")) {
                         List<Map<String, Object>> cardInfoList = (List<Map<String, Object>>) MapX.getList(payInfo, "cardinfolist");

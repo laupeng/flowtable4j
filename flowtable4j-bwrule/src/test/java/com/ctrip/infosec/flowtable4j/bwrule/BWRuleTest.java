@@ -1,5 +1,5 @@
 
-package com.ctrip.infosec.flowtable4j.flowdata.bwrule;
+package com.ctrip.infosec.flowtable4j.bwrule;
 
 import com.google.common.base.Stopwatch;
 import org.apache.commons.dbcp.BasicDataSource;

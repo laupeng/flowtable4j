@@ -1,4 +1,4 @@
-package com.ctrip.infosec.flowtable4j.flowdata.accountrule;
+package com.ctrip.infosec.flowtable4j.accountrule;
 
 import com.ctrip.infosec.flowtable4j.dal.RedisProvider;
 import com.ctrip.infosec.flowtable4j.model.AccountFact;

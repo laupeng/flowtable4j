@@ -9,6 +9,7 @@ import com.ctrip.infosec.flowtable4j.biz.CheckPaymentFacade;
 import com.ctrip.infosec.flowtable4j.biz.PayAdaptFacade;
 import com.ctrip.infosec.flowtable4j.model.PayAdaptFact;
 import com.ctrip.infosec.flowtable4j.model.PayAdaptResult;
+import com.ctrip.infosec.flowtable4j.model.RiskResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +44,7 @@ public class FlowTableRESTfulController {
     @RequestMapping(value = "/checkPayment")
     public
     @ResponseBody
-    com.ctrip.infosec.flowtable4j.model.ResponseBody checkPayAdapt(@RequestBody com.ctrip.infosec.flowtable4j.model.RequestBody checkEntity) {
+    RiskResult checkPayAdapt(@RequestBody com.ctrip.infosec.flowtable4j.model.RequestBody checkEntity) {
         return checkPaymentService.checkRisk(checkEntity);
     }
 

@@ -19,6 +19,8 @@ public class PO extends MapX {
     private Integer ordertype =0 ;
     private Integer subordertype =0;
     private Integer checktype =1;
+    private String merchantid;
+
 
     private static Map<String, String> prop2table = new HashMap<String, String>();
 
@@ -193,6 +195,14 @@ public class PO extends MapX {
 
     public void setChecktype(Integer checktype) {
         this.checktype = checktype;
+    }
+
+    public String getMerchantid() {
+        return merchantid;
+    }
+
+    public void setMerchantid(String merchantid) {
+        this.merchantid = merchantid;
     }
 }
 
