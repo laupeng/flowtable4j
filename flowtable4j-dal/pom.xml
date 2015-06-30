@@ -26,11 +26,6 @@
 			<artifactId>flowtable4j-model</artifactId>
 		</dependency>
 
-		<dependency>
-			<groupId>com.ctrip.infosec.flowtable4j</groupId>
-			<artifactId>flowtable4j-core</artifactId>
-		</dependency>
-
 		<!-- Spring -->
 		<dependency>
 			<groupId>org.springframework</groupId>

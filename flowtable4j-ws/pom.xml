@@ -18,11 +18,7 @@
     <dependencies>
         <dependency>
             <groupId>com.ctrip.infosec.flowtable4j</groupId>
-            <artifactId>flowtable4j-accountlist</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.ctrip.infosec.flowtable4j</groupId>
-            <artifactId>flowtable4j-core</artifactId>
+            <artifactId>flowtable4j-accountrule</artifactId>
         </dependency>
 
         <dependency>
@@ -37,12 +33,12 @@
 
         <dependency>
             <groupId>com.ctrip.infosec.flowtable4j</groupId>
-            <artifactId>flowtable4j-bwlist</artifactId>
+            <artifactId>flowtable4j-bwrule</artifactId>
         </dependency>
 
         <dependency>
             <groupId>com.ctrip.infosec.flowtable4j</groupId>
-            <artifactId>flowtable4j-flowlist</artifactId>
+            <artifactId>flowtable4j-flowrule</artifactId>
         </dependency>
 
         <dependency>

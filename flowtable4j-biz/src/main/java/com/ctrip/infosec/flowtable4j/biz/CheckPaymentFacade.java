@@ -1,6 +1,6 @@
 package com.ctrip.infosec.flowtable4j.biz;
 import com.ctrip.infosec.flowtable4j.biz.processor.*;
-import com.ctrip.infosec.flowtable4j.flowdispatch.TableSaveRuleManager;
+import com.ctrip.infosec.flowtable4j.flowdata.TableSaveRuleManager;
 import com.ctrip.infosec.flowtable4j.model.*;
 import com.ctrip.infosec.flowtable4j.model.persist.PO;
 import org.springframework.beans.factory.annotation.Autowired;

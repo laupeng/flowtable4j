@@ -86,15 +86,10 @@
 				<artifactId>flowtable4j-biz</artifactId>
 				<version>${project.version}</version>
 			</dependency>
-			<dependency>
-				<groupId>com.ctrip.infosec.flowtable4j</groupId>
-				<artifactId>flowtable4j-core</artifactId>
-				<version>${project.version}</version>
-			</dependency>
 
 			<dependency>
 				<groupId>com.ctrip.infosec.flowtable4j</groupId>
-				<artifactId>flowtable4j-bwlist</artifactId>
+				<artifactId>flowtable4j-bwrule</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 
@@ -112,7 +107,7 @@
 
 			<dependency>
 				<groupId>com.ctrip.infosec.flowtable4j</groupId>
-				<artifactId>flowtable4j-accountlist</artifactId>
+				<artifactId>flowtable4j-accountrule</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 
@@ -135,15 +130,10 @@
 
 			<dependency>
 				<groupId>com.ctrip.infosec.flowtable4j</groupId>
-				<artifactId>flowtable4j-flowlist</artifactId>
+				<artifactId>flowtable4j-flowdata</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 
-			<dependency>
-				<groupId>com.ctrip.infosec.flowtable4j</groupId>
-				<artifactId>flowtable4j-flowdispatch</artifactId>
-				<version>${project.version}</version>
-			</dependency>
 			<!-- All In One -->
 			<dependency>
 				<groupId>com.ctrip.platform</groupId>
@@ -546,16 +536,15 @@
 	</distributionManagement>
 
 	<modules>
-		<module>flowtable4j-core</module>
-		<module>flowtable4j-accountlist</module>
-		<module>flowtable4j-bwlist</module>
+		<module>flowtable4j-accountrule</module>
+		<module>flowtable4j-bwrule</module>
 		<module>flowtable4j-jobws</module>
 		<module>flowtable4j-ws</module>
 		<module>flowtable4j-dal</module>
 		<module>flowtable4j-model</module>
-        <module>flowtable4j-flowlist</module>
+        <module>flowtable4j-flowrule</module>
     	<module>flowtable4j-payadapt</module>
 		<module>flowtable4j-biz</module>
-		<module>flowtable4j-flowdispatch</module>
+		<module>flowtable4j-flowdata</module>
 	</modules>
 </project>

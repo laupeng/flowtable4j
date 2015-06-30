@@ -1,6 +1,6 @@
 package com.ctrip.infosec.flowtable4j.jobws;
 import com.ctrip.infosec.flowtable4j.dal.RuleUpdaterDAO;
-import com.ctrip.infosec.flowtable4j.flowdispatch.payAdapt.*;
+import com.ctrip.infosec.flowtable4j.flowdata.payAdapt.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

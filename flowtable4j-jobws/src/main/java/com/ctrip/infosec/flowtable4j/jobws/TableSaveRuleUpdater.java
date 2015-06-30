@@ -1,6 +1,6 @@
 package com.ctrip.infosec.flowtable4j.jobws;
 
-import com.ctrip.infosec.flowtable4j.flowdispatch.*;
+import com.ctrip.infosec.flowtable4j.flowdata.*;
 import com.ctrip.infosec.flowtable4j.dal.RuleUpdaterDAO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
