@@ -40,6 +40,7 @@ public class CheckPaymentFacade {
         fact.setFlowFact(flowConverter.convert(po));
         fact.setCheckTypes(new CheckType[]{ CheckType.ACCOUNT, CheckType.BW, CheckType.FLOWRULE});
         fact.setReqId(save2DbService.saveDealInfo(MapX.getMap(po.getProductinfo(),"dealinfo")));
+        fact.getFlowFact().setReqId(fact.getReqId());
         poConverter.saveData4Next(po);
         save2DbService.save(po,fact.getReqId());
         return fact;

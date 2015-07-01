@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.Map;
 
 /**
@@ -30,12 +31,16 @@ public class FlowtableService {
         flowDbTemplate.execute(new CallableStatementCreator() {
             @Override
             public CallableStatement createCallableStatement(Connection connection) throws SQLException {
-                String storedProc = "{call spA_%s_i (?,?,?)}";
+                String storedProc = "{call spA_%s_i (?,?,?,?,?)}";
                 storedProc = String.format(storedProc, tableName);
                 CallableStatement callableStatement = connection.prepareCall(storedProc);
                 callableStatement.setObject("reqid",reqid);
                 callableStatement.setObject(keyField1,KeyField1Value);
-                callableStatement.setObject(keyField2,keyField2Value);
+                callableStatement.setObject(keyField2, keyField2Value);
+                callableStatement.setObject("createdate",null);
+                callableStatement.setObject("datachange_lasttime",null);
+//                callableStatement.registerOutParameter("retcode", Types.BIGINT);
+
                 return callableStatement;
             }
         }, new CallableStatementCallback<Long>() {

@@ -37,9 +37,9 @@ public class TableSaveRuleUpdater {
         for (Map<String, Object> master : statisticTables) {
             currentRuleId = Integer.valueOf(Objects.toString(master.get("StatisticTableID"), "0"));
             FlowRuleStatement flowRuleStatement = new FlowRuleStatement();
-            flowRuleStatement.setKeyFieldID1(Objects.toString(master.get("KeyFieldID1"), ""));
-            flowRuleStatement.setKeyFieldID2(Objects.toString(master.get("KeyFieldID2"), ""));
-            flowRuleStatement.setStatisticTableName(Objects.toString(master.get("StatisticTableName"),""));
+            flowRuleStatement.setKeyFieldID1(Objects.toString(master.get("KeyFieldID1"), "").toLowerCase());
+            flowRuleStatement.setKeyFieldID2(Objects.toString(master.get("KeyFieldID2"), "").toLowerCase());
+            flowRuleStatement.setStatisticTableName(Objects.toString(master.get("StatisticTableName"),"").toLowerCase());
             flowRuleStatement.setOrderType(Integer.parseInt(Objects.toString(master.get("OrderType"), "0")));
             flowRuleStatement.setStatisticTableID(currentRuleId);
             flowRuleStatement.setTableType(Integer.parseInt(Objects.toString(master.get("TableType"), "0")));
@@ -52,7 +52,7 @@ public class TableSaveRuleUpdater {
                 Map<String, Object> value = statisticTableFiltersValue.get(p_value);
                 id = Integer.valueOf(Objects.toString(value.get("StatisticTableID"), "-1"));
                 if (currentRuleId == id) {      //属于当前规则的条款
-                    String fieldName = Objects.toString(value.get("KeyColumnName"), "");
+                    String fieldName = Objects.toString(value.get("KeyColumnName"), "".toUpperCase());
                     String op = Objects.toString(value.get("MatchType"), "");
                     String matchValue = Objects.toString(value.get("MatchValue"), "");
                     FlowRuleTerm valueTerm = new ValueMatchRuleTerm(fieldName, op, matchValue);
@@ -65,9 +65,9 @@ public class TableSaveRuleUpdater {
 
             for (p_fields++;p_fields<statisticTableFiltersField.size();p_fields++) {
                 Map<String, Object> field = statisticTableFiltersField.get(p_fields);
-                id = Integer.valueOf(Objects.toString(field.get("StatisticTableID"), "-1"));
+                id = Integer.valueOf(Objects.toString(field.get("StatisticTableID"), "-1").toLowerCase());
                 if (currentRuleId == id) {
-                    String fieldName = Objects.toString(field.get("KeyColumnName"), "");
+                    String fieldName = Objects.toString(field.get("KeyColumnName"), "".toUpperCase());
                     String op = Objects.toString(field.get("MatchType"), "").toUpperCase();
                     String matchValue = Objects.toString(field.get("MatchValue"), "");
                     FlowRuleTerm fieldTerm = new FieldMatchRuleTerm(fieldName, op, matchValue);
