@@ -3,6 +3,7 @@ import com.google.common.base.Strings;
 //import org.junit.Test;
 import org.junit.Test;
 
+import java.text.SimpleDateFormat;
 import java.util.Map;
 //import org.junit.Test;
 
@@ -10,6 +11,8 @@ import java.util.Map;
  * Created by zhangsx on 2015/4/14.
  */
 public class CounterTest {
+    protected static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+
     private boolean f1()
     {
         return true;
@@ -21,29 +24,34 @@ public class CounterTest {
     }
     @Test
     public void testReplace() throws Exception {
-        String mobile = null;
-        if (!Strings.isNullOrEmpty(mobile)) {
-            while (mobile.startsWith("0")) {
-                mobile = mobile.substring(1);
-            }
+        String[] ss="".split("[|]");
+        for (String s:ss) {
+            System.out.println(s);
         }
-        System.out.println(mobile);
-        ESBClient client= new ESBClient();
-//        System.out.println("======MemberInfo====");
-//        Map me =client.getMemberInfo("wwwwww");
-//        for(Object key:me.keySet()){
-//            System.out.println(key +": "+me.get(key));
+        System.out.println(ss.length);
+//        String mobile = null;
+//        if (!Strings.isNullOrEmpty(mobile)) {
+//            while (mobile.startsWith("0")) {
+//                mobile = mobile.substring(1);
+//            }
 //        }
-//        System.out.println("======Customer Info====");
-//        Map cu = client.getCustomerInfo("bbbb");
-//        for(Object key:cu.keySet()){
-//            System.out.println(key +": "+cu.get(key));
+//        System.out.println(mobile);
+//        ESBClient client= new ESBClient();
+////        System.out.println("======MemberInfo====");
+////        Map me =client.getMemberInfo("wwwwww");
+////        for(Object key:me.keySet()){
+////            System.out.println(key +": "+me.get(key));
+////        }
+////        System.out.println("======Customer Info====");
+////        Map cu = client.getCustomerInfo("bbbb");
+////        for(Object key:cu.keySet()){
+////            System.out.println(key +": "+cu.get(key));
+////        }
+//
+//        System.out.println("======Card Inf====");
+//        Map cc = client.getCardInfo("28996388");
+//        for(Object key:cc.keySet()){
+//            System.out.println(key +": "+cc.get(key));
 //        }
-
-        System.out.println("======Card Inf====");
-        Map cc = client.getCardInfo("28996388");
-        for(Object key:cc.keySet()){
-            System.out.println(key +": "+cc.get(key));
-        }
   }
 }

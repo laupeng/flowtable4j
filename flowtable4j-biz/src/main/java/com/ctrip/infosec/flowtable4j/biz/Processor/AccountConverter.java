@@ -1,5 +1,6 @@
 package com.ctrip.infosec.flowtable4j.biz.processor;
 
+import com.ctrip.infosec.flowtable4j.biz.ConverterBase;
 import com.ctrip.infosec.flowtable4j.model.AccountFact;
 import com.ctrip.infosec.flowtable4j.model.AccountItem;
 import com.ctrip.infosec.flowtable4j.model.persist.PO;

@@ -2,7 +2,6 @@ package com.ctrip.infosec.flowtable4j.model;
 
 import com.google.common.base.Strings;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -10,7 +9,6 @@ import java.util.Map;
  * Created by thyang on 2015-06-15.
  */
 public class MapX {
-    private static boolean ignoreCase =false;
     /**
      * 获取直接双亲
      * @param keyPath 搜索路径
@@ -38,8 +36,6 @@ public class MapX {
     public static Map getMap(Map<String,Object> root,String keyPath) {
         if (root.containsKey(keyPath)) {
             return (Map) root.get(keyPath);
-        } else if (ignoreCase && root.containsKey(keyPath.toUpperCase())) {
-            return (Map) root.get(keyPath.toUpperCase());
         }
         return null;
     }
@@ -66,8 +62,6 @@ public class MapX {
     public static Object getObject(Map<String,Object> parentMap,String key) {
         if (parentMap.containsKey(key)) {
             return  parentMap.get(key);
-        } else if (ignoreCase && parentMap.containsKey(key.toUpperCase())) {
-            return parentMap.get(key.toUpperCase());
         }
         return null;
     }
@@ -94,12 +88,6 @@ public class MapX {
     public static String getString(Map<String,Object> parentMap,String key) {
         if (parentMap.containsKey(key)) {
             Object obj = parentMap.get(key);
-            if(obj != null)
-            {
-                return obj.toString();
-            }
-        } else if (ignoreCase && parentMap.containsKey(key.toUpperCase())) {
-            Object obj = parentMap.get(key.toUpperCase());
             if(obj != null)
             {
                 return obj.toString();
@@ -152,8 +140,6 @@ public class MapX {
     private static Map<String, Object> getChildMap(Map<String, Object> parentMapNode, String childNode) {
         if (parentMapNode.containsKey(childNode)) {
             return (Map<String, Object>) parentMapNode.get(childNode);
-        } else if(ignoreCase && parentMapNode.containsKey(childNode.toUpperCase())){
-            return (Map<String, Object>) parentMapNode.get(childNode.toUpperCase());
         }
         return null;
     }
@@ -180,8 +166,6 @@ public class MapX {
             String key = keyPath[keyPath.length-1];
             if (parentMap.containsKey(key)) {
                 return (List) parentMap.get(key);
-            } else if(ignoreCase && parentMap.containsKey(key.toUpperCase())){
-                return (List) parentMap.get(key.toUpperCase());
             }
         }
         return null;
@@ -196,34 +180,6 @@ public class MapX {
      */
     public static boolean setValue(Map<String,Object> root,String key,Object value){
         root.put(key,value);
-        return true;
-    }
-
-    /**
-     * 给Map赋值
-     * @param root
-     * @param key
-     * @param value
-     * @return
-     */
-    public static boolean setValue(Map<String,Object> root,String[] key,Object value){
-        if(key.length==1) {
-            root.put(key[0], value);
-        }
-        else
-        {
-            Map<String,Object> parent = root;
-            Map<String,Object> child =null;
-            for (int i = 0; i < key.length - 1; i++) {
-                child = getChildMap(parent,key[i]);
-                if (child == null) {
-                    child = new HashMap<String, Object>();
-                    parent.put(key[i], child);
-                }
-                parent = child;
-            }
-            child.put(key[key.length-1],value);
-        }
         return true;
     }
 }
