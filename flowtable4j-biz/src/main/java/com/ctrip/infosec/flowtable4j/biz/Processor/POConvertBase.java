@@ -316,9 +316,9 @@ public class POConvertBase extends ConverterBase {
         String prePay = "";
         if (paymentInfoList != null) {
             for (Map<String, Object> p : paymentInfoList) {
-                prePay = getString(p,new String[]{"payment","prepaytype"});
-                prePay = Strings.nullToEmpty(prePay).toUpperCase();
-                if (prePay.equals("CCARD") || prePay.equals("DCARD")) {
+                String tmpprePay =  Strings.nullToEmpty(getString(p, new String[]{"payment", "prepaytype"})).toUpperCase();
+                if (tmpprePay.equals("CCARD") || tmpprePay.equals("DCARD")) {
+                    prePay = tmpprePay;
                     break;
                 }
             }

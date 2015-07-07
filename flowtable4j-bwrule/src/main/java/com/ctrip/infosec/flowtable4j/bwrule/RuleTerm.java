@@ -21,11 +21,11 @@ public class RuleTerm {
 
     private ConditionComparer executor;
 
-    public RuleTerm(String fieldName, String operator, String matchValue) {
+    public RuleTerm(String fieldName, String ops, String matchValue) {
         this.setFieldName(fieldName.toLowerCase());
         //兼容性考虑，用matchValue作为字典的Key，需要不区分大小写
         this.setMatchValue(Strings.nullToEmpty(matchValue).toLowerCase());
-        this.operator = Strings.nullToEmpty(operator).toLowerCase();
+        this.operator = Strings.nullToEmpty(ops).toLowerCase();
 
         if ("eq".equals(operator)) {
             executor = eqOper;

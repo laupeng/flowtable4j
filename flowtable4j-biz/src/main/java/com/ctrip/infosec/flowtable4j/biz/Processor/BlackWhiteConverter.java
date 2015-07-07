@@ -23,10 +23,10 @@ public class BlackWhiteConverter extends ConverterBase {
 
     public List<String> getModule(int orderType) {
         if (CtripOrderType.HotelGroup.getCode() == orderType) {
-            return Arrays.asList(new String[]{"hotelgroupinfo"});
+            return Arrays.asList(new String[]{"hotelgroupinfo","paymentinfolist"});
         }
         if (CtripOrderType.Flights.getCode() == orderType) {
-            return Arrays.asList(new String[]{"flightinfolist"});
+            return Arrays.asList(new String[]{"flightinfolist","paymentinfolist"});
         }
         return new ArrayList<String>();
     }
