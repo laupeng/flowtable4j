@@ -139,7 +139,7 @@ public class POConvertBase extends ConverterBase {
         Map<String, Object> cardInfo = new HashMap<String, Object>();
         copyMap(paymentSrc,cardInfo, "infosecurity_cardinfo");
 
-        String cardInfoId = getString(paymentSrc, "cardinfoid");
+        String cardInfoId = getString(paymentSrc,new String[]{"creditcardinfo","cardinfoid"});
         Long cardId = 0L;
         if (StringUtils.isNumeric(cardInfoId)) {
             cardId = Long.parseLong(cardInfoId);
@@ -166,7 +166,7 @@ public class POConvertBase extends ConverterBase {
         }
         //如果是外卡，获取卡发行组织、银行
         if (hints != null && hints.contains("getforeigncardinfo")) {
-            String creditCardType = getString(cardInfo, "creditcardtype");
+            String creditCardType = getString(cardInfo, "creditcardtype","");
             String cardBin = getString(cardInfo, "cardbin");
             if ("T".equals(isForigin) || foreignCardType.contains(creditCardType)) {
                 Map<String, Object> subCardInfo = checkRiskDAO.getForeignCardInfo(creditCardType, cardBin);
@@ -178,10 +178,10 @@ public class POConvertBase extends ConverterBase {
         }
         //获取发卡银行城市、省份信息
         if (hints != null && hints.contains("getcardbankinfo")) {
-            String creditCardType = getString(cardInfo, "creditcardtype");
+            String creditCardType = getString(cardInfo, "creditcardtype","0");
             //取出branchCity 和 branchProvince
             String creditCardNumber = getString(cardInfo, "creditcardnumber");
-            if (creditCardType.equals("3") && !Strings.isNullOrEmpty(creditCardNumber))//这里只针对类型为3的卡进行处理
+            if ("3".equals(creditCardType) && !Strings.isNullOrEmpty(creditCardNumber))//这里只针对类型为3的卡进行处理
             {
                 String decryptText = null;
                 try {
@@ -313,7 +313,8 @@ public class POConvertBase extends ConverterBase {
         String prePay = "";
         if (paymentInfoList != null) {
             for (Map<String, Object> p : paymentInfoList) {
-                prePay = getString(p, "prepaytype").toUpperCase();
+                prePay = getString(p,new String[]{"payment","prepaytype"});
+                prePay = Strings.nullToEmpty(prePay).toUpperCase();
                 if (prePay.equals("CCARD") || prePay.equals("DCARD")) {
                     break;
                 }

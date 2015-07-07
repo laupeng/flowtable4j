@@ -148,7 +148,7 @@ public class RuleUpdaterDAO {
         String sql = "select t.StatisticTableId, t.StatisticTableName ,f1.ColumnName as KeyFieldID1,f2.ColumnName as KeyFieldID2,t.OrderType,t.Active,t.[TableType]\n" +
                 "from Def_RuleStatisticTable t (nolock)\n" +
                 "join Def_RuleMatchField f1 (nolock) on t.KeyFieldID1 = f1.FieldID\n" +
-                "join Def_RuleMatchField f2 (nolock) on t.KeyFieldID2 = f2.FieldID WHERE f1.Active='T' ORDER BY t.StatisticTableID";
+                "join Def_RuleMatchField f2 (nolock) on t.KeyFieldID2 = f2.FieldID WHERE t.Active='T' ORDER BY t.StatisticTableID";
         return cardRiskService.queryForList(sql);
     }
 
