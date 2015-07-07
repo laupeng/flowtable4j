@@ -257,6 +257,7 @@ public class FlowConverter extends ConverterBase {
     protected void fillPaymentInfoToMap(PO po,Map<String, Object> target,HashSet<String> prepayTypes) {
         List<Map<String, Object>> payInfos = getList(po.getPaymentinfo(), "paymentinfolist");
         String prepayType;
+        prepayTypes.add("ALL");
         StringBuilder sb =new StringBuilder("|");
         if (payInfos != null && payInfos.size() > 0) {
             for (Map<String, Object> payInfo : payInfos) {

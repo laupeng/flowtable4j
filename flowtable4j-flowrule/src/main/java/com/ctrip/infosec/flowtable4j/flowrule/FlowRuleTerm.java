@@ -24,7 +24,6 @@ public abstract class FlowRuleTerm {
     private final static LLIKEComparer llOper = new LLIKEComparer();
     private final static RLIKEComparer rlOper = new RLIKEComparer();
     private final static RegXComparer rgOper = new RegXComparer();
-    private final static Logger logger = LoggerFactory.getLogger(FlowRuleTerm.class);
     protected ConditionComparer executor;
     protected String fieldName;
     private   String operator;
