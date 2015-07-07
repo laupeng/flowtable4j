@@ -371,7 +371,7 @@ public class CheckRiskDAO {
 
     public void saveLastProductInfo(Long orderId, Integer orderType, String merchantId, Map<String, Object> productInfo) {
         try {
-            if(productInfo!=null && productInfo.size()==0) {
+            if(productInfo!=null && productInfo.size()>0) {
                 long id = orderId % 4;
                 String sql = String.format(
                         "IF EXISTS (SELECT 'X' FROM InfoSecurity_LastProductInfo%s WITH(NOLOCK) WHERE PID=:p1)\n" +

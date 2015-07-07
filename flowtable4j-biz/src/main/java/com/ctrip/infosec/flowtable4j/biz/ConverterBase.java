@@ -59,7 +59,7 @@ public class ConverterBase {
     protected void copyMap(Map<String, Object> src, Map<String, Object> target, Map<String, String> fieldMap) {
         if (src != null && target != null && fieldMap != null) {
             for (String key : fieldMap.keySet()) {
-                setValue(target, fieldMap.get(key), getObject(src, key));
+                setValueIfNotNull(target, fieldMap.get(key), getObject(src, key));
             }
         }
     }
@@ -75,7 +75,7 @@ public class ConverterBase {
     protected void copyMap(Map<String, Object> src, Map<String, Object> target, String[] fields) {
         if (src != null && target != null && fields != null) {
             for (String key : fields) {
-                setValue(target, key, getObject(src, key));
+                setValueIfNotNull(target, key, getObject(src, key));
             }
         }
     }
@@ -105,7 +105,7 @@ public class ConverterBase {
         List<ColumnInfo> dbMeta = dbService.getDbMeta(dbEntity);
         if (dbMeta != null && dbMeta.size() > 0 && targetMap != null) {
             for (ColumnInfo info : dbMeta) {
-                setValue(targetMap, info.getName(), getObject(src, info.getName()));
+                setValueIfNotNull(targetMap, info.getName(), getObject(src, info.getName()));
             }
         }
     }
