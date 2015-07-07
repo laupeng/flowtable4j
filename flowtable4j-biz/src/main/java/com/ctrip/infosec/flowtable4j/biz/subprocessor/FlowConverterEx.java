@@ -3,12 +3,14 @@ package com.ctrip.infosec.flowtable4j.biz.subprocessor;
 import com.ctrip.infosec.flowtable4j.biz.ConverterBase;
 import com.google.common.base.Strings;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.stereotype.Component;
 
 import java.util.*;
 
 /**
  * Created by thyang on 2015-07-04.
  */
+@Component
 public class FlowConverterEx extends ConverterBase {
 
     public void fillFlightInfoList(Map<String,Object> productInfo,Map<String,Object> target){

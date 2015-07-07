@@ -3,12 +3,14 @@ package com.ctrip.infosec.flowtable4j.biz.subprocessor;
 import com.ctrip.infosec.flowtable4j.biz.ConverterBase;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.stereotype.Component;
 
 import java.util.*;
 
 /**
  * Created by thyang on 2015-07-06.
  */
+@Component
 public class POConverterEx extends ConverterBase {
     /**
      * 填充VactionInfoList

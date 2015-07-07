@@ -1,6 +1,7 @@
 package com.ctrip.infosec.flowtable4j.biz.subprocessor;
 
 import com.ctrip.infosec.flowtable4j.biz.ConverterBase;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
@@ -8,6 +9,7 @@ import java.util.Map;
 /**
  * Created by thyang on 2015-07-04.
  */
+@Component
 public class BlackWhiteConverterEx extends ConverterBase {
 
     public void fillFlightInfo(Map<String, Object> productinfo,Map<String,Object> content) {
