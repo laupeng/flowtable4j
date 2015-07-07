@@ -131,77 +131,80 @@ public class POConvertBase extends ConverterBase {
         copyMap(paymentSrc, payment, "infosecurity_paymentinfo");
         setValue(paymentInfo, "payment", payment);
 
+        String prepayType = getString(payment,"prepaytype","").toUpperCase();
+
         String isForigin=null;
 
         List<Map<String, Object>> cardInfoList = new ArrayList<Map<String, Object>>();
         setValue(paymentInfo, "cardinfolist", cardInfoList);
 
-        Map<String, Object> cardInfo = new HashMap<String, Object>();
-        copyMap(paymentSrc,cardInfo, "infosecurity_cardinfo");
-
-        String cardInfoId = getString(paymentSrc,new String[]{"creditcardinfo","cardinfoid"});
-        Long cardId = 0L;
-        if (StringUtils.isNumeric(cardInfoId)) {
-            cardId = Long.parseLong(cardInfoId);
-        }
-        //调用接口获取信用卡信息
-        if (hints != null && hints.contains("getcardinfo") && cardId > 0) {
-            Map<String, Object> cardInfoResult = (Map<String, Object>) esbClient.getCardInfo(cardInfoId);//从esb取出相关数据
-            if (cardInfoResult != null && cardInfoResult.size() > 0) {
-                copyMap(cardInfoResult, cardInfo, "infosecurity_cardinfo");
-                copyValueIfNotNull(cardInfoResult,"cardrisknolastcode",cardInfo,"ccardlastnocode");
-                copyValueIfNotNull(cardInfoResult,"cardrisknoprecode",cardInfo,"ccardprenocode");
-
-                setValue(cardInfo, "infoid", 0);
-                //中国公民，取省份
-                isForigin = getString(cardInfoResult, "isforigencard");
-                if (hints.contains("getidprovince") && "1".equals(getString(cardInfoResult, "idcardtype")) && "F".equals(isForigin)) {
-                    Map<String, Object> id = checkRiskDAO.getIDCardProvince(getString(cardInfoResult, "idnumber"));
-                    if (id != null && id.size() > 0) {
-                        setValue(cardInfo, "idnumberprovince", getString(id, "provincename"));
-                        setValue(cardInfo, "idnumbercity", getString(id, "cityname"));
-                    }
-                }
+        if("CCARD".equals(prepayType)||"DCARD".equals(prepayType)||"DQPAY".equals(prepayType)) {
+            Map<String, Object> cardInfo = new HashMap<String, Object>();
+            copyMap(paymentSrc, cardInfo, "infosecurity_cardinfo");
+            String cardInfoId = getString(paymentSrc, new String[]{"creditcardinfo", "cardinfoid"});
+            Long cardId = 0L;
+            if (StringUtils.isNumeric(cardInfoId)) {
+                cardId = Long.parseLong(cardInfoId);
             }
-        }
-        //如果是外卡，获取卡发行组织、银行
-        if (hints != null && hints.contains("getforeigncardinfo")) {
-            String creditCardType = getString(cardInfo, "creditcardtype","");
-            String cardBin = getString(cardInfo, "cardbin");
-            if ("T".equals(isForigin) || foreignCardType.contains(creditCardType)) {
-                Map<String, Object> subCardInfo = checkRiskDAO.getForeignCardInfo(creditCardType, cardBin);
-                if (subCardInfo != null && subCardInfo.size() > 0) {
-                    setValue(cardInfo, "cardbinissue", getString(subCardInfo, "nationality"));
-                    setValue(cardInfo, "cardbinbankofcardissue", getString(subCardInfo, "bankofcardissue"));
-                }
-            }
-        }
-        //获取发卡银行城市、省份信息
-        if (hints != null && hints.contains("getcardbankinfo")) {
-            String creditCardType = getString(cardInfo, "creditcardtype","0");
-            //取出branchCity 和 branchProvince
-            String creditCardNumber = getString(cardInfo, "creditcardnumber");
-            if ("3".equals(creditCardType) && !Strings.isNullOrEmpty(creditCardNumber))//这里只针对类型为3的卡进行处理
-            {
-                String decryptText = null;
-                try {
-                    decryptText = Crypto.decrypt(creditCardNumber);
-                } catch (Exception exp) {
-                    logger.warn("解密卡号异常" + exp.getMessage());
-                }
-                if (!Strings.isNullOrEmpty(decryptText) && decryptText.length() > 12) {
-                    String branchNo = decryptText.substring(6,8);
-                    if (!branchNo.isEmpty()) {
-                        Map cardBankInfo = checkRiskDAO.getCardBankInfo(creditCardType, branchNo);
-                        if (cardBankInfo != null) {
-                            setValue(cardInfo, "branchcity", getString(cardBankInfo, "branchcity"));
-                            setValue(cardInfo, "branchprovince", getString(cardBankInfo, "branchprovince"));
+            //调用接口获取信用卡信息
+            if (hints != null && hints.contains("getcardinfo") && cardId > 0) {
+                Map<String, Object> cardInfoResult = (Map<String, Object>) esbClient.getCardInfo(cardInfoId);//从esb取出相关数据
+                if (cardInfoResult != null && cardInfoResult.size() > 0) {
+                    copyMap(cardInfoResult, cardInfo, "infosecurity_cardinfo");
+                    copyValueIfNotNull(cardInfoResult, "cardrisknolastcode", cardInfo, "ccardlastnocode");
+                    copyValueIfNotNull(cardInfoResult, "cardrisknoprecode", cardInfo, "ccardprenocode");
+
+                    setValue(cardInfo, "infoid", 0);
+                    //中国公民，取省份
+                    isForigin = getString(cardInfoResult, "isforigencard");
+                    if (hints.contains("getidprovince") && "1".equals(getString(cardInfoResult, "idcardtype")) && "F".equals(isForigin)) {
+                        Map<String, Object> id = checkRiskDAO.getIDCardProvince(getString(cardInfoResult, "idnumber"));
+                        if (id != null && id.size() > 0) {
+                            setValue(cardInfo, "idnumberprovince", getString(id, "provincename"));
+                            setValue(cardInfo, "idnumbercity", getString(id, "cityname"));
                         }
                     }
                 }
             }
+            //如果是外卡，获取卡发行组织、银行
+            if (hints != null && hints.contains("getforeigncardinfo")) {
+                String creditCardType = getString(cardInfo, "creditcardtype", "");
+                String cardBin = getString(cardInfo, "cardbin");
+                if ("T".equals(isForigin) || foreignCardType.contains(creditCardType)) {
+                    Map<String, Object> subCardInfo = checkRiskDAO.getForeignCardInfo(creditCardType, cardBin);
+                    if (subCardInfo != null && subCardInfo.size() > 0) {
+                        setValue(cardInfo, "cardbinissue", getString(subCardInfo, "nationality"));
+                        setValue(cardInfo, "cardbinbankofcardissue", getString(subCardInfo, "bankofcardissue"));
+                    }
+                }
+            }
+            //获取发卡银行城市、省份信息
+            if (hints != null && hints.contains("getcardbankinfo")) {
+                String creditCardType = getString(cardInfo, "creditcardtype", "0");
+                //取出branchCity 和 branchProvince
+                String creditCardNumber = getString(cardInfo, "creditcardnumber");
+                if ("3".equals(creditCardType) && !Strings.isNullOrEmpty(creditCardNumber))//这里只针对类型为3的卡进行处理
+                {
+                    String decryptText = null;
+                    try {
+                        decryptText = Crypto.decrypt(creditCardNumber);
+                    } catch (Exception exp) {
+                        logger.warn("解密卡号异常" + exp.getMessage());
+                    }
+                    if (!Strings.isNullOrEmpty(decryptText) && decryptText.length() > 12) {
+                        String branchNo = decryptText.substring(6, 8);
+                        if (!branchNo.isEmpty()) {
+                            Map cardBankInfo = checkRiskDAO.getCardBankInfo(creditCardType, branchNo);
+                            if (cardBankInfo != null) {
+                                setValue(cardInfo, "branchcity", getString(cardBankInfo, "branchcity"));
+                                setValue(cardInfo, "branchprovince", getString(cardBankInfo, "branchprovince"));
+                            }
+                        }
+                    }
+                }
+            }
+            cardInfoList.add(cardInfo);
         }
-        cardInfoList.add(cardInfo);
         paymentInfoList.add(paymentInfo);
     }
 

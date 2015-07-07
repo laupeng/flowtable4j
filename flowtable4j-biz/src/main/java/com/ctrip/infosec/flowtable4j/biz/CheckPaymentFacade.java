@@ -4,6 +4,9 @@ import com.ctrip.infosec.flowtable4j.biz.processor.*;
 import com.ctrip.infosec.flowtable4j.flowdata.TableSaveRuleManager;
 import com.ctrip.infosec.flowtable4j.model.*;
 import com.ctrip.infosec.flowtable4j.model.persist.PO;
+import com.google.common.base.Stopwatch;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.CallableStatementCallback;
@@ -14,6 +17,7 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by thyang on 2015-06-12.
@@ -40,8 +44,9 @@ public class CheckPaymentFacade {
 
     @Autowired
     TableSaveRuleManager tableSaveRuleManager;
-
+    private static Logger logger = LoggerFactory.getLogger(CheckPaymentFacade.class);
     public CheckFact process(RequestBody request) {
+        Stopwatch stopwatch=Stopwatch.createStarted();
         CheckFact fact = new CheckFact();
         final PO po = poConverter.convert(request);
         fact.setAccountFact(accountConverter.convert(po));
@@ -51,6 +56,8 @@ public class CheckPaymentFacade {
         final Long  reqId =save2DbService.saveDealInfo(MapX.getMap(po.getProductinfo(), "dealinfo"));
         fact.setReqId(reqId);
         fact.getFlowFact().setReqId(fact.getReqId());
+        stopwatch.stop();
+        logger.warn("Construct PO elapse:" + stopwatch.elapsed(TimeUnit.MILLISECONDS));
 
         SimpleStaticThreadPool.getInstance().submit(new Runnable() {
                     @Override
@@ -67,9 +74,12 @@ public class CheckPaymentFacade {
         //数据准备
         CheckFact fact = process(requestBody);
 
+        Stopwatch stopwatch=Stopwatch.createStarted();
         //流量校验
         RiskResult result = flowtableProcessor.handle(fact);
 
+        stopwatch.stop();
+        logger.warn("Check Risk elapse:" + stopwatch.elapsed(TimeUnit.MILLISECONDS));
         final FlowFact flowFact = fact.getFlowFact();
         SimpleStaticThreadPool.getInstance().submit(new Runnable() {
             @Override
