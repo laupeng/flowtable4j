@@ -28,7 +28,7 @@ public class CounterMatchRuleTerm extends FlowRuleTerm {
 
     public CounterMatchRuleTerm(String fieldName, String operator, String matchValue) {
         super(fieldName, operator, matchValue);
-        keyFieldName = fieldName.toUpperCase();
+        keyFieldName = fieldName.toLowerCase();
     }
 
     public void setCountType(String countType, String countField, String sqlStatement) {

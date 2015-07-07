@@ -73,7 +73,7 @@ public class FlowRuleStatement {
                     if(term instanceof CounterMatchRuleTerm){
                         long start  = System.currentTimeMillis();
                         match = term.check(fact);
-                        long elapse = System.currentTimeMillis() - start;
+                        long elapse = 0;// System.currentTimeMillis() - start;
                         if(elapse > 100){
                             // 取数超过100ms
                             String info = term.toString()+" ReqID:" + fact.getReqId();
