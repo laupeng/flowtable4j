@@ -46,9 +46,9 @@ public class FlowtableProcessor {
      */
     public RiskResult handle(final CheckFact checkEntity) {
 
-        long s = System.currentTimeMillis();
+        long s = System.nanoTime();
         logger.debug(Utils.JSON.toJSONString(checkEntity));
-        logger.debug(String.format("ReqId %d to Json elapsed %d", checkEntity.getReqId(), System.currentTimeMillis() - s));
+        logger.debug(String.format("ReqId %d to Json elapsed %d", checkEntity.getReqId(), (System.nanoTime() - s)/1000000L));
 
         final RiskResult listResult_w = new RiskResult();
         final RiskResult listResult = new RiskResult();
@@ -64,7 +64,7 @@ public class FlowtableProcessor {
                     isWhite = true;
                 }
                 //log req
-                long eps = System.currentTimeMillis() - s;
+                long eps = (System.nanoTime() - s) /1000000L;
                 String info = String.format("ReqId:%d, CheckWhite elapse %d ms", checkEntity.getReqId(), eps);
                 CheckResultLog result = new CheckResultLog();
                 result.setRuleRemark(info);
@@ -94,9 +94,9 @@ public class FlowtableProcessor {
                 tasks.add(new Callable() {
                     @Override
                     public Object call() throws Exception {
-                        long now = System.currentTimeMillis();
+                        long now = System.nanoTime();
                         bwManager.checkBlack(checkEntity.getBwFact(), listResult_b);
-                        long eps = System.currentTimeMillis() - now;
+                        long eps = (System.nanoTime() - now)/1000000L;
                         String info = String.format("ReqId:%d,CheckBlack elapse %d ms", checkEntity.getReqId(), eps);
                         CheckResultLog result = new CheckResultLog();
                         result.setRuleRemark(info);
@@ -111,12 +111,12 @@ public class FlowtableProcessor {
                 tasks.add(new Callable() {
                     @Override
                     public Object call() throws Exception {
-                        long now = System.currentTimeMillis();
+                        long now = System.nanoTime();
                         AccountFact item = checkEntity.getAccountFact();
                         if (item != null && item.getCheckItems() != null && item.getCheckItems().size() > 0) {
                             accountBWGManager.checkBWGRule(item, mapAccount);
                         }
-                        long eps = System.currentTimeMillis() - now;
+                        long eps = (System.nanoTime() - now) /1000000L;
                         String info = String.format("ReqId:%d,CheckBWGRule elapse %d ms", checkEntity.getReqId(), eps);
                         CheckResultLog result = new CheckResultLog();
                         result.setRuleRemark(info);
@@ -131,10 +131,10 @@ public class FlowtableProcessor {
                 tasks.add(new Callable() {
                     @Override
                     public Object call() {
-                        long now = System.currentTimeMillis();
+                        long now = System.nanoTime();
                         FlowFact flowFact = checkEntity.getFlowFact();
                         flowRuleManager.check(flowFact, listFlow);
-                        long eps = System.currentTimeMillis() - now;
+                        long eps = (System.nanoTime() - now)/1000000L;
                         String info = String.format("ReqId:%d,CheckFlowRule elapse %d ms", checkEntity.getReqId(), eps);
                         CheckResultLog result = new CheckResultLog();
                         result.setRuleRemark(info);

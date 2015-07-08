@@ -99,10 +99,10 @@ public class FlowConverterEx extends ConverterBase {
                         mergeCardIdLength.append(cardId.length()).append("|");
                         if(cardId.length()>3)
                         {
-                            id3Set.add(cardId.substring(0, 2));
+                            id3Set.add(cardId.substring(0, 3));
                         }
                         if(cardId.length()>6) {
-                            String id6=cardId.substring(0, 5);
+                            String id6=cardId.substring(0, 6);
                             id6Set.add(id6);
                             setValue(passenger,"passengercardid6",id6);
                         }

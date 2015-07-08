@@ -51,6 +51,8 @@ public class FlowConverter extends ConverterBase {
         copyMapIfNotNull(getMap(productInfo, "maininfo"),target, new String[]{"clientid", "ordertype", "subordertype", "wirelessclientno", "orderid", "amount", "checktype", "serverfrom", "orderdate"});
         processOrderDate(target);
 
+        setValue(target,"checktype",po.getChecktype());
+
         //ContactInfo
         copyMapIfNotNull(getMap(productInfo, "contactinfo"), target, new String[]{"mobilephone", "mobilephonecity", "contactemail", "mobilephoneprovince",
                 "contactname", "contacttel", "forignmobilephone", "telcall", "sendtickeraddr", "postaddress"});
@@ -58,7 +60,7 @@ public class FlowConverter extends ConverterBase {
 
         String mobile = getString(target, "mobilephone", "");
         if(mobile.length()>7){
-            setValue(target, "mobilephone7",mobile.substring(0,6)); //衍生字段中大量用到该字段，因此预先加入
+            setValue(target, "mobilephone7",mobile.substring(0,7)); //衍生字段中大量用到该字段，因此预先加入
         }
         //手机号含4的个数
         setValue(target, "mobilephone4count", StringUtils.countMatches(mobile, "4"));
@@ -148,14 +150,14 @@ public class FlowConverter extends ConverterBase {
         if(CtripOrderType.Flights.getCode()==po.getOrdertype()) {
             String uid = getString(target, "uid");
             if (!Strings.isNullOrEmpty(uid) && uid.length() >= 10) {
-                setValue(target, "uid3to7", uid.substring(2, 8));
-                setValue(target, "uid1", uid.substring(0, 0));
+                setValue(target, "uid3to7", uid.substring(2, 9));
+                setValue(target, "uid1", uid.substring(0, 1));
             }
             String contactEmail = getString(target, "contactemail","");
             if (!Strings.isNullOrEmpty(contactEmail) && contactEmail.length() > 7) {
                 contactEmail = contactEmail.replace(".", "").replace("@", "").replace("_", "");
                 if (contactEmail.length() >= 7) {
-                    setValue(target, "contactemailtoconvert7", contactEmail.substring(0, 6));
+                    setValue(target, "contactemailtoconvert7", contactEmail.substring(0,7));
                 }
             }
             //Email与乘客国籍不一致

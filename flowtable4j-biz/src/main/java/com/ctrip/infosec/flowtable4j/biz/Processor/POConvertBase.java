@@ -192,7 +192,7 @@ public class POConvertBase extends ConverterBase {
                         logger.warn("解密卡号异常" + exp.getMessage());
                     }
                     if (!Strings.isNullOrEmpty(decryptText) && decryptText.length() > 12) {
-                        String branchNo = decryptText.substring(6, 8);
+                        String branchNo = decryptText.substring(6,9);
                         if (!branchNo.isEmpty()) {
                             Map cardBankInfo = checkRiskDAO.getCardBankInfo(creditCardType, branchNo);
                             if (cardBankInfo != null) {

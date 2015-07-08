@@ -41,4 +41,13 @@ public class RiskResult {
         return reqId;
     }
 
+    public long getOriginRiskLevel(){
+        long level =0;
+        if(results!=null && results.size()>0){
+            for(CheckResultLog r:results){
+                level = Math.max(level,r.getRiskLevel());
+            }
+        }
+        return level;
+    }
 }

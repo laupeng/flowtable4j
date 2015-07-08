@@ -81,6 +81,7 @@ public class CheckPaymentFacade {
         stopwatch.stop();
         logger.warn("Check Risk elapse:" + stopwatch.elapsed(TimeUnit.MILLISECONDS));
         final FlowFact flowFact = fact.getFlowFact();
+        flowFact.getContent().put("originalrisklevel",result.getOriginRiskLevel());
         SimpleStaticThreadPool.getInstance().submit(new Runnable() {
             @Override
             public void run() {

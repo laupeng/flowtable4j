@@ -210,6 +210,7 @@ public class AccountBWGManager {
      * @param searchKey
      */
     private void getRuleByKey(Map<String, List<RuleStore>> dic_allRules, String currentDate, String searchKey, Set<String> sceneTypes) {
+        long now= System.nanoTime();
         List<RuleStore> redisStoreItems = redisProvider.mgetBySet(searchKey, RuleStore.class);
         if (redisStoreItems != null && redisStoreItems.size() > 0) {
             for (int i = redisStoreItems.size() - 1; i >= 0; i--) {
@@ -226,5 +227,9 @@ public class AccountBWGManager {
                 dic_allRules.put(searchKey, redisStoreItems);
             }
         }
+        long eps = (System.nanoTime() - now)/1000000L;
+
+        logger.warn("Read redis elapse " + eps);
+
     }
 }
