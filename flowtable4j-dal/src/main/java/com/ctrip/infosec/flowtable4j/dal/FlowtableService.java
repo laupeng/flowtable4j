@@ -12,6 +12,7 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.text.SimpleDateFormat;
 import java.util.Map;
 
 /**
@@ -19,6 +20,8 @@ import java.util.Map;
  */
 @Component
 public class FlowtableService {
+
+    protected static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
     @Autowired
     @Qualifier("flowDbTemplate")
     JdbcTemplate flowDbTemplate ;
@@ -26,6 +29,8 @@ public class FlowtableService {
     {
         return  flowDbTemplate.queryForMap(sql,args,argTypes);
     }
+
+
 
     public void saveFlowTable(final long reqid,final String tableName, final String keyField1, final Object KeyField1Value , final String keyField2, final Object keyField2Value){
         flowDbTemplate.execute(new CallableStatementCreator() {
@@ -37,10 +42,8 @@ public class FlowtableService {
                 callableStatement.setObject("reqid",reqid);
                 callableStatement.setObject(keyField1,KeyField1Value);
                 callableStatement.setObject(keyField2, keyField2Value);
-                callableStatement.setObject("createdate",null);
+                callableStatement.setObject("createdate",sdf.format(System.currentTimeMillis()));
                 callableStatement.setObject("datachange_lasttime",null);
-//                callableStatement.registerOutParameter("retcode", Types.BIGINT);
-
                 return callableStatement;
             }
         }, new CallableStatementCallback<Long>() {

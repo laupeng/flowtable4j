@@ -34,6 +34,9 @@ public class PO extends MapX {
         //a
         prop2table.put("appinfo", "infosecurity_appinfo");
 
+        //a
+        prop2table.put("riskleveldata", "infosecurity_riskleveldata");
+
         //c
         prop2table.put("contactinfo","infosecurity_contactinfo");
         prop2table.put("corporation","infosecurity_corporationinfo");

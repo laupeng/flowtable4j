@@ -325,4 +325,28 @@ public class POConvertBase extends ConverterBase {
         }
         return prePay;
     }
+
+    /**
+     * 获取主要支付方式
+     *
+     * @param paymentInfos
+     * @return
+     */
+    public String getCreditCardType(Map<String, Object> paymentInfos) {
+        List<Map<String, Object>> paymentInfoList = (List<Map<String, Object>>) MapX.getList(paymentInfos, "paymentinfolist");
+        String prePay = "";
+        if (paymentInfoList != null) {
+            for (Map<String, Object> p : paymentInfoList) {
+                String tmpprePay =  Strings.nullToEmpty(getString(p, new String[]{"payment", "prepaytype"})).toUpperCase();
+                if (tmpprePay.equals("CCARD") || tmpprePay.equals("DCARD")) {
+                    List<Map<String,Object>> cards = getList(p,"cardinfolist");
+                    if(cards!=null && cards.size()>0){
+                        return getString(cards.get(0),"creditcardtype","");
+                    }
+                    break;
+                }
+            }
+        }
+        return prePay;
+    }
 }

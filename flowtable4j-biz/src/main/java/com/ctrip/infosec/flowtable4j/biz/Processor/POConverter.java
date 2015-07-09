@@ -1,8 +1,7 @@
 package com.ctrip.infosec.flowtable4j.biz.processor;
 
 import com.ctrip.infosec.flowtable4j.biz.subprocessor.POConverterEx;
-import com.ctrip.infosec.flowtable4j.model.CtripOrderType;
-import com.ctrip.infosec.flowtable4j.model.RequestBody;
+import com.ctrip.infosec.flowtable4j.model.*;
 import com.ctrip.infosec.flowtable4j.model.persist.PO;
 import com.google.common.base.Strings;
 import org.apache.commons.lang.StringUtils;
@@ -220,4 +219,32 @@ public class POConverter extends POConvertBase {
         }
     }
 
+    public void convertRiskLevelData(PO po, RiskResult riskResult,long reqid) {
+        long level = 0;
+        List<CheckResultLog> results = riskResult.getResults();
+        Map<String,Object> riskleveldata = new HashMap<String, Object>();
+        StringBuilder remark = new StringBuilder();
+        if (results != null && results.size() > 0) {
+            for (CheckResultLog r : results) {
+                level = Math.max(level, r.getRiskLevel());
+                if (CheckType.FLOWRULE.toString().equals(r.getRuleType())) {
+                    remark.append(r.getRuleName()).append(";");
+                } else {
+                    remark.append(r.getRuleRemark()).append(";");
+                }
+            }
+        }
+        setValue(riskleveldata,"reqid",reqid);
+        setValue(riskleveldata,"createdate",sdf.format(System.currentTimeMillis()));
+        setValue(riskleveldata,"orderid",po.getOrderid());
+        setValue(riskleveldata,"ordertype",po.getOrdertype());
+        setValue(riskleveldata,"originalrisklevel",level);
+        setValue(riskleveldata,"risklevel",level);
+        setValue(riskleveldata,"subordertype",0);
+        setValue(riskleveldata,"referenceno",getString(po.getProductinfo(),new String[]{"dealinfo","referenceid"}));
+        setValue(riskleveldata,"remark",remark.toString());
+        setValueIfNotEmpty(riskleveldata,"creditcardtype",getCreditCardType(po.getPaymentinfo()));
+        setValue(po.getProductinfo(),"riskleveldata",riskleveldata);
+
+    }
 }
