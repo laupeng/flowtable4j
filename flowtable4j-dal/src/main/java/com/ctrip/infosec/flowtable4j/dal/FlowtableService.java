@@ -36,14 +36,16 @@ public class FlowtableService {
         flowDbTemplate.execute(new CallableStatementCreator() {
             @Override
             public CallableStatement createCallableStatement(Connection connection) throws SQLException {
-                String storedProc = "{call spA_%s_i (?,?,?,?,?)}";
-                storedProc = String.format(storedProc, tableName);
-                CallableStatement callableStatement = connection.prepareCall(storedProc);
-                callableStatement.setObject("reqid",reqid);
-                callableStatement.setObject(keyField1,KeyField1Value);
-                callableStatement.setObject(keyField2, keyField2Value);
-                callableStatement.setObject("createdate",sdf.format(System.currentTimeMillis()));
-                callableStatement.setObject("datachange_lasttime",null);
+                StringBuilder storedProc = new StringBuilder("{call spA_%s_i (");
+                storedProc.append("@reqid=?,");
+                storedProc.append("@").append(keyField1).append("=?,");
+                storedProc.append("@").append(keyField2).append("=?,");
+                storedProc.append("@createdate=?)}");
+                CallableStatement callableStatement = connection.prepareCall(String.format(storedProc.toString(),tableName));
+                callableStatement.setObject(1,reqid);
+                callableStatement.setObject(2,KeyField1Value);
+                callableStatement.setObject(3,keyField2Value);
+                callableStatement.setObject(4,sdf.format(System.currentTimeMillis()));
                 return callableStatement;
             }
         }, new CallableStatementCallback<Long>() {

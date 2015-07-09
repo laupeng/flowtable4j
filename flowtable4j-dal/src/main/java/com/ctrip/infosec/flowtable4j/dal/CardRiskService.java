@@ -66,8 +66,9 @@ public class CardRiskService {
                     cardRiskDBTemplate.execute(
                             new CallableStatementCreator() {
                                 public CallableStatement createCallableStatement(Connection con) throws SQLException {
-                                    String storedProc = "{call spA_InfoSecurity_CheckResult4j_i ( ?,?,?,?,?,?,?,?)}";// 调用的sql
+                                    String storedProc = "{call spA_InfoSecurity_CheckResult4j_i ( @LogID=?,@Req=?,@RuleType=?,@RuleID=?,@RuleName=?,@RiskLevel=?,@RuleRemark=?,@CreateDate=?)}";// 调用的sql
                                     CallableStatement cs = con.prepareCall(storedProc);
+                                    cs.registerOutParameter(1, Types.BIGINT);// 注册输出参数的类型
                                     cs.setLong(2, reqId);
                                     cs.setString(3, item.getRuleType());
                                     cs.setInt(4, item.getRuleID());
@@ -75,7 +76,6 @@ public class CardRiskService {
                                     cs.setInt(6, item.getRiskLevel());
                                     cs.setString(7, Objects.toString(item.getRuleRemark(), ""));
                                     cs.setTimestamp(8, new Timestamp(System.currentTimeMillis()));
-                                    cs.registerOutParameter(1, Types.BIGINT);// 注册输出参数的类型
                                     return cs;
                                 }
                             }, new CallableStatementCallback() {

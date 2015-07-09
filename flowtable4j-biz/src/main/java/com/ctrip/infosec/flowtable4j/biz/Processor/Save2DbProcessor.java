@@ -184,6 +184,7 @@ public class Save2DbProcessor {
             final List<ColumnInfo> columnInfos = tableInfoService.getTableInfo(tableName);
             if (columnInfos != null && columnInfos.size() > 0) {
                 final String[] outField = new String[]{""};
+                final Integer[] outFieldIndex = new Integer[]{0};
                 cardRiskService.cardRiskDBTemplate.<Long>execute(
                         new CallableStatementCreator() {
                             @Override
@@ -191,16 +192,19 @@ public class Save2DbProcessor {
                                 String storedProc = "{call spA_%s_i (%s)}";
                                 StringBuilder sb = new StringBuilder();
                                 for (int i = 0; i < columnInfos.size(); i++) {
-                                    sb.append(",?");
+                                    sb.append(",@").append(columnInfos.get(i).getName()).append("=?");
                                 }
                                 storedProc = String.format(storedProc, tableName, sb.toString().substring(1));
                                 CallableStatement callableStatement = connection.prepareCall(storedProc);
-                                for (ColumnInfo t : columnInfos) {
+                                for (int i=1;i<= columnInfos.size();i ++)
+                                {
+                                    ColumnInfo t = columnInfos.get(i-1);
                                     if (t.getIs_identity() == 1) {
-                                        callableStatement.registerOutParameter(t.getName(), Types.BIGINT);
+                                        callableStatement.registerOutParameter(i,Types.BIGINT);
                                         outField[0] = t.getName();
+                                        outFieldIndex[0] = i;
                                     } else {
-                                        callableStatement.setObject(t.getName(), t.getValue(src, keys));
+                                        callableStatement.setObject(i,t.getValue(src, keys));
                                     }
                                 }
                                 return callableStatement;
@@ -210,7 +214,7 @@ public class Save2DbProcessor {
                             public Void doInCallableStatement(CallableStatement callableStatement) throws SQLException, DataAccessException {
                                 callableStatement.execute();
                                 if (!Strings.isNullOrEmpty(outField[0]) && keys.containsKey(outField[0])) {
-                                    keys.put(outField[0], callableStatement.getLong(outField[0]));
+                                    keys.put(outField[0], callableStatement.getLong(outFieldIndex[0]));
                                 }
                                 return null;
                             }

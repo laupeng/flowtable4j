@@ -34,19 +34,14 @@ public class PaybaseDbService {
                 paybaseDbTemplate.execute(
                         new CallableStatementCreator() {
                             public CallableStatement createCallableStatement(Connection con) throws SQLException {
-                                String storedProc = "{call spA_PaymentRiskControl_i ( ?,?,?,?,?,?,?,?)}";// 调用的sql
+                                String storedProc = "{call spA_PaymentRiskControl_i (@OrderID=?,@MerchantID=?,@OrderType=?,@Uid=?,@ActionMode=?,@RID=?)}";// 调用的sql
                                 CallableStatement cs = con.prepareCall(storedProc);
-                                cs.setLong("OrderID", orderId);
-                                cs.setString("MerchantID", merchantId);
-                                cs.setInt("OrderType", orderType);
-                                cs.setString("Uid", uid);
-                                cs.setTimestamp("DataChange_LastTime", null);
-                                cs.setTimestamp("CreateDate", null);
-                                cs.setString("ActionMode", mapper.toJson(results));
-                                cs.registerOutParameter("RID", Types.BIGINT);// 注册输出参数的类型
-
-
-
+                                cs.setLong(1,orderId);
+                                cs.setString(2, merchantId);
+                                cs.setInt(3,orderType);
+                                cs.setString(4, uid);
+                                cs.setString(5, mapper.toJson(results));
+                                cs.registerOutParameter(6, Types.BIGINT);// 注册输出参数的类型
                                 return cs;
                             }
                         }, new CallableStatementCallback() {
