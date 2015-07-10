@@ -23,7 +23,8 @@ public class PO extends MapX {
     private Integer subordertype =0;
     private Integer checktype =1;
     private String merchantid;
-
+    private Long reqid;
+    private Integer risklevel;
     private static Map<String, String> prop2table = new HashMap<String, String>();
 
     public static Map<String, String> getProp2Table() {
@@ -208,6 +209,22 @@ public class PO extends MapX {
 
     public void setMerchantid(String merchantid) {
         this.merchantid = merchantid;
+    }
+
+    public Long getReqid() {
+        return reqid;
+    }
+
+    public void setReqid(Long reqid) {
+        this.reqid = reqid;
+    }
+
+    public Integer getRisklevel() {
+        return risklevel;
+    }
+
+    public void setRisklevel(Integer risklevel) {
+        this.risklevel = risklevel;
     }
 }
 

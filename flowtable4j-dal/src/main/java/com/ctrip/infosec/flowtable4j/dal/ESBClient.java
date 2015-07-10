@@ -1,5 +1,8 @@
 package com.ctrip.infosec.flowtable4j.dal;
 
+import com.ctrip.infosec.flowtable4j.model.MapX;
+import com.ctrip.infosec.flowtable4j.model.persist.PO;
+import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.entity.StringEntity;
 import org.dom4j.Document;
@@ -14,10 +17,12 @@ import org.xml.sax.InputSource;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.SimpleFormatter;
 
 /*
  Created by lpxie on 15-3-20.
@@ -111,6 +116,59 @@ public class ESBClient {
         }
         return null;
     }
+
+
+    private String creatNode(String nodeName,Object nodeValue){
+        return String.format("<%s>%s</%s>",nodeName,nodeValue,nodeName);
+    }
+
+    /**
+     *
+     * @param po
+     * @return
+     */
+    public Map postRiskLevelData(PO po){
+        String requestType = "AccCash.EasyPay.SaveRiskLevelData";
+        String xpath = "/Response/SaveRiskLevelDataResponse";
+        Map<String,Object> productInfo = po.getProductinfo();
+        Map<String,Object> risklevelDate = MapX.getMap(productInfo,"riskleveldata");
+        StringBuffer requestBody = new StringBuffer();
+        requestBody.append("<SaveRiskLevelDataRequest>");
+        requestBody.append(creatNode("ReqID", po.getReqid()));
+        requestBody.append(creatNode("ResID",po.getReqid()));
+        requestBody.append(creatNode("RefNo",0));
+        requestBody.append(creatNode("OrderID",po.getOrderid()));
+        requestBody.append(creatNode("Status", MapX.getString(risklevelDate, "cmbmsgstatus", "")));
+        requestBody.append(creatNode("RiskLevel",MapX.getString(risklevelDate, "originalrisklevel","0")));
+        requestBody.append(creatNode("CreateDate", new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSSSSXXX").format(System.currentTimeMillis())));
+        requestBody.append(creatNode("LastOper",MapX.getString(risklevelDate,"lastoper","")));
+        requestBody.append(creatNode("Remark",MapX.getString(risklevelDate,"remark","")));
+        requestBody.append(creatNode("OrderType",po.getOrdertype()));
+        requestBody.append(creatNode("OriginalRiskLevel",MapX.getString(risklevelDate,"originalrisklevel","0")));
+        requestBody.append(creatNode("Dealed","F"));
+
+        List<Map<String,Object>> payments = MapX.getList(po.getPaymentinfo(),"paymentinfolist");
+        if(payments!=null && payments.size()>0){
+            for(Map<String,Object> paymentInfoMap:payments){
+                List<Map<String,Object>> cardInfos = MapX.getList(paymentInfoMap,"cardinfolist");
+                if(cardInfos!=null && cardInfos.size()>0){
+                    requestBody.append(creatNode("InfoID",0));
+                    requestBody.append(creatNode("IsForigenCard",MapX.getString(cardInfos.get(0),"isforigencard","F")));
+                    requestBody.append(creatNode("CardInfoID",MapX.getString(cardInfos.get(0),"cardinfoid","0")));
+                }
+            }
+        }
+        requestBody.append("</SaveRiskLevelDataRequest>");
+        try
+        {
+            return  requestESB(requestType, requestBody.toString(), xpath);
+        }catch (Exception exp)
+        {
+            logger.warn("GetCreditCardInfo",exp);
+            return null;
+        }
+    }
+
 
     public Map getMemberInfo(String uid) throws Exception {
         try {

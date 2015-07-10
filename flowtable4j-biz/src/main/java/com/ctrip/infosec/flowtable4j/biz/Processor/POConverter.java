@@ -220,20 +220,41 @@ public class POConverter extends POConvertBase {
     }
 
     public void convertRiskLevelData(PO po, RiskResult riskResult,long reqid) {
-        long level = 0;
+        Integer level = 0;
         List<CheckResultLog> results = riskResult.getResults();
         Map<String,Object> riskleveldata = new HashMap<String, Object>();
         StringBuilder remark = new StringBuilder();
+        boolean startUWL = false;
+        boolean black95 = false;
+        boolean black90 = false;
         if (results != null && results.size() > 0) {
             for (CheckResultLog r : results) {
-                level = Math.max(level, r.getRiskLevel());
+                int risklevel = r.getRiskLevel();
+                level = Math.max(level, risklevel);
                 if (CheckType.FLOWRULE.toString().equals(r.getRuleType())) {
                     remark.append(r.getRuleName()).append(";");
                 } else {
                     remark.append(r.getRuleRemark()).append(";");
                 }
+                if(r.getRuleName()!=null && r.getRuleName().startsWith("UWL")){
+                    startUWL = true;
+                }
+                if(CheckType.BW.toString().equals(r.getRuleType())){
+                    if(risklevel==95){
+                        black95 = true;
+                    } else if(risklevel>=90 && risklevel< 100){
+                        black90 = true;
+                    }
+                }
             }
         }
+        level = (startUWL && level <=194) ? 99:level;
+        if(black95){
+            level = 95;
+        } else if(black90 && level < 195){
+            level = 97;
+        }
+
         setValue(riskleveldata,"reqid",reqid);
         setValue(riskleveldata,"createdate",sdf.format(System.currentTimeMillis()));
         setValue(riskleveldata,"orderid",po.getOrderid());
@@ -245,6 +266,6 @@ public class POConverter extends POConvertBase {
         setValue(riskleveldata,"remark",remark.toString());
         setValueIfNotEmpty(riskleveldata,"creditcardtype",getCreditCardType(po.getPaymentinfo()));
         setValue(po.getProductinfo(),"riskleveldata",riskleveldata);
-
+        po.setRisklevel(level);
     }
 }

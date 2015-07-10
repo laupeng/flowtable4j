@@ -11,7 +11,7 @@ import java.util.Map;
  * Created by zhangsx on 2015/4/14.
  */
 public class CounterTest {
-    protected static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+    protected static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSSSSXXX");
 
     private boolean f1()
     {
@@ -24,11 +24,8 @@ public class CounterTest {
     }
     @Test
     public void testReplace() throws Exception {
-        String[] ss="".split("[|]");
-        for (String s:ss) {
-            System.out.println(s);
-        }
-        System.out.println(ss.length);
+
+        System.out.println(sdf.format(System.currentTimeMillis()));
 //        String mobile = null;
 //        if (!Strings.isNullOrEmpty(mobile)) {
 //            while (mobile.startsWith("0")) {

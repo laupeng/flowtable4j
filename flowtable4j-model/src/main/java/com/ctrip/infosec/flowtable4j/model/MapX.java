@@ -116,8 +116,9 @@ public class MapX {
      * @param keyPath 搜索路径
      * @return 字符串
      */
-    public static String getStringEmpty(Map<String,Object> root,String keyPath) {
-        return Strings.nullToEmpty(getString(root,keyPath));
+    public static String getString(Map<String,Object> root,String keyPath,String defVal) {
+        String val =getString(root,keyPath);
+        return val==null? defVal:val;
     }
 
     /**
@@ -126,8 +127,9 @@ public class MapX {
      * @param keyPath 搜索路径
      * @return 字符串
      */
-    public static String getStringEmpty(Map<String,Object> root,String[] keyPath) {
-        return Strings.nullToEmpty(getString(root,keyPath));
+    public static String getString(Map<String,Object> root,String[] keyPath,String defVal) {
+        String val =getString(root,keyPath);
+        return val==null? defVal:val;
     }
 
     /**

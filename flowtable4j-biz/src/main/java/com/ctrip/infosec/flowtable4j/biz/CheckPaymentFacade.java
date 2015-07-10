@@ -55,11 +55,14 @@ public class CheckPaymentFacade {
         fact.setCheckTypes(getCheckType(po));
 
         final Long reqId = save2DbService.saveDealInfo(MapX.getMap(po.getProductinfo(), "dealinfo"));
+        po.setReqid(reqId);
+
         fact.setReqId(reqId);
         fact.getFlowFact().setReqId(fact.getReqId());
 
         logger.warn("Construct PO elapse:" + (System.nanoTime() - start1) / 1000000L);
 
+        //TODO 最终决定哪些业务需要调用支付适配黑白名单、账户风控黑白名单
         SimpleStaticThreadPool.getInstance().submit(new Runnable() {
             @Override
             public void run() {
@@ -74,7 +77,13 @@ public class CheckPaymentFacade {
         final FlowFact flowFact = fact.getFlowFact();
         flowFact.getContent().put("originalrisklevel", result.getOriginRiskLevel());
 
+        //TODO 需要根据不同的订单类型做特殊处理
         poConverter.convertRiskLevelData(po, result, reqId);
+
+        //TODO 只有TransFlag！=33的才需要抛送金融
+        if(! MapX.getString(po.getProductinfo(),new String[]{"riskleveldata","transflag"},"").equals("33")) {
+            flowConverter.postToEasyPay(po);
+        }
 
         SimpleStaticThreadPool.getInstance().submit(new Runnable() {
             @Override

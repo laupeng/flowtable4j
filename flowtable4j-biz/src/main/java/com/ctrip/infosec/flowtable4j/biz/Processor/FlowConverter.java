@@ -296,7 +296,16 @@ public class FlowConverter extends ConverterBase {
         if(!Strings.isNullOrEmpty(count)){
             setValue(target,"originalrisklevelcount",count);
         }
+    }
 
+    public void postToEasyPay(PO po){
+        Map<String,Object> result = esbClient.postRiskLevelData(po);
+        if(result!=null && getString(result,"retcode","")=="0"){
+            Map<String,Object> risklevelDate = MapX.getMap(po.getProductinfo(),"riskleveldata");
+            if(risklevelDate!=null){
+               setValue(risklevelDate,"transflag",32);
+            }
+        }
     }
 
 }

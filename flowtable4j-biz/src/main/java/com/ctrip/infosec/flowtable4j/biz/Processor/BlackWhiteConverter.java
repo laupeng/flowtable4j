@@ -96,7 +96,7 @@ public class BlackWhiteConverter extends ConverterBase {
             for (Map<String, Object> paymentItem : paymentinfolist) {
                 Map<String, Object> payment = getMap(paymentItem, "payment");
                 if (payment != null) {
-                    String prepayType = MapX.getStringEmpty(payment, "prepaytype").toUpperCase();
+                    String prepayType = MapX.getString(payment, "prepaytype","").toUpperCase();
                     if ("CASH".equals(prepayType)) {
                         setValue(target, "prepaytypedetails", "X");
                     } else if ("PAYPL".equals(prepayType)) {
