@@ -108,7 +108,7 @@ public class POConvertBase extends ConverterBase {
     public void fillPaymentInfo(Map<String, Object> eventBody, Map<String, Object> root, int orderType) {
 
         List<Map<String, Object>> paymentInfoList = new ArrayList<Map<String, Object>>();
-        List<Map<String, Object>> paymentInfoListSrc = (List<Map<String, Object>>) MapX.getList(eventBody, "paymentinfos");
+        List<Map<String, Object>> paymentInfoListSrc =  getList(eventBody, "paymentinfos");
 
         List<String> modules = getPaymentModule(orderType);
 
@@ -257,7 +257,7 @@ public class POConvertBase extends ConverterBase {
         String orderDate = getString(target,new String[]{"maininfo","orderdate"});
         String signupDate = getString(target,new String[]{"userinfo","signupdate"});
         setValue(otherInfo, "ordertosignupdate", dateDiffHour(orderDate, signupDate));
-        List<Map<String,Object>> flightOrders = MapX.getList(target,"flightinfolist");
+        List<Map<String,Object>> flightOrders =  getList(target,"flightinfolist");
         if(flightOrders!=null && flightOrders.size()>0){
             String takeoffTime = getString(flightOrders.get(0),new String[]{"order","takeofftime"});
             setValue(otherInfo, "takeofftoorderdate", dateDiffHour(takeoffTime, orderDate));
@@ -312,7 +312,7 @@ public class POConvertBase extends ConverterBase {
      * @return
      */
     public String getPrepayType(Map<String, Object> paymentInfos) {
-        List<Map<String, Object>> paymentInfoList = (List<Map<String, Object>>) MapX.getList(paymentInfos, "paymentinfolist");
+        List<Map<String, Object>> paymentInfoList =  getList(paymentInfos, "paymentinfolist");
         String prePay = "";
         if (paymentInfoList != null) {
             for (Map<String, Object> p : paymentInfoList) {
@@ -326,27 +326,4 @@ public class POConvertBase extends ConverterBase {
         return prePay;
     }
 
-    /**
-     * 获取主要支付方式
-     *
-     * @param paymentInfos
-     * @return
-     */
-    public String getCreditCardType(Map<String, Object> paymentInfos) {
-        List<Map<String, Object>> paymentInfoList = (List<Map<String, Object>>) MapX.getList(paymentInfos, "paymentinfolist");
-        String prePay = "";
-        if (paymentInfoList != null) {
-            for (Map<String, Object> p : paymentInfoList) {
-                String tmpprePay =  Strings.nullToEmpty(getString(p, new String[]{"payment", "prepaytype"})).toUpperCase();
-                if (tmpprePay.equals("CCARD") || tmpprePay.equals("DCARD")) {
-                    List<Map<String,Object>> cards = getList(p,"cardinfolist");
-                    if(cards!=null && cards.size()>0){
-                        return getString(cards.get(0),"creditcardtype","");
-                    }
-                    break;
-                }
-            }
-        }
-        return prePay;
-    }
 }

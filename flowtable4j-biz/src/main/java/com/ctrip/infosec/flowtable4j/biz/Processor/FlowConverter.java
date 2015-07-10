@@ -298,14 +298,4 @@ public class FlowConverter extends ConverterBase {
         }
     }
 
-    public void postToEasyPay(PO po){
-        Map<String,Object> result = esbClient.postRiskLevelData(po);
-        if(result!=null && getString(result,"retcode","")=="0"){
-            Map<String,Object> risklevelDate = MapX.getMap(po.getProductinfo(),"riskleveldata");
-            if(risklevelDate!=null){
-               setValue(risklevelDate,"transflag",32);
-            }
-        }
-    }
-
 }

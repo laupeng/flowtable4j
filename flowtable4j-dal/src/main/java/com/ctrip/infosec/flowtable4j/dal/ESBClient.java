@@ -1,6 +1,7 @@
 package com.ctrip.infosec.flowtable4j.dal;
 
-import com.ctrip.infosec.flowtable4j.model.MapX;
+import com.ctrip.infosec.flowtable4j.model.*;
+import com.ctrip.infosec.flowtable4j.model.CtripOrderType;
 import com.ctrip.infosec.flowtable4j.model.persist.PO;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.fluent.Request;
@@ -138,7 +139,6 @@ public class ESBClient {
         requestBody.append(creatNode("ResID",po.getReqid()));
         requestBody.append(creatNode("RefNo",0));
         requestBody.append(creatNode("OrderID",po.getOrderid()));
-        requestBody.append(creatNode("Status", MapX.getString(risklevelDate, "cmbmsgstatus", "")));
         requestBody.append(creatNode("RiskLevel",MapX.getString(risklevelDate, "originalrisklevel","0")));
         requestBody.append(creatNode("CreateDate", new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSSSSXXX").format(System.currentTimeMillis())));
         requestBody.append(creatNode("LastOper",MapX.getString(risklevelDate,"lastoper","")));
@@ -147,16 +147,19 @@ public class ESBClient {
         requestBody.append(creatNode("OriginalRiskLevel",MapX.getString(risklevelDate,"originalrisklevel","0")));
         requestBody.append(creatNode("Dealed","F"));
 
-        List<Map<String,Object>> payments = MapX.getList(po.getPaymentinfo(),"paymentinfolist");
-        if(payments!=null && payments.size()>0){
-            for(Map<String,Object> paymentInfoMap:payments){
-                List<Map<String,Object>> cardInfos = MapX.getList(paymentInfoMap,"cardinfolist");
-                if(cardInfos!=null && cardInfos.size()>0){
-                    requestBody.append(creatNode("InfoID",0));
-                    requestBody.append(creatNode("IsForigenCard",MapX.getString(cardInfos.get(0),"isforigencard","F")));
-                    requestBody.append(creatNode("CardInfoID",MapX.getString(cardInfos.get(0),"cardinfoid","0")));
+        if(po.getOrdertype().equals(CtripOrderType.Flights.getCode())) {
+            List<Map<String, Object>> payments = MapX.getList(po.getPaymentinfo(), "paymentinfolist");
+            if (payments != null && payments.size() > 0) {
+                for (Map<String, Object> paymentInfoMap : payments) {
+                    List<Map<String, Object>> cardInfos = MapX.getList(paymentInfoMap, "cardinfolist");
+                    if (cardInfos != null && cardInfos.size() > 0) {
+                        requestBody.append(creatNode("InfoID", 0));
+                        requestBody.append(creatNode("IsForigenCard", MapX.getString(cardInfos.get(0), "isforigencard", "F")));
+                        requestBody.append(creatNode("CardInfoID", MapX.getString(cardInfos.get(0), "cardinfoid", "0")));
+                    }
                 }
             }
+            requestBody.append(creatNode("Status", MapX.getString(risklevelDate, "cmbmsgstatus", "")));
         }
         requestBody.append("</SaveRiskLevelDataRequest>");
         try

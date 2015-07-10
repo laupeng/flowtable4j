@@ -118,6 +118,7 @@ public class ConverterBase {
         return MapX.getMap(data, key);
     }
 
+
     protected List<Map<String, Object>> getList(Map<String, Object> data, String key) {
         return MapX.getList(data, key);
     }
@@ -132,6 +133,10 @@ public class ConverterBase {
             return defVal;
         }
         return obj;
+    }
+
+    protected String getString(Map<String, Object> data, String[] key,String defVal) {
+        return MapX.getString(data, key,defVal);
     }
 
     protected String getString(Map<String, Object> data, String[] key) {

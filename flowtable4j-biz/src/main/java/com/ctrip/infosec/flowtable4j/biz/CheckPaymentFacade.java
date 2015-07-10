@@ -37,6 +37,10 @@ public class CheckPaymentFacade {
 
     @Autowired
     TableSaveRuleManager tableSaveRuleManager;
+
+    @Autowired
+    RiskLevelDataConverter riskLevelDataConverter;
+
     private static Logger logger = LoggerFactory.getLogger(CheckPaymentFacade.class);
 
     public CheckType[] getCheckType(PO po){
@@ -78,11 +82,11 @@ public class CheckPaymentFacade {
         flowFact.getContent().put("originalrisklevel", result.getOriginRiskLevel());
 
         //TODO 需要根据不同的订单类型做特殊处理
-        poConverter.convertRiskLevelData(po, result, reqId);
+        riskLevelDataConverter.convertRiskLevelData(po,result,reqId);
 
         //TODO 只有TransFlag！=33的才需要抛送金融
         if(! MapX.getString(po.getProductinfo(),new String[]{"riskleveldata","transflag"},"").equals("33")) {
-            flowConverter.postToEasyPay(po);
+            riskLevelDataConverter.postToEasyPay(po);
         }
 
         SimpleStaticThreadPool.getInstance().submit(new Runnable() {
