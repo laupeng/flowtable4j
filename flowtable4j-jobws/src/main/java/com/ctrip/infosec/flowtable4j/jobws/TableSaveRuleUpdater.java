@@ -40,9 +40,11 @@ public class TableSaveRuleUpdater {
             flowRuleStatement.setKeyFieldID1(Objects.toString(master.get("KeyFieldID1"), "").toLowerCase());
             flowRuleStatement.setKeyFieldID2(Objects.toString(master.get("KeyFieldID2"), "").toLowerCase());
             flowRuleStatement.setStatisticTableName(Objects.toString(master.get("StatisticTableName"),"").toLowerCase());
+            flowRuleStatement.setDataBaseName(Objects.toString(master.get("DataBaseName"), "").toLowerCase());
             flowRuleStatement.setOrderType(Integer.parseInt(Objects.toString(master.get("OrderType"), "0")));
             flowRuleStatement.setStatisticTableID(currentRuleId);
             flowRuleStatement.setTableType(Integer.parseInt(Objects.toString(master.get("TableType"), "0")));
+
             flowRuleStatement.setFlowRuleTerms(new ArrayList<FlowRuleTerm>());
             results.add(flowRuleStatement);
             if(flowRuleStatement.getTableType()==1){

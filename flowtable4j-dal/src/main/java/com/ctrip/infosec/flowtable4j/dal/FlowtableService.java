@@ -25,12 +25,42 @@ public class FlowtableService {
     @Autowired
     @Qualifier("flowDbTemplate")
     JdbcTemplate flowDbTemplate ;
+
+    @Autowired
+    @Qualifier("flowDbTemplate")
+    JdbcTemplate flowDbTemplate2 ;
     public Map<String, Object> queryForMap(String sql, Object[] args, int[] argTypes)
     {
         return  flowDbTemplate.queryForMap(sql,args,argTypes);
     }
 
+    public void saveFlowTable(final long reqid,final String tableName,final String databasename,final String keyField1, final Object KeyField1Value , final String keyField2, final Object keyField2Value){
+        if(databasename.equals("")){
 
+        }
+        flowDbTemplate.execute(new CallableStatementCreator() {
+            @Override
+            public CallableStatement createCallableStatement(Connection connection) throws SQLException {
+                StringBuilder storedProc = new StringBuilder("{call spA_%s_i (");
+                storedProc.append("@reqid=?,");
+                storedProc.append("@").append(keyField1).append("=?,");
+                storedProc.append("@").append(keyField2).append("=?,");
+                storedProc.append("@createdate=?)}");
+                CallableStatement callableStatement = connection.prepareCall(String.format(storedProc.toString(),tableName));
+                callableStatement.setObject(1,reqid);
+                callableStatement.setObject(2,KeyField1Value);
+                callableStatement.setObject(3,keyField2Value);
+                callableStatement.setObject(4,sdf.format(System.currentTimeMillis()));
+                return callableStatement;
+            }
+        }, new CallableStatementCallback<Long>() {
+            @Override
+            public Long doInCallableStatement(CallableStatement callableStatement) throws SQLException, DataAccessException {
+                callableStatement.execute();
+                return Long.valueOf(0);
+            }
+        });
+    }
 
     public void saveFlowTable(final long reqid,final String tableName, final String keyField1, final Object KeyField1Value , final String keyField2, final Object keyField2Value){
         flowDbTemplate.execute(new CallableStatementCreator() {

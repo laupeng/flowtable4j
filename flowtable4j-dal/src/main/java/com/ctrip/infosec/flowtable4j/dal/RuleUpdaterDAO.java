@@ -145,7 +145,7 @@ public class RuleUpdaterDAO {
     }
 
     public List<Map<String,Object>> getRuleStatisticTable(){
-        String sql = "select t.StatisticTableId, t.StatisticTableName ,f1.ColumnName as KeyFieldID1,f2.ColumnName as KeyFieldID2,t.OrderType,t.Active,t.[TableType]\n" +
+        String sql = "select t.StatisticTableId, t.StatisticTableName,t.DataBaseName,f1.ColumnName as KeyFieldID1,f2.ColumnName as KeyFieldID2,t.OrderType,t.Active,t.[TableType]\n" +
                 "from Def_RuleStatisticTable t (nolock)\n" +
                 "join Def_RuleMatchField f1 (nolock) on t.KeyFieldID1 = f1.FieldID\n" +
                 "join Def_RuleMatchField f2 (nolock) on t.KeyFieldID2 = f2.FieldID WHERE t.Active='T' ORDER BY t.StatisticTableID";

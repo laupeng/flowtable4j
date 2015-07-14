@@ -16,6 +16,7 @@ public class FlowRuleStatement {
     private String statisticTableName;
     private int tableType;
     private int orderType;
+    private String dataBaseName;
     private List<FlowRuleTerm> flowRuleTerms;
 
     /**
@@ -119,6 +120,14 @@ public class FlowRuleStatement {
             return this.statisticTableID.equals(rs.statisticTableID);
         }
         return super.equals(obj);
+    }
+
+    public String getDataBaseName() {
+        return dataBaseName;
+    }
+
+    public void setDataBaseName(String dataBaseName) {
+        this.dataBaseName = dataBaseName;
     }
 }
 
