@@ -39,6 +39,8 @@ public class BWRuleTest {
         college.add(c2);
         fact.getContent().put("COLLEGE", college);
 
+        System.out.println("0001-01-01".compareTo("1900-01-01")< 0);
+
         //Test getString
 //        Assert.assertEquals(fact.getString("NAME"), "BRUCE YANG");
 //        Assert.assertEquals(fact.getString("AGE".split("[.]")), "40");

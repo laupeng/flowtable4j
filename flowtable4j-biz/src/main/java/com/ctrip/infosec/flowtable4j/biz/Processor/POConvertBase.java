@@ -151,7 +151,7 @@ public class POConvertBase extends ConverterBase {
                 Map<String, Object> cardInfoResult = (Map<String, Object>) esbClient.getCardInfo(cardInfoId);//从esb取出相关数据
                 if (cardInfoResult != null && cardInfoResult.size() > 0) {
                     copyMap(cardInfoResult, cardInfo, "infosecurity_cardinfo");
-                    copyValue(cardInfoResult,"isforeigncard",cardInfo,"isforigencard"); 
+                    copyValue(cardInfoResult,"isforeigncard",cardInfo,"isforigencard");
                     copyValueIfNotNull(cardInfoResult, "cardrisknolastcode", cardInfo, "ccardlastnocode");
                     copyValueIfNotNull(cardInfoResult, "cardrisknoprecode", cardInfo, "ccardprenocode");
 

@@ -1,5 +1,7 @@
 package com.ctrip.infosec.flowtable4j.model.persist;
 
+import com.google.common.base.Strings;
+
 import java.util.Map;
 import java.util.Objects;
 
@@ -14,10 +16,11 @@ public class ColumnInfo {
     private int is_identity;
 
     public Object getValue(Map<String, Object> src, Map<String, Long> fks) {
+        Object obj;
         if (fks != null && fks.containsKey(name)) {
-            return fks.get(name);
+            obj = fks.get(name);
         } else {
-            Object obj = src.get(name);
+            obj = src.get(name);
             if (obj == null && is_nullable == 0) {
                 if (data_type.contains("char")) {
                     return "";
@@ -26,10 +29,14 @@ public class ColumnInfo {
                 } else {
                     return "0";
                 }
-            } else {
-                return obj;
             }
         }
+        if(data_type.equals("datetime")){
+            if(obj!=null && obj.toString().compareTo("1900-01-01")< 0){
+                obj =null;
+            }
+        }
+        return null;
     }
 
     public String getTableName() {
