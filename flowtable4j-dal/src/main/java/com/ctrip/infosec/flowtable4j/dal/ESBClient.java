@@ -3,6 +3,7 @@ package com.ctrip.infosec.flowtable4j.dal;
 import com.ctrip.infosec.flowtable4j.model.*;
 import com.ctrip.infosec.flowtable4j.model.CtripOrderType;
 import com.ctrip.infosec.flowtable4j.model.persist.PO;
+import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.entity.StringEntity;
@@ -32,8 +33,8 @@ import java.util.logging.SimpleFormatter;
 public class ESBClient {
 
     private static final Logger logger = LoggerFactory.getLogger(ESBClient.class);
-    static final String esbUrl ="http://soa.fws.qa.nt.ctripcorp.com/SOA.ESB/Ctrip.SOA.ESB.asmx"; //GlobalConfig.getString("SOA.ESB.URL");
-    static final String appId ="AccCash.WSUser";// GlobalConfig.getString("appId");
+    static final String esbUrl = "http://soa.fws.qa.nt.ctripcorp.com/SOA.ESB/Ctrip.SOA.ESB.asmx"; //GlobalConfig.getString("SOA.ESB.URL");
+    static final String appId = "AccCash.WSUser";// GlobalConfig.getString("appId");
 
     private String requestWithSoap(String soapRequestContent) throws IOException {
         StringBuilder soapRequestSOAPData = new StringBuilder();
@@ -61,7 +62,7 @@ public class ESBClient {
         return bodyElement.getStringValue();
     }
 
-    public Map requestESB(String requestType, String requestBody,String xpath) throws Exception {
+    public Map requestESB(String requestType, String requestBody, String xpath) throws Exception {
         String responseBody = null;
         StringBuilder requestContent = new StringBuilder();
         requestContent.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
@@ -74,12 +75,11 @@ public class ESBClient {
         if (soapResponseData != null && !soapResponseData.isEmpty()) {
             responseBody = response(soapResponseData);
         }
-        return parseXml(responseBody,xpath);
+        return parseXml(responseBody, xpath);
     }
 
-    private Map parseXml(String xml,String xpath) throws DocumentException
-    {
-        Map<String,Object> resultMap = new HashMap();
+    private Map parseXml(String xml, String xpath) throws DocumentException {
+        Map<String, Object> resultMap = new HashMap();
         Document document = DocumentHelper.parseText(xml);
         List<Element> list = document.selectNodes(xpath);
         if (list == null || list.isEmpty()) {
@@ -94,11 +94,12 @@ public class ESBClient {
         }
         return resultMap;
     }
+
     /**
      * @param cardInfoId
      * @return
      */
-    public Map getCardInfo(String cardInfoId){
+    public Map getCardInfo(String cardInfoId) {
         String requestType = "AccCash.CreditCard.GetCreditCardInfo";
         String xpath = "/Response/GetCreditCardInfoResponse/CreditCardItems/CreditCardInfoResponseItem";
         StringBuffer requestBody = new StringBuffer();
@@ -107,47 +108,33 @@ public class ESBClient {
         requestBody.append(cardInfoId);
         requestBody.append("</CardInfoId>");
         requestBody.append("</GetCreditCardInfoRequest>");
-        try
-        {
+        try {
             return requestESB(requestType, requestBody.toString(), xpath);
 
-        }catch (Exception exp)
-        {
-            logger.warn("GetCreditCardInfo",exp);
+        } catch (Exception exp) {
+            logger.warn("GetCreditCardInfo", exp);
         }
         return null;
     }
 
 
-    private String creatNode(String nodeName,Object nodeValue){
-        return String.format("<%s>%s</%s>",nodeName,nodeValue,nodeName);
+    private String creatNode(String nodeName, Object nodeValue) {
+        return String.format("<%s>%s</%s>", nodeName, nodeValue, nodeName);
     }
 
     /**
-     *
      * @param po
      * @return
      */
-    public Map postRiskLevelData(PO po){
-        String requestType = "AccCash.EasyPay.SaveRiskLevelData";
-        String xpath = "/Response/SaveRiskLevelDataResponse";
-        Map<String,Object> productInfo = po.getProductinfo();
-        Map<String,Object> risklevelDate = MapX.getMap(productInfo,"riskleveldata");
-        StringBuffer requestBody = new StringBuffer();
-        requestBody.append("<SaveRiskLevelDataRequest>");
-        requestBody.append(creatNode("ReqID", po.getReqid()));
-        requestBody.append(creatNode("ResID",po.getReqid()));
-        requestBody.append(creatNode("RefNo",0));
-        requestBody.append(creatNode("OrderID",po.getOrderid()));
-        requestBody.append(creatNode("RiskLevel",MapX.getString(risklevelDate, "originalrisklevel","0")));
-        requestBody.append(creatNode("CreateDate", new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSSSSXXX").format(System.currentTimeMillis())));
-        requestBody.append(creatNode("LastOper",MapX.getString(risklevelDate,"lastoper","")));
-        requestBody.append(creatNode("Remark",MapX.getString(risklevelDate,"remark","")));
-        requestBody.append(creatNode("OrderType",po.getOrdertype()));
-        requestBody.append(creatNode("OriginalRiskLevel",MapX.getString(risklevelDate,"originalrisklevel","0")));
-        requestBody.append(creatNode("Dealed","F"));
-
-        if(po.getOrdertype().equals(CtripOrderType.Flights.getCode())) {
+    public Map postRiskLevelData(PO po) {
+        try {
+            String requestType = "AccCash.EasyPay.SaveRiskLevelData";
+            String xpath = "/Response/SaveRiskLevelDataResponse";
+            Map<String, Object> productInfo = po.getProductinfo();
+            Map<String, Object> risklevelDate = MapX.getMap(productInfo, "riskleveldata");
+            StringBuffer requestBody = new StringBuffer();
+            requestBody.append("<SaveRiskLevelDataRequest>");
+            int cardInfoId = 0;
             List<Map<String, Object>> payments = MapX.getList(po.getPaymentinfo(), "paymentinfolist");
             if (payments != null && payments.size() > 0) {
                 for (Map<String, Object> paymentInfoMap : payments) {
@@ -155,19 +142,36 @@ public class ESBClient {
                     if (cardInfos != null && cardInfos.size() > 0) {
                         requestBody.append(creatNode("InfoID", 0));
                         requestBody.append(creatNode("IsForigenCard", MapX.getString(cardInfos.get(0), "isforigencard", "F")));
-                        requestBody.append(creatNode("CardInfoID", MapX.getString(cardInfos.get(0), "cardinfoid", "0")));
+                        String cardId = MapX.getString(cardInfos.get(0), "cardinfoid", "0");
+                        if (StringUtils.isNumeric(cardId)) {
+                            cardInfoId = Integer.parseInt(cardId);
+                            requestBody.append(creatNode("CardInfoID", cardInfoId));
+                        }
                     }
                 }
             }
-            requestBody.append(creatNode("Status", MapX.getString(risklevelDate, "cmbmsgstatus", "")));
-        }
-        requestBody.append("</SaveRiskLevelDataRequest>");
-        try
-        {
-            return  requestESB(requestType, requestBody.toString(), xpath);
-        }catch (Exception exp)
-        {
-            logger.warn("GetCreditCardInfo",exp);
+            if (cardInfoId > 0) {
+                requestBody.append(creatNode("ReqID", po.getReqid()));
+                requestBody.append(creatNode("ResID", po.getReqid()));
+                requestBody.append(creatNode("RefNo", 0));
+                requestBody.append(creatNode("OrderID", po.getOrderid()));
+                requestBody.append(creatNode("RiskLevel", MapX.getString(risklevelDate, "originalrisklevel", "0")));
+                requestBody.append(creatNode("CreateDate", new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSSSSXXX").format(System.currentTimeMillis())));
+                requestBody.append(creatNode("LastOper", MapX.getString(risklevelDate, "lastoper", "")));
+                requestBody.append(creatNode("Remark", MapX.getString(risklevelDate, "remark", "")));
+                requestBody.append(creatNode("OrderType", po.getOrdertype()));
+                requestBody.append(creatNode("OriginalRiskLevel", MapX.getString(risklevelDate, "originalrisklevel", "0")));
+                requestBody.append(creatNode("Dealed", "F"));
+                if (po.getOrdertype().equals(CtripOrderType.Flights.getCode())) {
+                    requestBody.append(creatNode("Status", MapX.getString(risklevelDate, "cmbmsgstatus", "")));
+                }
+                requestBody.append("</SaveRiskLevelDataRequest>");
+                return requestESB(requestType, requestBody.toString(), xpath);
+            } else {
+                return ImmutableMap.of("retcode", 0);
+            }
+        } catch (Exception exp) {
+            logger.warn("GetCreditCardInfo", exp);
             return null;
         }
     }
@@ -179,23 +183,21 @@ public class ESBClient {
             String requestBody = "<MemberInfoRequest><Uid>" + uid + "</Uid><Type>M</Type></MemberInfoRequest>";
             String xpath = "/Response/MemberInfoResponse";
             return requestESB(requestType, requestBody, xpath);
-        }
-        catch (Exception exp){
-            logger.warn("GetMemberInfo",exp);
+        } catch (Exception exp) {
+            logger.warn("GetMemberInfo", exp);
             return null;
         }
     }
 
 
-
-    public Map getCustomerInfo(String uid){
+    public Map getCustomerInfo(String uid) {
         String requestType = "Customer.User.GetCustomerInfo";
         String requestBody = "<GetCustomerInfoRequest><UID>" + uid + "</UID></GetCustomerInfoRequest>";
         String xpath = "/Response/GetCustomerInfoResponse";
         try {
-            return requestESB(requestType,requestBody,xpath);
+            return requestESB(requestType, requestBody, xpath);
         } catch (Exception exp) {
-            logger.warn("GetCustomerInfo",exp);
+            logger.warn("GetCustomerInfo", exp);
         }
         return null;
     }
