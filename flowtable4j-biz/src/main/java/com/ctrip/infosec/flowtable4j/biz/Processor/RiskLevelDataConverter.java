@@ -222,7 +222,7 @@ public class RiskLevelDataConverter extends ConverterBase {
         }
         if (next) {
             Map<String, Object> result = esbClient.postRiskLevelData(po);
-            if (result != null && getString(result, "retcode", "") == "0") {
+            if (result != null && getString(result, "retcode", "").equals("0")) {
                 Map<String, Object> risklevelDate = MapX.getMap(po.getProductinfo(), "riskleveldata");
                 if (risklevelDate != null) {
                     setValue(risklevelDate, "transflag", 32);
