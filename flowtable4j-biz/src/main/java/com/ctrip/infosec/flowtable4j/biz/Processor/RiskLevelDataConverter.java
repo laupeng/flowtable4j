@@ -43,7 +43,7 @@ public class RiskLevelDataConverter extends ConverterBase {
         List<CheckResultLog> results = riskResult.getResults();
         Map<String, Object> riskleveldata = new HashMap<String, Object>();
         setValue(riskleveldata, "reqid", reqid);
-        setValue(riskleveldata, "transflag", reqid);
+        setValue(riskleveldata, "transflag", 33);
         setValue(riskleveldata, "createdate", sdf.format(System.currentTimeMillis()));
         setValue(riskleveldata, "orderid", po.getOrderid());
         setValue(riskleveldata, "ordertype", po.getOrdertype());

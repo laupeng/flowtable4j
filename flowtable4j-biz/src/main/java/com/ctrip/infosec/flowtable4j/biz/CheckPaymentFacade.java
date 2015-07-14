@@ -89,7 +89,7 @@ public class CheckPaymentFacade {
             riskLevelDataConverter.postToEasyPay(po);
         }
 
-        SimpleStaticThreadPool.getInstance().submit(new Runnable() {
+      SimpleStaticThreadPool.getInstance().submit(new Runnable() {
             @Override
             public void run() {
                 poConverter.saveData4Next(po);
@@ -97,13 +97,17 @@ public class CheckPaymentFacade {
             }
         });
 
-        SimpleStaticThreadPool.getInstance().submit(new Runnable() {
-            @Override
+   SimpleStaticThreadPool.getInstance().submit(new Runnable() {
+           @Override
             public void run() {
                 //分流表数据落地
+
                 tableSaveRuleManager.checkAndSave(flowFact);
-            }
+          }
         });
         return result;
     }
+
+
+
 }
