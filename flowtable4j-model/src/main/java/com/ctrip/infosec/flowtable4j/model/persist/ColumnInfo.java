@@ -36,7 +36,7 @@ public class ColumnInfo {
                 obj =null;
             }
         }
-        return null;
+        return obj;
     }
 
     public String getTableName() {
