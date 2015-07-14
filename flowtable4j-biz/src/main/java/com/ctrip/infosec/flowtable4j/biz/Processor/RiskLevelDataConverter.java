@@ -51,7 +51,9 @@ public class RiskLevelDataConverter extends ConverterBase {
         setValue(riskleveldata, "originalrisklevel", 0);
         setValue(riskleveldata, "risklevel", 0);
         setValue(riskleveldata, "referenceno", getString(po.getProductinfo(), new String[]{"dealinfo", "referenceid"}));
+        setValue(riskleveldata, "prepaytype",po.getPrepaytype());
         setValue(po.getProductinfo(), "riskleveldata", riskleveldata);
+
         po.setRisklevel(0);
 
         StringBuilder remark = new StringBuilder();
