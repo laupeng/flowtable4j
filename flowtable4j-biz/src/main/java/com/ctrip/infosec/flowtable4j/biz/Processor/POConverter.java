@@ -88,6 +88,10 @@ public class POConverter extends POConvertBase {
         if (tmpProduct != null) {
             productInfo = mapper.fromJson(getString(tmpProduct, "content"), HashMap.class);
             po.setProductinfo(productInfo);
+            Map<String,Object> mainInfo = getMap(productInfo,"maininfo");
+            if(mainInfo!=null){
+                setValue(mainInfo,"checktype",po.getChecktype());
+            }
         } else {
             productInfo = new HashMap<String, Object>();
             po.setProductinfo(productInfo);
