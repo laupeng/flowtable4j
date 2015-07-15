@@ -94,14 +94,14 @@ public class CheckPaymentFacade {
             public void run() {
                 poConverter.saveData4Next(po);
                 save2DbService.save(po, reqId);
+                riskLevelDataConverter.saveLicenseOrder(po.getReqid(),-1,null,po.getRisklevel(),po.getOrdertype());
             }
         });
 
-   SimpleStaticThreadPool.getInstance().submit(new Runnable() {
+      SimpleStaticThreadPool.getInstance().submit(new Runnable() {
            @Override
             public void run() {
                 //分流表数据落地
-
                 tableSaveRuleManager.checkAndSave(flowFact);
           }
         });

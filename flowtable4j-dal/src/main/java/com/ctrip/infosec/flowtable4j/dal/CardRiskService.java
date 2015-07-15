@@ -1,6 +1,7 @@
 package com.ctrip.infosec.flowtable4j.dal;
 
 import com.ctrip.infosec.flowtable4j.model.CheckResultLog;
+import com.ctrip.infosec.flowtable4j.model.CheckType;
 import com.ctrip.infosec.flowtable4j.model.RiskResult;
 import com.ctrip.infosec.flowtable4j.model.SimpleStaticThreadPool;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,6 +57,21 @@ public class CardRiskService {
         return  cardRiskDBTemplate.queryForList(sql, args);
     }
 
+    private String getRuleType(CheckResultLog item){
+        String ruleType = item.getRuleType();
+        if( CheckType.BW.toString().equals(ruleType)){
+            if(item.getRiskLevel().equals(0)) {
+                ruleType = "W";
+            } else {
+                ruleType = "B";
+            }
+
+        } else if( CheckType.FLOWRULE.toString().equals(ruleType)) {
+           ruleType = "D";
+        }
+        return ruleType;
+    }
+
     public void saveCheckResultLog(RiskResult result) {
         final long reqId = result.getReqId();
 
@@ -66,11 +82,11 @@ public class CardRiskService {
                     cardRiskDBTemplate.execute(
                             new CallableStatementCreator() {
                                 public CallableStatement createCallableStatement(Connection con) throws SQLException {
-                                    String storedProc = "{call spA_InfoSecurity_CheckResult4j_i ( @LogID=?,@Req=?,@RuleType=?,@RuleID=?,@RuleName=?,@RiskLevel=?,@RuleRemark=?,@CreateDate=?)}";// 调用的sql
+                                    String storedProc = "{call spA_InfoSecurity_CheckResultLog_i ( @LogID=?,@ReqID=?,@RuleType=?,@RuleID=?,@RuleName=?,@RiskLevel=?,@RuleRemark=?,@CreateDate=?)}";// 调用的sql
                                     CallableStatement cs = con.prepareCall(storedProc);
                                     cs.registerOutParameter(1, Types.BIGINT);// 注册输出参数的类型
                                     cs.setLong(2, reqId);
-                                    cs.setString(3, item.getRuleType());
+                                    cs.setString(3, getRuleType(item));
                                     cs.setInt(4, item.getRuleID());
                                     cs.setString(5, Objects.toString(item.getRuleName(), ""));
                                     cs.setInt(6, item.getRiskLevel());

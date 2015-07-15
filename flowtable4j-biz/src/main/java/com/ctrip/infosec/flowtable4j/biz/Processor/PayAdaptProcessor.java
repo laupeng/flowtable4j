@@ -2,7 +2,7 @@ package com.ctrip.infosec.flowtable4j.biz.processor;
 
 import com.ctrip.infosec.flowtable4j.dal.CheckRiskDAO;
 import com.ctrip.infosec.flowtable4j.dal.Counter;
-import com.ctrip.infosec.flowtable4j.dal.CtripOrderType;
+import com.ctrip.infosec.flowtable4j.model.CtripOrderType;
 import com.ctrip.infosec.flowtable4j.model.MapX;
 import com.ctrip.infosec.sars.util.mapper.JsonMapper;
 import com.google.common.base.Strings;

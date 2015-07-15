@@ -1,6 +1,6 @@
 package com.ctrip.infosec.flowtable4j.dal;
 
-import com.ctrip.infosec.flowtable4j.model.MapX;
+import com.ctrip.infosec.flowtable4j.model.*;
 import com.ctrip.infosec.sars.util.mapper.JsonMapper;
 import com.google.common.base.Strings;
 import org.apache.commons.lang.StringUtils;
@@ -9,16 +9,17 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.CallableStatementCallback;
+import org.springframework.jdbc.core.CallableStatementCreator;
 import org.springframework.jdbc.core.PreparedStatementCallback;
 import org.springframework.jdbc.core.SqlParameterValue;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Component;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Types;
+import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * CheckEnitity转换为PO Entity
@@ -52,17 +53,16 @@ public class CheckRiskDAO {
     @Autowired
     Counter counter;
 
-    public int getCityCode(String airCity){
+    public int getCityCode(String airCity) {
         try {
             return flightOrderDbService.getCityCodeByAirPort(airCity);
-        }
-        catch (Exception ex){
-            logger.warn("获取机场代码出错",ex);
+        } catch (Exception ex) {
+            logger.warn("获取机场代码出错", ex);
         }
         return 0;
     }
 
-    public void updateOriginRiskLevelTable(Map<String,String> src){
+    public void updateOriginRiskLevelTable(Map<String, String> src) {
         this.originalRiskLevel = src;
     }
 
@@ -122,7 +122,7 @@ public class CheckRiskDAO {
      */
     public Map<String, Object> getCityNameProvince(String city) {
         try {
-            if(StringUtils.isNumeric(city)) {
+            if (StringUtils.isNumeric(city)) {
                 String sql = "SELECT TOP 1 cityname,province,country,provincename,hotelprovince FROM BaseData_City WITH(NOLOCK) WHERE City=? ";
                 return cardRiskDb.queryForMap(sql, new Object[]{city}, new int[]{Types.BIGINT});
             }
@@ -142,7 +142,7 @@ public class CheckRiskDAO {
      */
     public Map<String, Object> getIDCardProvince(String iDCardNumber) {
         try {
-            if(!Strings.isNullOrEmpty(iDCardNumber)) {
+            if (!Strings.isNullOrEmpty(iDCardNumber)) {
                 String sql = "SELECT TOP 1 provincename,cityname FROM BaseData_IDCardInfo WITH(NOLOCK) WHERE IDCardNumber=? ";
                 return cardRiskDb.queryForMap(sql, new Object[]{iDCardNumber}, new int[]{Types.VARCHAR});
             }
@@ -245,7 +245,7 @@ public class CheckRiskDAO {
      */
     public Map<String, Object> getDIDInfo(String orderId, String payId) {
         try {
-            if(!Strings.isNullOrEmpty(orderId) && !Strings.isNullOrEmpty(payId)) {
+            if (!Strings.isNullOrEmpty(orderId) && !Strings.isNullOrEmpty(payId)) {
                 String sql = "SELECT TOP 1 did  FROM CacheData_DeviceIDInfo WITH(NOLOCK) WHERE Oid = ? AND Payid = ? ORDER BY RecordID desc";
                 return flowDb.queryForMap(sql, new Object[]{orderId, payId}, new int[]{Types.VARCHAR, Types.VARCHAR});
             }
@@ -266,7 +266,7 @@ public class CheckRiskDAO {
      */
     public Map<String, Object> getForeignCardInfo(String cardTypeId, String cardBin) {
         try {
-            if(StringUtils.isNumeric(cardTypeId) && !Strings.isNullOrEmpty(cardBin)) {
+            if (StringUtils.isNumeric(cardTypeId) && !Strings.isNullOrEmpty(cardBin)) {
                 String sql = "SELECT city,bankofcardissue,nationality,cardname FROM CreditCardRule_ForeignCard WITH(NOLOCK) WHERE CardTypeID = ? and CardRule = ?";
                 return cardRiskDb.queryForMap(sql, new Object[]{cardTypeId, cardBin}, new int[]{Types.INTEGER, Types.VARCHAR});
             }
@@ -286,7 +286,7 @@ public class CheckRiskDAO {
      */
     public Map<String, Object> getLeakedInfo(String uid) {
         try {
-            if(!Strings.isNullOrEmpty(uid)) {
+            if (!Strings.isNullOrEmpty(uid)) {
                 String sql = "SELECT active FROM CardRisk_Leaked_Uid WITH(NOLOCK) WHERE Uid =?";
                 return cusDb.queryForMap(sql, new Object[]{uid}, new int[]{Types.VARCHAR});
             }
@@ -307,7 +307,7 @@ public class CheckRiskDAO {
      */
     public Map<String, Object> getCardBankInfo(String creditCardType, String branchNo) {
         try {
-            if(StringUtils.isNumeric(creditCardType) && !Strings.isNullOrEmpty(branchNo)) {
+            if (StringUtils.isNumeric(creditCardType) && !Strings.isNullOrEmpty(branchNo)) {
                 String sql = "SELECT TOP 1 branchcity,branchprovince  FROM BaseData_CardBankInfo WITH(NOLOCK) WHERE CreditCardType =? and BranchNo = ?";
                 return cardRiskDb.queryForMap(sql, new Object[]{creditCardType, branchNo}, new int[]{Types.INTEGER, Types.VARCHAR});
             }
@@ -327,7 +327,7 @@ public class CheckRiskDAO {
      */
     public Map<String, Object> getCountryNameNationality(String country) {
         try {
-            if(StringUtils.isNumeric(country)) {
+            if (StringUtils.isNumeric(country)) {
                 String sql = "SELECT TOP 1 nationality,countryname  FROM BaseData_CountryInfo WITH(NOLOCK) WHERE Country =? ";
                 return cardRiskDb.queryForMap(sql, new Object[]{country}, new int[]{Types.BIGINT});
             }
@@ -341,7 +341,7 @@ public class CheckRiskDAO {
 
     public Map<String, Object> getLastProductInfo(String orderId, String orderType, String merchantId) {
         try {
-            if(StringUtils.isNumeric(orderId) && StringUtils.isNumeric(orderType)) {
+            if (StringUtils.isNumeric(orderId) && StringUtils.isNumeric(orderType)) {
                 long id = Long.parseLong(orderId) % 4;
                 String sql = String.format("SELECT content FROM InfoSecurity_LastProductInfo%s WITH(NOLOCK) WHERE pid=?", id);
                 return cardRiskDb.queryForMap(sql, String.format("%s|%s", orderId, orderType), Types.VARCHAR);
@@ -356,7 +356,7 @@ public class CheckRiskDAO {
 
     public Map<String, Object> getLastPaymentInfo(String orderId, String orderType, String merchantId) {
         try {
-            if(StringUtils.isNumeric(orderId) && StringUtils.isNumeric(orderType)) {
+            if (StringUtils.isNumeric(orderId) && StringUtils.isNumeric(orderType)) {
                 long id = Long.parseLong(orderId) % 4;
                 String sql = String.format("SELECT content,risklevel,prepaytype FROM InfoSecurity_LastPaymentInfo%s WITH(NOLOCK) WHERE pid=?", id);
                 return cardRiskDb.queryForMap(sql, String.format("%s|%s", orderId, orderType), Types.VARCHAR);
@@ -371,7 +371,7 @@ public class CheckRiskDAO {
 
     public void saveLastProductInfo(Long orderId, Integer orderType, String merchantId, Map<String, Object> productInfo) {
         try {
-            if(productInfo!=null && productInfo.size()>0) {
+            if (productInfo != null && productInfo.size() > 0) {
                 long id = orderId % 4;
                 String sql = String.format(
                         "IF EXISTS (SELECT 'X' FROM InfoSecurity_LastProductInfo%s WITH(NOLOCK) WHERE PID=:p1)\n" +
@@ -400,7 +400,7 @@ public class CheckRiskDAO {
 
     public void saveLastPaymentInfo(Long orderId, Integer orderType, String merchantId, String prePayType, Map<String, Object> paymentInfo) {
         try {
-            if(paymentInfo!=null && paymentInfo.size()>0) {
+            if (paymentInfo != null && paymentInfo.size() > 0) {
                 long id = orderId % 4;
                 String sql = String.format(
                         "IF EXISTS (SELECT 'X' FROM InfoSecurity_LastPaymentInfo%s WITH(NOLOCK) WHERE PID=:p1)\n" +
@@ -429,4 +429,37 @@ public class CheckRiskDAO {
         }
     }
 
+    public void saveLicenseOrder(final long reqId,final int status, final String uid, int risklevel, int orderType) {
+
+        if (risklevel > 10 && CtripOrderType.HoTelBooking.getCode() != orderType) {
+            try {
+                SimpleStaticThreadPool.getInstance().submit(new Runnable() {
+                    @Override
+                    public void run() {
+                        cardRiskDb.cardRiskDBTemplate.execute(
+                                new CallableStatementCreator() {
+                                    public CallableStatement createCallableStatement(Connection con) throws SQLException {
+                                        String storedProc = "{call sp1_CardRisk_License_Order_Set(@ReqID=?,@status=?,@UID=?,@ProcessStatus=?,@POrderID=?)}";// 调用的sql
+                                        CallableStatement cs = con.prepareCall(storedProc);
+                                        cs.setLong(1, reqId);
+                                        cs.setInt(2, status);
+                                        cs.setString(3, uid);
+                                        cs.setString(4, null);
+                                        cs.setInt(5, 0);
+                                        return cs;
+                                    }
+                                }, new CallableStatementCallback() {
+                                    public Object doInCallableStatement(CallableStatement cs) throws SQLException, DataAccessException {
+                                        cs.execute();
+                                        return null;
+                                    }
+                                });
+                    }
+                });
+            }
+            catch (Exception ex){
+                logger.warn("Save to license Order fail"+ reqId,ex);
+            }
+        }
+    }
 }

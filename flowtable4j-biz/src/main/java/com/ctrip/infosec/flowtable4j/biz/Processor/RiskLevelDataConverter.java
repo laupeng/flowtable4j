@@ -232,4 +232,9 @@ public class RiskLevelDataConverter extends ConverterBase {
             }
         }
     }
+
+    public void saveLicenseOrder(long reqId,int status, String uid, int risklevel, int orderType)
+    {
+        checkRiskDAO.saveLicenseOrder(reqId,status,uid,risklevel,orderType);
+    }
 }
