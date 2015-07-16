@@ -35,8 +35,13 @@ public class POConverter extends POConvertBase {
         }
         if(orderType== CtripOrderType.Flights.getCode()){
             return Arrays.asList(new String[]{ "contactinfo", "userinfo", "ipinfo",
-                    "flightinfolist", "paymentinfolist", "paymentmaininfo","corporation", "appinfo",
-                    "orderccard", "otherinfo", "didinfo","fillprofit"});
+                                                 "flightinfolist","corporation","paymentinfolist", "paymentmaininfo",
+                                                  "appinfo","orderccard", "otherinfo", "didinfo","fillprofit"});
+        }
+        if(orderType==CtripOrderType.CRH.getCode()){
+            return Arrays.asList(new String[]{ "contactinfo", "userinfo", "ipinfo",
+                                                 "railinfolist", "corporation","paymentinfolist","otherinfo",
+                                                 "paymentmaininfo","vacationinfolist","didinfo"});
         }
         return new ArrayList<String>();
     }
@@ -149,7 +154,11 @@ public class POConverter extends POConvertBase {
 
             //fill Vaction Info
             if(modules.contains("vacationinfolist")) {
-                poConverterEx.fillVactionInfoList(productInfo, requestBody.getEventBody());
+                poConverterEx.fillVacationInfoList(productInfo,eventBody,po.getOrdertype());
+            }
+
+            if(modules.contains("railinfolist")){
+                poConverterEx.fillRailInfoList(productInfo,eventBody);
             }
 
             //fill Corporation

@@ -1,6 +1,7 @@
 package com.ctrip.infosec.flowtable4j.biz.subprocessor;
 
 import com.ctrip.infosec.flowtable4j.biz.ConverterBase;
+import com.ctrip.infosec.flowtable4j.model.CtripOrderType;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
@@ -18,20 +19,34 @@ public class POConverterEx extends ConverterBase {
      * @param productInfo
      * @param eventBody
      */
-    public void fillVactionInfoList(Map<String, Object> productInfo, Map<String, Object> eventBody) {
+    public void fillVacationInfoList(Map<String, Object> productInfo, Map<String, Object> eventBody,int orderType) {
         List<Map<String, Object>> vacationinfolist = new ArrayList<Map<String, Object>>();
         Map<String, Object> order = new HashMap<String, Object>();
-        copyMap(eventBody,order,new String[]{"productname", "productid"});
+        copyMap(eventBody, order, "infosecurity_vacationinfo");
         List<Map<String, Object>> userlist = new ArrayList<Map<String, Object>>();
-        List<Map<String, Object>> userInfos = getList(eventBody, "userinfos");
-        if (userInfos != null && userInfos.size() > 0) {
-            for (Map<String, Object> u : userInfos) {
+        List<Map<String, Object>> userInfolistMap = getList(eventBody, "userinfos");
+
+        if (userInfolistMap != null && userInfolistMap.size() > 0) {
+            for (Map<String, Object> userMap : userInfolistMap) {
                 Map<String, Object> vu = new HashMap<String, Object>();
-                copyMap(u,vu,ImmutableMap.of("idtype", "visitoridcardtype","visitorname","visitorname","visitorcontactinfo","visitorcontactinfo","visitorcardno","visitoridcode"));
+                copyMapIfNotNull(userMap, vu, new String[]{"visitorname", "visitorcontactinfo", "visitornationality","visitoridcardtype"});
+                if(CtripOrderType.HotelGroup.getCode()==orderType){
+                    copyValue(userMap,"idtype",vu,"visitoridcardtype");
+                }
                 userlist.add(vu);
             }
         }
-        vacationinfolist.add(ImmutableMap.of("order", order, "userlist", userlist));
+        List<Map<String,Object>> optionListMap = getList(eventBody,"optionitems");
+        List<Map<String, Object>> optlist = new ArrayList<Map<String, Object>>();
+        if(optionListMap!=null && optionListMap.size()>0){
+            for(Map<String,Object> optMap:optionListMap){
+                Map<String,Object> opt = new HashMap<String, Object>();
+                copyMap(optMap,opt,"infosecurity_vacationoptioninfo");
+                optlist.add(opt);
+            }
+        }
+        vacationinfolist.add(ImmutableMap.of("order", order, "userlist", userlist,"optionlist",optlist));
+
         setValue(productInfo, "vacationinfolist", vacationinfolist);
     }
 
@@ -145,4 +160,21 @@ public class POConverterEx extends ConverterBase {
         }
     }
 
+    public void fillRailInfoList(Map<String,Object> productInfo,Map<String,Object> eventBody){
+        List<Map<String, Object>> railInfos = new ArrayList<Map<String, Object>>();
+        List<Map<String, Object>> railInfoListMap = getList(eventBody, "crhorderinfos");
+        if (railInfoListMap != null && railInfoListMap.size() > 0) {
+            for (Map<String, Object> railMap : railInfoListMap) {
+                Map<String, Object> rail = new HashMap<String, Object>();
+                Map<String,Object> user = new HashMap<String, Object>();
+                copyMap(railMap,rail,"infosecurity_exrailinfo");
+                copyMap(railMap, user,"infosecurity_exrailuserinfo");
+                Map<String,Object> railInfo = new HashMap<String, Object>();
+                setValue(railInfo,"rail",rail);
+                setValue(railInfo,"user",user);
+                railInfos.add(railInfo);
+            }
+        }
+        setValue(productInfo, "railinfolist", railInfos);
+    }
 }

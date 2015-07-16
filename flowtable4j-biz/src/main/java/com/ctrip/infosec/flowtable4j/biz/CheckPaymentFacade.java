@@ -47,6 +47,22 @@ public class CheckPaymentFacade {
         return new CheckType[]{CheckType.ACCOUNT, CheckType.BW, CheckType.FLOWRULE};
     }
 
+    public long saveData4Offline(RequestBody requestBody)
+    {
+        final PO po = poConverter.convert(requestBody);
+
+        final Long reqId = save2DbService.saveDealInfo(MapX.getMap(po.getProductinfo(), "dealinfo"));
+        po.setReqid(reqId);
+
+        SimpleStaticThreadPool.getInstance().submit(new Runnable() {
+            @Override
+            public void run() {
+                save2DbService.save(po, reqId);
+            }
+        });
+        return reqId;
+    }
+
     public RiskResult checkRisk(RequestBody requestBody) {
         //数据准备
         long start1 = System.nanoTime();

@@ -48,5 +48,11 @@ public class FlowTableRESTfulController {
         return checkPaymentService.checkRisk(checkEntity);
     }
 
+    @RequestMapping(value = "/saveData4Offline")
+    public
+    @ResponseBody
+    long saveData4Offline(@RequestBody com.ctrip.infosec.flowtable4j.model.RequestBody checkEntity) {
+        return checkPaymentService.saveData4Offline(checkEntity);
+    }
 
 }

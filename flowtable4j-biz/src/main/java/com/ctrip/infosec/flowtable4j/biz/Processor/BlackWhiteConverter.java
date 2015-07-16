@@ -28,6 +28,9 @@ public class BlackWhiteConverter extends ConverterBase {
         if (CtripOrderType.Flights.getCode() == orderType) {
             return Arrays.asList(new String[]{"flightinfolist","paymentinfolist"});
         }
+        if (CtripOrderType.CRH.getCode() == orderType) {
+            return Arrays.asList(new String[]{"railinfolist","vacationinfolist","paymentinfolist"});
+        }
         return new ArrayList<String>();
     }
 
@@ -66,7 +69,7 @@ public class BlackWhiteConverter extends ConverterBase {
         }
 
         if (modules.contains("flightinfolist")) {
-            blackWhiteConverterEx.fillFlightInfo(productInfo, content);
+            blackWhiteConverterEx.fillFlightInfoList(productInfo, content);
         }
 
 

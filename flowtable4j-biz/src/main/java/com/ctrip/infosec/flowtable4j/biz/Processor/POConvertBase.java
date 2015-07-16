@@ -30,6 +30,9 @@ public class POConvertBase extends ConverterBase {
         if(CtripOrderType.Flights.getCode()==orderType){
             return  Arrays.asList(new String[]{"getcardinfo","getforeigncardinfo","getidprovince","paymentineventbody"});
         }
+        if(CtripOrderType.CRH.getCode() == orderType){
+            return  Arrays.asList(new String[]{"getcardinfo","getforeigncardinfo","getcardbankinfo"});
+        }
         return new ArrayList<String>();
     }
     /**
