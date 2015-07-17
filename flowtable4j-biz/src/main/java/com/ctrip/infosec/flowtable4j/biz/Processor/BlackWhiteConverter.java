@@ -72,6 +72,13 @@ public class BlackWhiteConverter extends ConverterBase {
             blackWhiteConverterEx.fillFlightInfoList(productInfo, content);
         }
 
+        if(modules.contains("railinfolist")){
+            blackWhiteConverterEx.fillRailInfoList(productInfo,content);
+        }
+
+        if(modules.contains("vacationinfolist")){
+            blackWhiteConverterEx.fillVacationInfoList(productInfo,content);
+        }
 
         setValue(content, "deviceid", "");               //	DeviceID
         setValue(content, "fuzzydeviceid", "");         //	FuzzyID

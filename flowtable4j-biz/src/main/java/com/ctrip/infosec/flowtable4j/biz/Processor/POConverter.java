@@ -36,7 +36,7 @@ public class POConverter extends POConvertBase {
         if(orderType== CtripOrderType.Flights.getCode()){
             return Arrays.asList(new String[]{ "contactinfo", "userinfo", "ipinfo",
                                                  "flightinfolist","corporation","paymentinfolist", "paymentmaininfo",
-                                                  "appinfo","orderccard", "otherinfo", "didinfo","fillprofit"});
+                                                 "appinfo","orderccard", "otherinfo", "didinfo","fillprofit"});
         }
         if(orderType==CtripOrderType.CRH.getCode()){
             return Arrays.asList(new String[]{ "contactinfo", "userinfo", "ipinfo",

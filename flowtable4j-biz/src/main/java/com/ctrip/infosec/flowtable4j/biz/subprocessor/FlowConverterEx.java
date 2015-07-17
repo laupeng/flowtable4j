@@ -1,6 +1,7 @@
 package com.ctrip.infosec.flowtable4j.biz.subprocessor;
 
 import com.ctrip.infosec.flowtable4j.biz.ConverterBase;
+import com.ctrip.infosec.flowtable4j.model.CtripOrderType;
 import com.google.common.base.Strings;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
@@ -150,7 +151,7 @@ public class FlowConverterEx extends ConverterBase {
                     }
                     String amount = getString(productInfo,new String[]{"maininfo","amount"});
                     if(StringUtils.isNumeric(amount) && passengerlistMap.size()>0){
-                        setValue(target, "LeafletAmount", Double.parseDouble(amount) /1.00/passengerlistMap.size());
+                        setValue(target, "leafletamount", Double.parseDouble(amount) /1.00/passengerlistMap.size());
                     }
 
                     setValue(target,"issamepassengernationality",nationalitySet.size()<= 1? "T":"F");
@@ -168,6 +169,51 @@ public class FlowConverterEx extends ConverterBase {
                 }
             }
         }
+    }
+
+    public void fillFlight(Map<String,Object> target){
+            String uid = getString(target, "uid");
+            if (!Strings.isNullOrEmpty(uid) && uid.length() >= 10) {
+                setValue(target, "uid3to7", uid.substring(2, 9));
+                setValue(target, "uid1", uid.substring(0, 1));
+            }
+            String contactEmail = getString(target, "contactemail","");
+            if (!Strings.isNullOrEmpty(contactEmail) && contactEmail.length() > 7) {
+                contactEmail = contactEmail.replace(".", "").replace("@", "").replace("_", "");
+                if (contactEmail.length() >= 7) {
+                    setValue(target, "contactemailtoconvert7", contactEmail.substring(0,7));
+                }
+            }
+            //Email与乘客国籍不一致
+            if(contactEmail.contains("@")){
+                setValue(target,"contactemailtopassengernationality","T");
+                String[] nationality= getString(target,"mergerpassengernationality","").split("[|]");
+                String mailSuffix= contactEmail.substring(contactEmail.indexOf("@"));
+                for(String s:nationality ){
+                    if(mailSuffix.contains(s)){
+                        setValue(target,"contactemailtopassengernationality","F");
+                        break;
+                    }
+                }
+            }
+            setValueIfNotNull(target,"ipprovincecomparedcityprovince",StringUtils.equals(getString(target,"ipprovince"),getString(target,"dcityprovince"))? "T":"F");
+            setValueIfNotNull(target,"mobilephoneprovincecomparedcityprovince",StringUtils.equals(getString(target,"mobilephoneprovince"),getString(target,"dcityprovince"))? "T":"F");
+
+            setValueIfNotNull(target,"ipprovincecompareacityprovince",StringUtils.equals(getString(target,"ipprovince"),getString(target,"acityprovince"))? "T":"F");
+            setValueIfNotNull(target,"mobilephoneprovincecompareacityprovince",StringUtils.equals(getString(target,"mobilephoneprovince"),getString(target,"acityprovince"))? "T":"F");
+
+            Date now= new Date(System.currentTimeMillis());
+            Date from =new Date(System.currentTimeMillis() - 525600 * 60 * 1000);
+            setValue(target, "orderdatetoorderdate1ybyuid", -1);
+            String firstOrderDate = checkRiskDAO.getUidOrderDate(getString(target,"uid"),sdf.format(from),sdf.format(now));
+            if(!Strings.isNullOrEmpty(firstOrderDate)) {
+                long span = dateDiffHour(getString(target, "orderdate"), firstOrderDate);
+                setValueIfNotNull(target, "orderdatetoorderdate1ybyuid", span);
+                setValueIfNotNull(target, "uidipcitylastyear", "F");
+            }
+
+            from = new Date(System.currentTimeMillis() - 10080 * 60 * 1000);
+            setValueIfNotNull(target, "amounttoavgamount7",checkRiskDAO.getAvgAmount7(getString(target," cardnorefid"),sdf.format(from),sdf.format(now)));
     }
 
     public void fillFlightProfit(Map<String,Object> paymentInfo,Map<String,Object> productInfo,Map<String,Object> target){
@@ -208,6 +254,52 @@ public class FlowConverterEx extends ConverterBase {
                     }
                 }
             }
+        }
+    }
+
+    public void fillRailInfoList(Map<String, Object> productInfo, Map<String, Object> target) {
+        List<Map<String,Object>> railListMap= getList(productInfo,"railinfolist");
+        if(railListMap!=null && railListMap.size()>0){
+            List<Map<String,Object>> passengerlist = new ArrayList<Map<String, Object>>();
+            StringBuilder idLength= new StringBuilder("|");
+            StringBuilder name = new StringBuilder("|");
+            StringBuilder idType = new StringBuilder("|");
+            Set<String> id6Set = new HashSet<String>();
+            Map<String,Object> rail =null;
+            for(Map<String,Object> railMap:railListMap){
+                if(rail==null) {
+                     rail = getMap(railMap, "rail");
+                }
+                Map<String,Object> user = getMap(railMap,"user");
+                if(user!=null && user.size()>0){
+                    Map<String,Object> passgener = new HashMap<String, Object>();
+                    copyValueIfNotNull(user,"passengeridcode",passgener,"passengeridcode");
+                    String id6 = getString(user,"passengeridcode","");
+                    if(id6.length()>6){
+                        setValue(passgener,"mergepassengeridcode6",id6.substring(0,6));
+                        idLength.append(id6.length()).append("|");
+                        id6Set.add(id6.substring(0,6));
+                    }
+                    String passengerName = getString(user,"passengername");
+                    if(passengerName!=null){
+                        name.append(passengerName).append("|");
+                    }
+                    idType.append(getString(user,"passengeridtype","")).append("|");
+                    passengerlist.add(passgener);
+                }
+            }
+
+            copyMap(rail,target,new String[]{"dcity","acity","seatclass"});
+            concatKeys(target,"dcityandacity","dcity","acity");
+            setValue(target,"ordertodeparturedate",dateDiffHour(getString(rail,"departuredate"),getString(target,"orderdate")));
+            //ACityBySite = GetCityByCRHSite(en.ACity);
+            //DCityBySite = GetCityByCRHSite(en.DCity);
+            if(id6Set.size()>=4){
+                setValue(target,"ispassengeridcount",1);
+            }
+            setValue(target, "mergerpassengercardidlength",idLength.toString());
+            setValue(target,"mergepassengeridtype", idType.toString());
+            setValue(target,"mergerpassengername",name.toString());
         }
     }
 }

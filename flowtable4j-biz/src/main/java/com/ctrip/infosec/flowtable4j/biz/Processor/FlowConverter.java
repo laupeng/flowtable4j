@@ -29,7 +29,10 @@ public class FlowConverter extends ConverterBase {
             return Arrays.asList(new String[]{"hotelgroupinfo"});
         }
         if (CtripOrderType.Flights.getCode() == orderType) {
-            return Arrays.asList(new String[]{"flightinfolist","fillflightprofit"});
+            return Arrays.asList(new String[]{"flightinfolist","fillflightprofit","flightinfo"});
+        }
+        if (CtripOrderType.CRH.getCode() == orderType) {
+            return Arrays.asList(new String[]{"railinfolist"});
         }
         return new ArrayList<String>();
     }
@@ -48,10 +51,31 @@ public class FlowConverter extends ConverterBase {
         List<String> modules= getModule(po.getOrdertype());
 
         //MainInfo
-        copyMapIfNotNull(getMap(productInfo, "maininfo"),target, new String[]{"clientid", "ordertype", "subordertype", "wirelessclientno", "orderid", "amount", "checktype", "serverfrom", "orderdate"});
+        copyMapIfNotNull(getMap(productInfo, "maininfo"),target,
+                    new String[]{"clientid", "ordertype", "subordertype", "wirelessclientno",
+                                  "orderid", "amount", "checktype", "serverfrom", "orderdate"});
+        //OrderDate Hour, MergerOrderDate
         processOrderDate(target);
 
         setValue(target,"checktype",po.getChecktype());
+
+        //UserInfo
+        copyMapIfNotNull(getMap(productInfo, "userinfo"), target,
+                new String[]{"cuscharacter", "bindedmobilephone", "userpassword", "experience",
+                "bindedemail", "vipgrade", "relatedemail", "relatedmobilephone", "uid", "bindedmobilephonecity",
+                "bindedmobilephoneprovince", "relatedmobilephonecity", "relatedmobilephoneprovince"});
+        //CheckType=2时可以略过,获取相关手机城市、省
+        if(po.getChecktype().equals(1)||po.getChecktype().equals(0)) {
+            fillMobileProvince(target, getString(target, "bindedmobilephone"), getString(target, "relatedmobilephone"));
+            //反写,CheckType=2时可以不用再次读
+            Map<String, Object> userinfo = getMap(productInfo,"userinfo");
+            if(userinfo!=null && userinfo.size()>0) {
+                copyValue(target,"bindedmobilephonecity",userinfo,"bindedmobilephonecity");
+                copyValue(target,"bindedmobilephoneprovince",userinfo,"bindedmobilephoneprovince");
+                copyValue(target,"relatedmobilephonecity",userinfo,"relatedmobilephonecity");
+                copyValue(target,"relatedmobilephoneprovince",userinfo,"relatedmobilephoneprovince");
+            }
+        }
 
         //ContactInfo
         copyMapIfNotNull(getMap(productInfo, "contactinfo"), target, new String[]{"mobilephone", "mobilephonecity", "contactemail", "mobilephoneprovince",
@@ -65,22 +89,8 @@ public class FlowConverter extends ConverterBase {
         //手机号含4的个数
         setValue(target, "mobilephone4count", StringUtils.countMatches(mobile, "4"));
 
-        copyMapIfNotNull(getMap(productInfo, "userinfo"), target, new String[]{"cuscharacter", "bindedmobilephone", "userpassword", "experience",
-                "bindedemail", "vipgrade", "relatedemail", "relatedmobilephone", "uid", "bindedmobilephonecity",
-                "bindedmobilephoneprovince", "relatedmobilephonecity", "relatedmobilephoneprovince"});
-
-        //CheckType=2时可以略过
-        if(po.getChecktype().equals(1)||po.getChecktype().equals(0)) {
-            fillMobileProvince(target, getString(target, "bindedmobilephone"), getString(target, "relatedmobilephone"));
-            //反写,CheckType=2时可以不用再次读
-            Map<String, Object> userinfo = getMap(productInfo,"userinfo");
-            if(userinfo!=null && userinfo.size()>0) {
-                copyValue(target,"bindedmobilephonecity",userinfo,"bindedmobilephonecity");
-                copyValue(target,"bindedmobilephoneprovince",userinfo,"bindedmobilephoneprovince");
-                copyValue(target,"relatedmobilephonecity",userinfo,"relatedmobilephonecity");
-                copyValue(target,"relatedmobilephoneprovince",userinfo,"relatedmobilephoneprovince");
-            }
-        }
+        //IPInfo,获取IP的城市与Country
+        fillIPCity(productInfo,target,po.getChecktype());
 
         //PaymentInfo，并设置PrepayTypes
         HashSet<String> prepayTypes= new HashSet<String>();
@@ -103,7 +113,13 @@ public class FlowConverter extends ConverterBase {
             flowConverterEx.fillFlightProfit(po.getPaymentinfo(),productInfo,target);
         }
 
-        fillIPCity(productInfo,target,po.getChecktype());
+        if(modules.contains("railinfolist")){
+            flowConverterEx.fillRailInfoList(productInfo,target);
+        }
+
+        if(modules.contains("flightinfo")){
+            flowConverterEx.fillFlight(target);
+        }
 
         copyMapIfNotNull(getMap(productInfo, "didinfo"), target, new String[]{"did"});
 
@@ -123,6 +139,7 @@ public class FlowConverter extends ConverterBase {
         concatKeys(target, "useripaddmobilenumber", "useripadd","mobilephone7");
         concatKeys(target, "useripaddmergermobilephone7", "useripadd","mobilephone7");
         concatKeys(target, "useripaddcardbin", "useripadd", "cardbin");
+        concatKeys(target, "ipcardbin", "useripvalue", "cardbin");
 
         //衍生字段 UID相关
         concatKeys(target, "uidmobilenumber", "uid","mobilephone7");
@@ -146,51 +163,6 @@ public class FlowConverter extends ConverterBase {
         //衍生字段 CardNoRefID
         concatKeys(target, "cardnorefidcontactemailuseripvalue","cardnorefid", "contactemail","useripvalue");
         concatKeys(target, "cardnorefidmobilephone7","cardnorefid","mobilephone7");
-
-        if(CtripOrderType.Flights.getCode()==po.getOrdertype()) {
-            String uid = getString(target, "uid");
-            if (!Strings.isNullOrEmpty(uid) && uid.length() >= 10) {
-                setValue(target, "uid3to7", uid.substring(2, 9));
-                setValue(target, "uid1", uid.substring(0, 1));
-            }
-            String contactEmail = getString(target, "contactemail","");
-            if (!Strings.isNullOrEmpty(contactEmail) && contactEmail.length() > 7) {
-                contactEmail = contactEmail.replace(".", "").replace("@", "").replace("_", "");
-                if (contactEmail.length() >= 7) {
-                    setValue(target, "contactemailtoconvert7", contactEmail.substring(0,7));
-                }
-            }
-            //Email与乘客国籍不一致
-            if(contactEmail.contains("@")){
-                setValue(target,"contactemailtopassengernationality","T");
-                String[] nationality= getString(target,"mergerpassengernationality","").split("[|]");
-                String mailSuffix= contactEmail.substring(contactEmail.indexOf("@"));
-                for(String s:nationality ){
-                    if(mailSuffix.contains(s)){
-                        setValue(target,"contactemailtopassengernationality","F");
-                        break;
-                    }
-                }
-            }
-            setValueIfNotNull(target,"ipprovincecomparedcityprovince",StringUtils.equals(getString(target,"ipprovince"),getString(target,"dcityprovince"))? "T":"F");
-            setValueIfNotNull(target,"mobilephoneprovincecomparedcityprovince",StringUtils.equals(getString(target,"mobilephoneprovince"),getString(target,"dcityprovince"))? "T":"F");
-
-            setValueIfNotNull(target,"ipprovincecompareacityprovince",StringUtils.equals(getString(target,"ipprovince"),getString(target,"acityprovince"))? "T":"F");
-            setValueIfNotNull(target,"mobilephoneprovincecompareacityprovince",StringUtils.equals(getString(target,"mobilephoneprovince"),getString(target,"acityprovince"))? "T":"F");
-
-            Date now= new Date(System.currentTimeMillis());
-            Date from =new Date(System.currentTimeMillis() - 525600 * 60 * 1000);
-            setValue(target, "orderdatetoorderdate1ybyuid", -1);
-            String firstOrderDate = checkRiskDAO.getUidOrderDate(getString(target,"uid"),sdf.format(from),sdf.format(now));
-            if(!Strings.isNullOrEmpty(firstOrderDate)) {
-                long span = dateDiffHour(getString(target, "orderdate"), firstOrderDate);
-                setValueIfNotNull(target, "orderdatetoorderdate1ybyuid", span);
-                setValueIfNotNull(target, "uidipcitylastyear", "F");
-            }
-
-            from = new Date(System.currentTimeMillis() - 10080 * 60 * 1000);
-            setValueIfNotNull(target, "amounttoavgamount7",checkRiskDAO.getAvgAmount7(getString(target," cardnorefid"),sdf.format(from),sdf.format(now)));
-        }
 
         setUidActive(target);
 
@@ -221,6 +193,12 @@ public class FlowConverter extends ConverterBase {
                     setValueIfNotNull(ipinfo, "ipcityname", getString(map, "cityname"));
                     setValueIfNotNull(ipinfo, "ipprovince", getString(map, "provincename"));
                 }
+            }
+            String ip = getString(ipinfo,"useripadd","");
+            if(ip.startsWith("192.")||ip.startsWith("172.")||ip.startsWith("10.")){
+               setValue(target,"isextranetip",0);
+            } else {
+                setValue(target,"isextranetip",1);
             }
         }
     }
