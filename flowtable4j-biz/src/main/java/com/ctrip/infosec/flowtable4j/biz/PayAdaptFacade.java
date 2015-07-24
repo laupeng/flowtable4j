@@ -1,12 +1,12 @@
 package com.ctrip.infosec.flowtable4j.biz;
 
 import com.ctrip.infosec.common.model.RiskFact;
-import com.ctrip.infosec.flowtable4j.biz.processor.PayAdaptProcessor;
-import com.ctrip.infosec.flowtable4j.model.*;
 import com.ctrip.infosec.flowtable4j.accountrule.AccountBWGManager;
+import com.ctrip.infosec.flowtable4j.biz.converter.PayAdaptConverter;
 import com.ctrip.infosec.flowtable4j.bwrule.BWManager;
 import com.ctrip.infosec.flowtable4j.dal.PaybaseDbService;
-import com.ctrip.infosec.flowtable4j.flowdata.payAdapt.PayAdaptManager;
+import com.ctrip.infosec.flowtable4j.payAdapt.PayAdaptManager;
+import com.ctrip.infosec.flowtable4j.model.*;
 import com.ctrip.infosec.sars.monitor.util.Utils;
 import com.ctrip.infosec.sars.util.GlobalConfig;
 import com.google.common.base.Strings;
@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit;
  * Created by zhangsx on 2015/5/19.
  */
 @Component
-public class PayAdaptFacade {
+public class PayAdaptFacade  {
     @Autowired
     AccountBWGManager accountBWGManager;
 
@@ -39,7 +39,7 @@ public class PayAdaptFacade {
     PayAdaptManager payAdaptManager;
 
     @Autowired
-    PayAdaptProcessor payAdaptProcessor;
+    PayAdaptConverter payAdaptConverter;
 
     @Autowired
     PaybaseDbService paybaseDbService;
@@ -84,7 +84,7 @@ public class PayAdaptFacade {
 
         List<Callable<Object>> tasks = new ArrayList<Callable<Object>>();
 
-        final Map<String,Object> productInfo = payAdaptProcessor.getLastProductInfo(fact.getOrderID(), fact.getOrderType());
+        final Map<String,Object> productInfo = payAdaptConverter.getLastProductInfo(fact.getOrderID(), fact.getOrderType());
 
         //支付适配流量规则是否开启
         if (isPayAdaptFlowRuleDefined(fact)) {
@@ -160,7 +160,7 @@ public class PayAdaptFacade {
     }
 
     private boolean isPayAdaptFlowRuleDefined(PayAdaptFact checkEntity) {
-        return checkEntity.getOrderID() > 0 && CtripOrderType.contain(checkEntity.getOrderType()) && payAdaptProcessor.isPayAdapatFlowRuleOpen();
+        return checkEntity.getOrderID() > 0 && CtripOrderType.contain(checkEntity.getOrderType()) && payAdaptConverter.isPayAdapatFlowRuleOpen();
     }
 
     /**
@@ -190,13 +190,15 @@ public class PayAdaptFacade {
                 Map<String,Object> groupByScene = resp.getFinalResultGroupByScene().get(scene);
                 int resultLevel = Integer.parseInt(Objects.toString(groupByScene.get("riskLevel"), "0"));
                 String resultType = resultLevel>=200? "B":(resultLevel>99? "M":"W");
-                PayAdaptResultItem item = new PayAdaptResultItem();
-                item.setResultLevel(resultLevel);
-                item.setSceneType(scene);
-                item.setRuleRemark(Objects.toString(groupByScene.get("riskMessage"), ""));
-                item.setResultType(resultType);
-                item.setResultList(new ArrayList<String>());
-                bwResults4j.add(item);
+                if(resultLevel>0) {
+                    PayAdaptResultItem item = new PayAdaptResultItem();
+                    item.setResultLevel(resultLevel);
+                    item.setSceneType(scene);
+                    item.setRuleRemark(Objects.toString(groupByScene.get("riskMessage"), ""));
+                    item.setResultType(resultType);
+                    item.setResultList(new ArrayList<String>());
+                    bwResults4j.add(item);
+                }
             }
         }
     }
@@ -213,7 +215,7 @@ public class PayAdaptFacade {
         fact.setContent(new HashMap<String, Object>());
         fact.getOrderTypes().add(0);
         fact.getOrderTypes().add(checkEntity.getOrderType());
-        fact.setContent(payAdaptProcessor.fillBWGCheckEntity(productInfo));
+        fact.setContent(payAdaptConverter.fillBWGCheckEntity(productInfo));
         if (!bwManager.checkWhite(fact, riskResult)) {
             bwManager.checkBlack(fact, riskResult);
         }
@@ -227,7 +229,7 @@ public class PayAdaptFacade {
      */
     private void checkPayAdaptFlowRule(PayAdaptFact checkEntity, List<PayAdaptResultItem> payRuleResults,Map<String,Object> productInfo) {
 
-        Map<String, Object> data2Check = payAdaptProcessor.fillPayAdaptCheckEntity(productInfo,checkEntity.getOrderType());
+        Map<String, Object> data2Check = payAdaptConverter.fillPayAdaptCheckEntity(productInfo,checkEntity.getOrderType());
         FlowFact fact = new FlowFact();
         fact.setOrderTypes(new ArrayList<Integer>());
         fact.getOrderTypes().add(0);

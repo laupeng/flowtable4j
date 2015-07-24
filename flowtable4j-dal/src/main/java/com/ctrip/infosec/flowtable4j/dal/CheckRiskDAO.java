@@ -19,7 +19,6 @@ import org.springframework.stereotype.Component;
 import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * CheckEnitity转换为PO Entity
@@ -36,26 +35,26 @@ public class CheckRiskDAO {
     private static Map<String, String> originalRiskLevel = new HashMap<String, String>();
 
     @Autowired
-    CardRiskService cardRiskDb;
+    CardRiskDbService cardRiskDbService;
 
     @Autowired
-    FlowtableService flowDb;
+    FlowDbService flowDbService;
 
     @Autowired
-    CUSDbService cusDb;
+    CusratDbService cusratDbService;
 
     @Autowired
     ESBClient esbClient;
 
     @Autowired
-    FlightOrderDbService flightOrderDbService;
+    PaybaseDbService paybaseDbService;
 
     @Autowired
     Counter counter;
 
     public int getCityCode(String airCity) {
         try {
-            return flightOrderDbService.getCityCodeByAirPort(airCity);
+            return paybaseDbService.getCityCodeByAirPort(airCity);
         } catch (Exception ex) {
             logger.warn("获取机场代码出错", ex);
         }
@@ -80,7 +79,7 @@ public class CheckRiskDAO {
                     String field = k.toLowerCase();
                     if (!Strings.isNullOrEmpty(tableName)) {
                         String sql = String.format("SELECT DISTINCT originalrisklevel FROM %s WITH(NOLOCK) WHERE %s=:%s AND originalrisklevel >=195 and CreateDate>=:starttimelimit and CreateDate<=:timelimit", tableName.toUpperCase(), field, field);
-                        String count = counter.getCounter("COUNT", sql, field, -720, 0, "", v);
+                        String count = counter.getCounter("","COUNT", sql, field, -720, 0, "", v);
                         if (!count.equals("0")) {
                             return "1";
                         }
@@ -104,7 +103,7 @@ public class CheckRiskDAO {
         try {
             String sql = "SELECT avg(Amount) AS amt FROM CTRIP_FLT_CardNoRefID_Amount WITH(NOLOCK) " +
                     "WHERE CardNoRefID=? and CreateDate>=? and CreateDate<=?";
-            Map avgAmount = flowDb.queryForMap(sql, new Object[]{CCardNoCode, startTimeLimit, timeLimit}, new int[]{Types.VARCHAR, Types.TIMESTAMP, Types.TIMESTAMP});
+            Map avgAmount = flowDbService.jdbcTemplate1.queryForMap(sql, new Object[]{CCardNoCode, startTimeLimit, timeLimit}, new int[]{Types.VARCHAR, Types.TIMESTAMP, Types.TIMESTAMP});
             if (avgAmount != null) {
                 return Double.parseDouble(avgAmount.get("amt").toString());
             }
@@ -124,7 +123,7 @@ public class CheckRiskDAO {
         try {
             if (StringUtils.isNumeric(city)) {
                 String sql = "SELECT TOP 1 cityname,province,country,provincename,hotelprovince FROM BaseData_City WITH(NOLOCK) WHERE City=? ";
-                return cardRiskDb.queryForMap(sql, new Object[]{city}, new int[]{Types.BIGINT});
+                return cardRiskDbService.queryForMap(sql, new Object[]{city}, new int[]{Types.BIGINT});
             }
         } catch (EmptyResultDataAccessException ex) {
             //Skip
@@ -144,7 +143,7 @@ public class CheckRiskDAO {
         try {
             if (!Strings.isNullOrEmpty(iDCardNumber)) {
                 String sql = "SELECT TOP 1 provincename,cityname FROM BaseData_IDCardInfo WITH(NOLOCK) WHERE IDCardNumber=? ";
-                return cardRiskDb.queryForMap(sql, new Object[]{iDCardNumber}, new int[]{Types.VARCHAR});
+                return cardRiskDbService.queryForMap(sql, new Object[]{iDCardNumber}, new int[]{Types.VARCHAR});
             }
         } catch (EmptyResultDataAccessException ex) {
             //Skip
@@ -164,7 +163,7 @@ public class CheckRiskDAO {
         try {
             String sql = "SELECT TOP 1 orderdate FROM CTRIP_ALL_UID_OrderDate WITH (NOLOCK) WHERE " +
                     "Uid = ? and CreateDate>=? and CreateDate<=? Order By 1";
-            Map orderDate = flowDb.queryForMap(sql, new Object[]{uid, startTimeLimit, timeLimit}, new int[]{Types.VARCHAR, Types.TIMESTAMP, Types.TIMESTAMP});
+            Map orderDate = flowDbService.jdbcTemplate1.queryForMap(sql, new Object[]{uid, startTimeLimit, timeLimit}, new int[]{Types.VARCHAR, Types.TIMESTAMP, Types.TIMESTAMP});
             if (orderDate != null) {
                 return orderDate.get("orderdate").toString();
             }
@@ -189,7 +188,7 @@ public class CheckRiskDAO {
                 mobilePhone = mobilePhone.substring(0, 7);
                 if (StringUtils.isNumeric(mobilePhone)) {
                     String sql = "SELECT TOP 1 provincename,cityname  FROM BaseData_MobilePhoneInfo WITH(NOLOCK) WHERE MobileNumber=? ";
-                    return cardRiskDb.queryForMap(sql, new Object[]{mobilePhone}, new int[]{Types.BIGINT});
+                    return cardRiskDbService.queryForMap(sql, new Object[]{mobilePhone}, new int[]{Types.BIGINT});
                 }
             }
         } catch (EmptyResultDataAccessException ex) {
@@ -209,7 +208,7 @@ public class CheckRiskDAO {
     public Map<String, Object> getIpCountryCity(long ipValue) {
         try {
             String sql = "SELECT TOP 1 countrycode,countryname,city,cityid,continent,continentid,citynamech,countrynamech FROM IpCountryCity WITH(NOLOCK) WHERE IpStart <= ? ORDER BY IpStart DESC ";
-            return cardRiskDb.queryForMap(sql, new Object[]{ipValue}, new int[]{Types.BIGINT});
+            return cardRiskDbService.queryForMap(sql, new Object[]{ipValue}, new int[]{Types.BIGINT});
         } catch (EmptyResultDataAccessException ex) {
             //Skip
         } catch (Exception exp) {
@@ -227,7 +226,7 @@ public class CheckRiskDAO {
     public Map<String, Object> getIPInfo(long ipValue) {
         try {
             String sql = "SELECT TOP 1 type_company,country,province,city,countryid,provinceid,cityid,area,nationcode FROM BaseData_IPInfo WITH(NOLOCK) WHERE StartAddr <= ? order by StartAddr DESC ";
-            return cardRiskDb.queryForMap(sql, new Object[]{ipValue}, new int[]{Types.BIGINT});
+            return cardRiskDbService.queryForMap(sql, new Object[]{ipValue}, new int[]{Types.BIGINT});
         } catch (EmptyResultDataAccessException ex) {
             //Skip
         } catch (Exception exp) {
@@ -247,7 +246,7 @@ public class CheckRiskDAO {
         try {
             if (!Strings.isNullOrEmpty(orderId) && !Strings.isNullOrEmpty(payId)) {
                 String sql = "SELECT TOP 1 did  FROM CacheData_DeviceIDInfo WITH(NOLOCK) WHERE Oid = ? AND Payid = ? ORDER BY RecordID desc";
-                return flowDb.queryForMap(sql, new Object[]{orderId, payId}, new int[]{Types.VARCHAR, Types.VARCHAR});
+                return flowDbService.jdbcTemplate1.queryForMap(sql, new Object[]{orderId, payId}, new int[]{Types.VARCHAR, Types.VARCHAR});
             }
         } catch (EmptyResultDataAccessException ex) {
             //Skip
@@ -268,7 +267,7 @@ public class CheckRiskDAO {
         try {
             if (StringUtils.isNumeric(cardTypeId) && !Strings.isNullOrEmpty(cardBin)) {
                 String sql = "SELECT city,bankofcardissue,nationality,cardname FROM CreditCardRule_ForeignCard WITH(NOLOCK) WHERE CardTypeID = ? and CardRule = ?";
-                return cardRiskDb.queryForMap(sql, new Object[]{cardTypeId, cardBin}, new int[]{Types.INTEGER, Types.VARCHAR});
+                return cardRiskDbService.queryForMap(sql, new Object[]{cardTypeId, cardBin}, new int[]{Types.INTEGER, Types.VARCHAR});
             }
         } catch (EmptyResultDataAccessException ex) {
             //Skip
@@ -288,7 +287,7 @@ public class CheckRiskDAO {
         try {
             if (!Strings.isNullOrEmpty(uid)) {
                 String sql = "SELECT active FROM CardRisk_Leaked_Uid WITH(NOLOCK) WHERE Uid =?";
-                return cusDb.queryForMap(sql, new Object[]{uid}, new int[]{Types.VARCHAR});
+                return cusratDbService.queryForMap(sql, new Object[]{uid}, new int[]{Types.VARCHAR});
             }
         } catch (EmptyResultDataAccessException ex) {
             //Skip
@@ -309,7 +308,7 @@ public class CheckRiskDAO {
         try {
             if (StringUtils.isNumeric(creditCardType) && !Strings.isNullOrEmpty(branchNo)) {
                 String sql = "SELECT TOP 1 branchcity,branchprovince  FROM BaseData_CardBankInfo WITH(NOLOCK) WHERE CreditCardType =? and BranchNo = ?";
-                return cardRiskDb.queryForMap(sql, new Object[]{creditCardType, branchNo}, new int[]{Types.INTEGER, Types.VARCHAR});
+                return cardRiskDbService.queryForMap(sql, new Object[]{creditCardType, branchNo}, new int[]{Types.INTEGER, Types.VARCHAR});
             }
         } catch (EmptyResultDataAccessException ex) {
             //Skip
@@ -329,7 +328,7 @@ public class CheckRiskDAO {
         try {
             if (StringUtils.isNumeric(country)) {
                 String sql = "SELECT TOP 1 nationality,countryname  FROM BaseData_CountryInfo WITH(NOLOCK) WHERE Country =? ";
-                return cardRiskDb.queryForMap(sql, new Object[]{country}, new int[]{Types.BIGINT});
+                return cardRiskDbService.queryForMap(sql, new Object[]{country}, new int[]{Types.BIGINT});
             }
         } catch (EmptyResultDataAccessException ex) {
             //Skip
@@ -344,7 +343,7 @@ public class CheckRiskDAO {
             if (StringUtils.isNumeric(orderId) && StringUtils.isNumeric(orderType)) {
                 long id = Long.parseLong(orderId) % 4;
                 String sql = String.format("SELECT content FROM InfoSecurity_LastProductInfo%s WITH(NOLOCK) WHERE pid=?", id);
-                return cardRiskDb.queryForMap(sql, String.format("%s|%s", orderId, orderType), Types.VARCHAR);
+                return cardRiskDbService.queryForMap(sql, String.format("%s|%s", orderId, orderType), Types.VARCHAR);
             }
         } catch (EmptyResultDataAccessException ex) {
             //Skip
@@ -359,7 +358,7 @@ public class CheckRiskDAO {
             if (StringUtils.isNumeric(orderId) && StringUtils.isNumeric(orderType)) {
                 long id = Long.parseLong(orderId) % 4;
                 String sql = String.format("SELECT content,risklevel,prepaytype FROM InfoSecurity_LastPaymentInfo%s WITH(NOLOCK) WHERE pid=?", id);
-                return cardRiskDb.queryForMap(sql, String.format("%s|%s", orderId, orderType), Types.VARCHAR);
+                return cardRiskDbService.queryForMap(sql, String.format("%s|%s", orderId, orderType), Types.VARCHAR);
             }
         } catch (EmptyResultDataAccessException ex) {
             //Skip
@@ -384,8 +383,7 @@ public class CheckRiskDAO {
                 SqlParameterValue value1 = new SqlParameterValue(Types.VARCHAR, mapper.toJson(productInfo));
                 params.addValue("p1", value0);
                 params.addValue("p2", value1);
-
-                cardRiskDb.cardDbNamedTemplate.execute(sql, params, new PreparedStatementCallback<Object>() {
+                cardRiskDbService.namedJdbcTemplate.execute(sql, params, new PreparedStatementCallback<Object>() {
                     @Override
                     public Object doInPreparedStatement(PreparedStatement ps) throws SQLException, DataAccessException {
                         ps.execute();
@@ -416,7 +414,7 @@ public class CheckRiskDAO {
                 params.addValue("p2", value1);
                 params.addValue("p3", value2);
 
-                cardRiskDb.cardDbNamedTemplate.execute(sql, params, new PreparedStatementCallback<Object>() {
+                cardRiskDbService.namedJdbcTemplate.execute(sql, params, new PreparedStatementCallback<Object>() {
                     @Override
                     public Object doInPreparedStatement(PreparedStatement ps) throws SQLException, DataAccessException {
                         ps.execute();
@@ -436,7 +434,7 @@ public class CheckRiskDAO {
                 SimpleStaticThreadPool.getInstance().submit(new Runnable() {
                     @Override
                     public void run() {
-                        cardRiskDb.cardRiskDBTemplate.execute(
+                        cardRiskDbService.jdbcTemplate.execute(
                                 new CallableStatementCreator() {
                                     public CallableStatement createCallableStatement(Connection con) throws SQLException {
                                         String storedProc = "{call sp1_CardRisk_License_Order_Set(@ReqID=?,@status=?,@UID=?,@ProcessStatus=?,@POrderID=?)}";// 调用的sql

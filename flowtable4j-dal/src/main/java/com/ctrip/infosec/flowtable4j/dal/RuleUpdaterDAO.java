@@ -14,7 +14,7 @@ import java.util.Map;
 @Component
 public class RuleUpdaterDAO {
     @Autowired
-    private CardRiskService cardRiskService;
+    private CardRiskDbService cardRiskDbService;
     private final int INTERVAL = 5;
 
     /**
@@ -33,7 +33,7 @@ public class RuleUpdaterDAO {
                 " INNER JOIN CardRisk_BlackListColumn c (nolock) on cv.ProcessType=c.ProcessType " +
                 "WHERE  r.DataChange_LastTime>=? " +
                 "ORDER BY r.OrderType,r.RuleID,c.CheckType,c.CheckName";
-        return cardRiskService.queryForList(sql, new Object[]{date});
+        return cardRiskDbService.queryForList(sql, new Object[]{date});
     }
 
     /**
@@ -49,7 +49,7 @@ public class RuleUpdaterDAO {
                 "  INNER JOIN CardRisk_BlackListColumn c (nolock) on cv.ProcessType=c.ProcessType " +
                 "WHERE  r.Active='T' " +
                 "ORDER BY r.OrderType,r.RuleID,c.CheckType,c.CheckName";
-        return cardRiskService.queryForList(sql);
+        return cardRiskDbService.queryForList(sql);
     }
 
     /**
@@ -64,7 +64,7 @@ public class RuleUpdaterDAO {
                 " INNER JOIN Def_RuleMatchField d (NOLOCK) on r.FieldID= d.FieldID " +
                 "WHERE  CHARINDEX('F',r.MatchType)<>1 " +
                 "ORDER BY r.FlowRuleID ,r.MatchIndex";
-        return cardRiskService.queryForList(sql);
+        return cardRiskDbService.queryForList(sql);
     }
 
     /**
@@ -78,7 +78,7 @@ public class RuleUpdaterDAO {
                 " INNER JOIN Def_RuleMatchField d (NOLOCK) on r.FieldID= d.FieldID " +
                 "WHERE  CharIndex('F',r.MatchType)=1 " +
                 "ORDER BY r.FlowRuleID ,r.MatchIndex";
-        return cardRiskService.queryForList(sql);
+        return cardRiskDbService.queryForList(sql);
     }
 
     /**
@@ -87,13 +87,14 @@ public class RuleUpdaterDAO {
      * @return
      */
     public List<Map<String, Object>> getCounterMatchTerms() {
-        String sql = "SELECT r.FlowRuleID,d.ColumnName as KeyColumnName, " +
+        String sql = "SELECT r.FlowRuleID,d.ColumnName as KeyColumnName,t.DataBaseName," +
                 "d1.ColumnName as MatchColumnName,r.MatchType,r.MatchValue,r.StatisticType,r.StartTimeLimit,r.TimeLimit,r.SqlValue " +
                 "FROM  InfoSecurity_RuleStatistic (NOLOCK) r " +
                 " INNER JOIN Def_RuleMatchField d (NOLOCK) on r.KeyFieldID=d.FieldID " +
                 " INNER JOIN Def_RuleMatchField d1 (NOLOCK) on r.MatchFieldID=d1.FieldID " +
-                "ORDER BY r.FlowRuleID,r.MatchIndex";
-        return cardRiskService.queryForList(sql);
+                " INNER JOIN Def_RuleStatisticTable t (NOLOCK) on r.StatisticTableID = t.StatisticTableID"+
+                " ORDER BY r.FlowRuleID,r.MatchIndex";
+        return cardRiskDbService.queryForList(sql);
     }
 
     /**
@@ -106,7 +107,7 @@ public class RuleUpdaterDAO {
                 "FROM InfoSecurity_FlowRule (NOLOCK) " +
                 "WHERE  Active='T' " +
                 "ORDER BY FlowRuleID , MatchIndex";
-        return cardRiskService.queryForList(sql);
+        return cardRiskDbService.queryForList(sql);
     }
 
     public List<Map<String, Object>> getPayadaptRuleMaster() {
@@ -114,7 +115,7 @@ public class RuleUpdaterDAO {
                 "FROM InfoSecurity_PayAdapterRule (NOLOCK) " +
                 "WHERE Active='T' " +
                 "ORDER BY PayAdapterRuleID,MatchIndex";
-        return cardRiskService.queryForList(sql);
+        return cardRiskDbService.queryForList(sql);
     }
 
     public List<Map<String, Object>> getPayadaptValueMatchTerms() {
@@ -122,17 +123,18 @@ public class RuleUpdaterDAO {
                 "FROM InfoSecurity_PayAdapterRuleMatchField p(NOLOCK) " +
                 " INNER JOIN Def_RuleMatchField d (NOLOCK) on p.FieldID=d.FieldID  " +
                 "WHERE  CharIndex('F',p.MatchType)<>1 ORDER BY p.PayAdapterRuleID, p.MatchIndex";
-        return cardRiskService.queryForList(sql);
+        return cardRiskDbService.queryForList(sql);
     }
 
     public List<Map<String, Object>> getPayadaptCounterMatchTerms() {
-        String sql = "SELECT r.FlowRuleID,d.ColumnName as KeyColumnName,d1.ColumnName as MatchColumnName," +
+        String sql = "SELECT r.FlowRuleID,d.ColumnName as KeyColumnName,t.DatabaseName,d1.ColumnName as MatchColumnName," +
                 "r.MatchType,r.MatchValue,r.StatisticType,r.StartTimeLimit,r.TimeLimit,r.SqlValue " +
                 "FROM  InfoSecurity_PayAdapterRuleStatistic r (NOLOCK) " +
                 "  INNER JOIN Def_RuleMatchField d (NOLOCK) on r.KeyFieldID=d.FieldID " +
                 "  INNER JOIN Def_RuleMatchField d1 (NOLOCK) on r.MatchFieldID=d1.FieldID " +
-                "ORDER BY r.FlowRuleID,r.MatchIndex";
-        return cardRiskService.queryForList(sql);
+                "  INNER JOIN Def_RuleStatisticTable t (NOLOCK) on r.StatisticTableID = t.StatisticTableID"+
+                "  ORDER BY r.FlowRuleID,r.MatchIndex";
+        return cardRiskDbService.queryForList(sql);
     }
 
     public List<Map<String, Object>> getPayadaptFieldMatchTerms() {
@@ -141,7 +143,7 @@ public class RuleUpdaterDAO {
                 " INNER JOIN Def_RuleMatchField d (NOLOCK) on p.FieldID=d.FieldID  " +
                 "WHERE  CHARINDEX('F',p.MatchType)=1 " +
                 "ORDER BY p.PayAdapterRuleID, p.MatchIndex";
-        return cardRiskService.queryForList(sql);
+        return cardRiskDbService.queryForList(sql);
     }
 
     public List<Map<String,Object>> getRuleStatisticTable(){
@@ -149,21 +151,21 @@ public class RuleUpdaterDAO {
                 "from Def_RuleStatisticTable t (nolock)\n" +
                 "join Def_RuleMatchField f1 (nolock) on t.KeyFieldID1 = f1.FieldID\n" +
                 "join Def_RuleMatchField f2 (nolock) on t.KeyFieldID2 = f2.FieldID WHERE t.Active='T' ORDER BY t.StatisticTableID";
-        return cardRiskService.queryForList(sql);
+        return cardRiskDbService.queryForList(sql);
     }
 
     public List<Map<String,Object>> getStatisticTableFilterValue(){
         String sql = "SELECT f.StatisticTableID,m.ColumnName as KeyColumnName,f.MatchType,f.MatchValue\n" +
                 "FROM [dbo].[Def_RuleStatisticTableFilter] f (nolock) join \n" +
                 "Def_RuleMatchField m (nolock) on f.FieldID=m.FieldID WHERE CHARINDEX('F',f.MatchType)<>1 order by f.StatisticTableID";
-        return cardRiskService.queryForList(sql);
+        return cardRiskDbService.queryForList(sql);
     }
 
     public List<Map<String,Object>> getStatisticTableFilterField(){
         String sql = "SELECT f.StatisticTableID,m.ColumnName as KeyColumnName,f.MatchType,f.MatchValue\n" +
                 "FROM [dbo].[Def_RuleStatisticTableFilter] f (nolock) join \n" +
                 "Def_RuleMatchField m (nolock) on f.FieldID=m.FieldID WHERE CHARINDEX('F',f.MatchType)=1 order by f.StatisticTableID ";
-        return cardRiskService.queryForList(sql);
+        return cardRiskDbService.queryForList(sql);
     }
 
 }

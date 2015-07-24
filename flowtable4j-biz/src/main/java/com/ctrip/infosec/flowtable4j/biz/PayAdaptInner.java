@@ -1,7 +1,7 @@
 package com.ctrip.infosec.flowtable4j.biz;
 
 import com.ctrip.infosec.flowtable4j.accountrule.AccountBWGManager;
-import com.ctrip.infosec.flowtable4j.biz.processor.PayAdaptProcessor;
+import com.ctrip.infosec.flowtable4j.biz.converter.PayAdaptConverter;
 import com.ctrip.infosec.flowtable4j.bwrule.BWManager;
 import com.ctrip.infosec.flowtable4j.dal.PaybaseDbService;
 import com.ctrip.infosec.flowtable4j.model.*;
@@ -32,7 +32,7 @@ public class PayAdaptInner {
     BWManager bwManager;
 
     @Autowired
-    PayAdaptProcessor payAdaptProcessor;
+    PayAdaptConverter payAdaptConverter;
 
     @Autowired
     PaybaseDbService paybaseDbService;
@@ -133,7 +133,7 @@ public class PayAdaptInner {
         fact.setContent(new HashMap<String, Object>());
         fact.getOrderTypes().add(0);
         fact.getOrderTypes().add(orderType);
-        fact.setContent(payAdaptProcessor.fillBWGCheckEntity(productInfo));
+        fact.setContent(payAdaptConverter.fillBWGCheckEntity(productInfo));
         if (!bwManager.checkWhite(fact, riskResult)) {
              bwManager.checkBlack(fact, riskResult);
         }

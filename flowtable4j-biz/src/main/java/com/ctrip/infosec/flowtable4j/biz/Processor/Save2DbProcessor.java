@@ -1,6 +1,6 @@
 package com.ctrip.infosec.flowtable4j.biz.processor;
 
-import com.ctrip.infosec.flowtable4j.dal.CardRiskService;
+import com.ctrip.infosec.flowtable4j.dal.CardRiskDbService;
 import com.ctrip.infosec.flowtable4j.model.MapX;
 import com.ctrip.infosec.flowtable4j.model.persist.ColumnInfo;
 import com.ctrip.infosec.flowtable4j.model.persist.PO;
@@ -28,7 +28,7 @@ import java.util.Map;
 @Component
 public class Save2DbProcessor {
     @Autowired
-    private CardRiskService cardRiskService;
+    private CardRiskDbService cardRiskDbService;
 
     @Autowired
     private TableInfoService tableInfoService;
@@ -56,7 +56,7 @@ public class Save2DbProcessor {
                 keys.put("reqid", reqId);
                 if ("diyresourcexlist".equals(key) || "giftitemlist".equals(key) || "hotelinfolist".equals(key)
                         || "insureinfolist".equals(key) || "invoiceinfolist".equals(key) || "rechargesuborderlist".equals(key)
-                        || "vacationproductlist".equals(key)) {
+                        || "vacationproductlist".equals(key) || "hotegroupinfolist".equals(key)) {
                     saveList(key, src, reqId);
                 } else if ("flightinfolist".equals(key)) {
                     keys.put("flightsorderid", 0L);
@@ -186,7 +186,7 @@ public class Save2DbProcessor {
                 if (columnInfos != null && columnInfos.size() > 0) {
                     final String[] outField = new String[]{""};
                     final Integer[] outFieldIndex = new Integer[]{0};
-                    cardRiskService.cardRiskDBTemplate.<Long>execute(
+                    cardRiskDbService.jdbcTemplate.<Long>execute(
                             new CallableStatementCreator() {
                                 @Override
                                 public CallableStatement createCallableStatement(Connection connection) throws SQLException {

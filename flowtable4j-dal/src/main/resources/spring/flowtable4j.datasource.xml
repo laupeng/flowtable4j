@@ -8,23 +8,28 @@
        <context:property-placeholder ignore-unresolvable="true"
                                      location="classpath*:/GlobalConfig.properties" />
 
-       <bean id="cardRiskDBDataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
+       <bean id="cardriskDbDS" class="org.springframework.jndi.JndiObjectFactoryBean">
               <property name="jndiName">
-                     <value>java:comp/env/jdbc/CardRiskDB_SELECT_1${DBDataCenter}</value>
+                     <value>java:comp/env/jdbc/CardRiskDB_INSERT_1${DBDataCenter}</value>
               </property>
        </bean>
-       <bean id="riskCtrlPreProcDBDataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
+       <bean id="flowDbDS1" class="org.springframework.jndi.JndiObjectFactoryBean">
               <property name="jndiName">
                      <value>java:comp/env/jdbc/RiskCtrlPreProcDB_INSERT_1${DBDataCenter}</value>
               </property>
        </bean>
-       <bean id="cusRATDBDataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
+       <bean id="flowDbDS2" class="org.springframework.jndi.JndiObjectFactoryBean">
+              <property name="jndiName">
+                     <value>java:comp/env/jdbc/RiskCtrlPreProc2DB_W${DBDataCenter}</value>
+              </property>
+       </bean>
+       <bean id="cusratDbDS" class="org.springframework.jndi.JndiObjectFactoryBean">
               <property name="jndiName">
                      <value>java:comp/env/jdbc/CUSRATDB_INSERT_1${DBDataCenter}</value>
               </property>
        </bean>
 
-       <bean id="payBaseDBDataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
+       <bean id="paybaseDbDS" class="org.springframework.jndi.JndiObjectFactoryBean">
               <property name="jndiName">
                      <value>java:comp/env/jdbc/PayBaseDB_INSERT_1${DBDataCenter}</value>
               </property>
@@ -33,28 +38,37 @@
 
 
        <!-- JDBC模板 -->
-       <bean id="cardRiskDBTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
-              <property name="dataSource" ref="cardRiskDBDataSource"/>
+       <bean id="cardriskDbTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+              <property name="dataSource" ref="cardriskDbDS"/>
        </bean>
 
-       <bean id="flowDbTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
-              <property name="dataSource" ref="riskCtrlPreProcDBDataSource"/>
+       <bean id="cardriskDbNamedTemplate" class="org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate">
+              <constructor-arg type="javax.sql.DataSource" ref="cardriskDbDS"/>
        </bean>
 
-       <bean id="cusDbTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
-              <property name="dataSource" ref="cusRATDBDataSource"/>
+       <bean id="flowDb1Template" class="org.springframework.jdbc.core.JdbcTemplate">
+              <property name="dataSource" ref="flowDbDS1"/>
+       </bean>
+
+       <bean id="flowDb1NamedTemplate" class="org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate">
+              <constructor-arg type="javax.sql.DataSource" ref="flowDbDS1"/>
+       </bean>
+
+
+       <bean id="flowDb2Template" class="org.springframework.jdbc.core.JdbcTemplate">
+              <property name="dataSource" ref="flowDbDS2"/>
+       </bean>
+
+       <bean id="flowDb2NamedTemplate" class="org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate">
+              <constructor-arg type="javax.sql.DataSource" ref="flowDbDS2"/>
+       </bean>
+
+       <bean id="cusratDbTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+              <property name="dataSource" ref="cusratDbDS"/>
        </bean>
 
        <bean id="paybaseDbTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
-              <property name="dataSource" ref="payBaseDBDataSource"/>
-       </bean>
-
-       <bean id="flowDbNamedTemplate" class="org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate">
-              <constructor-arg type="javax.sql.DataSource" ref="riskCtrlPreProcDBDataSource"/>
-       </bean>
-
-       <bean id="cardDbNamedTemplate" class="org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate">
-              <constructor-arg type="javax.sql.DataSource" ref="cardRiskDBDataSource"/>
+              <property name="dataSource" ref="paybaseDbDS"/>
        </bean>
 
 </beans>

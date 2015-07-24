@@ -3,7 +3,7 @@ package com.ctrip.infosec.flowtable4j.biz.processor;
 import com.ctrip.infosec.flowtable4j.model.*;
 import com.ctrip.infosec.flowtable4j.accountrule.AccountBWGManager;
 import com.ctrip.infosec.flowtable4j.bwrule.BWManager;
-import com.ctrip.infosec.flowtable4j.dal.CardRiskService;
+import com.ctrip.infosec.flowtable4j.dal.CardRiskDbService;
 import com.ctrip.infosec.flowtable4j.flowrule.FlowRuleManager;
 import com.ctrip.infosec.sars.monitor.util.Utils;
 import org.slf4j.Logger;
@@ -34,7 +34,7 @@ public class FlowtableProcessor {
     private AccountBWGManager accountBWGManager;
 
     @Autowired
-    private CardRiskService cardRiskService;
+    private CardRiskDbService cardRiskDbService;
 
     private static final long FLOWTIMEOUT = 10000;
 
@@ -79,7 +79,7 @@ public class FlowtableProcessor {
         }
         listResult.setReqId(checkEntity.getReqId());
         //保存结果
-        cardRiskService.saveCheckResultLog(listResult);
+        cardRiskDbService.saveCheckResultLog(listResult);
         return listResult;
     }
 

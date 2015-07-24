@@ -73,7 +73,7 @@ public class PO extends MapX {
         prop2table.put("gps", "infosecurity_gpsinfo");
 
         //h
-        prop2table.put("hotelgroupinfo","infosecurity_hotelgroupinfo");
+        prop2table.put("hotelgroupinfolist~","infosecurity_hotelgroupinfo");
         prop2table.put("hotelinfolist~","infosecurity_hotelinfo");
         //hotelotherinfolist
 

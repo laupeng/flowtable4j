@@ -18,9 +18,6 @@ ESBUrl={$ESBUrl}
 DBDataCenter={$DBDataCenter}
 EventWS={$EventWS}
 
-# 预处理层需要的配置
-CRedis.provider=PaymentRiskControl
-appId=670203
 #ESB
 ESB.serviceUrl={$ESB.serviceUrl}
 # DataProxy
@@ -37,11 +34,6 @@ venus.server.binding.port=16800
 venus.server.manager.executor.size=64
 venus.socket.receiveBufferSize=64
 venus.socket.sendBufferSize=64
-
-#SqlDBName
-CardRiskDB={$CardRiskDB}
-RiskCtrlPreProcDB={$RiskCtrlPreProcDB}
-CUSRATDB={$CUSRATDB}
 
 # CryptoGraphy
 CryptoGraphy.cscmUrl={$CryptoGraphy.cscmUrl}

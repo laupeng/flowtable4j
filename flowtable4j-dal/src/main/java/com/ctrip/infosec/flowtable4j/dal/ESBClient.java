@@ -3,6 +3,7 @@ package com.ctrip.infosec.flowtable4j.dal;
 import com.ctrip.infosec.flowtable4j.model.*;
 import com.ctrip.infosec.flowtable4j.model.CtripOrderType;
 import com.ctrip.infosec.flowtable4j.model.persist.PO;
+import com.ctrip.infosec.sars.util.GlobalConfig;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.fluent.Request;
@@ -33,8 +34,8 @@ import java.util.logging.SimpleFormatter;
 public class ESBClient {
 
     private static final Logger logger = LoggerFactory.getLogger(ESBClient.class);
-    static final String esbUrl = "http://soa.fws.qa.nt.ctripcorp.com/SOA.ESB/Ctrip.SOA.ESB.asmx"; //GlobalConfig.getString("SOA.ESB.URL");
-    static final String appId = "AccCash.WSUser";// GlobalConfig.getString("appId");
+    static final String esbUrl =  GlobalConfig.getString("SOA.ESB.URL");
+    static final String appId =  GlobalConfig.getString("appId");
 
     private String requestWithSoap(String soapRequestContent) throws IOException {
         StringBuilder soapRequestSOAPData = new StringBuilder();

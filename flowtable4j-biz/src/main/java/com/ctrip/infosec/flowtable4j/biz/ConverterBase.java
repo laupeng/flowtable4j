@@ -3,6 +3,7 @@ package com.ctrip.infosec.flowtable4j.biz;
 import com.ctrip.infosec.flowtable4j.biz.processor.Save2DbProcessor;
 import com.ctrip.infosec.flowtable4j.dal.CheckRiskDAO;
 import com.ctrip.infosec.flowtable4j.dal.ESBClient;
+import com.ctrip.infosec.flowtable4j.dal.RiskProfile;
 import com.ctrip.infosec.flowtable4j.model.MapX;
 import com.ctrip.infosec.flowtable4j.model.persist.ColumnInfo;
 import com.ctrip.infosec.sars.util.mapper.JsonMapper;
@@ -32,7 +33,8 @@ public class ConverterBase {
     @Autowired
     protected Save2DbProcessor dbService;
 
-
+    @Autowired
+    protected RiskProfile riskProfile;
     /**
      * 从一个Map里面取对应字段到Target
      * 不拷贝Null值

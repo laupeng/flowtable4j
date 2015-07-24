@@ -1,6 +1,7 @@
 package com.ctrip.infosec.flowtable4j.biz;
 
 import com.ctrip.infosec.flowtable4j.biz.processor.*;
+import com.ctrip.infosec.flowtable4j.biz.converter.*;
 import com.ctrip.infosec.flowtable4j.flowdata.TableSaveRuleManager;
 import com.ctrip.infosec.flowtable4j.model.*;
 import com.ctrip.infosec.flowtable4j.model.persist.PO;
@@ -62,6 +63,26 @@ public class CheckPaymentFacade {
         });
         return reqId;
     }
+
+    /**
+     * 快速应用支付适配，分落8张表
+     * @param requestBody
+     * @return
+     */
+    public RiskResult checkRisk2(RequestBody requestBody) {
+        //数据准备
+        long start1 = System.nanoTime();
+        final PO po = poConverter.convert(requestBody);
+        logger.warn("Construct PO elapse:" + (System.nanoTime() - start1) / 1000000L);
+        SimpleStaticThreadPool.getInstance().submit(new Runnable() {
+            @Override
+            public void run() {
+                poConverter.saveData4Next(po);
+            }
+        });
+        return new RiskResult();
+    }
+
 
     public RiskResult checkRisk(RequestBody requestBody) {
         //数据准备

@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.SqlParameterValue;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -24,14 +25,17 @@ import java.util.Set;
 public class Counter {
 
     @Autowired
-    @Qualifier("flowDbNamedTemplate")
-    private  NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+    FlowDbService flowDbService;
 
     private static Logger logger = LoggerFactory.getLogger(Counter.class);
 
-    public  String getCounter(String countType, String sqlStatement, String whereField,
-                                    Integer fromOffset, Integer toOffset, String matchFieldValue, String whereFieldValue) {
+    public  String getCounter(String dbName,String countType, String sqlStatement, String whereField,
+                               Integer fromOffset, Integer toOffset, String matchFieldValue, String whereFieldValue) {
 
+        NamedParameterJdbcTemplate jdbc = flowDbService.namedJdbcTemplate1;
+        if(dbName.equals("riskctrlpreproc2db")){
+            jdbc = flowDbService.namedJdbcTemplate2;
+        }
         long nowMillis = System.currentTimeMillis();
         long startMills = nowMillis + (long) fromOffset * 60 * 1000;
         long timeLimit = nowMillis + (long) toOffset * 60 * 1000;
@@ -47,7 +51,7 @@ public class Counter {
         params.addValue(whereField, value0);
         params.addValue("starttimelimit", value1);
         params.addValue("timelimit", value2);
-        List<Map<String, Object>> results = namedParameterJdbcTemplate.queryForList(sqlStatement, params);
+        List<Map<String, Object>> results = jdbc.queryForList(sqlStatement, params);
 
         if ("SUM".equals(countType)) {
             double sum = 0d;

@@ -92,11 +92,14 @@ public class FlowRuleUpdater  {
                     String countType = Objects.toString(counter.get("StatisticType"), "");
                     String countField = Objects.toString(counter.get("MatchColumnName"), "");
                     String sql = Objects.toString(counter.get("SqlValue"), "");
+                    String dbName = Objects.toString(counter.get("DataBaseName"),"");
                     Integer startOffset = Integer.valueOf(Objects.toString(counter.get("StartTimeLimit"), "0"));
                     Integer endOffset = Integer.valueOf(Objects.toString(counter.get("TimeLimit"), "0"));
                     CounterMatchRuleTerm counterTerm = new CounterMatchRuleTerm(fieldName, op, matchValue);
                     counterTerm.setCountType(countType,countField,sql);
                     counterTerm.setTimeOffset(-startOffset,-endOffset);
+                    counterTerm.setDatabaseName(dbName);
+
                     flowRuleStatement.getFlowRuleTerms().add(counterTerm);
                 } else if(currentRuleId < id) {
                     p_counter--;

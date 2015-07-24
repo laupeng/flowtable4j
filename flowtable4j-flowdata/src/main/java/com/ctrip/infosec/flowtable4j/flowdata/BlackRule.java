@@ -1,7 +1,7 @@
 package com.ctrip.infosec.flowtable4j.flowdata;
 
 import com.ctrip.infosec.flowtable4j.model.FlowFact;
-import com.ctrip.infosec.flowtable4j.dal.FlowtableService;
+import com.ctrip.infosec.flowtable4j.dal.FlowDbService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -14,7 +14,7 @@ import java.util.List;
 @Component
 public class BlackRule extends BaseRule {
     @Autowired
-    FlowtableService flowtableService;
+    FlowDbService flowDbService;
 
     @Override
     void checkAndSave(FlowFact fact) {
@@ -27,7 +27,7 @@ public class BlackRule extends BaseRule {
                     Object v1 = fact.getContent().get(k1);
                     Object v2 = fact.getContent().get(k2);
                     if (k1 != null && k2 != null && v1 != null && v2 != null)
-                        flowtableService.saveFlowTable(fact.getReqId(), rule.getStatisticTableName(), k1, v1, k2, v2);
+                        flowDbService.saveFlowTable(rule.getDataBaseName(),fact.getReqId(), rule.getStatisticTableName(), k1, v1, k2, v2);
                 }
             }
         }

@@ -7,6 +7,7 @@ package com.ctrip.infosec.flowtable4j.rest;
 
 import com.ctrip.infosec.flowtable4j.biz.CheckPaymentFacade;
 import com.ctrip.infosec.flowtable4j.biz.PayAdaptFacade;
+import com.ctrip.infosec.flowtable4j.model.MapX;
 import com.ctrip.infosec.flowtable4j.model.PayAdaptFact;
 import com.ctrip.infosec.flowtable4j.model.PayAdaptResult;
 import com.ctrip.infosec.flowtable4j.model.RiskResult;
@@ -17,6 +18,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.util.Map;
 
 /**
  * 配置读取
@@ -37,15 +40,24 @@ public class FlowTableRESTfulController {
     @RequestMapping(value = "/checkPayAdapt")
     public
     @ResponseBody
-    PayAdaptResult checkPayAdapt(@RequestBody PayAdaptFact checkEntity) {
-        return payAdaptProcessor.handle4PayAdapt(checkEntity);
+    PayAdaptResult checkPayAdapt(@RequestBody com.ctrip.infosec.flowtable4j.model.RequestBody checkEntity) {
+        PayAdaptFact fact = new PayAdaptFact();
+        Map<String,Object> eventBody = checkEntity.getEventBody();
+        fact.setDid(MapX.getString(eventBody,"did"));
+        fact.setIpAddr(MapX.getString(eventBody,"ipaddr"));
+        fact.setOrderID(Long.parseLong(MapX.getString(eventBody,"orderid")));
+        fact.setOrderType(Integer.parseInt(MapX.getString(eventBody,"ordertype")));
+        fact.setMerchantID(MapX.getString(eventBody,"merchantid"));
+        fact.setUid(MapX.getString(eventBody,"uid"));
+
+        return payAdaptProcessor.handle4PayAdapt(fact);
     }
 
     @RequestMapping(value = "/checkPayment")
     public
     @ResponseBody
-    RiskResult checkPayAdapt(@RequestBody com.ctrip.infosec.flowtable4j.model.RequestBody checkEntity) {
-        return checkPaymentService.checkRisk(checkEntity);
+    RiskResult checkPayment(@RequestBody com.ctrip.infosec.flowtable4j.model.RequestBody checkEntity) {
+        return checkPaymentService.checkRisk2(checkEntity);
     }
 
     @RequestMapping(value = "/saveData4Offline")

@@ -546,5 +546,6 @@
     	<module>flowtable4j-payadapt</module>
 		<module>flowtable4j-biz</module>
 		<module>flowtable4j-flowdata</module>
-	</modules>
+		<module>flowtable4j-cybersource</module>
+  </modules>
 </project>

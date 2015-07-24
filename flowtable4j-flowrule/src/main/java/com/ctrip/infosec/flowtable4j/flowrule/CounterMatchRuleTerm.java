@@ -25,6 +25,7 @@ public class CounterMatchRuleTerm extends FlowRuleTerm {
     private Integer endOffset;
     private String sqlStatement;
     private String keyFieldName;
+    private String databaseName;
 
     public CounterMatchRuleTerm(String fieldName, String operator, String matchValue) {
         super(fieldName, operator, matchValue);
@@ -60,7 +61,7 @@ public class CounterMatchRuleTerm extends FlowRuleTerm {
                 if (fact.requestCache.containsKey(key)) {
                     matched = executor.match(fact.requestCache.get(key), matchValue);
                 } else {
-                    String count = counter.getCounter(countType, sqlStatement, keyFieldName, startOffset,
+                    String count = counter.getCounter(databaseName,countType, sqlStatement, keyFieldName, startOffset,
                             endOffset, fact.getString(countField), keyFieldValue);
                     fact.requestCache.put(key, count);
                     matched = executor.match(count, matchValue);
@@ -80,7 +81,7 @@ public class CounterMatchRuleTerm extends FlowRuleTerm {
                         if (fact.requestCache.containsKey(key)) {
                             matched = executor.match(fact.requestCache.get(key), matchValue);
                         } else {
-                            String count = counter.getCounter(countType, sqlStatement, keyFieldName,startOffset,
+                            String count = counter.getCounter(databaseName,countType, sqlStatement, keyFieldName,startOffset,
                                     endOffset, getString(row, countField), keyFieldValue);
                             fact.requestCache.put(key, count);
                             matched = executor.match(count, matchValue);
@@ -93,5 +94,13 @@ public class CounterMatchRuleTerm extends FlowRuleTerm {
             }
         }
         return matched;
+    }
+
+    public String getDatabaseName() {
+        return databaseName;
+    }
+
+    public void setDatabaseName(String databaseName) {
+        this.databaseName = databaseName;
     }
 }

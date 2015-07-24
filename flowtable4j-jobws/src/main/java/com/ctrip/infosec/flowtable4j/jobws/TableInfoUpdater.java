@@ -1,7 +1,7 @@
 package com.ctrip.infosec.flowtable4j.jobws;
 
 import com.ctrip.infosec.flowtable4j.biz.processor.TableInfoService;
-import com.ctrip.infosec.flowtable4j.dal.CardRiskService;
+import com.ctrip.infosec.flowtable4j.dal.CardRiskDbService;
 import com.ctrip.infosec.flowtable4j.model.persist.ColumnInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -19,7 +19,7 @@ import java.util.*;
 @Component
 public class TableInfoUpdater {
     @Autowired
-    CardRiskService cardRiskService;
+    CardRiskDbService cardRiskDbService;
 
     @Autowired
     TableInfoService tableInfoService;
@@ -33,12 +33,12 @@ public class TableInfoUpdater {
     }
 
     private Map<String, List<ColumnInfo>> getTableInfos() {
-        return cardRiskService.cardRiskDBTemplate.query("select obj.name as tableName, \n" +
-                "c.[name],type_name(c.[system_type_id]) data_type,c.is_nullable,c.is_identity \n" +
-                "from sys.columns c, sys.all_objects obj \n" +
-                "where c.[object_id]= obj.[object_id] \n" +
-                "and obj.type='U' and obj.name like 'InfoSecurity%' \n" +
-                "order by obj.name,c.[name]\n", new ResultSetExtractor<Map<String, List<ColumnInfo>>>() {
+        return cardRiskDbService.jdbcTemplate.query("select obj.name as tableName, " +
+                "c.[name],type_name(c.[system_type_id]) data_type,c.is_nullable,c.is_identity  " +
+                "from sys.columns c, sys.all_objects obj " +
+                "where c.[object_id]= obj.[object_id]  " +
+                "and obj.type='U' and obj.name like 'InfoSecurity%'  " +
+                "order by obj.name,c.[name] ", new ResultSetExtractor<Map<String, List<ColumnInfo>>>() {
             @Override
             public Map<String, List<ColumnInfo>> extractData(ResultSet resultSet) throws SQLException, DataAccessException {
                 Map<String, List<ColumnInfo>> tables = new HashMap<String, List<ColumnInfo>>();
