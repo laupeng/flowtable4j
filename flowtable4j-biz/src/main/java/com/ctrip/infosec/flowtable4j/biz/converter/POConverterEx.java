@@ -250,7 +250,7 @@ public class POConverterEx extends ConverterBase {
             }
             Map<String, Object> tmpProduct = checkRiskDAO.getLastProductInfo(getString(eventBody, "orderid"), getString(eventBody, "ordertype"), getString(eventBody, "merchantorderid"));
             if (tmpProduct != null) {
-                Map<String, Object> productInfoOld = mapper.fromJson(getString(tmpPay, "content"), HashMap.class);
+                Map<String, Object> productInfoOld = mapper.fromJson(getString(tmpProduct, "content"), HashMap.class);
                 if(productInfoOld!=null){
                     List<Map<String,Object>> flightinfolistOld = getList(productInfoOld,"flightinfolist");
                     Map<String,Object> orderOld=null;
