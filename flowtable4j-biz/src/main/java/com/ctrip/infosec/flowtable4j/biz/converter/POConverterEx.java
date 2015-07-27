@@ -290,6 +290,7 @@ public class POConverterEx extends ConverterBase {
             if(StringUtils.isNumeric(refNo)){
                 setValue(maininfo,"refno",refNo);
             }
+            setValue(maininfo, "amount", getObject(eventBody, "orderamount"));
         }
         // CheckType =1时，带有是否预付 IsPrepaID
         // CheckType =2时，支付时带有其它信息，从上次取 IsPrepaID
