@@ -136,7 +136,7 @@ public class PayAdaptFacade  {
             }
         });
         try {
-            List<Future<Object>> futures = SimpleStaticThreadPool.getInstance().invokeAll(tasks, 1, TimeUnit.SECONDS);
+            List<Future<Object>> futures = SimpleStaticThreadPool.getInstance().invokeAll(tasks, 5, TimeUnit.SECONDS);
             for (Future future : futures) {
                 if (future.isCancelled()) {
                     logger.warn("payAdapt timeout");

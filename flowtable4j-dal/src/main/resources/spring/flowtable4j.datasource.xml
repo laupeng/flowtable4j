@@ -35,6 +35,12 @@
               </property>
        </bean>
 
+       <bean id="fltPubDS" class="org.springframework.jndi.JndiObjectFactoryBean">
+              <property name="jndiName">
+                     <value>java:comp/env/jdbc/FltPubDB_SELECT_1${DBDataCenter}</value>
+              </property>
+       </bean>
+
 
 
        <!-- JDBC模板 -->
@@ -69,6 +75,10 @@
 
        <bean id="paybaseDbTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
               <property name="dataSource" ref="paybaseDbDS"/>
+       </bean>
+
+       <bean id="fltPubDbTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+              <property name="dataSource" ref="fltPubDS"/>
        </bean>
 
 </beans>

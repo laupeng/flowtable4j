@@ -33,11 +33,24 @@ import javax.xml.bind.annotation.XmlType;
     "profile",
     "travelData"
 })
-public class DecisionManager {
+public class DecisionManager extends BaseNode {
 
     protected String enabled;
     protected String profile;
     protected DecisionManagerTravelData travelData;
+
+    @Override
+    public String toXML(){
+        if(travelData!=null){
+            StringBuilder sb=new StringBuilder();
+            sb.append("<decisionManager>\n");
+            createNode(sb,"enabled",enabled);
+            sb.append(travelData.toXML());
+            sb.append("</decisionManager>\n");
+            return sb.toString();
+        }
+        return "";
+    }
 
     /**
      * 获取enabled属性的值。

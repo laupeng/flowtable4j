@@ -29,15 +29,6 @@ public class PaybaseDbService {
     @Qualifier("paybaseDbTemplate")
     public JdbcTemplate jdbcTemplate;
 
-    public int getCityCodeByAirPort(String airPort) {
-        String sql = "SELECT City FROM AirPort(nolock) WHERE AirPort=?";
-        Map<String, Object> map = jdbcTemplate.queryForMap(sql, new Object[]{airPort}, new int[]{Types.VARCHAR});
-        if (map != null && map.size() > 0) {
-            return Integer.parseInt(MapX.getString(map, "City"));
-        }
-        return 0;
-    }
-
     public void save(final String merchantId, final Long orderId, final int orderType, final String uid, final List<PayAdaptResultItem> results) {
         SimpleStaticThreadPool.getInstance().submit(new Runnable() {
             @Override

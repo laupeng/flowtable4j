@@ -71,8 +71,7 @@ import java.util.List;
     "field20",
     "mddField"
 })
-public class MerchantDefinedData {
-
+public class MerchantDefinedData extends BaseNode {
     protected String field1;
     protected String field2;
     protected String field3;
@@ -93,515 +92,172 @@ public class MerchantDefinedData {
     protected String field18;
     protected String field19;
     protected String field20;
+    protected String field21;
+    protected String field22;
+    protected String field23;
+    protected String field24;
+    protected String field25;
+    protected String field26;
+    protected String field27;
+    protected String field28;
+    protected String field29;
     protected List<MDDField> mddField;
 
-    /**
-     * 获取field1属性的值。
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getField1() {
-        return field1;
+    @Override
+    public String toXML(){
+        StringBuilder sb= new StringBuilder();
+        sb.append("<merchantDefinedData>\n");
+        createNode(sb,"field1",field1);
+        createNode(sb,"field2",field2);
+        createNode(sb,"field3",field3);
+        createNode(sb,"field4",field4);
+        createNode(sb,"field5",field5);
+        createNode(sb,"field6",field6);
+        createNode(sb,"field7",field7);
+        createNode(sb,"field8",field8);
+        createNode(sb,"field9",field9);
+        createNode(sb,"field10",field10);
+        createNode(sb,"field11",field11);
+        createNode(sb,"field12",field12);
+        createNode(sb,"field13",field13);
+        createNode(sb,"field14",field14);
+        createNode(sb,"field15",field15);
+        createNode(sb,"field16",field16);
+        createNode(sb,"field17",field17);
+        createNode(sb,"field18",field18);
+        createNode(sb,"field19",field19);
+        createNode(sb,"field20",field20);
+        createNode(sb,"field21",field21);
+        createNode(sb,"field22",field22);
+        createNode(sb,"field23",field23);
+        createNode(sb,"field24",field24);
+        createNode(sb,"field25",field25);
+        createNode(sb,"field26",field26);
+        createNode(sb,"field27",field27);
+        createNode(sb,"field28",field28);
+        createNode(sb,"field29",field29);
+        sb.append("</merchantDefinedData>\n");
+        return sb.toString();
     }
 
-    /**
-     * 设置field1属性的值。
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setField1(String value) {
-        this.field1 = value;
+
+    public void setIsCheckout(String isCheckout){
+        field1 = isCheckout;
     }
 
-    /**
-     * 获取field2属性的值。
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getField2() {
-        return field2;
-    }
-
-    /**
-     * 设置field2属性的值。
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setField2(String value) {
-        this.field2 = value;
-    }
-
-    /**
-     * 获取field3属性的值。
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getField3() {
-        return field3;
-    }
-
-    /**
-     * 设置field3属性的值。
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setField3(String value) {
-        this.field3 = value;
-    }
-
-    /**
-     * 获取field4属性的值。
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getField4() {
-        return field4;
-    }
-
-    /**
-     * 设置field4属性的值。
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setField4(String value) {
-        this.field4 = value;
-    }
-
-    /**
-     * 获取field5属性的值。
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getField5() {
-        return field5;
-    }
-
-    /**
-     * 设置field5属性的值。
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setField5(String value) {
-        this.field5 = value;
-    }
-
-    /**
-     * 获取field6属性的值。
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getField6() {
-        return field6;
-    }
-
-    /**
-     * 设置field6属性的值。
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setField6(String value) {
-        this.field6 = value;
-    }
-
-    /**
-     * 获取field7属性的值。
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getField7() {
-        return field7;
-    }
-
-    /**
-     * 设置field7属性的值。
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setField7(String value) {
-        this.field7 = value;
-    }
-
-    /**
-     * 获取field8属性的值。
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getField8() {
-        return field8;
-    }
-
-    /**
-     * 设置field8属性的值。
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setField8(String value) {
-        this.field8 = value;
-    }
-
-    /**
-     * 获取field9属性的值。
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getField9() {
-        return field9;
-    }
-
-    /**
-     * 设置field9属性的值。
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setField9(String value) {
-        this.field9 = value;
-    }
-
-    /**
-     * 获取field10属性的值。
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getField10() {
-        return field10;
-    }
-
-    /**
-     * 设置field10属性的值。
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setField10(String value) {
-        this.field10 = value;
-    }
-
-    /**
-     * 获取field11属性的值。
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getField11() {
-        return field11;
-    }
-
-    /**
-     * 设置field11属性的值。
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setField11(String value) {
-        this.field11 = value;
-    }
-
-    /**
-     * 获取field12属性的值。
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getField12() {
-        return field12;
-    }
-
-    /**
-     * 设置field12属性的值。
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setField12(String value) {
-        this.field12 = value;
-    }
-
-    /**
-     * 获取field13属性的值。
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getField13() {
-        return field13;
-    }
-
-    /**
-     * 设置field13属性的值。
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setField13(String value) {
-        this.field13 = value;
-    }
-
-    /**
-     * 获取field14属性的值。
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getField14() {
-        return field14;
-    }
-
-    /**
-     * 设置field14属性的值。
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setField14(String value) {
-        this.field14 = value;
-    }
-
-    /**
-     * 获取field15属性的值。
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getField15() {
-        return field15;
-    }
-
-    /**
-     * 设置field15属性的值。
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setField15(String value) {
-        this.field15 = value;
-    }
-
-    /**
-     * 获取field16属性的值。
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getField16() {
-        return field16;
-    }
-
-    /**
-     * 设置field16属性的值。
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setField16(String value) {
-        this.field16 = value;
-    }
-
-    /**
-     * 获取field17属性的值。
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getField17() {
-        return field17;
-    }
-
-    /**
-     * 设置field17属性的值。
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setField17(String value) {
-        this.field17 = value;
-    }
-
-    /**
-     * 获取field18属性的值。
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getField18() {
-        return field18;
-    }
-
-    /**
-     * 设置field18属性的值。
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setField18(String value) {
-        this.field18 = value;
-    }
-
-    /**
-     * 获取field19属性的值。
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getField19() {
-        return field19;
-    }
-
-    /**
-     * 设置field19属性的值。
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setField19(String value) {
-        this.field19 = value;
-    }
-
-    /**
-     * 获取field20属性的值。
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getField20() {
-        return field20;
-    }
-
-    /**
-     * 设置field20属性的值。
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setField20(String value) {
-        this.field20 = value;
-    }
-
-    /**
-     * Gets the value of the mddField property.
-     * 
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the mddField property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getMddField().add(newItem);
-     * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link MDDField }
-     * 
-     * 
-     */
-    public List<MDDField> getMddField() {
-        if (mddField == null) {
-            mddField = new ArrayList<MDDField>();
+    public void setSignupToDate(Integer ndays){
+        if(ndays!=null){
+            field2 = ndays.toString();
         }
-        return this.mddField;
     }
+
+    public void setCardBin(String cardBin){
+        field3 = cardBin;
+    }
+
+    public void setProductType(String productType){
+        field4 = productType;
+    }
+
+    public void setHourToDepature(Integer hourToDepature){
+        if(hourToDepature!=null){
+            field5 = hourToDepature.toString();
+        }
+    }
+
+    public void setDepartureCountry(String departureCountry){
+        field6 = departureCountry;
+    }
+
+    public void setArrivalCountry(String arrivalCountry){
+        field7 = arrivalCountry;
+    }
+
+    public void setDepartureAirportCode(String departureAirportCode){
+        field8 = departureAirportCode;
+    }
+
+    public void setArrivalAirportCode(String arrivalAirportCode){
+        field9 = arrivalAirportCode;
+    }
+
+    public void setServerFrom(String serverFrom){
+        field10 = serverFrom;
+    }
+
+    public void setSalesChannel(String salesChannel){
+        field11 = salesChannel;
+    }
+
+    public void setFlightClass(String flightClass){
+        field12 = flightClass;
+    }
+
+    public void setAdultNums(int adultNums){
+         field13 = String.valueOf(adultNums);
+    }
+
+    public void setChildNums(int childNums){
+         field14 =String.valueOf(childNums);
+    }
+
+    public void setHotelCity(String hotelCity){
+        field15 = hotelCity;
+    }
+
+    public void setHotelCountry(String hotelCountry){
+        field16 = hotelCountry;
+    }
+
+    public void setHotelName(String hotelName){
+        field17 = hotelName;
+    }
+
+    public void setRoomNums(int roomNums){
+        field18 = String.valueOf(roomNums);
+    }
+
+    public void setNightNums(int nightNums){
+        field19 =String.valueOf(nightNums);
+    }
+
+    public void setAgency(String agency){
+        field20 = agency;
+    }
+
+    public void setIsCouponUsed(String couponUsed){
+        field21 = couponUsed;
+    }
+
+    public void setDaysToCheckIn(Integer daysToCheckIn){
+        if(daysToCheckIn!=null){
+            field22 = daysToCheckIn.toString();
+        }
+    }
+
+    public void setBillFullName(String billName){
+        field23 = billName;
+    }
+
+    public void setPassengerName1(String passengerName1){
+        field24 = passengerName1;
+    }
+    public void setPassengerName2(String passengerName1){
+        field25 = passengerName1;
+    }
+    public void setPassengerName3(String passengerName1){
+        field26 = passengerName1;
+    }
+    public void setPassengerName4(String passengerName1){
+        field27 = passengerName1;
+    }
+    public void setPassengerName5(String passengerName1){
+        field28 = passengerName1;
+    }
+
+    public void setDeviceID(String deviceID){
+        field29 = deviceID;
+    }
+
 
 }

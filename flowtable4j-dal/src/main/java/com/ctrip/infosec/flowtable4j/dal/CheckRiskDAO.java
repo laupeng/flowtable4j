@@ -50,11 +50,14 @@ public class CheckRiskDAO {
     PaybaseDbService paybaseDbService;
 
     @Autowired
+    FltPubDbService fltPubDbService;
+
+    @Autowired
     Counter counter;
 
     public int getCityCode(String airCity) {
         try {
-            return paybaseDbService.getCityCodeByAirPort(airCity);
+            return fltPubDbService.getCityCodeByAirPort(airCity);
         } catch (Exception ex) {
             logger.warn("获取机场代码出错", ex);
         }

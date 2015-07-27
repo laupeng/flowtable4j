@@ -37,12 +37,23 @@ import java.util.List;
     "completeRoute",
     "journeyType"
 })
-public class DecisionManagerTravelData {
+public class DecisionManagerTravelData extends BaseNode {
 
     protected List<DecisionManagerTravelLeg> leg;
     protected String departureDateTime;
     protected String completeRoute;
     protected String journeyType;
+
+    @Override
+    public String toXML(){
+        StringBuilder sb=new StringBuilder();
+        sb.append("<travelData>\n");
+        createNode(sb,"departureDateTime",departureDateTime);
+        createNode(sb,"completeRoute",completeRoute);
+        createNode(sb,"journeyType",journeyType);
+        sb.append("</travelData>\n");
+        return sb.toString();
+    }
 
     /**
      * Gets the value of the leg property.

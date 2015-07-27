@@ -113,7 +113,7 @@ public class ESBClient {
             return requestESB(requestType, requestBody.toString(), xpath);
 
         } catch (Exception exp) {
-            logger.warn("GetCreditCardInfo", exp);
+            logger.warn("GetCreditCardInfo异常", exp);
         }
         return null;
     }
@@ -172,7 +172,7 @@ public class ESBClient {
                 return ImmutableMap.of("retcode", 0);
             }
         } catch (Exception exp) {
-            logger.warn("GetCreditCardInfo", exp);
+            logger.warn("调用PayBaseDb写入RiskLevelData异常", exp);
             return null;
         }
     }
@@ -185,7 +185,7 @@ public class ESBClient {
             String xpath = "/Response/MemberInfoResponse";
             return requestESB(requestType, requestBody, xpath);
         } catch (Exception exp) {
-            logger.warn("GetMemberInfo", exp);
+            logger.warn("GetMemberInfo异常", exp);
             return null;
         }
     }
@@ -198,7 +198,7 @@ public class ESBClient {
         try {
             return requestESB(requestType, requestBody, xpath);
         } catch (Exception exp) {
-            logger.warn("GetCustomerInfo", exp);
+            logger.warn("GetCustomerInfo异常", exp);
         }
         return null;
     }

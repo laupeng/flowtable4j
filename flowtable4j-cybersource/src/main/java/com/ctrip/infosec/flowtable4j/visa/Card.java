@@ -60,15 +60,15 @@ import java.math.BigInteger;
     "suffix",
     "prefix"
 })
-public class Card {
+public class Card extends BaseNode{
 
     protected String fullName;
-    protected String accountNumber;
-    protected BigInteger expirationMonth;
-    protected BigInteger expirationYear;
+    private String accountNumber;
+    private BigInteger expirationMonth;
+    private BigInteger expirationYear;
     protected String cvIndicator;
     protected String cvNumber;
-    protected String cardType;
+    private String cardType;
     protected String issueNumber;
     protected BigInteger startMonth;
     protected BigInteger startYear;
@@ -77,390 +77,49 @@ public class Card {
     protected String bin;
     protected String encryptedData;
     protected String suffix;
-    protected String prefix;
+    private String prefix;
 
-    /**
-     * 获取fullName属性的值。
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getFullName() {
-        return fullName;
+    @Override
+    public String toXML(){
+        StringBuilder sb = new StringBuilder();
+        sb.append("<card>\n");
+        createNode(sb,"accountNumber",accountNumber);
+        createNode(sb,"expirationMonth",expirationMonth.toString());
+        createNode(sb,"expirationYear",expirationYear.toString());
+        createNode(sb,"cardType",cardType);
+        sb.append("</card>\n");
+        return sb.toString();
     }
 
-    /**
-     * 设置fullName属性的值。
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setFullName(String value) {
-        this.fullName = value;
-    }
-
-    /**
-     * 获取accountNumber属性的值。
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
     public String getAccountNumber() {
         return accountNumber;
     }
 
-    /**
-     * 设置accountNumber属性的值。
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setAccountNumber(String value) {
-        this.accountNumber = value;
+    public void setAccountNumber(String accountNumber) {
+        this.accountNumber = accountNumber;
     }
 
-    /**
-     * 获取expirationMonth属性的值。
-     * 
-     * @return
-     *     possible object is
-     *     {@link BigInteger }
-     *     
-     */
     public BigInteger getExpirationMonth() {
         return expirationMonth;
     }
 
-    /**
-     * 设置expirationMonth属性的值。
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link BigInteger }
-     *     
-     */
-    public void setExpirationMonth(BigInteger value) {
-        this.expirationMonth = value;
+    public void setExpirationMonth(BigInteger expirationMonth) {
+        this.expirationMonth = expirationMonth;
     }
 
-    /**
-     * 获取expirationYear属性的值。
-     * 
-     * @return
-     *     possible object is
-     *     {@link BigInteger }
-     *     
-     */
     public BigInteger getExpirationYear() {
         return expirationYear;
     }
 
-    /**
-     * 设置expirationYear属性的值。
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link BigInteger }
-     *     
-     */
-    public void setExpirationYear(BigInteger value) {
-        this.expirationYear = value;
+    public void setExpirationYear(BigInteger expirationYear) {
+        this.expirationYear = expirationYear;
     }
 
-    /**
-     * 获取cvIndicator属性的值。
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getCvIndicator() {
-        return cvIndicator;
-    }
-
-    /**
-     * 设置cvIndicator属性的值。
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setCvIndicator(String value) {
-        this.cvIndicator = value;
-    }
-
-    /**
-     * 获取cvNumber属性的值。
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getCvNumber() {
-        return cvNumber;
-    }
-
-    /**
-     * 设置cvNumber属性的值。
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setCvNumber(String value) {
-        this.cvNumber = value;
-    }
-
-    /**
-     * 获取cardType属性的值。
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
     public String getCardType() {
         return cardType;
     }
 
-    /**
-     * 设置cardType属性的值。
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setCardType(String value) {
-        this.cardType = value;
+    public void setCardType(String cardType) {
+        this.cardType = cardType;
     }
-
-    /**
-     * 获取issueNumber属性的值。
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getIssueNumber() {
-        return issueNumber;
-    }
-
-    /**
-     * 设置issueNumber属性的值。
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setIssueNumber(String value) {
-        this.issueNumber = value;
-    }
-
-    /**
-     * 获取startMonth属性的值。
-     * 
-     * @return
-     *     possible object is
-     *     {@link BigInteger }
-     *     
-     */
-    public BigInteger getStartMonth() {
-        return startMonth;
-    }
-
-    /**
-     * 设置startMonth属性的值。
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link BigInteger }
-     *     
-     */
-    public void setStartMonth(BigInteger value) {
-        this.startMonth = value;
-    }
-
-    /**
-     * 获取startYear属性的值。
-     * 
-     * @return
-     *     possible object is
-     *     {@link BigInteger }
-     *     
-     */
-    public BigInteger getStartYear() {
-        return startYear;
-    }
-
-    /**
-     * 设置startYear属性的值。
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link BigInteger }
-     *     
-     */
-    public void setStartYear(BigInteger value) {
-        this.startYear = value;
-    }
-
-    /**
-     * 获取pin属性的值。
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getPin() {
-        return pin;
-    }
-
-    /**
-     * 设置pin属性的值。
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setPin(String value) {
-        this.pin = value;
-    }
-
-    /**
-     * 获取accountEncoderID属性的值。
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getAccountEncoderID() {
-        return accountEncoderID;
-    }
-
-    /**
-     * 设置accountEncoderID属性的值。
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setAccountEncoderID(String value) {
-        this.accountEncoderID = value;
-    }
-
-    /**
-     * 获取bin属性的值。
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getBin() {
-        return bin;
-    }
-
-    /**
-     * 设置bin属性的值。
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setBin(String value) {
-        this.bin = value;
-    }
-
-    /**
-     * 获取encryptedData属性的值。
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getEncryptedData() {
-        return encryptedData;
-    }
-
-    /**
-     * 设置encryptedData属性的值。
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setEncryptedData(String value) {
-        this.encryptedData = value;
-    }
-
-    /**
-     * 获取suffix属性的值。
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getSuffix() {
-        return suffix;
-    }
-
-    /**
-     * 设置suffix属性的值。
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setSuffix(String value) {
-        this.suffix = value;
-    }
-
-    /**
-     * 获取prefix属性的值。
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getPrefix() {
-        return prefix;
-    }
-
-    /**
-     * 设置prefix属性的值。
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setPrefix(String value) {
-        this.prefix = value;
-    }
-
 }
