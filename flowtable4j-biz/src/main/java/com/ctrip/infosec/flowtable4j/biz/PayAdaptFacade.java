@@ -95,7 +95,7 @@ public class PayAdaptFacade  {
                     long start = System.nanoTime();
                     checkRiskByDroolsEngine(fact, bwResults4j);
                     long end = System.nanoTime();
-                    logger.debug("get RiskResult by Drools Engine costs "+(end-start) /1000000L+"ms");
+                    logger.debug("get RiskResult by Drools Engine costs "+(end-start) /1000000L+" ms");
                     return null;
                 }
             });
@@ -107,7 +107,7 @@ public class PayAdaptFacade  {
                         long start = System.nanoTime();
                         checkPaymentBWGRule(fact, bwResults,productInfo);
                         long end = System.nanoTime();
-                        logger.debug("check Payment BWG Rule costs " + (end - start) /1000000L + "ms");
+                        logger.debug("check Payment BWG Rule costs " + (end - start) /1000000L + " ms");
                         return null;
                     }
                 });
@@ -118,7 +118,7 @@ public class PayAdaptFacade  {
                         //调用支付适配流量规则
                         checkPayAdaptFlowRule(fact, payRuleResults,productInfo);
                         long end = System.nanoTime();
-                        logger.debug("check PayAdapt FlowRule costs " + (end - start)/1000000L + "ms");
+                        logger.debug("check PayAdapt FlowRule costs " + (end - start)/1000000L + " ms");
                         return null;
                     }
                 });
@@ -131,7 +131,7 @@ public class PayAdaptFacade  {
                 //调用账户风控黑白名单
                 checkAccountBWGService(fact, accountResults);
                 long end = System.nanoTime();
-                logger.debug("check AccountBWG Service costs " + (end - start) /1000000L + "ms");
+                logger.debug("check AccountBWG Service costs " + (end - start) /1000000L + " ms");
                 return null;
             }
         });
@@ -151,7 +151,7 @@ public class PayAdaptFacade  {
         //合并结果
         mergeResult(bwResults, bwResults4j, payRuleResults, accountResults, results);
         long end = System.nanoTime();
-        logger.debug("merge pay adapt result costs " + (end - start)/1000000L + "ms");
+        logger.debug("merge pay adapt result costs " + (end - start)/1000000L + " ms");
         result.setPayAdaptResultItems(results);
 
         paybaseDbService.save(fact.getMerchantID(), fact.getOrderID(), fact.getOrderType(), fact.getUid(),results);
