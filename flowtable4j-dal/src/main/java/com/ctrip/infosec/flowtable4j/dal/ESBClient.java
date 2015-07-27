@@ -34,8 +34,8 @@ import java.util.logging.SimpleFormatter;
 public class ESBClient {
 
     private static final Logger logger = LoggerFactory.getLogger(ESBClient.class);
-    static final String esbUrl =  GlobalConfig.getString("SOA.ESB.URL");
-    static final String appId =  GlobalConfig.getString("appId");
+    static final String esbUrl =  GlobalConfig.getString("ESBUrl");
+    static final String appId =  GlobalConfig.getString("APPID");
 
     private String requestWithSoap(String soapRequestContent) throws IOException {
         StringBuilder soapRequestSOAPData = new StringBuilder();
@@ -185,7 +185,7 @@ public class ESBClient {
             String xpath = "/Response/MemberInfoResponse";
             return requestESB(requestType, requestBody, xpath);
         } catch (Exception exp) {
-            logger.warn("GetMemberInfo异常", exp);
+            logger.warn("GetMemberInfo异常", exp.getMessage());
             return null;
         }
     }

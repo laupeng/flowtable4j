@@ -12,19 +12,15 @@ CLogging.serverPort={$CLogging.serverPort}
 # Data Config Server
 Configs.Caches.url={$Configs.Caches.url}
 
-
 APPID={$AppID}
 ESBUrl={$ESBUrl}
 DBDataCenter={$DBDataCenter}
 EventWS={$EventWS}
 
-#ESB
-ESB.serviceUrl={$ESB.serviceUrl}
 # DataProxy
 DataProxy.REST.URL.Prefix ={$DataProxy.REST.URL.Prefix}
 DataProxy.Venus.ipAddressList ={$DataProxy.Venus.ipAddressList}
-# CardInfo
-CardInfo.REST.URL.Prefix ={$CardInfo.REST.URL.Prefix}
+
 # Data Config Server
 Configs.URL = {$Configs.URL}
 Configs.Trace.URL ={$Configs.Trace.URL}
