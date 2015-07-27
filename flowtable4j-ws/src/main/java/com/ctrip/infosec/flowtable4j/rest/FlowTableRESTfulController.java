@@ -50,9 +50,10 @@ public class FlowTableRESTfulController {
         fact.setOrderType(Integer.parseInt(MapX.getString(eventBody,"ordertype")));
         fact.setMerchantID(MapX.getString(eventBody,"merchantid"));
         fact.setUid(MapX.getString(eventBody,"uid"));
+        PayAdaptResult result = payAdaptProcessor.handle4PayAdapt(fact);
         long finish = System.nanoTime();
         logger.debug("CheckPayAdpat total elapse " + (finish-start)/1000000L +" ms");
-        return payAdaptProcessor.handle4PayAdapt(fact);
+        return  result;
     }
 
     @RequestMapping(value = "/checkPayment")
