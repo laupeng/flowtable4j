@@ -85,9 +85,9 @@ public class POConverter extends POConvertBase {
 
         List<String> modules = getModules(po.getOrdertype());
 
-        if (Strings.isNullOrEmpty(orderId) || "0".equals(orderId)) {
-            throw new InvalidOrderException("ORDERID IS ZERO");
-        }
+//        if (Strings.isNullOrEmpty(orderId) || "0".equals(orderId)) {
+//            throw new InvalidOrderException("ORDERID IS ZERO");
+//        }
 
         Map<String, Object> paymentInfo = null;
         Map<String, Object> productInfo = null;
