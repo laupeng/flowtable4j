@@ -51,7 +51,7 @@ public class FlowTableRESTfulController {
         fact.setMerchantID(MapX.getString(eventBody,"merchantid"));
         fact.setUid(MapX.getString(eventBody,"uid"));
         long finish = System.nanoTime();
-        logger.debug("CheckPayAdpat total elapse" + (finish-start)/1000000L +"ms");
+        logger.debug("CheckPayAdpat total elapse " + (finish-start)/1000000L +"ms");
         return payAdaptProcessor.handle4PayAdapt(fact);
     }
 
@@ -62,7 +62,7 @@ public class FlowTableRESTfulController {
         long start= System.nanoTime();
         RiskResult result = checkPaymentService.checkRisk2(checkEntity);
         long finish = System.nanoTime();
-        logger.debug("CheckPayment total elapse" + (finish-start)/1000000L +"ms");
+        logger.debug("CheckPayment total elapse " + (finish-start)/1000000L +"ms");
         return  result;
     }
 
