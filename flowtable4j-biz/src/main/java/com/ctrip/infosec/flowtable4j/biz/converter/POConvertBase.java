@@ -28,7 +28,7 @@ public class POConvertBase extends ConverterBase {
         if(CtripOrderType.Flights.getCode()==orderType){
             return  Arrays.asList(new String[]{"getcardinfo","getforeigncardinfo","getidprovince","getcardbankinfo","paymentineventbody"});
         }
-        if(CtripOrderType.TTD.getCode()==orderType){
+        if(CtripOrderType.TTD.getCode()==orderType||CtripOrderType.Hotel.getCode()==orderType){
             return  Arrays.asList(new String[]{"getcardinfo","getforeigncardinfo","getidprovince","getcardbankinfo"});
         }
         return  Arrays.asList(new String[]{"getcardinfo","getforeigncardinfo","getcardbankinfo"});
@@ -315,11 +315,11 @@ public class POConvertBase extends ConverterBase {
         setValue(ipInfo, "useripadd", userIP);
         long ipValue = ipConvertToValue(userIP);
         setValue(ipInfo, "useripvalue", ipValue);
-        Map<String, Object> ip = checkRiskDAO.getIpCountryCity(ipValue);
+        Map<String, Object> ip = checkRiskDAO.getIPInfo(ipValue);
         if (ip != null) {
-            setValue(ipInfo, "continent", getObject(ip, "continentid"));
+            setValue(ipInfo, "continent", 0);
             setValue(ipInfo, "ipcity", getObject(ip, "cityid"));
-            setValue(ipInfo, "ipcountry", getObject(ip, "countrycode"));
+            setValue(ipInfo, "ipcountry", getObject(ip, "nationcode"));
         }
         setValue(target, "ipinfo", ipInfo);
     }

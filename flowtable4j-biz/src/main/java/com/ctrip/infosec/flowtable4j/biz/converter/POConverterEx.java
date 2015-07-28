@@ -295,7 +295,6 @@ public class POConverterEx extends ConverterBase {
             if(StringUtils.isNumeric(refNo)){
                 setValue(maininfo,"refno",refNo);
             }
-            setValue(maininfo, "amount", getObject(eventBody, "orderamount"));
         }
         // CheckType =1时，带有是否预付 IsPrepaID
         // CheckType =2时，支付时带有其它信息，从上次取 IsPrepaID
@@ -316,15 +315,36 @@ public class POConverterEx extends ConverterBase {
     }
 
     /**
+     * TDD 特殊处理
+     * @param po
+     * @param eventBody
+     */
+    public void hotelSpecial(PO po, Map<String, Object> eventBody) {
+        // CheckType =1时，带有是否预付 IsPrepaID
+        // CheckType =2时，支付时带有其它信息，从上次取 IsPrepaID
+        Map<String,Object> paymentMainInfo = getMap(po.getPaymentinfo(),"paymentmaininfo");
+        if(paymentMainInfo==null){
+            paymentMainInfo = new HashMap<String, Object>();
+            setValue(po.getPaymentinfo(),"paymentmaininfo",paymentMainInfo);
+        }
+        if(po.getChecktype()==1){
+            copyValueIfNotNull(eventBody,"isprepaid",paymentMainInfo,"isprepaid"); //取当前isprepaid
+        } else if(po.getChecktype()==2) {
+            Map<String, Object> tmpPay = checkRiskDAO.getLastPaymentInfo(getString(eventBody, "orderid"), getString(eventBody, "ordertype"), getString(eventBody, "merchantorderid"));
+            if (tmpPay != null) {
+                Map<String, Object> paymentInfo = mapper.fromJson(getString(tmpPay, "content"), HashMap.class);
+                copyValueIfNotNull(getMap(paymentInfo, "paymentmaininfo"), "isprepaid", paymentMainInfo, "isprepaid"); //取上次的 isprepaid
+            }
+        }
+    }
+
+
+    /**
      * @param po
      * @param eventBody
      */
     public void hotelGroupSpecial(PO po, Map<String, Object> eventBody) {
 
-        Map<String,Object> maininfo = getMap(po.getProductinfo(),"maininfo");
-        if(maininfo!=null){
-            setValue(maininfo, "amount", getObject(eventBody, "orderamount"));
-        }
     }
 
     /**
@@ -337,5 +357,26 @@ public class POConverterEx extends ConverterBase {
         if(maininfo!=null){
             setValue(maininfo, "corporationid", getObject(eventBody, "corporationid"));
         }
+    }
+
+    public void fillHotelInfoList(Map<String, Object> productInfo, Map<String, Object> eventBody) {
+        List<Map<String,Object>> hotelGroupInfoList=new ArrayList<Map<String, Object>>();
+        Map<String,Object> hotel = new HashMap<String, Object>();
+        copyMap(eventBody,hotel,"infosecurity_hotelinfo");
+        hotelGroupInfoList.add(hotel);
+        setValue(productInfo,"hotelinfolist",hotelGroupInfoList);
+    }
+
+    public void fillGiftItemList(Map<String, Object> productInfo, Map<String, Object> eventBody) {
+        List<Map<String,Object>> giftList=new ArrayList<Map<String, Object>>();
+        List<Map<String,Object>> giftListMap=getList(eventBody,"giftlist");
+        if(giftListMap!=null && giftListMap.size()>0){
+            for(Map<String,Object> giftMap:giftListMap){
+                Map<String,Object> gift=new HashMap<String, Object>();
+                copyMap(giftMap,gift,"infosecurity_giftitem");
+                giftList.add(gift);
+            }
+        }
+        setValue(productInfo,"giftitemlist",giftList);
     }
 }

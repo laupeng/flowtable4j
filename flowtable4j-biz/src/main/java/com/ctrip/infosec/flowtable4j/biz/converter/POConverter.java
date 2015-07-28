@@ -50,6 +50,12 @@ public class POConverter extends POConvertBase {
                                                  "paymentinfolist","otherinfo",
                                                  "paymentmaininfo","vacationinfolist","didinfo","tddspecial"});
         }
+
+        if(orderType==CtripOrderType.Hotel.getCode()){
+            return Arrays.asList(new String[]{ "contactinfo", "userinfo", "ipinfo",
+                    "paymentinfolist","otherinfo",
+                    "paymentmaininfo","hotelinfolist","giftitemlist","corporation","didinfo","hotelspecial"});
+        }
         return new ArrayList<String>();
     }
 
@@ -141,6 +147,9 @@ public class POConverter extends POConvertBase {
             setValue(mainInfo, "ordertype", orderType);
             setValue(mainInfo, "createdate", sdf.format(System.currentTimeMillis()));
             setValue(mainInfo, "corporationid", "");
+            if(po.getOrdertype()!=CtripOrderType.Flights.getCode()){
+                setValue(mainInfo,"amount",getString(eventBody,"orderamount"));
+            }
             setValue(productInfo, "maininfo", mainInfo);
 
             //fill contactInfo && Mobilephone City
@@ -177,6 +186,11 @@ public class POConverter extends POConvertBase {
                 poConverterEx.fillHotelGroupInfoList(productInfo,eventBody);
             }
 
+            //fill Hotel Group
+            if(modules.contains("hotelinfolist")) {
+                poConverterEx.fillHotelInfoList(productInfo, eventBody);
+            }
+
             //fill Vaction Info
             if(modules.contains("vacationinfolist")) {
                 poConverterEx.fillVacationInfoList(productInfo,eventBody,po.getOrdertype());
@@ -190,9 +204,13 @@ public class POConverter extends POConvertBase {
                 poConverterEx.fillFlightInfoList(productInfo, eventBody);
             }
 
+            if(modules.contains("giftitemlist")){
+                poConverterEx.fillGiftItemList(productInfo,eventBody);
+            }
+
             //fill Other Info
             if(modules.contains("otherinfo")) {
-                fillOtherInfo(po,eventBody);
+                fillOtherInfo(po, eventBody);
             }
 
         } else if (checkType.equals("2") || checkType.equals("0")) { //支付校验，补充订单信息
@@ -227,6 +245,10 @@ public class POConverter extends POConvertBase {
             poConverterEx.crhSpecial(po,eventBody);
         }
 
+        if(modules.contains("hotelspecial")){
+            poConverterEx.hotelSpecial(po, eventBody);
+        }
+
         if(modules.contains("flightspecial")){
             poConverterEx.flightSpecial(po, eventBody);
         }
@@ -246,11 +268,20 @@ public class POConverter extends POConvertBase {
     }
 
     public void saveData4Next(PO po){
-        if(po.getChecktype()<=1 && po.getProductinfo()!=null){
+        int checkType= po.getChecktype();
+        int orderType= po.getOrdertype();
+        if(checkType <= 1 && po.getProductinfo()!=null){
             checkRiskDAO.saveLastProductInfo(po.getOrderid(),po.getOrdertype(),po.getMerchantid(),po.getProductinfo());
-        } else if(( po.getChecktype().equals(1) && po.getOrdertype()== CtripOrderType.TTD.getCode() //TTD更新PaymentMainInfo的IsPrepaId
-                   || !po.getChecktype().equals(1))
-                   && po.getPaymentinfo()!=null) {
+        }
+
+        //TDD, HotelGroup的CheckType=1 带 PaymentMainInfo的 PrepaId信息，
+        if(checkType==1 && (orderType==CtripOrderType.TTD.getCode()|| orderType== CtripOrderType.Hotel.getCode())) {
+            if (po.getPaymentinfo() != null) {
+                checkRiskDAO.saveLastPaymentInfo(po.getOrderid(), po.getOrdertype(), po.getMerchantid(), po.getPrepaytype(), po.getPaymentinfo());
+            }
+        }
+
+        if(checkType!=1 && po.getPaymentinfo()!=null) {
             checkRiskDAO.saveLastPaymentInfo(po.getOrderid(),po.getOrdertype(),po.getMerchantid(),po.getPrepaytype(),po.getPaymentinfo());
         }
     }
