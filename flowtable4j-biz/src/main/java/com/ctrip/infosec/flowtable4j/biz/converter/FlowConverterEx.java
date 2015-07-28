@@ -3,6 +3,7 @@ package com.ctrip.infosec.flowtable4j.biz.converter;
 import com.ctrip.infosec.flowtable4j.biz.ConverterBase;
 import com.google.common.base.Strings;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -149,7 +150,7 @@ public class FlowConverterEx extends ConverterBase {
 
                     }
                     String amount = getString(productInfo,new String[]{"maininfo","amount"});
-                    if(StringUtils.isNumeric(amount) && passengerlistMap.size()>0){
+                    if(NumberUtils.isNumber(amount) && passengerlistMap.size()>0){
                         setValue(target, "leafletamount", Double.parseDouble(amount) /1.00/passengerlistMap.size());
                     }
 

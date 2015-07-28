@@ -232,7 +232,7 @@ public class POConverter extends POConvertBase {
         }
 
         if(modules.contains("fillprofit")) {
-            poConverterEx.fillFligtProfit(productInfo, paymentInfo);
+            poConverterEx.fillFligtProfit(productInfo, paymentInfo,po.getChecktype());
         }
 
         if (Strings.isNullOrEmpty(po.getPrepaytype())) {

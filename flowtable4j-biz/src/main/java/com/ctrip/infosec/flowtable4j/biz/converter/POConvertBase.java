@@ -232,6 +232,7 @@ public class POConvertBase extends ConverterBase {
                 setValue(userInfo, "cuscharacter", "NEW");
                 setValue(userInfo, "relatedemail", getString(crmInfo, "email"));
                 setValue(userInfo, "relatedmobilephone", getString(crmInfo, "mobilephone"));
+
                 setValue(userInfo, "userpassword", getString(crmInfo, "md5password"));
                 String signupDate = getString(userInfo,"signupdate");
                 if(!Strings.isNullOrEmpty(signupDate)){

@@ -5,6 +5,7 @@ import com.ctrip.infosec.flowtable4j.model.CtripOrderType;
 import com.ctrip.infosec.flowtable4j.model.persist.PO;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -105,8 +106,8 @@ public class POConverterEx extends ConverterBase {
             for (Map<String, Object> sMap : segmentListMap) {
                 Map<String, Object> s = new HashMap<String, Object>();
                 copyMap(sMap, s, "infosecurity_segmentinfo");
-                setValue(sMap, "acity", checkRiskDAO.getCityCode(getString(s, "aairport")));
-                setValue(sMap, "dcity", checkRiskDAO.getCityCode(getString(s, "dairport")));
+                setValue(s, "acity", checkRiskDAO.getCityCode(getString(s, "aairport")));
+                setValue(s, "dcity", checkRiskDAO.getCityCode(getString(s, "dairport")));
                 segmentList.add(s);
             }
         }
@@ -147,7 +148,11 @@ public class POConverterEx extends ConverterBase {
      * @param productInfo
      * @param paymentInfo
      */
-    public void fillFligtProfit(Map<String, Object> productInfo, Map<String, Object> paymentInfo) {
+    public void fillFligtProfit(Map<String, Object> productInfo, Map<String, Object> paymentInfo,int checkType) {
+        //CheckType!=0才计算利润
+        if(checkType==0) {
+            return;
+        }
         List<Map<String, Object>> paymentInfoList =  getList(paymentInfo, "paymentinfolist");
         List<Map<String, Object>> flightInfoList =  getList(productInfo, "flightinfolist");
         Map<String,Object> maininfo = getMap(productInfo, "maininfo");
@@ -264,14 +269,14 @@ public class POConverterEx extends ConverterBase {
                 }
             }
         }
-        List<Map<String, Object>> flightinfolist = getList(po.getProductinfo(), "flightinfolist");
+        List<Map<String, Object>> flightinfolist = getList(productInfo,"flightinfolist");
         if (flightinfolist != null && flightinfolist.size() > 0) {
             Map<String,Object> order = getMap(flightinfolist.get(0),"order");
             setValue(getMap(productInfo,"otherinfo"), "takeofftoorderdate",
                      dateDiffHour(getString(order,"takeofftime"),getString(productInfo,new String[]{"maininfo","orderdate"})));
             String amt = getString(productInfo, new String[]{"maininfo", "amount"});
             List<Map<String,Object>> passengers = getList(flightinfolist.get(0),"passengerlist");
-            if (StringUtils.isNumeric(amt) && passengers!=null && passengers.size()>0) {
+            if (NumberUtils.isNumber(amt) && passengers!=null && passengers.size()>0) {
                 setValue(order, "leafletamount", Double.parseDouble(amt) / passengers.size());
             }
         }
