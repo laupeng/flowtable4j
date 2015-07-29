@@ -117,12 +117,7 @@ public class POConvertBase extends ConverterBase {
 
         List<Map<String, Object>> paymentInfoList = new ArrayList<Map<String, Object>>();
         List<Map<String, Object>> paymentInfoListSrc;
-
-        if (orderType == CtripOrderType.JiFen.getCode()) {
-            paymentInfoListSrc = getList(eventBody, "paymentinfobyjifenlist");
-        } else {
-            paymentInfoListSrc = getList(eventBody, "paymentinfos");
-        }
+        paymentInfoListSrc = getList(eventBody, "paymentinfos");
 
         if (paymentInfoListSrc == null || paymentInfoListSrc.size() == 0) {
             if (orderType == CtripOrderType.Flights.getCode()) {  //机票有可能支付信息在eventBody中

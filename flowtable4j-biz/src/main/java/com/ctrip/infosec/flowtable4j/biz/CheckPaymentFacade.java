@@ -74,7 +74,7 @@ public class CheckPaymentFacade {
         long start1 = System.nanoTime();
         final PO po = poConverter.convert(requestBody);
         final Long reqId = save2DbService.saveDealInfo(MapX.getMap(po.getProductinfo(), "dealinfo"));
-        po.setReqid(reqId);  
+        po.setReqid(reqId);
         logger.warn("Construct PO elapse:" + (System.nanoTime() - start1) / 1000000L);
         SimpleStaticThreadPool.getInstance().submit(new Runnable() {
             @Override
