@@ -24,43 +24,43 @@ public class POConverter extends POConvertBase {
 
     /**
      * 业务选择器
+     *
      * @param orderType
      * @return
      */
-    public List<String> getModules(int orderType){
-        if(orderType== CtripOrderType.HotelGroup.getCode()){
-            return Arrays.asList(new String[]{ "contactinfo", "userinfo", "ipinfo",
-                                                "hotelgroupinfolist", "paymentinfolist", "paymentmaininfo",
-                                                "vacationinfolist", "otherinfo", "didinfo","hotelgroupspecial"});
+    public List<String> getModules(int orderType) {
+        if (orderType == CtripOrderType.HotelGroup.getCode()) {
+            return Arrays.asList(new String[]{"hotelgroupinfolist", "vacationinfolist"});
         }
-        if(orderType== CtripOrderType.Flights.getCode()){
+        if (orderType == CtripOrderType.Flights.getCode()) {
             //CheckType 0,1,2
-            return Arrays.asList(new String[]{ "contactinfo", "userinfo", "ipinfo",
-                                                 "flightinfolist","corporation","paymentinfolist", "paymentmaininfo",
-                                                 "appinfo","orderccard", "otherinfo", "didinfo","fillprofit","flightspecial"});
+            return Arrays.asList(new String[]{"flightinfolist", "corporation", "appinfo", "orderccard", "fillprofit", "flightspecial"});
         }
-        if(orderType==CtripOrderType.CRH.getCode()){
-            return Arrays.asList(new String[]{ "contactinfo", "userinfo", "ipinfo",
-                                                 "railinfolist", "corporation","paymentinfolist","otherinfo",
-                                                 "paymentmaininfo","vacationinfolist","didinfo","crhspecial"});
+        if (orderType == CtripOrderType.CRH.getCode()) {
+            return Arrays.asList(new String[]{"railinfolist", "corporation", "distribution", "vacationinfolist"});
         }
 
-        if(orderType==CtripOrderType.TTD.getCode()){
-            return Arrays.asList(new String[]{ "contactinfo", "userinfo", "ipinfo",
-                                                 "paymentinfolist","otherinfo",
-                                                 "paymentmaininfo","vacationinfolist","didinfo","tddspecial"});
+        if (orderType == CtripOrderType.TTD.getCode()) {
+            return Arrays.asList(new String[]{"vacationinfolist", "tddspecial"});
         }
 
-        if(orderType==CtripOrderType.Hotel.getCode()){
-            return Arrays.asList(new String[]{ "contactinfo", "userinfo", "ipinfo",
-                    "paymentinfolist","otherinfo",
-                    "paymentmaininfo","hotelinfolist","giftitemlist","corporation","didinfo","hotelspecial"});
+        if (orderType == CtripOrderType.Hotel.getCode()) {
+            return Arrays.asList(new String[]{"hotelinfolist", "giftitemlist", "corporation", "hotelspecial"});
         }
+
+        if (orderType == CtripOrderType.JiFen.getCode()) {
+            return Arrays.asList(new String[]{"devoteinfoviewbyjifen", "jifenorderitemlist", "distribution",});
+        }
+        if (orderType == CtripOrderType.DIY.getCode()) {
+            return Arrays.asList(new String[]{"diy"});
+        }
+
         return new ArrayList<String>();
     }
 
     /**
      * 核心过程，Request 转 PO
+     *
      * @param requestBody
      * @return
      */
@@ -76,24 +76,24 @@ public class POConverter extends POConvertBase {
 
         po.setPrepaytype(getString(eventBody, "orderprepaytype"));
 
-        if(StringUtils.isNumeric(orderId)) {
+        if (StringUtils.isNumeric(orderId)) {
             po.setOrderid(Long.parseLong(orderId));
         }
-        if(StringUtils.isNumeric(orderType)){
-           po.setOrdertype(Integer.parseInt(orderType));
+        if (StringUtils.isNumeric(orderType)) {
+            po.setOrdertype(Integer.parseInt(orderType));
         }
-        if(StringUtils.isNumeric(suborderType)) {
+        if (StringUtils.isNumeric(suborderType)) {
             po.setSubordertype(Integer.parseInt(suborderType));
         }
-        if(StringUtils.isNumeric(checkType)) {
+        if (StringUtils.isNumeric(checkType)) {
             po.setChecktype(Integer.parseInt(checkType));
         }
 
         List<String> modules = getModules(po.getOrdertype());
 
-//        if (Strings.isNullOrEmpty(orderId) || "0".equals(orderId)) {
-//            throw new InvalidOrderException("ORDERID IS ZERO");
-//        }
+        if (po.getOrderid().equals(0)) {
+            throw new InvalidOrderException("ORDERID IS ZERO");
+        }
 
         Map<String, Object> paymentInfo = null;
         Map<String, Object> productInfo = null;
@@ -109,9 +109,9 @@ public class POConverter extends POConvertBase {
         if (tmpProduct != null) {
             productInfo = mapper.fromJson(getString(tmpProduct, "content"), HashMap.class);
             po.setProductinfo(productInfo);
-            Map<String,Object> mainInfo = getMap(productInfo,"maininfo");
-            if(mainInfo!=null){
-                setValue(mainInfo,"checktype",po.getChecktype());
+            Map<String, Object> mainInfo = getMap(productInfo, "maininfo");
+            if (mainInfo != null) {
+                setValue(mainInfo, "checktype", po.getChecktype());
             }
         } else {
             productInfo = new HashMap<String, Object>();
@@ -128,14 +128,20 @@ public class POConverter extends POConvertBase {
             paymentInfo = new HashMap<String, Object>();
             po.setPaymentinfo(paymentInfo);
         }
-        // 处理 Email、UserIp、MobilePhone
-        validateData(requestBody);
+
+        // 处理 Email、UserIp、MobilePhone.TelNo,ContactTel等非法
+        validateData(eventBody);
+        if (po.getOrdertype() == CtripOrderType.JiFen.getCode()) {
+            validateData(getMap(eventBody, "contactview"));
+            validateData(getMap(eventBody, "deliveryinfoview"));
+        }
+
 
         // fill DealInfo
         Map<String, Object> dealInfo = new HashMap<String, Object>();
         setValue(dealInfo, "checkstatus", 0);
         setValue(dealInfo, "referenceid", getString(eventBody, "referenceno"));
-        setValue(productInfo,"dealinfo", dealInfo);
+        setValue(productInfo, "dealinfo", dealInfo);
 
         //订单校验
         if (checkType.equals("1") || checkType.equals("0")) {     //订单校验，补充上次的支付信息
@@ -147,142 +153,151 @@ public class POConverter extends POConvertBase {
             setValue(mainInfo, "ordertype", orderType);
             setValue(mainInfo, "createdate", sdf.format(System.currentTimeMillis()));
             setValue(mainInfo, "corporationid", "");
-            if(po.getOrdertype()!=CtripOrderType.Flights.getCode()){
-                setValue(mainInfo,"amount",getString(eventBody,"orderamount"));
+            if (po.getOrdertype() == CtripOrderType.CRH.getCode() || po.getOrdertype() == CtripOrderType.Flights.getCode()
+                ||po.getOrdertype() == CtripOrderType.Hotel.getCode() ) {
+                setValue(mainInfo, "corporationid", getObject(eventBody, "corporationid"));
+            }
+            if (po.getOrdertype() != CtripOrderType.Flights.getCode()) {
+                setValue(mainInfo, "amount", getString(eventBody, "orderamount"));
+            }
+            if (po.getOrdertype() == CtripOrderType.TTD.getCode()
+                    || po.getChecktype() == CtripOrderType.DIY.getCode()
+                    || po.getOrdertype() == CtripOrderType.Hotel.getCode()) {
+                String refNo = getString(eventBody, "referenceno");
+                if (StringUtils.isNumeric(refNo)) {
+                    setValue(mainInfo, "refno", refNo);
+                }
             }
             setValue(productInfo, "maininfo", mainInfo);
 
-            //fill contactInfo && Mobilephone City
-            if(modules.contains("contactinfo")) {
-                fillContactInfo(requestBody.getEventBody(), productInfo);
-            }
 
             //fill User Info Info，CusCharacter、BindEmail etc.
-            if(modules.contains("userinfo")) {
-                fillUserInfo(eventBody, productInfo, getString(eventBody, "uid"),po.getOrdertype());
-            }
+            fillUserInfo(eventBody, productInfo, getString(eventBody, "uid"), po.getOrdertype());
 
             //fill IP Info, IpCity,Ip Continent
-            if(modules.contains("ipinfo")) {
-                fillIPInfo(productInfo, getString(eventBody, "userip"));
-            }
+            fillIPInfo(productInfo, getString(eventBody, "userip"));
+
+            //fill contactInfo && Mobilephone City
+            fillContactInfo(eventBody, productInfo, po.getOrdertype());
 
             //fill Corporation
-            if(modules.contains("corporation")) {
+            if (modules.contains("corporation")) {
                 Map<String, Object> corporationInfo = new HashMap<String, Object>();
                 copyMap(eventBody, corporationInfo, "infosecurity_corporationinfo");
                 setValue(productInfo, "corporation", corporationInfo);
             }
 
             //fill AppInfo
-            if(modules.contains("appinfo")) {
+            if (modules.contains("appinfo")) {
                 Map<String, Object> appInfo = new HashMap<String, Object>();
                 copyMap(eventBody, appInfo, "infosecurity_appinfo");
                 setValue(productInfo, "appinfo", appInfo);
             }
 
             //fill Hotel Group
-            if(modules.contains("hotelgroupinfolist")) {
-                poConverterEx.fillHotelGroupInfoList(productInfo,eventBody);
+            if (modules.contains("hotelgroupinfolist")) {
+                poConverterEx.fillHotelGroupInfoList(productInfo, eventBody);
             }
 
             //fill Hotel Group
-            if(modules.contains("hotelinfolist")) {
+            if (modules.contains("hotelinfolist")) {
                 poConverterEx.fillHotelInfoList(productInfo, eventBody);
             }
 
             //fill Vaction Info
-            if(modules.contains("vacationinfolist")) {
-                poConverterEx.fillVacationInfoList(productInfo,eventBody,po.getOrdertype());
+            if (modules.contains("vacationinfolist")) {
+                poConverterEx.fillVacationInfoList(productInfo, eventBody, po.getOrdertype());
             }
 
-            if(modules.contains("railinfolist")){
-                poConverterEx.fillRailInfoList(productInfo,eventBody);
+            if (modules.contains("railinfolist")) {
+                poConverterEx.fillRailInfoList(productInfo, eventBody);
             }
 
-            if(modules.contains("flightinfolist")) {
+            if (modules.contains("flightinfolist")) {
                 poConverterEx.fillFlightInfoList(productInfo, eventBody);
             }
-
-            if(modules.contains("giftitemlist")){
-                poConverterEx.fillGiftItemList(productInfo,eventBody);
+            if (modules.contains("diy")) {
+                poConverterEx.fillDIYFlightInfoList(productInfo, eventBody);
+                poConverterEx.fillDIYHotelInfoList(productInfo, eventBody);
+                poConverterEx.fillDIYVacationInfoList(productInfo, eventBody);
+                poConverterEx.fillDIYResourceXInfo(productInfo, eventBody);
+            }
+            if (modules.contains("giftitemlist")) {
+                poConverterEx.fillGiftItemList(productInfo, eventBody);
+            }
+            if (modules.contains("devoteinfoviewbyjifen")) {
+                poConverterEx.fillDevoteInfoViewByJiFen(productInfo, eventBody);
+            }
+            if (modules.contains("distribution")) {
+                poConverterEx.fillDistribution(productInfo, eventBody, po.getOrdertype());
+            }
+            if (modules.contains("jifenorderitemlist")) {
+                poConverterEx.fillJifenOrderItemList(productInfo, eventBody);
             }
 
             //fill Other Info
-            if(modules.contains("otherinfo")) {
-                fillOtherInfo(po, eventBody);
-            }
+            fillOtherInfo(po, eventBody);
 
         } else if (checkType.equals("2") || checkType.equals("0")) { //支付校验，补充订单信息
 
             //fill PaymentMainInfo
-            if(modules.contains("paymentmaininfo")) {
-                Map<String, Object> paymentMainInfo = new HashMap<String, Object>();
-                copyMap(requestBody.getEventBody(), paymentMainInfo, "infosecurity_paymentmaininfo");
-                setValue(paymentInfo, "paymentmaininfo", paymentMainInfo);
-            }
+            Map<String, Object> paymentMainInfo = new HashMap<String, Object>();
+            copyMap(requestBody.getEventBody(), paymentMainInfo, "infosecurity_paymentmaininfo");
+            setValue(paymentInfo, "paymentmaininfo", paymentMainInfo);
 
-            if(modules.contains("paymentinfolist")) {
-                fillPaymentInfo(eventBody, paymentInfo, po.getOrdertype());
-            }
+            //fill PaymentInfoList
+            fillPaymentInfo(eventBody, paymentInfo, po.getOrdertype());
 
-            if(modules.contains("orderccard")){
-                poConverterEx.fillAuthCCardInfo(productInfo,paymentInfo);
+            if (modules.contains("orderccard")) {
+                poConverterEx.fillAuthCCardInfo(productInfo, paymentInfo);
             }
 
         }
 
-        if(modules.contains("hotelgroupspecial")){
-            poConverterEx.hotelGroupSpecial(po,eventBody);
-        }
-
-        if(modules.contains("tddspecial"))
-        {
+        if (modules.contains("tddspecial")) {
+            //处理 isprepaid标志
             poConverterEx.tddSpecial(po, eventBody);
         }
 
-        if(modules.contains("crhspecial")){
-            poConverterEx.crhSpecial(po,eventBody);
-        }
-
-        if(modules.contains("hotelspecial")){
+        if (modules.contains("hotelspecial")) {
+            //处理 isprepaid标志
             poConverterEx.hotelSpecial(po, eventBody);
         }
 
-        if(modules.contains("flightspecial")){
+        if (modules.contains("flightspecial")) {
             poConverterEx.flightSpecial(po, eventBody);
         }
 
-        if(modules.contains("fillprofit")) {
-            poConverterEx.fillFligtProfit(productInfo, paymentInfo,po.getChecktype());
+        if (modules.contains("fillprofit")) {
+            poConverterEx.fillFligtProfit(productInfo, paymentInfo, po.getChecktype());
         }
 
         if (Strings.isNullOrEmpty(po.getPrepaytype())) {
             po.setPrepaytype(getPrepayType(paymentInfo));
         }
 
-        if(modules.contains("didinfo")) {
+        if (modules.contains("didinfo")) {
             fillDIDInfo(productInfo, orderId, orderType);
         }
         return po;
     }
 
-    public void saveData4Next(PO po){
-        int checkType= po.getChecktype();
-        int orderType= po.getOrdertype();
-        if(checkType <= 1 && po.getProductinfo()!=null){
-            checkRiskDAO.saveLastProductInfo(po.getOrderid(),po.getOrdertype(),po.getMerchantid(),po.getProductinfo());
+    public void saveData4Next(PO po) {
+        int checkType = po.getChecktype();
+        int orderType = po.getOrdertype();
+        if (checkType <= 1 && po.getProductinfo() != null) {
+            checkRiskDAO.saveLastProductInfo(po.getOrderid(), po.getOrdertype(), po.getMerchantid(), po.getProductinfo());
         }
 
         //TDD, HotelGroup的CheckType=1 带 PaymentMainInfo的 PrepaId信息，
-        if(checkType==1 && (orderType==CtripOrderType.TTD.getCode()|| orderType== CtripOrderType.Hotel.getCode())) {
+        if (checkType == 1 && (orderType == CtripOrderType.TTD.getCode() || orderType == CtripOrderType.Hotel.getCode())) {
             if (po.getPaymentinfo() != null) {
                 checkRiskDAO.saveLastPaymentInfo(po.getOrderid(), po.getOrdertype(), po.getMerchantid(), po.getPrepaytype(), po.getPaymentinfo());
             }
         }
 
-        if(checkType!=1 && po.getPaymentinfo()!=null) {
-            checkRiskDAO.saveLastPaymentInfo(po.getOrderid(),po.getOrdertype(),po.getMerchantid(),po.getPrepaytype(),po.getPaymentinfo());
+        if (checkType != 1 && po.getPaymentinfo() != null) {
+            checkRiskDAO.saveLastPaymentInfo(po.getOrderid(), po.getOrdertype(), po.getMerchantid(), po.getPrepaytype(), po.getPaymentinfo());
         }
     }
 

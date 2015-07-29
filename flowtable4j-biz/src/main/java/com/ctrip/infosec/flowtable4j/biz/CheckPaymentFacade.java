@@ -73,11 +73,14 @@ public class CheckPaymentFacade {
         //数据准备
         long start1 = System.nanoTime();
         final PO po = poConverter.convert(requestBody);
+        final Long reqId = save2DbService.saveDealInfo(MapX.getMap(po.getProductinfo(), "dealinfo"));
+        po.setReqid(reqId);  
         logger.warn("Construct PO elapse:" + (System.nanoTime() - start1) / 1000000L);
         SimpleStaticThreadPool.getInstance().submit(new Runnable() {
             @Override
             public void run() {
                 poConverter.saveData4Next(po);
+                save2DbService.save(po, reqId);
             }
         });
         return new RiskResult();
