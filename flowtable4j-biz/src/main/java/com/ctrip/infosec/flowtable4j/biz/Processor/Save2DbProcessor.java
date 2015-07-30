@@ -4,6 +4,7 @@ import com.ctrip.infosec.flowtable4j.dal.CardRiskDbService;
 import com.ctrip.infosec.flowtable4j.model.MapX;
 import com.ctrip.infosec.flowtable4j.model.persist.ColumnInfo;
 import com.ctrip.infosec.flowtable4j.model.persist.PO;
+import com.ctrip.infosec.sars.util.mapper.JsonMapper;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import org.slf4j.Logger;
@@ -34,6 +35,7 @@ public class Save2DbProcessor {
     private TableInfoService tableInfoService;
 
     private Logger logger = LoggerFactory.getLogger(Save2DbProcessor.class);
+    protected static JsonMapper mapper = new JsonMapper();
 
     public Long saveDealInfo(Map<String, Object> map) {
 
@@ -222,7 +224,7 @@ public class Save2DbProcessor {
                 }
             }
         } catch (Exception ex) {
-            logger.warn(String.format("Save %s fail", tableName), ex);
+            logger.warn(String.format("Save %s fail:{%s}", tableName,mapper.toJson(src)), ex);
         }
 
     }
