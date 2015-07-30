@@ -25,7 +25,8 @@ public class CounterTest {
     @Test
     public void testReplace() throws Exception {
 
-        System.out.println(sdf.format(System.currentTimeMillis()));
+
+        System.out.println("0001-01-01 00:00:00.000".compareTo("1900-01-01"));
 //        String mobile = null;
 //        if (!Strings.isNullOrEmpty(mobile)) {
 //            while (mobile.startsWith("0")) {

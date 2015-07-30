@@ -25,7 +25,7 @@ public class ColumnInfo {
                 if (data_type.contains("char")) {
                     return "";
                 } else if (data_type.equals("datetime")) {
-                    return "1900-01-01";
+                    return "1900-01-01 00:00:00.000";
                 } else {
                     return "0";
                 }
@@ -33,7 +33,7 @@ public class ColumnInfo {
         }
         if(data_type.equals("datetime")){
             if(obj!=null && obj.toString().compareTo("1900-01-01")< 0){
-                obj =null;
+                return null;
             }
         }
         return obj;
