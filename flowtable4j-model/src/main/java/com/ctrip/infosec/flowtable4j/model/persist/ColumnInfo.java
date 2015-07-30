@@ -32,8 +32,9 @@ public class ColumnInfo {
             }
         }
         if(data_type.equals("datetime")){
-            if(obj!=null && obj.toString().compareTo("1900-01-01")< 0){
-                return null;
+            if(obj!=null) {
+                if (obj.toString().compareTo("1900-01-01") < 0) return null;
+                if (obj.toString().compareTo("9999-12-31")>0) return "9999-12-31 00:00:00.000";
             }
         }
         return obj;
