@@ -78,7 +78,7 @@ public class Save2DbProcessor {
                     saveList(key, src, keys, new String[]{"payment"}, new String[]{"cardinfolist"});
                 } else if ("railinfolist".equals(key)) {
                     keys.put("exrailinfoid", 0L);
-                    saveList(key, src, keys, new String[]{"rail"}, new String[]{"user"});
+                    saveList(key, src, keys, new String[]{"rail","user"},null);
                 } else if ("topshopcatalog".equals(key)) {
                     keys.put("cataloginfoid", 0L);
                     saveList(key, src, keys, new String[]{"cataloginfo"}, new String[]{"itemlist"});
