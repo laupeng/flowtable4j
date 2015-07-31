@@ -58,7 +58,7 @@ public class Save2DbProcessor {
                 keys.put("reqid", reqId);
                 if ("diyresourcexlist".equals(key) || "giftitemlist".equals(key) || "hotelinfolist".equals(key)
                         || "insureinfolist".equals(key) || "invoiceinfolist".equals(key) || "rechargesuborderlist".equals(key)
-                        || "vacationproductlist".equals(key) || "hotegroupinfolist".equals(key)) {
+                        || "vacationproductlist".equals(key) || "hotelgroupinfolist".equals(key)) {
                     saveList(key, src, reqId);
                 } else if ("flightinfolist".equals(key)) {
                     keys.put("flightsorderid", 0L);

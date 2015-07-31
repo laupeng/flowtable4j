@@ -542,7 +542,7 @@ public class POConverterEx extends ConverterBase {
                 Map<String, Object> jifen = new HashMap<String, Object>();
                 //SubOrder
                 Map<String, Object> order = new HashMap<String, Object>();
-                copyValue(jifenMap, "quantity", jifen, "quantity");
+                copyValue(jifenMap, "quantity", order, "quantity");
                 setValue(jifen, "order", order);
                 //Greeting Card
                 Map<String, Object> greetMap = getMap(jifenMap, "greetingcardinfoview");
