@@ -73,7 +73,7 @@ public class CheckPaymentFacade {
         //数据准备
         long start1 = System.nanoTime();
         final PO po = poConverter.convert(requestBody);
-        if(po.getReqid()==0) { //现阶段，就Coupons已带ReqId
+        if(po.getReqid()==0L) { //现阶段，就Coupons已带ReqId
             po.setReqid(save2DbService.saveDealInfo(MapX.getMap(po.getProductinfo(), "dealinfo")));
         }
         else
