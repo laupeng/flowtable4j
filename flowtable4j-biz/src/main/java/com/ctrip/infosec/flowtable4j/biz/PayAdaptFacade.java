@@ -77,9 +77,9 @@ public class PayAdaptFacade  {
 
         List<PayAdaptResultItem> results = new ArrayList<PayAdaptResultItem>();
 
-        final List<PayAdaptResultItem> bwResults4j = new ArrayList<PayAdaptResultItem>();
-        final RiskResult bwResults = new RiskResult();
-        final List<PayAdaptResultItem> payRuleResults = new ArrayList<PayAdaptResultItem>();
+        final List<PayAdaptResultItem> droolsResult = new ArrayList<PayAdaptResultItem>();
+        final RiskResult pawmentBWResult = new RiskResult();
+        final List<PayAdaptResultItem> paymentFlowResult = new ArrayList<PayAdaptResultItem>();
         final Map<String, Integer> accountResults = new HashMap<String, Integer>();
 
         List<Callable<Object>> tasks = new ArrayList<Callable<Object>>();
@@ -93,7 +93,7 @@ public class PayAdaptFacade  {
                 public Object call() throws Exception {
                     //调用反欺诈平台
                     long start = System.nanoTime();
-                    checkRiskByDroolsEngine(fact, bwResults4j);
+                    checkRiskByDroolsEngine(fact, droolsResult);
                     long end = System.nanoTime();
                     logger.debug("get RiskResult by Drools Engine costs "+(end-start) /1000000L+" ms");
                     return null;
@@ -105,7 +105,7 @@ public class PayAdaptFacade  {
                     public Object call() throws Exception {
                         //调用黑白名单模块
                         long start = System.nanoTime();
-                        checkPaymentBWGRule(fact, bwResults,productInfo);
+                        checkPaymentBWGRule(fact, pawmentBWResult,productInfo);
                         long end = System.nanoTime();
                         logger.debug("check Payment BWG Rule costs " + (end - start) /1000000L + " ms");
                         return null;
@@ -116,7 +116,7 @@ public class PayAdaptFacade  {
                     public Object call() throws Exception {
                         long start = System.nanoTime();
                         //调用支付适配流量规则
-                        checkPayAdaptFlowRule(fact, payRuleResults,productInfo);
+                        checkPayAdaptFlowRule(fact, paymentFlowResult,productInfo);
                         long end = System.nanoTime();
                         logger.debug("check PayAdapt FlowRule costs " + (end - start)/1000000L + " ms");
                         return null;
@@ -149,7 +149,7 @@ public class PayAdaptFacade  {
 
         long start = System.nanoTime();
         //合并结果
-        mergeResult(bwResults, bwResults4j, payRuleResults, accountResults, results);
+        mergeResult(pawmentBWResult, droolsResult, paymentFlowResult, accountResults, results);
         long end = System.nanoTime();
         logger.debug("merge pay adapt result costs " + (end - start)/1000000L + " ms");
         result.setPayAdaptResultItems(results);
@@ -157,6 +157,53 @@ public class PayAdaptFacade  {
         paybaseDbService.save(fact.getMerchantID(), fact.getOrderID(), fact.getOrderType(), fact.getUid(),results);
 
         return result;
+    }
+    private void mergeResult(RiskResult paymentBWResult, List<PayAdaptResultItem> droolsResult,
+                             List<PayAdaptResultItem> paymentFlowResult, Map<String, Integer> accountResults, List<PayAdaptResultItem> results) {
+
+        //支付风控黑白名单中，如命中计入礼品卡黑名单
+        List<PayAdaptResultItem> allResults = new ArrayList<PayAdaptResultItem>();
+        for (CheckResultLog item : paymentBWResult.getResults()) {
+            if (item.getRiskLevel() > 100) {
+                PayAdaptResultItem payAdaptResultItem = new PayAdaptResultItem();
+                payAdaptResultItem.setSceneType("PAYMENT-CONF-LIPIN");
+                payAdaptResultItem.setResultLevel(295);
+                payAdaptResultItem.setResultList(new ArrayList<String>());
+                payAdaptResultItem.getResultList().add("unable to pay");
+                payAdaptResultItem.setResultType("B");
+                payAdaptResultItem.setRuleRemark("支付适配黑名单规则");
+                allResults.add(payAdaptResultItem);
+                break;
+            }
+        }
+
+        allResults.addAll(droolsResult);
+        allResults.addAll(paymentFlowResult);
+        //账户风控命中规则，转 PayAdaptResultItem
+        for (Iterator<String> it = accountResults.keySet().iterator(); it.hasNext(); ) {
+            String scene = it.next();
+            if (accountResults.get(scene).intValue() > 0) {
+                PayAdaptResultItem payAdaptResultItem = new PayAdaptResultItem();
+                payAdaptResultItem.setResultLevel(accountResults.get(scene).intValue());
+                payAdaptResultItem.setSceneType(scene);
+                payAdaptResultItem.setResultType(ResultLevel2ResultType(payAdaptResultItem.getResultLevel()));
+                payAdaptResultItem.setResultList(new ArrayList<String>());
+                allResults.add(payAdaptResultItem);
+            }
+        }
+
+        Map<String, PayAdaptResultItem> groupByScene = new HashMap<String, PayAdaptResultItem>();
+        //按scene 分组，取每组分值最大值
+        for (PayAdaptResultItem item:allResults) {
+            String sceneType = item.getSceneType().toUpperCase();
+            if (groupByScene.containsKey(sceneType)) {
+                if (groupByScene.get(sceneType).getResultLevel() > item.getResultLevel()) {
+                    continue;
+                }
+            }
+            groupByScene.put(sceneType, item);
+        }
+        results.addAll(groupByScene.values());
     }
 
     private boolean isPayAdaptFlowRuleDefined(PayAdaptFact checkEntity) {
@@ -273,51 +320,27 @@ public class PayAdaptFacade  {
         accountBWGManager.checkBWGRule(accountFact, accountResults);
     }
 
-    private void mergeResult(RiskResult bwResults, List<PayAdaptResultItem> bwResults4j,
-                             List<PayAdaptResultItem> payAdaptRuleResults, Map<String, Integer> accountResults, List<PayAdaptResultItem> results) {
-
-        //支付风控黑白名单中，如命中计入礼品卡黑名单
-        List<PayAdaptResultItem> allResults = new ArrayList<PayAdaptResultItem>();
-        for (CheckResultLog item : bwResults.getResults()) {
-            if (item.getRiskLevel() > 100) {
-                PayAdaptResultItem payAdaptResultItem = new PayAdaptResultItem();
-                payAdaptResultItem.setSceneType("PAYMENT-CONF-LIPIN");
-                payAdaptResultItem.setResultLevel(295);
-                payAdaptResultItem.setResultList(new ArrayList<String>());
-                payAdaptResultItem.getResultList().add("unable to pay");
-                payAdaptResultItem.setResultType("B");
-                payAdaptResultItem.setRuleRemark("支付适配黑名单规则");
-                allResults.add(payAdaptResultItem);
-                break;
+    private static String ResultLevel2ResultType(int resultLevel)
+    {
+        String resultType = "";
+        if (resultLevel < 200)
+        {
+            //100~ 199
+            if (resultLevel > 99)
+            {
+                resultType = "M";
+            }
+            else
+            {
+                // 0~99
+                resultType = "W";
             }
         }
-
-        allResults.addAll(bwResults4j);
-        allResults.addAll(payAdaptRuleResults);
-        //账户风控命中规则，转 PayAdaptResultItem
-        for (Iterator<String> it = accountResults.keySet().iterator(); it.hasNext(); ) {
-            String scene = it.next();
-            if (accountResults.get(scene).intValue() > 0) {
-                    PayAdaptResultItem payAdaptResultItem = new PayAdaptResultItem();
-                    payAdaptResultItem.setResultLevel(accountResults.get(scene).intValue());
-                    payAdaptResultItem.setSceneType(scene);
-                    payAdaptResultItem.setResultType("R");
-                    payAdaptResultItem.setResultList(new ArrayList<String>());
-                    allResults.add(payAdaptResultItem);
-                }
+        else
+        {
+            //200 ~
+            resultType = "B";
         }
-
-        Map<String, PayAdaptResultItem> groupByScene = new HashMap<String, PayAdaptResultItem>();
-        //按scene 分组，取每组分值最大值
-        for (PayAdaptResultItem item:allResults) {
-            String sceneType = item.getSceneType().toUpperCase();
-            if (groupByScene.containsKey(sceneType)) {
-                if (groupByScene.get(sceneType).getResultLevel() > item.getResultLevel()) {
-                    continue;
-                }
-            }
-            groupByScene.put(sceneType, item);
-        }
-        results.addAll(groupByScene.values());
+        return resultType;
     }
 }

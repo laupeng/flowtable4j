@@ -4,6 +4,7 @@ import com.ctrip.infosec.flowtable4j.model.*;
 import com.ctrip.infosec.flowtable4j.model.CtripOrderType;
 import com.ctrip.infosec.flowtable4j.model.persist.PO;
 import com.ctrip.infosec.sars.util.GlobalConfig;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.fluent.Request;
@@ -48,7 +49,7 @@ public class ESBClient {
         soapRequestSOAPData.append("</SOAP-ENV:Envelope>");
 
         String response = Request.Post(esbUrl).body(new StringEntity(soapRequestSOAPData.toString(), "UTF-8")).
-                addHeader("Content-Type", "application/soap+xml; charset=utf-8").connectTimeout(5000).socketTimeout(5000).
+                addHeader("Content-Type", "application/soap+xml; charset=utf-8").connectTimeout(15000).socketTimeout(15000).
                 execute().returnContent().asString();
         return response;
     }
@@ -179,6 +180,9 @@ public class ESBClient {
 
 
     public Map getMemberInfo(String uid) throws Exception {
+        if(Strings.isNullOrEmpty(uid)) {
+           return null;
+        }
         try {
             String requestType = "Customer.User.GetMemberInfo";
             String requestBody = "<MemberInfoRequest><Uid>" + uid + "</Uid><Type>M</Type></MemberInfoRequest>";

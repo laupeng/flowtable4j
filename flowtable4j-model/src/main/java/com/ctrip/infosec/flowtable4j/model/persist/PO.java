@@ -44,6 +44,7 @@ public class PO extends MapX {
         prop2table.put("coupons","infosecurity_couponsinfo");
         prop2table.put("currencyexchange","infosecurity_currencyexchange");
         prop2table.put("customer","infosecurity_customerinfo");
+        prop2table.put("chproduct","infosecurity_chproduct");
 
         //d
         prop2table.put("dealinfo", "infosecurity_dealinfo");

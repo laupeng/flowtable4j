@@ -91,14 +91,31 @@ public class POConverterEx extends ConverterBase {
         if (userInfolistMap != null && userInfolistMap.size() > 0) {
             for (Map<String, Object> userMap : userInfolistMap) {
                 Map<String, Object> vu = new HashMap<String, Object>();
-                copyMapIfNotNull(userMap, vu, new String[]{"visitorname", "visitorcontactinfo", "visitornationality", "visitoridcardtype"});
-                if (CtripOrderType.HotelGroup.getCode() == orderType) {
-                    copyValue(userMap, "idtype", vu, "visitoridcardtype");
-                }
-                if (CtripOrderType.TTD.getCode() == orderType || CtripOrderType.CRH.getCode() == orderType || CtripOrderType.HotelGroup.getCode() == orderType) {
+                if(CtripOrderType.Car.getCode()==orderType){
+                    copyValue(userMap, "visitorcontactinfo", vu, "visitorcontactinfo");
                     copyValue(userMap, "visitorcardno", vu, "visitoridcode");
+                    copyValue(userMap, "visitorname", vu, "visitorname");
+                    copyValue(userMap, "visitornationality", vu, "visitornationality");
+                    copyValue(userMap, "idtype", vu, "visitoridcardtype");
+                    copyValue(userMap, "idtypename", vu, "visitoridcardtypename");
+                    copyValue(userMap, "cityid", vu, "cityid");
+                    copyValue(userMap, "cityname", vu, "cityname");
+                    copyValue(userMap, "corpuserid", vu, "corpuserid");
+                    copyValue(userMap, "passengertype", vu, "visitortype");
+                } else {
+                    copyMapIfNotNull(userMap, vu, new String[]{"visitorname", "visitorcontactinfo", "visitornationality", "visitoridcardtype"});
+                    if (CtripOrderType.HotelGroup.getCode() == orderType) {
+                        copyValue(userMap, "idtype", vu, "visitoridcardtype");
+                    }
+                    if (CtripOrderType.TTD.getCode() == orderType
+                            || CtripOrderType.CRH.getCode() == orderType
+                            || CtripOrderType.HotelGroup.getCode() == orderType
+                            || CtripOrderType.Cruise.getCode()==orderType
+                            || CtripOrderType.CruiseByTianHai.getCode()==orderType
+                            || CtripOrderType.HHTravel.getCode()==orderType) {
+                        copyValue(userMap, "visitorcardno", vu, "visitoridcode");
+                    }
                 }
-
                 userlist.add(vu);
             }
         }
@@ -567,4 +584,71 @@ public class POConverterEx extends ConverterBase {
     }
 
 
+    public void fillWalletWithdrawal(Map<String, Object> productInfo, Map<String, Object> eventBody) {
+        Map<String,Object> withdrawal=new HashMap<String, Object>();
+        copyMap(eventBody,withdrawal,"infosecurity_walletwithdrawal");
+        setValue(productInfo,"walletwithdrawal",withdrawal);
+    }
+
+    public void fillCHProduct(Map<String, Object> productInfo, Map<String, Object> eventBody) {
+        Map<String,Object> chproduct=new HashMap<String, Object>();
+        copyMap(eventBody,chproduct,"infosecurity_chproduct");
+        setValue(productInfo,"chproduct",chproduct);
+    }
+
+    public void fillInvoiceInfoList(Map<String, Object> productInfo, Map<String, Object> eventBody) {
+        List<Map<String,Object>> invoiceinfolist=new ArrayList<Map<String, Object>>();
+        List<Map<String,Object>> invoiceinfolistMap=getList(eventBody,"invoicelistinfos");
+        if(invoiceinfolistMap!=null && invoiceinfolistMap.size()>0){
+            for(Map<String,Object> invoiceMap:invoiceinfolistMap){
+                Map<String,Object> invoice=new HashMap<String, Object>();
+                copyValue(invoiceMap,"detail",invoice,"invoicecontent");
+                copyValue(invoiceMap,"title",invoice,"invoicehead");
+                copyValue(invoiceMap,"receivertel",invoice,"invoicephone");
+                copyValue(invoiceMap,"receivername",invoice,"fullname");
+                copyValue(invoiceMap,"zipcode",invoice,"zipcode");
+                copyValue(invoiceMap,"province",invoice,"deliveryprovince");
+                copyValue(invoiceMap,"city",invoice,"deliverycity");
+                copyValue(invoiceMap,"addressdetail",invoice,"deliverydistrict");
+                copyValue(invoiceMap,"costtype",invoice,"costtype");
+                copyValue(invoiceMap,"costvalue",invoice,"costvalue");
+                copyValue(invoiceMap,"area",invoice,"deliveryarea");
+                invoiceinfolist.add(invoice);
+            }
+        }
+       setValue(productInfo,"invoiceinfolist",invoiceinfolist);
+    }
+
+    public void fillCoupons(Map<String, Object> productInfo, Map<String, Object> eventBody) {
+         Map<String,Object> coupons=new HashMap<String, Object>();
+        copyMap(eventBody,coupons,"infosecurity_couponsinfo");
+        setValue(productInfo,"coupons",coupons);
+    }
+
+    public void fillCustomer(Map<String, Object> productInfo, Map<String, Object> eventBody) {
+        Map<String,Object> customer=new HashMap<String, Object>();
+        copyMap(eventBody,customer,"infosecurity_customerinfo");
+        setValue(productInfo,"customer",customer);
+    }
+
+    public void fillSMSVerify(Map<String, Object> productInfo, Map<String, Object> eventBody) {
+        Map<String,Object> sms=new HashMap<String, Object>();
+        copyValue(eventBody,"smsverifystatus",sms,"smsverifystatus");
+        setValue(productInfo, "smsverify",sms);
+    }
+
+    public void fillTianHai(Map<String, Object> productInfo, Map<String, Object> eventBody) {
+        Map<String,Object> tianhai=new HashMap<String, Object>();
+        copyMap(eventBody, tianhai, "infosecurity_vacationbytianhaiinfo");
+        setValue(productInfo, "tianhai",tianhai);
+    }
+
+    public void fillCurrencyExchange(Map<String, Object> productInfo, Map<String, Object> eventBody) {
+        Map<String,Object> currency=new HashMap<String, Object>();
+        copyMap(eventBody,currency,"infosecurity_currencyexchange");
+        copyMap(getMap(eventBody,"acurrencyinfo"),currency,ImmutableMap.of("amount","acamount","currency","acurrency"));
+        copyMap(getMap(eventBody,"dcurrencyinfo"),currency,ImmutableMap.of("amount","dcamount","currency","dcurrency"));
+        copyMap(getMap(eventBody,"ecurrencyinfo"),currency,ImmutableMap.of("amount","ecamount","currency","ecurrency"));
+        setValue(productInfo,"currencyexchange",currency);
+    }
 }

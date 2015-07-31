@@ -113,12 +113,18 @@ public class POConvertBase extends ConverterBase {
      * @param eventBody
      * @param paymentinfo
      */
-    public void fillPaymentInfo(Map<String, Object> eventBody, Map<String, Object> paymentinfo, int orderType) {
+    public void fillPaymentInfo(Map<String, Object> eventBody, Map<String, Object> paymentinfo, int orderType,int checkType) {
 
         List<Map<String, Object>> paymentInfoList = new ArrayList<Map<String, Object>>();
         List<Map<String, Object>> paymentInfoListSrc;
-        paymentInfoListSrc = getList(eventBody, "paymentinfos");
 
+        paymentInfoListSrc = getList(eventBody, "paymentinfos");
+        if(orderType== CtripOrderType.Hotel.getCode() && checkType==0){
+            paymentInfoListSrc = getList(eventBody, "listpaymenitems");
+        }
+        if(orderType== CtripOrderType.JiFen.getCode() && checkType==0){
+            paymentInfoListSrc = getList(eventBody, "paymentinfobyjifenlist");
+        }
         if (paymentInfoListSrc == null || paymentInfoListSrc.size() == 0) {
             if (orderType == CtripOrderType.Flights.getCode()) {  //机票有可能支付信息在eventBody中
                 findPaymentInfo(paymentInfoList, eventBody, orderType);
@@ -266,8 +272,16 @@ public class POConvertBase extends ConverterBase {
                             setValue(userInfo, "cuscharacter", "NEW");
                         }
                 }
-                fillMobileProvince(userInfo, getString(userInfo, "bindedmobilephone"), getString(userInfo, "relatedmobilephone"));
+           }
+
+           //天海外部用户
+           if(crmInfo==null && orderType == CtripOrderType.CruiseByTianHai.getCode()){
+                Map<String,Object> thUid = getMap(eventBody,"thuidinfo");
+                if(thUid!=null && thUid.size()>0){
+                    copyMap(thUid,userInfo,"infosecurity_userinfo");
+                }
             }
+            fillMobileProvince(userInfo, getString(userInfo, "bindedmobilephone"), getString(userInfo, "relatedmobilephone"));
         } catch (Exception e) {
             logger.warn("查询用户" + uid + "的userInfo的信息异常" + e.getMessage());
         }
