@@ -105,7 +105,7 @@ public class ConverterBase {
      */
     protected void copyMap(Map<String, Object> src, Map<String, Object> targetMap, String dbEntity) {
         List<ColumnInfo> dbMeta = dbService.getDbMeta(dbEntity);
-        if (dbMeta != null && dbMeta.size() > 0 && targetMap != null) {
+        if (src!=null && dbMeta != null && dbMeta.size() > 0 && targetMap != null) {
             for (ColumnInfo info : dbMeta) {
                 setValueIfNotNull(targetMap, info.getName(), getObject(src, info.getName()));
             }
