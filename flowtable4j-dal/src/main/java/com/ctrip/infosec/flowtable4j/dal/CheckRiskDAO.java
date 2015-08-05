@@ -228,8 +228,11 @@ public class CheckRiskDAO {
      */
     public Map<String, Object> getIPInfo(long ipValue) {
         try {
-            String sql = "SELECT TOP 1 type_company,country,province,city,countryid,provinceid,cityid,area,nationcode FROM BaseData_IPInfo WITH(NOLOCK) WHERE StartAddr <= ? order by StartAddr DESC ";
-            return cardRiskDbService.queryForMap(sql, new Object[]{ipValue}, new int[]{Types.BIGINT});
+            String sql = "SELECT TOP 1 type_company,country,province,city,countryid,provinceid,cityid,area,nationcode" +
+                    " FROM BaseData_IPInfo WITH(NOLOCK) " +
+                    " WHERE StartAddr <= ? and EndAddr >=? " +
+                    " ORDER By StartAddr DESC ";
+            return cardRiskDbService.queryForMap(sql, new Object[]{ipValue,ipValue}, new int[]{Types.BIGINT,Types.BIGINT});
         } catch (EmptyResultDataAccessException ex) {
             //Skip
         } catch (Exception exp) {
