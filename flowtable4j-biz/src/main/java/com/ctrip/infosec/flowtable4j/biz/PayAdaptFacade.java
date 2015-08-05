@@ -70,7 +70,7 @@ public class PayAdaptFacade  {
      * @param fact
      * @return
      */
-    public PayAdaptResult handle4PayAdapt(final PayAdaptFact fact) {
+    public PayAdaptResult handle4PayAdapt(final PayAdaptFact fact,boolean requireSaveDb) {
 
         PayAdaptResult result = new PayAdaptResult();
         result.setRetCode(200);
@@ -84,46 +84,62 @@ public class PayAdaptFacade  {
 
         List<Callable<Object>> tasks = new ArrayList<Callable<Object>>();
 
-        final Map<String,Object> productInfo = payAdaptConverter.getLastProductInfo(fact.getOrderID(), fact.getOrderType());
+        if(fact.getCheckType()==0) {
+            final Map<String, Object> productInfo = payAdaptConverter.getLastProductInfo(fact.getOrderID(), fact.getOrderType());
+            //支付适配流量规则是否开启
+            if (isPayAdaptFlowRuleDefined(fact)) {
+//            tasks.add(new Callable<Object>() {
+//                @Override
+//                public Object call() throws Exception {
+//                    //调用反欺诈平台
+//                    long start = System.nanoTime();
+//                    checkRiskByDroolsEngine(fact, droolsResult);
+//                    long end = System.nanoTime();
+//                    logger.debug("get RiskResult by Drools Engine costs "+(end-start) /1000000L+" ms");
+//                    return null;
+//                }
+//            });
+                if (productInfo != null && productInfo.size() > 0) {
+                    tasks.add(new Callable<Object>() {
+                        @Override
+                        public Object call() throws Exception {
+                            //调用黑白名单模块
+                            long start = System.nanoTime();
+                            checkPaymentBWGRule(fact, pawmentBWResult, productInfo);
+                            long end = System.nanoTime();
+                            logger.debug("check Payment BWG Rule costs " + (end - start) / 1000000L + " ms");
+                            return null;
+                        }
+                    });
+                    tasks.add(new Callable<Object>() {
+                        @Override
+                        public Object call() throws Exception {
+                            long start = System.nanoTime();
+                            //调用支付适配流量规则
+                            checkPayAdaptFlowRule(fact, paymentFlowResult, productInfo);
+                            long end = System.nanoTime();
+                            logger.debug("check PayAdapt FlowRule costs " + (end - start) / 1000000L + " ms");
+                            return null;
+                        }
+                    });
+                }
+            }
+        }
 
-        //支付适配流量规则是否开启
-        if (isPayAdaptFlowRuleDefined(fact)) {
+        if(fact.getCheckType()==1){
             tasks.add(new Callable<Object>() {
                 @Override
                 public Object call() throws Exception {
-                    //调用反欺诈平台
+                    //调用黑白名单模块
                     long start = System.nanoTime();
-                    checkRiskByDroolsEngine(fact, droolsResult);
+                    checkPaymentBWGRule(fact, pawmentBWResult);
                     long end = System.nanoTime();
-                    logger.debug("get RiskResult by Drools Engine costs "+(end-start) /1000000L+" ms");
+                    logger.debug("check Payment BWG Rule costs " + (end - start) /1000000L + " ms");
                     return null;
                 }
             });
-            if(productInfo!=null && productInfo.size()>0) {
-                tasks.add(new Callable<Object>() {
-                    @Override
-                    public Object call() throws Exception {
-                        //调用黑白名单模块
-                        long start = System.nanoTime();
-                        checkPaymentBWGRule(fact, pawmentBWResult,productInfo);
-                        long end = System.nanoTime();
-                        logger.debug("check Payment BWG Rule costs " + (end - start) /1000000L + " ms");
-                        return null;
-                    }
-                });
-                tasks.add(new Callable<Object>() {
-                    @Override
-                    public Object call() throws Exception {
-                        long start = System.nanoTime();
-                        //调用支付适配流量规则
-                        checkPayAdaptFlowRule(fact, paymentFlowResult,productInfo);
-                        long end = System.nanoTime();
-                        logger.debug("check PayAdapt FlowRule costs " + (end - start)/1000000L + " ms");
-                        return null;
-                    }
-                });
-            }
         }
+
         tasks.add(new Callable<Object>() {
             @Override
             public Object call() throws Exception {
@@ -154,8 +170,9 @@ public class PayAdaptFacade  {
         logger.debug("merge pay adapt result costs " + (end - start)/1000000L + " ms");
         result.setPayAdaptResultItems(results);
 
-        paybaseDbService.save(fact.getMerchantID(), fact.getOrderID(), fact.getOrderType(), fact.getUid(),results);
-
+        if(requireSaveDb) {
+            paybaseDbService.save(fact.getMerchantID(), fact.getOrderID(), fact.getOrderType(), fact.getUid(), results);
+        }
         return result;
     }
     private void mergeResult(RiskResult paymentBWResult, List<PayAdaptResultItem> droolsResult,
@@ -263,6 +280,23 @@ public class PayAdaptFacade  {
         fact.getOrderTypes().add(0);
         fact.getOrderTypes().add(checkEntity.getOrderType());
         fact.setContent(payAdaptConverter.fillBWGCheckEntity(productInfo));
+        if (!bwManager.checkWhite(fact, riskResult)) {
+            bwManager.checkBlack(fact, riskResult);
+        }
+    }
+
+    /**
+     * 调用支付黑白名单
+     * @param checkEntity
+     * @param riskResult
+     */
+    private void checkPaymentBWGRule(PayAdaptFact checkEntity, RiskResult riskResult) {
+        BWFact fact = new BWFact();
+        fact.setOrderTypes(new ArrayList<Integer>());
+        fact.setContent(new HashMap<String, Object>());
+        fact.getOrderTypes().add(0);
+        fact.getOrderTypes().add(checkEntity.getOrderType());
+        fact.setContent(checkEntity.getBlackList());
         if (!bwManager.checkWhite(fact, riskResult)) {
             bwManager.checkBlack(fact, riskResult);
         }

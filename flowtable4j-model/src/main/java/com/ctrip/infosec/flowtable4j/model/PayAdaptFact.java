@@ -8,24 +8,21 @@ import java.util.Map;
  * Created by zhangsx on 2015/5/6.
  */
 public class PayAdaptFact {
-    //订单类型
-    @JsonProperty(value = "OrderType")
     private int orderType;
-    //订单号
-    @JsonProperty(value = "OrderID")
+
     public long OrderID;
-    //商户号
-    @JsonProperty(value = "MerchantID")
+
     public String merchantID;
-    //用户名称
-    @JsonProperty(value = "UID")
+
     public String uid;
-    //IP地址
-    @JsonProperty(value = "IPAddr")
+
     public String ipAddr;
-    //DeviceID
-    @JsonProperty(value = "DID")
+
     public String did;
+
+    private int checkType;
+
+    private Map<String,Object> blackList;
 
     public int getOrderType() {
         return orderType;
@@ -76,4 +73,19 @@ public class PayAdaptFact {
     }
 
 
+    public int getCheckType() {
+        return checkType;
+    }
+
+    public void setCheckType(int checkType) {
+        this.checkType = checkType;
+    }
+
+    public Map<String, Object> getBlackList() {
+        return blackList;
+    }
+
+    public void setBlackList(Map<String, Object> blackList) {
+        this.blackList = blackList;
+    }
 }

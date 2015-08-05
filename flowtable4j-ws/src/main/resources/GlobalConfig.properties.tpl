@@ -14,6 +14,7 @@ Configs.Caches.url={$Configs.Caches.url}
 
 APPID={$AppID}
 ESBUrl={$ESBUrl}
+Selected.Service.Url = {$Selected.Service.Url}
 DBDataCenter={$DBDataCenter}
 EventWS={$EventWS}
 

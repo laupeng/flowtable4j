@@ -34,10 +34,7 @@ public class MapX {
      * @return 字符串
      */
     public static Map getMap(Map<String,Object> root,String keyPath) {
-        if (root.containsKey(keyPath)) {
-            return (Map) root.get(keyPath);
-        }
-        return null;
+         return root==null? null: (Map) root.get(keyPath);
     }
 
     /**
@@ -47,23 +44,16 @@ public class MapX {
      * @return 字符串
      */
     public static Map getMap(Map<String,Object> root,String[] keyPath) {
-        Map<String, Object> parentMap = getDirectParentMapNode(root,keyPath);
-        if (parentMap != null) {
-            String key = keyPath[keyPath.length - 1];
-            return getMap(parentMap,key);
-        }
-        return null;
+         return root==null? null:getMap(getDirectParentMapNode(root, keyPath), keyPath[keyPath.length - 1]);
     }
+
     /**
      * 获取String
      * @param key 搜索路径
      * @return 字符串
      */
     public static Object getObject(Map<String,Object> parentMap,String key) {
-        if (parentMap.containsKey(key)) {
-            return  parentMap.get(key);
-        }
-        return null;
+        return parentMap==null? null:parentMap.get(key);
     }
 
     /**
@@ -73,12 +63,7 @@ public class MapX {
      * @return 字符串
      */
     public static Object getObject(Map<String,Object> root,String[] keyPath) {
-        Map<String, Object> parentMap = getDirectParentMapNode(root,keyPath);
-        if (parentMap != null) {
-            String key = keyPath[keyPath.length - 1];
-            return getObject(parentMap, key);
-        }
-        return null;
+        return root==null? null:getObject(getDirectParentMapNode(root, keyPath), keyPath[keyPath.length - 1]);
     }
     /**
      * 获取String
@@ -86,12 +71,9 @@ public class MapX {
      * @return 字符串
      */
     public static String getString(Map<String,Object> parentMap,String key) {
-        if (parentMap.containsKey(key)) {
+        if (parentMap!=null) {
             Object obj = parentMap.get(key);
-            if(obj != null)
-            {
-                return obj.toString();
-            }
+            return obj==null? null:obj.toString();
         }
         return null;
     }
@@ -103,12 +85,7 @@ public class MapX {
      * @return 字符串
      */
     public static String getString(Map<String,Object> root,String[] keyPath) {
-        Map<String, Object> parentMap = getDirectParentMapNode(root,keyPath);
-        if (parentMap != null) {
-            String key = keyPath[keyPath.length - 1];
-            return getString(parentMap,key);
-        }
-        return null;
+        return root==null? null:getString(getDirectParentMapNode(root,keyPath),keyPath[keyPath.length - 1]);
     }
 
     /**
@@ -140,10 +117,7 @@ public class MapX {
      * @return 子节点Map
      */
     private static Map<String, Object> getChildMap(Map<String, Object> parentMapNode, String childNode) {
-        if (parentMapNode.containsKey(childNode)) {
-            return (Map<String, Object>) parentMapNode.get(childNode);
-        }
-        return null;
+        return parentMapNode==null? null:(Map<String, Object>) parentMapNode.get(childNode);
     }
 
     /**
@@ -153,7 +127,7 @@ public class MapX {
      */
     public static List getList(Map<String,Object> root,String  keyPath)
     {
-        return (List) root.get(keyPath);
+         return root==null? null:(List) root.get(keyPath);
     }
 
     /**
@@ -163,14 +137,7 @@ public class MapX {
      */
     public static List getList(Map<String,Object> root,String[] keyPath)
     {
-        Map<String,Object> parentMap = getDirectParentMapNode(root,keyPath);
-        if(parentMap!=null) {
-            String key = keyPath[keyPath.length-1];
-            if (parentMap.containsKey(key)) {
-                return (List) parentMap.get(key);
-            }
-        }
-        return null;
+        return root==null? null:getList(getDirectParentMapNode(root, keyPath),keyPath[keyPath.length - 1]);
     }
 
     /**
@@ -181,7 +148,9 @@ public class MapX {
      * @return
      */
     public static boolean setValue(Map<String,Object> root,String key,Object value){
-        root.put(key,value);
+        if( root!= null) {
+            root.put(key, value);
+        }
         return true;
     }
 }

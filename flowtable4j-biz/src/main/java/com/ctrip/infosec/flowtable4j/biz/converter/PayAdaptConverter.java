@@ -1,17 +1,10 @@
 package com.ctrip.infosec.flowtable4j.biz.converter;
 
-import com.ctrip.infosec.flowtable4j.biz.ConverterBase;
-import com.ctrip.infosec.flowtable4j.dal.CheckRiskDAO;
-import com.ctrip.infosec.flowtable4j.dal.Counter;
+import com.ctrip.infosec.flowtable4j.biz.baseconverter.ConverterBase;
 import com.ctrip.infosec.flowtable4j.model.CtripOrderType;
 import com.ctrip.infosec.flowtable4j.model.MapX;
-import com.ctrip.infosec.sars.util.mapper.JsonMapper;
-import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -52,17 +45,12 @@ public class PayAdaptConverter extends ConverterBase {
     }
 
     private void fillCRH(Map<String, Object> productInfo, Map<String, Object> target) {
-
         copyMapIfNotNull(getMap(productInfo,"maininfo"),target,new String[]{"ordertype","amount","serverfrom"});
-
         copyMapIfNotNull(getMap(productInfo,"userinfo"),target,
                          new String[]{"vipgrade","bindedmobilephone","relatedmobilephone","relatedemail","cuscharacter"});
-
         copyMapIfNotNull(getMap(productInfo,"contactinfo"),target,
                 new String[]{"mobilephone","mobilephonecity","contactemail"});
-
         copyValueIfNotNull(getMap(productInfo, "otherinfo"),"ordertosignupdate",target,"ordertosignupdate");
-
         List<Map<String,Object>> railInfoList = MapX.getList(productInfo,"railinfolist");
         if(railInfoList!=null && railInfoList.size()>0) {
             Map<String,Object> railInfo = MapX.getMap(railInfoList.get(0), "rail");

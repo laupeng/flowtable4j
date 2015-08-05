@@ -50,7 +50,11 @@ public class FlowTableRESTfulController {
         fact.setOrderType(Integer.parseInt(MapX.getString(eventBody,"ordertype")));
         fact.setMerchantID(MapX.getString(eventBody,"merchantid"));
         fact.setUid(MapX.getString(eventBody,"uid"));
-        PayAdaptResult result = payAdaptProcessor.handle4PayAdapt(fact);
+        fact.setCheckType(Integer.parseInt(MapX.getString(eventBody,"checktype","0")));
+        fact.setBlackList(MapX.getMap(eventBody,"blacklist"));
+
+        //测试时需要数据落地，正式上线后由.NET合并结果
+        PayAdaptResult result = payAdaptProcessor.handle4PayAdapt(fact,true);
         long finish = System.nanoTime();
         logger.debug("CheckPayAdpat total elapse " + (finish-start)/1000000L +" ms");
         return  result;
@@ -61,7 +65,7 @@ public class FlowTableRESTfulController {
     @ResponseBody
     RiskResult checkPayment(@RequestBody com.ctrip.infosec.flowtable4j.model.RequestBody checkEntity) {
         long start= System.nanoTime();
-        RiskResult result = checkPaymentService.checkRisk2(checkEntity);
+        RiskResult result = checkPaymentService.checkRisk3(checkEntity);
         long finish = System.nanoTime();
         logger.debug("CheckPayment total elapse " + (finish-start)/1000000L +" ms");
         return  result;

@@ -1,7 +1,7 @@
 package com.ctrip.infosec.flowtable4j.biz.converter;
 
 import com.ctrip.infosec.flowtable4j.accountrule.AccountBWGManager;
-import com.ctrip.infosec.flowtable4j.biz.ConverterBase;
+import com.ctrip.infosec.flowtable4j.biz.baseconverter.ConverterBase;
 import com.ctrip.infosec.flowtable4j.model.*;
 import com.ctrip.infosec.flowtable4j.model.persist.PO;
 import org.springframework.beans.factory.annotation.Autowired;

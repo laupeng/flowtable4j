@@ -1,14 +1,20 @@
 package com.ctrip.infosec.flowtable4j.biz.converter;
 
 import com.ctrip.infosec.flowtable4j.biz.processor.InvalidOrderException;
-import com.ctrip.infosec.flowtable4j.model.*;
+import com.ctrip.infosec.flowtable4j.biz.subpoconverter.*;
+import com.ctrip.infosec.flowtable4j.model.CtripOrderType;
+import com.ctrip.infosec.flowtable4j.model.RequestBody;
 import com.ctrip.infosec.flowtable4j.model.persist.PO;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 请求报文转换为PO Entity
@@ -22,67 +28,23 @@ public class POConverter extends POConvertBase {
     @Autowired
     POConverterEx poConverterEx;
 
-    /**
-     * 业务选择器
-     *
-     * @param orderType
-     * @return
-     */
-    public List<String> getModules(int orderType,int subOrderType) {
-        if (orderType == CtripOrderType.HotelGroup.getCode()) {
-            return Arrays.asList(new String[]{"hotelgroupinfolist", "vacationinfolist"});
-        }
-        if (orderType == CtripOrderType.Flights.getCode()) {
-            //CheckType 0,1,2
-            return Arrays.asList(new String[]{"flightinfolist", "corporation", "appinfo", "orderccard", "fillprofit", "flightspecial"});
-        }
-        if (orderType == CtripOrderType.CRH.getCode()) {
-            return Arrays.asList(new String[]{"railinfolist", "corporation", "distribution", "vacationinfolist"});
-        }
-        if (orderType == CtripOrderType.TTD.getCode()) {
-            return Arrays.asList(new String[]{"vacationinfolist", "tddspecial"});
-        }
-        if (orderType == CtripOrderType.Hotel.getCode()) {
-            return Arrays.asList(new String[]{"hotelinfolist", "giftitemlist", "corporation", "hotelspecial"});
-        }
-        if (orderType == CtripOrderType.JiFen.getCode()) {
-            return Arrays.asList(new String[]{"devoteinfoviewbyjifen", "jifenorderitemlist", "distribution",});
-        }
-        if (orderType == CtripOrderType.DIY.getCode()) {
-            return Arrays.asList(new String[]{"diy"});
-        }
-        if(orderType == CtripOrderType.BindingCard.getCode()){
-            return Arrays.asList(new String[]{"walletwithdrawal","appinfo"});
-        }
-        if(orderType == CtripOrderType.BusByCRH.getCode()){
-            return Arrays.asList(new String[]{"railinfolist","corporation"});
-        }
-        if(orderType == CtripOrderType.Car.getCode()){
-            return Arrays.asList(new String[]{"vacationinfolist","corporation","chproduct","invoiceinfolist","appinfo"});
-        }
-        if(orderType == CtripOrderType.Coupons.getCode()){
-            return Arrays.asList(new String[]{"coupons","customer","smsverify","appinfo"});
-        }
-        if(orderType == CtripOrderType.Cruise.getCode()){
-            return Arrays.asList(new String[]{"vacationinfolist"});
-        }
-        if(orderType == CtripOrderType.CruiseByTianHai.getCode()){
-            return Arrays.asList(new String[]{"vacationinfolist","tianhai"});
-        }
-        if(orderType== CtripOrderType.CurrencyExchange.getCode()){
-            return Arrays.asList(new String[]{"currencyexchange"});
-        }
+    @Autowired
+    MainInfoConverter mainInfoConverter;
 
-        if(orderType== CtripOrderType.Fun.getCode()){
-            return Arrays.asList(new String[]{"vacationinfolist"});
-        }
-        if(orderType== CtripOrderType.HHTravel.getCode()){
-            return Arrays.asList(new String[]{"vacationinfolist"});
-        }
+    @Autowired
+    DIYConverter diyConverter;
 
-        return new ArrayList<String>();
-    }
+    @Autowired
+    PaymentConverter paymentConverter;
 
+    @Autowired
+    JiFenConverter jiFenConverter;
+
+    @Autowired
+    TraveMoneyConverter traveMoneyConverter;
+
+    @Autowired
+    TopShopConverter topShopConverter;
     /**
      * 核心过程，Request 转 PO
      *
@@ -90,11 +52,18 @@ public class POConverter extends POConvertBase {
      * @return
      */
     private List<Integer> skipZeroOrderTypes=Arrays.asList(new Integer[]{CtripOrderType.BindingCard.getCode(),
-            CtripOrderType.Coupons.getCode()});
+            CtripOrderType.Coupons.getCode(),
+            CtripOrderType.Marketing.getCode(),
+            CtripOrderType.TieYou.getCode(),
+            CtripOrderType.YongAnFlight.getCode()});
+
     private List<Integer> noContactInfos= Arrays.asList(new Integer[]{CtripOrderType.BindingCard.getCode(),
-            CtripOrderType.CurrencyExchange.getCode()});
+            CtripOrderType.CurrencyExchange.getCode(),
+            CtripOrderType.Insurer.getCode(),
+            CtripOrderType.Wallet.getCode()});
 
     private List<Integer> nopaymentInfos= Arrays.asList(new Integer[]{CtripOrderType.BindingCard.getCode(),
+            CtripOrderType.Coupons.getCode(),
             CtripOrderType.CurrencyExchange.getCode()});
 
     public PO convert(RequestBody requestBody) {
@@ -131,11 +100,14 @@ public class POConverter extends POConvertBase {
             po.setChecktype(1);
         }
 
-        if(po.getOrdertype()== CtripOrderType.Coupons.getCode() || po.getOrdertype()==CtripOrderType.HHTravel.getCode()){
+        if(po.getOrdertype()== CtripOrderType.Coupons.getCode()
+                || po.getOrdertype()==CtripOrderType.HHTravel.getCode()
+                || po.getOrdertype()==CtripOrderType.YongChe.getCode()){
             checkType="0";
             po.setChecktype(0);
         }
-        List<String> modules = getModules(po.getOrdertype(),po.getSubordertype());
+
+        List<String> modules = mainInfoConverter.getModules(po.getOrdertype(), po.getSubordertype(),po.getChecktype());
 
         if (po.getOrderid().equals(0) && !skipZeroOrderTypes.contains(po.getOrdertype())) {
             throw new InvalidOrderException("ORDERID IS ZERO");
@@ -196,41 +168,7 @@ public class POConverter extends POConvertBase {
         if (checkType.equals("1") || checkType.equals("0")) {     //订单校验，补充上次的支付信息
 
             //fill MainInfo
-            Map<String, Object> mainInfo = new HashMap<String, Object>();
-            copyMap(requestBody.getEventBody(), mainInfo, "infosecurity_maininfo");
-            setValue(mainInfo, "lastcheck", "T");
-            setValue(mainInfo, "ordertype", orderType);
-            setValue(mainInfo, "createdate", sdf.format(System.currentTimeMillis()));
-            setValue(mainInfo, "corporationid", "");
-            if (po.getOrdertype() == CtripOrderType.CRH.getCode()
-                    || po.getOrdertype() == CtripOrderType.Flights.getCode()
-                    || po.getOrdertype() == CtripOrderType.Hotel.getCode()
-                    || po.getOrdertype()== CtripOrderType.BusByCRH.getCode()) {
-                setValue(mainInfo, "corporationid", getObject(eventBody, "corporationid"));
-            }
-            if (po.getOrdertype() != CtripOrderType.Flights.getCode()) {
-                setValue(mainInfo, "amount", getString(eventBody, "orderamount"));
-            }
-            if (po.getOrdertype() == CtripOrderType.TTD.getCode()
-                    || po.getChecktype() == CtripOrderType.DIY.getCode()
-                    || po.getOrdertype() == CtripOrderType.Hotel.getCode()
-                    || po.getOrdertype()==CtripOrderType.Car.getCode()
-                    || po.getOrdertype()==CtripOrderType.Cruise.getCode()) {
-                String refNo = getString(eventBody, "referenceno");
-                if (StringUtils.isNumeric(refNo)) {
-                    setValue(mainInfo, "refno", refNo);
-                }
-            }
-            if(po.getOrdertype()== CtripOrderType.BindingCard.getCode()){
-                setValue(mainInfo,"checktype","1");
-            }
-            if(po.getOrdertype()==CtripOrderType.Coupons.getCode()){
-                copyValue(eventBody,"payouttime",mainInfo,"orderdate");
-                copyValue(eventBody,"payoutamount",mainInfo,"amount");
-                setValue(mainInfo,"checktype","0");
-            }
-            setValue(productInfo, "maininfo", mainInfo);
-
+            mainInfoConverter.fillMainInfo(eventBody,po);
 
             //fill User Info Info，CusCharacter、BindEmail etc.
             fillUserInfo(eventBody, productInfo, getString(eventBody, "uid"), po.getOrdertype());
@@ -243,112 +181,163 @@ public class POConverter extends POConvertBase {
             if(! noContactInfos.contains(po.getOrdertype())) {
                 fillContactInfo(eventBody, productInfo, po.getOrdertype());
             }
-
-            //fill Corporation
             if (modules.contains("corporation")) {
-                Map<String, Object> corporationInfo = new HashMap<String, Object>();
-                copyMap(eventBody, corporationInfo, "infosecurity_corporationinfo");
-                setValue(productInfo, "corporation", corporationInfo);
+                setValue(productInfo,"corporation",copyMap(eventBody,new String[]{"canaccountpay","companytype","corp_paytype","corpid","corpname"}));
             }
-
-            //fill AppInfo
+            if (modules.contains("proposer")) {
+                setValue(productInfo,"proposer",copyMap(eventBody,"infosecurity_proposerinfo"));
+            }
             if (modules.contains("appinfo")) {
-                Map<String, Object> appInfo = new HashMap<String, Object>();
-                copyMap(eventBody, appInfo, "infosecurity_appinfo");
-                setValue(productInfo, "appinfo", appInfo);
+                setValue(productInfo,"appinfo",copyMap(eventBody,new String[]{"clientid","clientversion","latitude","longitude"}));
             }
-
-            //fill Hotel Group
             if (modules.contains("hotelgroupinfolist")) {
                 poConverterEx.fillHotelGroupInfoList(productInfo, eventBody);
             }
-
-            //fill Hotel Group
             if (modules.contains("hotelinfolist")) {
                 poConverterEx.fillHotelInfoList(productInfo, eventBody);
             }
-
-            //fill Vaction Info
-            if (modules.contains("vacationinfolist")) {
-                poConverterEx.fillVacationInfoList(productInfo, eventBody, po.getOrdertype());
-            }
-
             if (modules.contains("railinfolist")) {
-                poConverterEx.fillRailInfoList(productInfo, eventBody);
+                poConverterEx.fillRailInfoList(productInfo, eventBody,po.getOrdertype());
             }
-
             if (modules.contains("flightinfolist")) {
                 poConverterEx.fillFlightInfoList(productInfo, eventBody);
             }
-            if (modules.contains("diy")) {
-                poConverterEx.fillDIYFlightInfoList(productInfo, eventBody);
-                poConverterEx.fillDIYHotelInfoList(productInfo, eventBody);
-                poConverterEx.fillDIYVacationInfoList(productInfo, eventBody);
-                poConverterEx.fillDIYResourceXInfo(productInfo, eventBody);
-            }
-            if (modules.contains("giftitemlist")) {
-                poConverterEx.fillGiftItemList(productInfo, eventBody);
-            }
-            if (modules.contains("devoteinfoviewbyjifen")) {
-                poConverterEx.fillDevoteInfoViewByJiFen(productInfo, eventBody);
-            }
-            if (modules.contains("distribution")) {
-                poConverterEx.fillDistribution(productInfo, eventBody, po.getOrdertype());
-            }
-            if (modules.contains("jifenorderitemlist")) {
-                poConverterEx.fillJifenOrderItemList(productInfo, eventBody);
-            }
-
-            if(modules.contains("walletwithdrawal")){
-                poConverterEx.fillWalletWithdrawal(productInfo,eventBody);
-            }
-            if(modules.contains("chproduct")){
-                poConverterEx.fillCHProduct(productInfo,eventBody);
+            if (modules.contains("vacationinfolist")) {
+                traveMoneyConverter.fillVacationInfoList(productInfo, eventBody, po.getOrdertype());
             }
             if(modules.contains("invoiceinfolist")){
-                poConverterEx.fillInvoiceInfoList(productInfo,eventBody);
+                traveMoneyConverter.fillInvoiceInfoList(productInfo,eventBody,po.getOrdertype(),po.getSubordertype());
+            }
+            if(modules.contains("fncmalllist")){
+                traveMoneyConverter.fillFNCMallList(productInfo,eventBody);
+            }
+            if (modules.contains("diy")) {
+                diyConverter.fillDIYFlightInfoList(productInfo, eventBody);
+                diyConverter.fillDIYVacationInfoList(productInfo, eventBody);
+                setValue(productInfo, "hotelinfolist", copyList(getList(eventBody, "diyhotelsinfos"),new String[]{"orderid", "amount", "prepaytype"}));
+                setValue(productInfo, "hotelotherinfolist",copyList(getList(eventBody,"diyhotelsinfos"),"infosecurity_hotelinfo"));
+                setValue(productInfo, "diyresourcexlist", copyList(getList(eventBody,"diyresourcexinfos"),"infosecurity_diyresourcexinfo"));
+            }
+            if (modules.contains("giftitemlist")) {
+                setValue(productInfo, "giftitemlist", copyList(getList(eventBody,"giftlist"),"infosecurity_giftitem"));
+            }
+            if (modules.contains("devoteinfoviewbyjifen")) {
+                setValue(productInfo, "devoteinfoviewbyjifen",copyMap(getMap(eventBody,"devoterinfoview"),"infosecurity_devoterinfoviewbyjifen"));
+            }
+            if (modules.contains("distribution")) {
+                jiFenConverter.fillDistribution(productInfo, eventBody, po.getOrdertype(),po.getSubordertype());
+            }
+            if (modules.contains("jifenorderitemlist")) {
+                jiFenConverter.fillJifenOrderItemList(productInfo, eventBody);
+            }
+            if(modules.contains("walletwithdrawal")){
+                setValue(productInfo, "walletwithdrawal", copyMap(eventBody,"infosecurity_walletwithdrawal"));
+            }
+            if(modules.contains("chproduct")){
+                setValue(productInfo,"chproduct",copyMap(eventBody, "infosecurity_chproduct"));
             }
 
             if(modules.contains("coupons")){
-                poConverterEx.fillCoupons(productInfo,eventBody);
+                setValue(productInfo, "coupons", copyMap(eventBody, "infosecurity_couponsinfo"));
             }
 
             if(modules.contains("customer")){
-                poConverterEx.fillCustomer(productInfo, eventBody);
+                setValue(productInfo,"customer",copyMap(eventBody,new String[]{"customerusername","customeremail","customermobile"}));
             }
 
             if(modules.contains("smsverify")){
-                poConverterEx.fillSMSVerify(productInfo,eventBody);
+                setValue(productInfo, "smsverify", copyMap(eventBody, new String[]{"smsverifystatus"}));
             }
             if(modules.contains("tianhai")){
-                poConverterEx.fillTianHai(productInfo,eventBody);
+                setValue(productInfo, "tianhai", copyMap(eventBody, "infosecurity_vacationbytianhaiinfo"));
             }
             if(modules.contains("currencyexchange")){
-                poConverterEx.fillCurrencyExchange(productInfo,eventBody);
+                poConverterEx.fillCurrencyExchange(productInfo, eventBody);
+            }
+            if(modules.contains("insureinfolist")){
+                setValue(productInfo, "insureinfolist", copyList(getList(eventBody, "insuredinfolist"), "infosecurity_insuredinfo"));
+            }
+            if(modules.contains("marketing")){
+                setValue(productInfo, "marketing", copyMap(eventBody, "infosecurity_marketinginfo"));
+            }
+            if(modules.contains("marketdata")){
+                poConverterEx.fillMarketData(productInfo, eventBody);
+            }
+            if(modules.contains("miceinfo")){
+                setValue(productInfo, "miceinfo", copyMap(eventBody,"infosecurity_miceinfo"));
             }
 
+            if(modules.contains("travemoneyretailer")){
+                //BindMobileNo,AllianceID,SID,AvailAmount,DiscountRateRWX,DiscountRateRWY,RetailerType
+                setValue(productInfo,"travelmoneyretailer",copyMap(eventBody,"infosecurity_travelmoneyretailerinfo"));
+            }
+            if(modules.contains("distributioncompany")){
+                setValue(productInfo,"distributioncompany",copyMap(getMap(eventBody,"distributioncompanyitem"),new String[]{"flowcompanyname","flowremark"}));
+            }
+            if(modules.contains("travelmoneyproductlist")){
+                setValue(productInfo, "travelmoneyproductlist", copyList(getList(eventBody, "travelmoneyproductitems"), "infosecurity_travelmoneyproductinfo"));
+            }
+            if(modules.contains("rechargesuborderlist")){
+                 setValue(productInfo, "rechargesuborderlist", copyList(getList(eventBody, "rechargesuborderinfolist"), "infosecurity_rechargesuborderinfo"));
+            }
+
+            if(modules.contains("goodslist")){
+                traveMoneyConverter.fillGoodsList(productInfo,eventBody);
+            }
+            if(modules.contains("fncmallorder")){
+                setValue(productInfo,"fncmallorder",copyMap(getMap(eventBody,"fncmallorderinfo"),"infosecurity_fncmallorderinfo"));
+            }
+            if(modules.contains("invoiceinfo")){
+                setValue(productInfo,"invoiceinfo",copyMap(eventBody,"infosecurity_invoiceinfo"));
+            }
+            if(modules.contains("passenger")){
+                setValue(productInfo,"passenger",copyMap(eventBody, ImmutableMap.of("cardendtime","cardendtime","cardstarttime","cardstarttime",
+                        "proposercardno","passengercardid","proposercardtype","passengercardidtype")));
+            }
+            if(modules.contains("fundcertificate")){
+                setValue(productInfo,"fundcertificate",copyMap(eventBody,"infosecurity_fundcertificateinfo"));
+            }
+            if(modules.contains("travelmoneyproductplus")){
+                setValue(productInfo,"travelmoneyproductplus",copyMap(eventBody,"infosecurity_travelmoneyproductinfoplus"));
+            }
+            if(modules.contains("employee")){
+                setValue(productInfo,"employee",copyMap(eventBody,new String[]{"eid","eidip"}));
+                setValue(getMap(productInfo,"employee"),"eidipvalue",ipConvertToValue(getString(eventBody,"eidip")));
+            }
+            if(modules.contains("vacationproduct")){
+                setValue(productInfo,"vacationproduct",copyMap(getMap(eventBody,"vacationproductinfos"),"infosecurity_vacationproductinfo"));
+            }
+            if(modules.contains("gps")){
+                setValue(productInfo, "gps", copyMap(eventBody, new String[]{"latitude","longitude"}));
+            }
+            if(modules.contains("yongche")){
+                setValue(productInfo,"yongche",copyMap(eventBody,"infosecurity_yongcheinfo"));
+            }
+            if(modules.contains("topshoporderlist")){
+                topShopConverter.fillTopShopOrderList(productInfo,eventBody);
+            }
+            if(modules.contains("topshopcatalog")){
+                topShopConverter.fillTopShopCatalog(productInfo,eventBody);
+            }
             //fill Other Info
             fillOtherInfo(po, eventBody);
 
         } else if (checkType.equals("2") || checkType.equals("0")) { //支付校验，补充订单信息
             if(!nopaymentInfos.contains(po.getOrdertype())) {
-                //fill PaymentMainInfo
-                Map<String, Object> paymentMainInfo = new HashMap<String, Object>();
-                copyMap(requestBody.getEventBody(), paymentMainInfo, "infosecurity_paymentmaininfo");
-                setValue(paymentInfo, "paymentmaininfo", paymentMainInfo);
                 //fill PaymentInfoList
-                fillPaymentInfo(eventBody, paymentInfo, po.getOrdertype(),po.getChecktype());
+                paymentConverter.fillPaymentInfo(eventBody,paymentInfo,po.getOrdertype(),po.getChecktype(),po.getSubordertype());
             }
-
             if (modules.contains("orderccard")) {
                 poConverterEx.fillAuthCCardInfo(productInfo, paymentInfo);
             }
-
         }
 
         if (modules.contains("tddspecial")) {
             //处理 isprepaid标志
             poConverterEx.tddSpecial(po, eventBody);
+        }
+        if(modules.contains("vacationspecial")){
+            poConverterEx.vacationSpecail(po,eventBody);
         }
 
         if (modules.contains("hotelspecial")) {
@@ -364,12 +353,17 @@ public class POConverter extends POConvertBase {
             poConverterEx.fillFligtProfit(productInfo, paymentInfo, po.getChecktype());
         }
 
+        if(modules.contains("hotelebkspecial")){
+            //处理 isprepaid标志
+            poConverterEx.fillHotelEBKSpecial(po,eventBody);
+        }
+
         //BindingCard没有支付信息
         if (Strings.isNullOrEmpty(po.getPrepaytype()) && !nopaymentInfos.contains(po.getOrdertype())) {
             po.setPrepaytype(getPrepayType(paymentInfo));
         }
 
-        if (modules.contains("didinfo") && !po.getOrdertype().equals(CtripOrderType.BindingCard.getCode())) {
+        if (!po.getOrdertype().equals(CtripOrderType.BindingCard.getCode())) {
             fillDIDInfo(productInfo, orderId, orderType);
         }
         return po;

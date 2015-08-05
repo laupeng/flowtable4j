@@ -1,6 +1,6 @@
 package com.ctrip.infosec.flowtable4j.biz.converter;
 
-import com.ctrip.infosec.flowtable4j.biz.ConverterBase;
+import com.ctrip.infosec.flowtable4j.biz.baseconverter.ConverterBase;
 import com.ctrip.infosec.flowtable4j.model.MapX;
 import org.springframework.stereotype.Component;
 

@@ -73,7 +73,6 @@ public enum CtripOrderType {
 
     //            永安机票
     YongAnFlight(10002),
-
     //            永安酒店
     YongAnHotel(10003),
     //            绑卡

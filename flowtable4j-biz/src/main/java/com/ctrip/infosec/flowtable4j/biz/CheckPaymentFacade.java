@@ -31,9 +31,6 @@ public class CheckPaymentFacade {
     Save2DbProcessor save2DbService;
 
     @Autowired
-    PayAdaptInner payAdaptInner;
-
-    @Autowired
     FlowtableProcessor flowtableProcessor;
 
     @Autowired
@@ -65,11 +62,32 @@ public class CheckPaymentFacade {
     }
 
     /**
-     * 快速应用支付适配，分落8张表
+     * 快速应用支付适配，
+     * 分落8张表 LastProductInfo/LastPaymentInfo
      * @param requestBody
      * @return
      */
     public RiskResult checkRisk2(RequestBody requestBody) {
+        //数据准备
+        long start1 = System.nanoTime();
+        final PO po = poConverter.convert(requestBody);
+        logger.warn("Construct PO elapse:" + (System.nanoTime() - start1) / 1000000L);
+        SimpleStaticThreadPool.getInstance().submit(new Runnable() {
+            @Override
+            public void run() {
+                poConverter.saveData4Next(po);
+            }
+        });
+        return new RiskResult();
+    }
+
+    /**
+     * 支付适配数据落地与Offline数据落地
+     * 用于比对数据落地正确性
+     * @param requestBody
+     * @return
+     */
+    public RiskResult checkRisk3(RequestBody requestBody) {
         //数据准备
         long start1 = System.nanoTime();
         final PO po = poConverter.convert(requestBody);
@@ -92,7 +110,6 @@ public class CheckPaymentFacade {
         return new RiskResult();
     }
 
-
     public RiskResult checkRisk(RequestBody requestBody) {
         //数据准备
         long start1 = System.nanoTime();
@@ -113,12 +130,12 @@ public class CheckPaymentFacade {
         logger.warn("Construct PO elapse:" + (System.nanoTime() - start1) / 1000000L);
 
         //TODO 最终决定哪些业务需要调用支付适配黑白名单、账户风控黑白名单
-        SimpleStaticThreadPool.getInstance().submit(new Runnable() {
-            @Override
-            public void run() {
-                payAdaptInner.handle4PayAdapt(po);
-            }
-        });
+//        SimpleStaticThreadPool.getInstance().submit(new Runnable() {
+//            @Override
+//            public void run() {
+//
+//            }
+//        });
 
         start1 = System.nanoTime();
         //流量校验

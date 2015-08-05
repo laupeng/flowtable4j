@@ -134,7 +134,7 @@ public class PO extends MapX {
         prop2table.put("userinfo", "infosecurity_userinfo");
 
         //v
-        prop2table.put("vacationproductlist~","infosecurity_vacationproductinfo");
+        prop2table.put("vacationproduct","infosecurity_vacationproductinfo");
         //viaotherinfolist
 
         prop2table.put("vacationinfolist~.order","infosecurity_vacationinfo");               //VacationInfoID
