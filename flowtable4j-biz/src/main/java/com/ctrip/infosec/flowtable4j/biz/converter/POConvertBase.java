@@ -117,8 +117,9 @@ public class POConvertBase extends ConverterBase {
      */
     protected void fillUserInfo(Map<String, Object> eventBody, Map<String, Object> target, String uid, int orderType) {
         Map<String, Object> userInfo = createMap();
-        setValue(target, "userinfo", userInfo);
+        setValue(target,"userinfo", userInfo);
 
+        setValue(userInfo,"vipgrade", 0); 
         //机票会抛用户信息,先接收信息
         if (CtripOrderType.Flights.getCode() == orderType) {
             copyMap(eventBody, userInfo, "infosecurity_userinfo");
@@ -244,10 +245,10 @@ public class POConvertBase extends ConverterBase {
         setValue(ipInfo, "useripvalue", ipValue);
         Map<String, Object> ip = checkRiskDAO.getIPInfo(ipValue);
         if (ip != null && ip.size()>0) {
-            setValue(ipInfo, "continent", 0);
             setValue(ipInfo, "ipcity", getObject(ip, "cityid"));
             setValue(ipInfo, "ipcountry", getObject(ip, "nationcode"));
         }
+        setValue(ipInfo, "continent", 0);
         setValue(target, "ipinfo", ipInfo);
     }
 
