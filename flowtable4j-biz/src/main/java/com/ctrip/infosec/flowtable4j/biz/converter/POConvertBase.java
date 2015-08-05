@@ -243,7 +243,7 @@ public class POConvertBase extends ConverterBase {
         long ipValue = ipConvertToValue(userIP);
         setValue(ipInfo, "useripvalue", ipValue);
         Map<String, Object> ip = checkRiskDAO.getIPInfo(ipValue);
-        if (ip != null) {
+        if (ip != null && ip.size()>0) {
             setValue(ipInfo, "continent", 0);
             setValue(ipInfo, "ipcity", getObject(ip, "cityid"));
             setValue(ipInfo, "ipcountry", getObject(ip, "nationcode"));
