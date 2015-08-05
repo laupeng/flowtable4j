@@ -139,7 +139,7 @@ public class POConvertBase extends ConverterBase {
 
         try {
             Map<String, Object> crmInfo = esbClient.getMemberInfo(uid);
-            if (crmInfo != null) {
+            if (crmInfo != null && crmInfo.size()>0) {
                 copyMap(crmInfo, userInfo, "infosecurity_userinfo");
                 copyValue(crmInfo, "email", userInfo, "relatedemail");
                 copyValue(crmInfo, "mobilephone", userInfo, "relatedmobilephone");
@@ -152,7 +152,7 @@ public class POConvertBase extends ConverterBase {
                     setValue(userInfo, "cuscharacter", "VIP");
                 } else {
                     Map<String, Object> customer = esbClient.getCustomerInfo(uid);
-                    if (customer != null)
+                    if (customer != null && customer.size() >0 )
                         if ("1900-01-01".compareTo(getString(customer, "customerdate")) < 0) {
                             setValue(userInfo, "cuscharacter", "REPEAT");
                         } else {
