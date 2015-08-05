@@ -190,6 +190,7 @@ public class MainInfoConverter extends ConverterBase {
             copyValue(eventBody,"productname",mainInfo,"orderproductname");
         }
 
+        setValue(mainInfo,"applyremark","Flowtable4j");
         setValue(po.getProductinfo(), "maininfo", mainInfo);
     }
 }
