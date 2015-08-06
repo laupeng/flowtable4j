@@ -119,10 +119,11 @@ public class POConvertBase extends ConverterBase {
         Map<String, Object> userInfo = createMap();
         setValue(target,"userinfo", userInfo);
 
-        setValue(userInfo,"vipgrade", 0); 
+        setValue(userInfo,"vipgrade", 0);
         //机票会抛用户信息,先接收信息
         if (CtripOrderType.Flights.getCode() == orderType) {
             copyMap(eventBody, userInfo, "infosecurity_userinfo");
+            copyValue(eventBody, "md5password", userInfo, "userpassword");
         }
 
         setValue(userInfo, "uid", uid);
@@ -135,6 +136,7 @@ public class POConvertBase extends ConverterBase {
         if(CtripOrderType.YongAnFlight.getCode()==orderType)
         {
             copyMap(eventBody,userInfo,"infosecurity_userinfo");
+            copyValue(eventBody, "md5password", userInfo, "userpassword");
             return;
         }
 
@@ -221,7 +223,7 @@ public class POConvertBase extends ConverterBase {
             copyValue(contactMap, "remark", contactInfo, "remark");
             copyValue(contactMap, "mobile", contactInfo, "mobilephone");
         } else {
-           contactInfo =copyMap(eventBody,new String[]{"mobilephone","contactname","contacttel","contactemail","sendtickeraddr"});
+           contactInfo =copyMap(eventBody,"infosecurity_contactinfo");
         }
         Map<String, Object> city = checkRiskDAO.getMobileCityAndProv(getString(contactInfo, "mobilephone"));
         if (city != null) {
