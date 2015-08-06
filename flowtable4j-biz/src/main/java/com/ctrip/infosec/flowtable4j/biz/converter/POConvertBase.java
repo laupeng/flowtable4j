@@ -121,7 +121,7 @@ public class POConvertBase extends ConverterBase {
 
         setValue(userInfo,"vipgrade", 0);
         //机票会抛用户信息,先接收信息
-        if (CtripOrderType.Flights.getCode() == orderType) {
+        if (CtripOrderType.Flights.getCode() == orderType || CtripOrderType.Hotel.getCode()== orderType) {
             copyMap(eventBody, userInfo, "infosecurity_userinfo");
             copyValue(eventBody, "md5password", userInfo, "userpassword");
         }
