@@ -54,7 +54,7 @@ public class FlowTableRESTfulController {
         fact.setBlackList(MapX.getMap(eventBody,"blacklist"));
 
         //测试时需要数据落地，正式上线后由.NET合并结果
-        PayAdaptResult result = payAdaptProcessor.handle4PayAdapt(fact,true);
+        PayAdaptResult result = payAdaptProcessor.handle4PayAdapt(fact,false);
         long finish = System.nanoTime();
         logger.debug("CheckPayAdpat total elapse " + (finish-start)/1000000L +" ms");
         return  result;
@@ -65,7 +65,7 @@ public class FlowTableRESTfulController {
     @ResponseBody
     RiskResult checkPayment(@RequestBody com.ctrip.infosec.flowtable4j.model.RequestBody checkEntity) {
         long start= System.nanoTime();
-        RiskResult result = checkPaymentService.checkRisk3(checkEntity);
+        RiskResult result = checkPaymentService.checkRisk2(checkEntity);
         long finish = System.nanoTime();
         logger.debug("CheckPayment total elapse " + (finish-start)/1000000L +" ms");
         return  result;
@@ -74,8 +74,8 @@ public class FlowTableRESTfulController {
     @RequestMapping(value = "/saveData4Offline")
     public
     @ResponseBody
-    long saveData4Offline(@RequestBody com.ctrip.infosec.flowtable4j.model.RequestBody checkEntity) {
-        return checkPaymentService.saveData4Offline(checkEntity);
+    long saveData4Offline(@RequestBody com.ctrip.infosec.flowtable4j.model.persist.PO po) {
+        return checkPaymentService.saveData4Offline(po);
     }
 
 }

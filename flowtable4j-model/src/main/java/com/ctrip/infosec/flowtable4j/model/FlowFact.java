@@ -55,7 +55,6 @@ public class FlowFact {
         this.prepayType = prepayType;
     }
 
-
     public void setOrderTypes(List<Integer> orderTypes) {
         this.orderTypes = orderTypes;
     }

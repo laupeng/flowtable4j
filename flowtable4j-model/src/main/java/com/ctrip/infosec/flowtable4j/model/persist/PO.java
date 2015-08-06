@@ -1,11 +1,8 @@
 package com.ctrip.infosec.flowtable4j.model.persist;
 
-import com.ctrip.infosec.flowtable4j.model.CtripOrderType;
 import com.ctrip.infosec.flowtable4j.model.MapX;
 
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
