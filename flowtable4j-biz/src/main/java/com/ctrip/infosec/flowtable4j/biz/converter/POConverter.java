@@ -322,7 +322,9 @@ public class POConverter extends POConvertBase {
             //fill Other Info
             fillOtherInfo(po, eventBody);
 
-        } else if (checkType.equals("2") || checkType.equals("0")) { //支付校验，补充订单信息
+        }
+
+        if (checkType.equals("2") || checkType.equals("0")) { //支付校验，补充订单信息
             if(!nopaymentInfos.contains(po.getOrdertype())) {
                 //fill PaymentInfoList
                 paymentConverter.fillPaymentInfo(eventBody,paymentInfo,po.getOrdertype(),po.getChecktype(),po.getSubordertype());
