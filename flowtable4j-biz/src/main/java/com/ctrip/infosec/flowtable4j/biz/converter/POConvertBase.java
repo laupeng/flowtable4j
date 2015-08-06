@@ -115,30 +115,34 @@ public class POConvertBase extends ConverterBase {
      * @param uid
      * @return
      */
-    protected void fillUserInfo(Map<String, Object> eventBody, Map<String, Object> target, String uid, int orderType) {
+    protected void fillUserInfo(Map<String, Object> eventBody, Map<String, Object> target, String uid, int orderType,int subOrderType) {
         Map<String, Object> userInfo = createMap();
         setValue(target,"userinfo", userInfo);
 
+        copyValue(eventBody, "istempuser", userInfo, "istempuser");
         setValue(userInfo,"vipgrade", 0);
+        setValue(userInfo, "uid", uid);
+
         //机票会抛用户信息,先接收信息
-        if (CtripOrderType.Flights.getCode() == orderType || CtripOrderType.Hotel.getCode()== orderType) {
+        if (CtripOrderType.Flights.getCode() == orderType
+                || CtripOrderType.Hotel.getCode()== orderType
+                || CtripOrderType.DIY.getCode()==orderType
+                || CtripSubOrderType.DistributionFlight.getCode()== subOrderType) {
             copyMap(eventBody, userInfo, "infosecurity_userinfo");
             copyValue(eventBody, "md5password", userInfo, "userpassword");
         }
-
-        setValue(userInfo, "uid", uid);
-
-        //HotelEBK不须取MemeberInfo的信息
-        if(CtripOrderType.HotelEBK.getCode()== orderType){
-            copyValue(eventBody,"signupdate",userInfo,"signupdate");
-            return;
-        }
-        if(CtripOrderType.YongAnFlight.getCode()==orderType)
+        if(CtripOrderType.YongAnFlight.getCode()==orderType || CtripOrderType.YongAnHotel.getCode()==orderType)
         {
             copyMap(eventBody,userInfo,"infosecurity_userinfo");
             copyValue(eventBody, "md5password", userInfo, "userpassword");
             return;
         }
+        //HotelEBK不须取MemeberInfo的信息
+        if(CtripOrderType.HotelEBK.getCode()== orderType){
+            copyValue(eventBody,"signupdate",userInfo,"signupdate");
+            return;
+        }
+
 
         try {
             Map<String, Object> crmInfo = esbClient.getMemberInfo(uid);

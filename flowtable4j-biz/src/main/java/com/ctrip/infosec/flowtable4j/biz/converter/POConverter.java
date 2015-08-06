@@ -171,7 +171,7 @@ public class POConverter extends POConvertBase {
             mainInfoConverter.fillMainInfo(eventBody,po);
 
             //fill User Info Info，CusCharacter、BindEmail etc.
-            fillUserInfo(eventBody, productInfo, getString(eventBody, "uid"), po.getOrdertype());
+            fillUserInfo(eventBody, productInfo, getString(eventBody, "uid"), po.getOrdertype(),po.getSubordertype());
 
             //fill IP Info, IpCity,Ip Continent
             fillIPInfo(productInfo, getString(eventBody, "userip"));
