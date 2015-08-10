@@ -3,12 +3,14 @@ package com.ctrip.infosec.flowtable4j.biz.converter;
 import com.ctrip.infosec.flowtable4j.biz.baseconverter.ConverterBase;
 import com.ctrip.infosec.flowtable4j.model.AccountFact;
 import com.ctrip.infosec.flowtable4j.model.AccountItem;
+import com.ctrip.infosec.flowtable4j.model.RequestBody;
 import com.ctrip.infosec.flowtable4j.model.persist.PO;
 import com.google.common.base.Strings;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Convert PO Entity to for Account BWG Check
@@ -44,6 +46,37 @@ public class AccountConverter extends ConverterBase {
         String uid =getString(po.getProductinfo(),new String[]{"userinfo","uid"});
         String did =getString(po.getProductinfo(),new String[]{"didinfo","did"});;
         String ip  =getString(po.getProductinfo(),new String[]{"ipinfo","useripadd"});;
+        if(!Strings.isNullOrEmpty(uid)){
+            for(String s:sceneTypes){
+                items.add(new AccountItem("UID",s,uid));
+            }
+        }
+        if(!Strings.isNullOrEmpty(did)){
+            for(String s:sceneTypes){
+                items.add(new AccountItem("DID",s,did));
+            }
+        }
+        if(!Strings.isNullOrEmpty(ip)){
+            for(String s:sceneTypes){
+                items.add(new AccountItem("IP",s,ip));
+            }
+        }
+        fact.setCheckItems(items);
+        return fact;
+    }
+
+    /**
+     * 暂时只考虑 DID、UID、UserIP
+     * @param requestBody
+     * @return
+     */
+    public AccountFact convert(RequestBody requestBody){
+        AccountFact fact=new AccountFact();
+        List<AccountItem> items=new ArrayList<AccountItem>();
+        Map<String,Object> eventBody= requestBody.getEventBody();
+        String uid =getString(eventBody,"uid");
+        String did =getString(eventBody,"did");;
+        String ip  =getString(eventBody,"useripadd");;
         if(!Strings.isNullOrEmpty(uid)){
             for(String s:sceneTypes){
                 items.add(new AccountItem("UID",s,uid));

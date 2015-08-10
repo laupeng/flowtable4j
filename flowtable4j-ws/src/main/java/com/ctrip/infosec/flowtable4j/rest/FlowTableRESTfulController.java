@@ -52,6 +52,7 @@ public class FlowTableRESTfulController {
         fact.setUid(MapX.getString(eventBody,"uid"));
         fact.setCheckType(Integer.parseInt(MapX.getString(eventBody,"checktype","0")));
         fact.setBlackList(MapX.getMap(eventBody,"blacklist"));
+        fact.setFlowList(MapX.getMap(eventBody,"flowlist"));
 
         //测试时需要数据落地，正式上线后由.NET合并结果
         PayAdaptResult result = payAdaptProcessor.handle4PayAdapt(fact,false);
@@ -78,4 +79,10 @@ public class FlowTableRESTfulController {
         return checkPaymentService.saveData4Offline(po);
     }
 
+    @RequestMapping(value = "/checkBWGList")
+    public
+    @ResponseBody
+    RiskResult checkBWGList(@RequestBody com.ctrip.infosec.flowtable4j.model.RequestBody checkEntity) {
+        return checkPaymentService.checkBWGList(checkEntity);
+    }
 }

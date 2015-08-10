@@ -3,6 +3,7 @@ package com.ctrip.infosec.flowtable4j.biz.converter;
 import com.ctrip.infosec.flowtable4j.biz.baseconverter.ConverterBase;
 import com.ctrip.infosec.flowtable4j.model.BWFact;
 import com.ctrip.infosec.flowtable4j.model.CtripOrderType;
+import com.ctrip.infosec.flowtable4j.model.RequestBody;
 import com.ctrip.infosec.flowtable4j.model.persist.PO;
 import com.google.common.collect.ImmutableMap;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -96,6 +97,22 @@ public class BlackWhiteConverter extends ConverterBase {
 
         copyValueIfNotNull(getMap(productInfo,"didinfo"),"did",content,"did");
 
+        return fact;
+    }
+
+    public BWFact convert(RequestBody requestBody) {
+        BWFact fact = new BWFact();
+        Map<String, Object> content = new HashMap<String, Object>();
+        Map<String, Object> eventBody= requestBody.getEventBody();
+        fact.setContent(content);
+        fact.setOrderType(Integer.parseInt(getString(eventBody,"ordertype","0")));
+        fact.setOrderTypes(new ArrayList<Integer>());
+        fact.getOrderTypes().add(0);
+        fact.getOrderTypes().add(fact.getOrderType());
+        Map<String,Object> bwlist=getMap(eventBody,"blackList");
+        if(bwlist!=null && bwlist.size()>0) {
+            content.putAll(bwlist);
+        }
         return fact;
     }
 

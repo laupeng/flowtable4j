@@ -24,6 +24,8 @@ public class PayAdaptFact {
 
     private Map<String,Object> blackList;
 
+    private Map<String,Object> flowList;
+
     public int getOrderType() {
         return orderType;
     }
@@ -87,5 +89,13 @@ public class PayAdaptFact {
 
     public void setBlackList(Map<String, Object> blackList) {
         this.blackList = blackList;
+    }
+
+    public Map<String, Object> getFlowList() {
+        return flowList;
+    }
+
+    public void setFlowList(Map<String, Object> flowList) {
+        this.flowList = flowList;
     }
 }

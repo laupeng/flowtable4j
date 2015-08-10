@@ -164,7 +164,7 @@ public class AccountBWGManager {
                     throw new RuntimeException(ex);
                 }
             }
-        } catch (InterruptedException e) {
+        } catch (Exception e) {
             logger.warn("check bwg rule timeout", e);
         }
         mergeRedisRule(dic_allrules, result);
@@ -229,7 +229,7 @@ public class AccountBWGManager {
         }
         long eps = (System.nanoTime() - now)/1000000L;
 
-        logger.warn("Read redis elapse " + eps);
+        logger.info("Read redis elapse " + eps);
 
     }
 }

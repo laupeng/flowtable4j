@@ -19,7 +19,9 @@ import java.util.Set;
  */
 @Component
 public class RedisProvider {
-    private final String redisCluster = "CounterServer_03";
+    private static final String redisCluster = "CounterServer_03";
+    private static CacheProvider provider = CacheFactory.GetProvider(redisCluster);
+
     JsonMapper mapper = new JsonMapper();
     public RedisProvider() {
         RAppSetting.setAppID(GlobalConfig.getString("APPID"));
@@ -183,7 +185,7 @@ public class RedisProvider {
     }
 
     private CacheProvider getCache() {
-        return CacheFactory.GetProvider(redisCluster);
+        return provider;
     }
 
     public void cacheProductInfo(String orderId,String orderType,PO po){
