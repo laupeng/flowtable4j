@@ -9,20 +9,48 @@
         <!--net属性可以是NET2，NET4或者ALL -->
         <!--dataCenter属性，可以是如下值: sh,nt,sh2或者ALL，也可以是sh,nt,sh2中任意多个值的并集，以逗号分隔 -->
         <!--以上5个属性共同组成了一个元数据，可以唯一的标识一个环境 -->
-        <add name="dev" target="dev" iis="ALL" net="ALL" dataCenter="sh"/>
-        <add name="test" target="test" iis="ALL" net="ALL" dataCenter="ALL"/>
-        <add name="fws" target="fws" iis="ALL" net="ALL" dataCenter="ALL"/>
-        <add name="fat" target="fat" iis="ALL" net="ALL" dataCenter="ALL"/>
-        <add name="lpt" target="lpt" iis="ALL" net="ALL" dataCenter="ALL"/>
-        <add name="uat" target="uat" iis="ALL" net="ALL" dataCenter="ALL"/>
-        <add name="uat_nt" target="uat_nt" iis="ALL" net="ALL" dataCenter="ALL"/>
-        <add name="prd" target="prd" iis="ALL" net="ALL" dataCenter="ALL"/>
+        <add name="dev" target="dev" iis="ALL" net="ALL" dataCenter="sh" />
+        <add name="fws" target="fws" iis="ALL" net="ALL" dataCenter="ALL" />
+        <add name="fat" target="fat" iis="ALL" net="ALL" dataCenter="ALL" />
+        <add name="lpt" target="lpt" iis="ALL" net="ALL" dataCenter="ALL" />
+        <add name="uat" target="uat" iis="ALL" net="ALL" dataCenter="ALL" />
+        <add name="uat_nt" target="uat_nt" iis="ALL" net="ALL" dataCenter="ALL" />
+        <add name="prd" target="prd" iis="ALL" net="ALL" dataCenter="ALL" />
     </environments>
     <!--environments节点有多少个子节点，则下文中必须出现同样数量的节点，且名称必须与上文中的name属性一致 -->
-    <fat>
+    <dev>
         <DBDataCenter></DBDataCenter>
         <AppID>100000807</AppID>
         <ESBUrl>http://soa.fws.qa.nt.ctripcorp.com/SOA.ESB/Ctrip.SOA.ESB.asmx</ESBUrl>
+        <Selected.Service.Url>http://ws.selected.uat.qa.nt.ctripcorp.com/PublicApi/json/</Selected.Service.Url>
+        <sars.monitor.rest.url>http://10.2.10.75:8080/monitorws/rest/monitor</sars.monitor.rest.url>
+        <!-- CRedis -->
+        <CRedis.serviceUrl>http://ws.config.framework.fws.qa.nt.ctripcorp.com/configws/</CRedis.serviceUrl>
+        <CRedis.logging>true</CRedis.logging>
+        <!-- CLogging -->
+        <CLogging.serverIp>collector.logging.uat.qa.nt.ctripcorp.com</CLogging.serverIp>
+        <CLogging.serverPort>63100</CLogging.serverPort>
+        <Configs.Caches.url>http://10.2.10.76:8080/configsws/rest/loadconfig</Configs.Caches.url>
+        <EventWS>http://10.2.10.77:8080/eventws/execute</EventWS>
+
+        <!--预处理-->
+        <DataProxy.REST.URL.Prefix>http://ws.userprofile.infosec.fat70.qa.nt.ctripcorp.com:8080/userprofilews</DataProxy.REST.URL.Prefix>
+        <DataProxy.Venus.ipAddressList>10.2.9.130:16800</DataProxy.Venus.ipAddressList>
+
+        <Configs.URL>http://10.2.10.76:8080/configsws/rest/loadconfig</Configs.URL>
+        <Configs.Trace.URL>http://10.2.10.76:8080/configsws/rest/trace</Configs.Trace.URL>
+
+        <!-- CryptoGraphy -->
+        <CryptoGraphy.cscmUrl>https://cscmws.infosec.fws.qa.nt.ctripcorp.com/cscmws/CertificateWS.asmx</CryptoGraphy.cscmUrl>
+        <CryptoGraphy.sslcode>EU00000000000118</CryptoGraphy.sslcode>
+        <CryptoGraphy.dependency.env>DEV</CryptoGraphy.dependency.env>
+    </dev>
+
+    <fws>
+        <DBDataCenter></DBDataCenter>
+        <AppID>100000807</AppID>
+        <ESBUrl>http://soa.fws.qa.nt.ctripcorp.com/SOA.ESB/Ctrip.SOA.ESB.asmx</ESBUrl>
+        <Selected.Service.Url>http://ws.selected.uat.qa.nt.ctripcorp.com/PublicApi/json/</Selected.Service.Url>
         <sars.monitor.rest.url>http://10.2.10.75:8080/monitorws/rest/monitor</sars.monitor.rest.url>
         <!-- CRedis -->
         <CRedis.serviceUrl>http://ws.config.framework.fws.qa.nt.ctripcorp.com/configws/</CRedis.serviceUrl>
@@ -33,26 +61,77 @@
         <Configs.Caches.url>http://10.2.10.76:8080/configsws/rest/loadconfig</Configs.Caches.url>
         <EventWS>http://10.2.10.77:8080/eventws/execute</EventWS>
         <!--预处理-->
-        <ESB.serviceUrl>http://soa.fws.qa.nt.ctripcorp.com/SOA.ESB/Ctrip.SOA.ESB.asmx?WSDL</ESB.serviceUrl>
         <DataProxy.REST.URL.Prefix>http://ws.userprofile.infosec.fat70.qa.nt.ctripcorp.com:8080/userprofilews</DataProxy.REST.URL.Prefix>
         <DataProxy.Venus.ipAddressList>10.2.9.130:16800</DataProxy.Venus.ipAddressList>
 
-        <CardInfo.REST.URL.Prefix>http://soa.fws.qa.nt.ctripcorp.com/SOA.ESB/Ctrip.SOA.ESB.asmx</CardInfo.REST.URL.Prefix>
         <Configs.URL>http://10.2.10.76:8080/configsws/rest/loadconfig</Configs.URL>
         <Configs.Trace.URL>http://10.2.10.76:8080/configsws/rest/trace</Configs.Trace.URL>
-        <CardRiskDB>CardRiskDB_INSERT_1</CardRiskDB>
-        <RiskCtrlPreProcDB>RiskCtrlPreProcDB_INSERT_1</RiskCtrlPreProcDB>
-        <CUSRATDB>CUSRATDB_INSERT_1</CUSRATDB>
+
+        <!-- CryptoGraphy -->
+        <CryptoGraphy.cscmUrl>https://cscmws.infosec.fws.qa.nt.ctripcorp.com/cscmws/CertificateWS.asmx</CryptoGraphy.cscmUrl>
+        <CryptoGraphy.sslcode>EU00000000000118</CryptoGraphy.sslcode>
+        <CryptoGraphy.dependency.env>DEV</CryptoGraphy.dependency.env>
+    </fws>
+
+    <fat>
+        <DBDataCenter></DBDataCenter>
+        <AppID>100000807</AppID>
+        <ESBUrl>http://soa.fws.qa.nt.ctripcorp.com/SOA.ESB/Ctrip.SOA.ESB.asmx</ESBUrl>
+        <Selected.Service.Url>http://ws.selected.uat.qa.nt.ctripcorp.com/PublicApi/json/</Selected.Service.Url>
+        <sars.monitor.rest.url>http://10.2.10.75:8080/monitorws/rest/monitor</sars.monitor.rest.url>
+        <!-- CRedis -->
+        <CRedis.serviceUrl>http://ws.config.framework.fws.qa.nt.ctripcorp.com/configws/</CRedis.serviceUrl>
+        <CRedis.logging>true</CRedis.logging>
+        <!-- CLogging -->
+        <CLogging.serverIp>collector.logging.uat.qa.nt.ctripcorp.com</CLogging.serverIp>
+        <CLogging.serverPort>63100</CLogging.serverPort>
+        <Configs.Caches.url>http://10.2.10.76:8080/configsws/rest/loadconfig</Configs.Caches.url>
+        <EventWS>http://10.2.10.77:8080/eventws/execute</EventWS>
+        <!--预处理-->
+        <DataProxy.REST.URL.Prefix>http://ws.userprofile.infosec.fat70.qa.nt.ctripcorp.com:8080/userprofilews</DataProxy.REST.URL.Prefix>
+        <DataProxy.Venus.ipAddressList>10.2.9.130:16800</DataProxy.Venus.ipAddressList>
+
+        <Configs.URL>http://10.2.10.76:8080/configsws/rest/loadconfig</Configs.URL>
+        <Configs.Trace.URL>http://10.2.10.76:8080/configsws/rest/trace</Configs.Trace.URL>
+
         <!-- CryptoGraphy -->
         <CryptoGraphy.cscmUrl>https://cscmws.infosec.fws.qa.nt.ctripcorp.com/cscmws/CertificateWS.asmx</CryptoGraphy.cscmUrl>
         <CryptoGraphy.sslcode>EU00000000000118</CryptoGraphy.sslcode>
         <CryptoGraphy.dependency.env>DEV</CryptoGraphy.dependency.env>
     </fat>
 
-    <uat_nt>
+    <lpt>
         <DBDataCenter></DBDataCenter>
         <AppID>100000807</AppID>
-        <ESBUrl>http://soa.fws.qa.nt.ctripcorp.com/SOA.ESB/Ctrip.SOA.ESB.asmx</ESBUrl>
+        <ESBUrl>http://soa.uat.qa.nt.ctripcorp.com/SOA.ESB/Ctrip.SOA.ESB.asmx</ESBUrl>
+        <Selected.Service.Url>http://ws.selected.uat.qa.nt.ctripcorp.com/PublicApi/json/</Selected.Service.Url>
+        <sars.monitor.rest.url>http://10.2.10.75:8080/monitorws/rest/monitor</sars.monitor.rest.url>
+        <!-- CRedis -->
+        <CRedis.serviceUrl>http://ws.config.framework.uat.qa.nt.ctripcorp.com/configws/</CRedis.serviceUrl>
+        <CRedis.logging>true</CRedis.logging>
+        <!-- CLogging -->
+        <CLogging.serverIp>collector.logging.uat.qa.nt.ctripcorp.com</CLogging.serverIp>
+        <CLogging.serverPort>63100</CLogging.serverPort>
+        <Configs.Caches.url>http://10.2.25.54:8080/configsws/rest/loadconfig</Configs.Caches.url>
+        <EventWS>http://10.2.10.77:8080/eventws/execute</EventWS>
+        <!--预处理-->
+        <DataProxy.REST.URL.Prefix>http://ws.userprofile.infosec.fat70.qa.nt.ctripcorp.com:8080/userprofilews</DataProxy.REST.URL.Prefix>
+        <DataProxy.Venus.ipAddressList>10.2.9.130:16800</DataProxy.Venus.ipAddressList>
+
+        <Configs.URL>http://10.2.10.76:8080/configsws/rest/loadconfig</Configs.URL>
+        <Configs.Trace.URL>http://10.2.10.76:8080/configsws/rest/trace</Configs.Trace.URL>
+
+        <!-- CryptoGraphy -->
+        <CryptoGraphy.cscmUrl>https://cscmws.infosec.fws.qa.nt.ctripcorp.com/cscmws/CertificateWS.asmx</CryptoGraphy.cscmUrl>
+        <CryptoGraphy.sslcode>EU00000000000118</CryptoGraphy.sslcode>
+        <CryptoGraphy.dependency.env>DEV</CryptoGraphy.dependency.env>
+    </lpt>
+
+    <uat>
+        <DBDataCenter></DBDataCenter>
+        <AppID>100000807</AppID>
+        <ESBUrl>http://soa.uat.qa.nt.ctripcorp.com/SOA.ESB/Ctrip.SOA.ESB.asmx</ESBUrl>
+        <Selected.Service.Url>http://ws.selected.uat.qa.nt.ctripcorp.com/PublicApi/json/</Selected.Service.Url>
         <sars.monitor.rest.url>http://10.2.10.75:8080/monitorws/rest/monitor</sars.monitor.rest.url>
         <!-- CRedis -->
         <CRedis.serviceUrl>http://ws.config.framework.uat.qa.nt.ctripcorp.com/configws/</CRedis.serviceUrl>
@@ -63,16 +142,39 @@
         <Configs.Caches.url>http://10.2.25.54:8080/configsws/rest/loadconfig</Configs.Caches.url>
         <EventWS>http://10.2.25.54:8080/eventws/execute</EventWS>
         <!--预处理-->
-        <ESB.serviceUrl>http://soa.uat.qa.nt.ctripcorp.com/SOA.ESB/Ctrip.SOA.ESB.asmx?WSDL</ESB.serviceUrl>
         <DataProxy.REST.URL.Prefix>http://ws.userprofile.infosec.uat.qa.nt.ctripcorp.com:8081/userprofilews</DataProxy.REST.URL.Prefix>
         <DataProxy.Venus.ipAddressList>10.2.24.244:16800</DataProxy.Venus.ipAddressList>
 
-        <CardInfo.REST.URL.Prefix>http://soa.uat.qa.nt.ctripcorp.com/SOA.ESB/Ctrip.SOA.ESB.asmx</CardInfo.REST.URL.Prefix>
         <Configs.URL>http://10.2.25.53:8080/configsws/rest/loadconfig</Configs.URL>
         <Configs.Trace.URL>http://10.2.25.53:8080/configsws/rest/trace</Configs.Trace.URL>
-        <CardRiskDB>CardRiskDB_INSERT_1</CardRiskDB>
-        <RiskCtrlPreProcDB>RiskCtrlPreProcDB_INSERT_1</RiskCtrlPreProcDB>
-        <CUSRATDB>CUSRATDB_INSERT_1</CUSRATDB>
+
+        <!-- CryptoGraphy -->
+        <CryptoGraphy.cscmUrl>https://cscmws.infosec.uat.qa.nt.ctripcorp.com/cscmws/CertificateWS.asmx</CryptoGraphy.cscmUrl>
+        <CryptoGraphy.sslcode>PK00000000000086</CryptoGraphy.sslcode>
+        <CryptoGraphy.dependency.env>DEV</CryptoGraphy.dependency.env>
+    </uat>
+
+    <uat_nt>
+        <DBDataCenter></DBDataCenter>
+        <AppID>100000807</AppID>
+        <ESBUrl>http://soa.uat.qa.nt.ctripcorp.com/SOA.ESB/Ctrip.SOA.ESB.asmx</ESBUrl>
+        <Selected.Service.Url>http://ws.selected.uat.qa.nt.ctripcorp.com/PublicApi/json/</Selected.Service.Url>
+        <sars.monitor.rest.url>http://10.2.10.75:8080/monitorws/rest/monitor</sars.monitor.rest.url>
+        <!-- CRedis -->
+        <CRedis.serviceUrl>http://ws.config.framework.uat.qa.nt.ctripcorp.com/configws/</CRedis.serviceUrl>
+        <CRedis.logging>true</CRedis.logging>
+        <!-- CLogging -->
+        <CLogging.serverIp>collector.logging.uat.qa.nt.ctripcorp.com</CLogging.serverIp>
+        <CLogging.serverPort>63100</CLogging.serverPort>
+        <Configs.Caches.url>http://10.2.25.54:8080/configsws/rest/loadconfig</Configs.Caches.url>
+        <EventWS>http://10.2.25.54:8080/eventws/execute</EventWS>
+        <!--预处理-->
+        <DataProxy.REST.URL.Prefix>http://ws.userprofile.infosec.uat.qa.nt.ctripcorp.com:8081/userprofilews</DataProxy.REST.URL.Prefix>
+        <DataProxy.Venus.ipAddressList>10.2.24.244:16800</DataProxy.Venus.ipAddressList>
+
+        <Configs.URL>http://10.2.25.53:8080/configsws/rest/loadconfig</Configs.URL>
+        <Configs.Trace.URL>http://10.2.25.53:8080/configsws/rest/trace</Configs.Trace.URL>
+
         <!-- CryptoGraphy -->
         <CryptoGraphy.cscmUrl>https://cscmws.infosec.uat.qa.nt.ctripcorp.com/cscmws/CertificateWS.asmx</CryptoGraphy.cscmUrl>
         <CryptoGraphy.sslcode>PK00000000000086</CryptoGraphy.sslcode>
@@ -82,7 +184,8 @@
     <prd>
         <DBDataCenter>_SH</DBDataCenter>
         <AppID>100000807</AppID>
-        <ESBUrl>http://soa.fws.qa.nt.ctripcorp.com/SOA.ESB/Ctrip.SOA.ESB.asmx</ESBUrl>
+        <ESBUrl>http://soa.sh.ctriptravel.com/SOA.ESB/Ctrip.SOA.ESB.asmx</ESBUrl>
+        <Selected.Service.Url>http://ws.selected.ctripcorp.com/PublicApi/json/</Selected.Service.Url>
         <sars.monitor.rest.url>http://10.8.85.45:8080/infosec-monitor-ws/rest/monitor</sars.monitor.rest.url>
         <!-- CRedis -->
         <CRedis.serviceUrl>http://ws.config.framework.ctripcorp.com/configws/</CRedis.serviceUrl>
@@ -93,16 +196,12 @@
         <Configs.Caches.url>http://ws.configs.infosec.ctripcorp.com/configsws/rest/loadconfig</Configs.Caches.url>
         <EventWS>http://ws.event.infosec.ctripcorp.com/eventws/execute</EventWS>
         <!--预处理-->
-        <ESB.serviceUrl>http://soa.sh.ctriptravel.com/SOA.ESB/Ctrip.SOA.ESB.asmx?WSDL</ESB.serviceUrl>
         <DataProxy.REST.URL.Prefix>http://ws.userprofile.infosec.ctripcorp.com/userprofilews</DataProxy.REST.URL.Prefix>
         <DataProxy.Venus.ipAddressList>10.8.68.222:16800,10.8.68.223:16800,10.8.68.224:16800,10.8.68.225:16800</DataProxy.Venus.ipAddressList>
 
-        <CardInfo.REST.URL.Prefix>http://soa.sh.ctriptravel.com/SOA.ESB/Ctrip.SOA.ESB.asmx</CardInfo.REST.URL.Prefix>
         <Configs.URL>http://ws.configs.infosec.ctripcorp.com/configsws/rest/loadconfig</Configs.URL>
         <Configs.Trace.URL>http://ws.configs.infosec.ctripcorp.com/configsws/rest/trace</Configs.Trace.URL>
-        <CardRiskDB>CardRiskDB_INSERT_1_SH</CardRiskDB>
-        <RiskCtrlPreProcDB>RiskCtrlPreProcDB_INSERT_1_SH</RiskCtrlPreProcDB>
-        <CUSRATDB>CUSRATDB_INSERT_1_SH</CUSRATDB>
+
         <!-- CryptoGraphy -->
         <CryptoGraphy.cscmUrl>https://cscmws.infosec.ctripcorp.com/cscmws/CertificateWS.asmx</CryptoGraphy.cscmUrl>
         <CryptoGraphy.sslcode>UI00000000000131</CryptoGraphy.sslcode>
