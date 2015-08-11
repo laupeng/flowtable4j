@@ -66,7 +66,7 @@ public class CheckPaymentFacade {
         //数据准备
         long start1 = System.nanoTime();
         final PO po = poConverter.convert(requestBody);
-        logger.warn("Construct PO elapse:" + (System.nanoTime() - start1) / 1000000L);
+        logger.info("Construct PO elapse:" + (System.nanoTime() - start1) / 1000000L);
         SimpleStaticThreadPool.getInstance().submit(new Runnable() {
             @Override
             public void run() {
@@ -94,7 +94,7 @@ public class CheckPaymentFacade {
             return new RiskResult();
         }
         final Long reqId= po.getReqid();
-        logger.warn("Construct PO elapse:" + (System.nanoTime() - start1) / 1000000L);
+        logger.info("Construct PO elapse:" + (System.nanoTime() - start1) / 1000000L);
         SimpleStaticThreadPool.getInstance().submit(new Runnable() {
             @Override
             public void run() {
@@ -122,7 +122,7 @@ public class CheckPaymentFacade {
         fact.setReqId(reqId);
         fact.getFlowFact().setReqId(fact.getReqId());
 
-        logger.warn("Construct PO elapse:" + (System.nanoTime() - start1) / 1000000L);
+        logger.info("Construct PO elapse:" + (System.nanoTime() - start1) / 1000000L);
 
         //TODO 最终决定哪些业务需要调用支付适配黑白名单、账户风控黑白名单
 //        SimpleStaticThreadPool.getInstance().submit(new Runnable() {
@@ -135,7 +135,7 @@ public class CheckPaymentFacade {
         start1 = System.nanoTime();
         //流量校验
         RiskResult result = flowtableProcessor.handle(fact);
-        logger.warn("Check Risk elapse:" + (System.nanoTime() - start1) / 1000000L);
+        logger.info("Check Risk elapse:" + (System.nanoTime() - start1) / 1000000L);
         final FlowFact flowFact = fact.getFlowFact();
         flowFact.getContent().put("originalrisklevel", result.getOriginRiskLevel());
 
@@ -178,7 +178,7 @@ public class CheckPaymentFacade {
         //流量校验
         RiskResult result = flowtableProcessor.handle(fact);
 
-        logger.warn("CheckBWGList elapse:" + (System.nanoTime() - start1) / 1000000L);
+        logger.info("CheckBWGList elapse:" + (System.nanoTime() - start1) / 1000000L);
 
         return result;
     }

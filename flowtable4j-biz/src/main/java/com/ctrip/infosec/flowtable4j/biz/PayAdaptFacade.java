@@ -88,17 +88,17 @@ public class PayAdaptFacade  {
             final Map<String, Object> productInfo = payAdaptConverter.getLastProductInfo(fact.getOrderID(), fact.getOrderType());
             //支付适配流量规则是否开启
             if (isPayAdaptFlowRuleDefined(fact)) {
-                tasks.add(new Callable<Object>() {
-                    @Override
-                    public Object call() throws Exception {
-                        //调用反欺诈平台
-                        long start = System.nanoTime();
-                        checkRiskByDroolsEngine(fact, droolsResult);
-                        long end = System.nanoTime();
-                        logger.debug("get RiskResult by Drools Engine costs "+(end-start) /1000000L+" ms");
-                        return null;
-                    }
-                });
+//                tasks.add(new Callable<Object>() {
+//                    @Override
+//                    public Object call() throws Exception {
+//                        //调用反欺诈平台
+//                        long start = System.nanoTime();
+//                        checkRiskByDroolsEngine(fact, droolsResult);
+//                        long end = System.nanoTime();
+//                        logger.debug("get RiskResult by Drools Engine costs "+(end-start) /1000000L+" ms");
+//                        return null;
+//                    }
+//                });
                 if (productInfo != null && productInfo.size() > 0) {
                     tasks.add(new Callable<Object>() {
                         @Override

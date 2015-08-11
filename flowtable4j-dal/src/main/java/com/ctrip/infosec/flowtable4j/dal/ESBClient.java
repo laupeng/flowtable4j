@@ -49,7 +49,7 @@ public class ESBClient {
         soapRequestSOAPData.append("</SOAP-ENV:Envelope>");
 
         String response = Request.Post(esbUrl).body(new StringEntity(soapRequestSOAPData.toString(), "UTF-8")).
-                addHeader("Content-Type", "application/soap+xml; charset=utf-8").connectTimeout(15000).socketTimeout(15000).
+                addHeader("Content-Type", "application/soap+xml; charset=utf-8").connectTimeout(1000).socketTimeout(1000).
                 execute().returnContent().asString();
         return response;
     }
@@ -114,7 +114,7 @@ public class ESBClient {
             return requestESB(requestType, requestBody.toString(), xpath);
 
         } catch (Exception exp) {
-            logger.warn("GetCreditCardInfo异常", exp);
+            logger.warn("GetCreditCardInfo异常:"+exp.getMessage(), exp);
         }
         return null;
     }
@@ -173,7 +173,7 @@ public class ESBClient {
                 return ImmutableMap.of("retcode", 0);
             }
         } catch (Exception exp) {
-            logger.warn("调用PayBaseDb写入RiskLevelData异常", exp);
+            logger.warn("调用PayBaseDb写入RiskLevelData异常:"+exp.getMessage(), exp);
             return null;
         }
     }
@@ -189,7 +189,7 @@ public class ESBClient {
             String xpath = "/Response/MemberInfoResponse";
             return requestESB(requestType, requestBody, xpath);
         } catch (Exception exp) {
-            logger.warn("GetMemberInfo异常", exp.getMessage());
+            logger.warn("GetMemberInfo异常:" + exp.getMessage(), exp);
             return null;
         }
     }
@@ -202,7 +202,7 @@ public class ESBClient {
         try {
             return requestESB(requestType, requestBody, xpath);
         } catch (Exception exp) {
-            logger.warn("GetCustomerInfo异常", exp);
+            logger.warn("GetCustomerInfo异常:"+exp.getMessage(), exp);
         }
         return null;
     }

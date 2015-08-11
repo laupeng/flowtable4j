@@ -26,7 +26,7 @@ public class SOA2Client {
         if(StringUtils.isNumeric(merchantId) && !"0".equals(merchantId)) {
             try {
                 String response = Request.Post(esbUrl + "appmerchantdetailsearch").body(new StringEntity(String.format(merchantRequest, merchantId), "UTF-8")).
-                        addHeader("Content-Type", "application/json; charset=utf-8").connectTimeout(15000).socketTimeout(15000).
+                        addHeader("Content-Type", "application/json; charset=utf-8").connectTimeout(1000).socketTimeout(1000).
                         execute().returnContent().asString().toLowerCase();
                 Map<String, Object> result = mapper.fromJson(response, HashMap.class);
                 if (result != null && result.size() > 0) {

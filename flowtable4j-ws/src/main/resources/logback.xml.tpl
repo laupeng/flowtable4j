@@ -26,14 +26,13 @@
         <serverPort>{$CLogging.serverPort}</serverPort>
     </appender>
 
-    <logger name="com.ctrip.infosec.flowtable4j" additivity="false">
+       <logger name="com.ctrip.infosec.flowtable4j" additivity="false">
             <level value="DEBUG" />
             <appender-ref ref="STDOUT" />
             <appender-ref ref="fileAppender" />
-            <appender-ref ref="CLoggingAppender" />
         </logger>
 
-        <root level="ERROR">
+        <root level="WARN">
             <appender-ref ref="STDOUT" />
             <appender-ref ref="fileAppender" />
             <appender-ref ref="CLoggingAppender" />
