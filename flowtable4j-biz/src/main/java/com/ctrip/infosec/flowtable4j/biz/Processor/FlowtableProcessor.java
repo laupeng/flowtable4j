@@ -66,11 +66,11 @@ public class FlowtableProcessor {
                 //log req
                 long eps = (System.nanoTime() - s) /1000000L;
                 String info = String.format("ReqId:%d, CheckWhite elapse %d ms", checkEntity.getReqId(), eps);
-                CheckResultLog result = new CheckResultLog();
-                result.setRuleRemark(info);
-                result.setRuleName(String.valueOf(eps));
-                result.setRuleType(CheckType.BW.toString());
-                listResult.add(result);
+//                CheckResultLog result = new CheckResultLog();
+//                result.setRuleRemark(info);
+//                result.setRuleName(String.valueOf(eps));
+//                result.setRuleType(CheckType.BW.toString());
+//                listResult.add(result);
                 logger.debug(info);
             }
         }
@@ -98,11 +98,11 @@ public class FlowtableProcessor {
                         bwManager.checkBlack(checkEntity.getBwFact(), listResult_b);
                         long eps = (System.nanoTime() - now)/1000000L;
                         String info = String.format("ReqId:%d,CheckBlack elapse %d ms", checkEntity.getReqId(), eps);
-                        CheckResultLog result = new CheckResultLog();
-                        result.setRuleRemark(info);
-                        result.setRuleName(String.valueOf(eps));
-                        result.setRuleType(CheckType.BW.toString());
-                        listResult_b.add(result);
+//                        CheckResultLog result = new CheckResultLog();
+//                        result.setRuleRemark(info);
+//                        result.setRuleName(String.valueOf(eps));
+//                        result.setRuleType(CheckType.BW.toString());
+//                        listResult_b.add(result);
                         logger.debug(info);
                         return null;
                     }
@@ -117,12 +117,12 @@ public class FlowtableProcessor {
                             accountBWGManager.checkBWGRule(item, mapAccount);
                         }
                         long eps = (System.nanoTime() - now) /1000000L;
-                        String info = String.format("ReqId:%d,CheckBWGRule elapse %d ms", checkEntity.getReqId(), eps);
-                        CheckResultLog result = new CheckResultLog();
-                        result.setRuleRemark(info);
-                        result.setRuleName(String.valueOf(eps));
-                        result.setRuleType(CheckType.ACCOUNT.toString());
-                        listResult_b.add(result);
+                          String info = String.format("ReqId:%d,CheckBWGRule elapse %d ms", checkEntity.getReqId(), eps);
+//                        CheckResultLog result = new CheckResultLog();
+//                        result.setRuleRemark(info);
+//                        result.setRuleName(String.valueOf(eps));
+//                        result.setRuleType(CheckType.ACCOUNT.toString());
+//                        listResult_b.add(result);
                         logger.debug(info);
                         return null;
                     }
@@ -136,11 +136,11 @@ public class FlowtableProcessor {
                         flowRuleManager.check(flowFact, listFlow);
                         long eps = (System.nanoTime() - now)/1000000L;
                         String info = String.format("ReqId:%d,CheckFlowRule elapse %d ms", checkEntity.getReqId(), eps);
-                        CheckResultLog result = new CheckResultLog();
-                        result.setRuleRemark(info);
-                        result.setRuleName(String.valueOf(eps));
-                        result.setRuleType(CheckType.FLOWRULE.toString());
-                        listResult_b.add(result);
+//                        CheckResultLog result = new CheckResultLog();
+//                        result.setRuleRemark(info);
+//                        result.setRuleName(String.valueOf(eps));
+//                        result.setRuleType(CheckType.FLOWRULE.toString());
+//                        listResult_b.add(result);
                         logger.debug(info);
                         return null;
                     }
