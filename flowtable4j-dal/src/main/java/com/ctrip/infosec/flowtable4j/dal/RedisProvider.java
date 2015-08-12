@@ -188,11 +188,4 @@ public class RedisProvider {
         return provider;
     }
 
-    public void cacheProductInfo(String orderId,String orderType,PO po){
-
-    }
-
-    public PO getCachedProductInfo(String orderId,String orderType,PO po){
-       return new PO();
-    }
 }
