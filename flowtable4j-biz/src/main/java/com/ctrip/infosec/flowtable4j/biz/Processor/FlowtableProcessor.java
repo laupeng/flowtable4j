@@ -79,7 +79,7 @@ public class FlowtableProcessor {
         }
         listResult.setReqId(checkEntity.getReqId());
         //保存结果
-        cardRiskDbService.saveCheckResultLog(listResult);
+        //cardRiskDbService.saveCheckResultLog(listResult);
         return listResult;
     }
 

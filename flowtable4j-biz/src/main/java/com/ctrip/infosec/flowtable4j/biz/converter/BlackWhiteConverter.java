@@ -109,7 +109,7 @@ public class BlackWhiteConverter extends ConverterBase {
         fact.setOrderTypes(new ArrayList<Integer>());
         fact.getOrderTypes().add(0);
         fact.getOrderTypes().add(fact.getOrderType());
-        Map<String,Object> bwlist=getMap(eventBody,"blackList");
+        Map<String,Object> bwlist=getMap(eventBody,"blacklist");
         if(bwlist!=null && bwlist.size()>0) {
             content.putAll(bwlist);
         }
