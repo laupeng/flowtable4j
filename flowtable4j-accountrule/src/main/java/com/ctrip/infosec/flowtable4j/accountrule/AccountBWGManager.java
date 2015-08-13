@@ -231,7 +231,7 @@ public class AccountBWGManager {
         }
         long eps = (System.nanoTime() - now)/1000000L;
 
-        logger.info("Read redis elapse " + eps+", total records:"+count);
+        logger.info("Read redis& merge elapse " + eps+", total records:"+count);
 
     }
 }
