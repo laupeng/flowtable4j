@@ -1,5 +1,7 @@
 package com.ctrip.infosec.flowtable4j.visa;
 
+import com.ctrip.infosec.flowtable4j.Common.BaseNode;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;

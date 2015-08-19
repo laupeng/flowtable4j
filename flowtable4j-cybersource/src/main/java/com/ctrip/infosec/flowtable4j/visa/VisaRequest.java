@@ -1,4 +1,6 @@
 package com.ctrip.infosec.flowtable4j.visa;
+import com.ctrip.infosec.flowtable4j.Common.BaseNode;
+
 import java.util.List;
 
 /**
@@ -8,7 +10,7 @@ public class VisaRequest extends BaseNode {
     private String merchantID;
     private String merchantReferenceCode;
     private BillTo billTo;
-    private Card card;
+    private VisaCard card;
     private PurchaseTotals purchaseTotals;
     private String deviceFingerprintID;
     private DecisionManager decisionManager;
@@ -72,11 +74,11 @@ public class VisaRequest extends BaseNode {
         this.billTo = billTo;
     }
 
-    public Card getCard() {
+    public VisaCard getCard() {
         return card;
     }
 
-    public void setCard(Card card) {
+    public void setCard(VisaCard card) {
         this.card = card;
     }
 

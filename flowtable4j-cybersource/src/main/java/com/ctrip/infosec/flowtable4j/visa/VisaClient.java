@@ -176,7 +176,20 @@ public class VisaClient {
         return response;
     }
 
-
+    /**
+     * Request
+     *     BillTo(账单信息）
+     *     VisaCard（卡信息）
+     *     PurchaseTotals（金额）
+     *     DecisionManager
+     *        DecisionManagerTravelData（航程信息）
+     *           List<DecisionManagerTravelLeg>
+     *     List<Item> （乘客信息）
+     *     MerchantDefinedData （自定义的附件信息）
+     * @param requestBody
+     * @return
+     * @throws Exception
+     */
     public VisaResponse requestVisa(VisaRequest requestBody) throws Exception {
         String soapResponseData = requestWithSoap(requestBody.toXml());
         if (soapResponseData != null && !soapResponseData.isEmpty()) {

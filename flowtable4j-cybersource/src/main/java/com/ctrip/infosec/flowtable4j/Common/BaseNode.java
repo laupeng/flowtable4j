@@ -1,4 +1,4 @@
-package com.ctrip.infosec.flowtable4j.visa;
+package com.ctrip.infosec.flowtable4j.Common;
 
 import com.google.common.base.Strings;
 

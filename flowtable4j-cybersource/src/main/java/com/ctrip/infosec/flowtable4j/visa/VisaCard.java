@@ -1,6 +1,8 @@
 
 package com.ctrip.infosec.flowtable4j.visa;
 
+import com.ctrip.infosec.flowtable4j.Common.BaseNode;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlType;
@@ -8,7 +10,7 @@ import java.math.BigInteger;
 
 
 /**
- * <p>Card complex type的 Java 类。
+ * <p>VisaCard complex type的 Java 类。
  * 
  * <p>以下模式片段指定包含在此类中的预期内容。
  * 
@@ -60,7 +62,7 @@ import java.math.BigInteger;
     "suffix",
     "prefix"
 })
-public class Card extends BaseNode{
+public class VisaCard extends BaseNode {
 
     protected String fullName;
     private String accountNumber;
