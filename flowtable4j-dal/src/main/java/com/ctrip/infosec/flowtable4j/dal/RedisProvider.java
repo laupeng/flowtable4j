@@ -30,7 +30,7 @@ public class RedisProvider {
         RAppSetting.setAppID(GlobalConfig.getString("APPID"));
         RAppSetting.setLoggingServerIP(GlobalConfig.getString("CLogging.serverIp"));//"collector.logging.uat.qa.nt.ctripcorp.com"
         RAppSetting.setLoggingServerPort(GlobalConfig.getString("CLogging.serverPort"));
-        RAppSetting.setLogging(true);
+        RAppSetting.setLogging(false);
         RAppSetting.setCRedisServiceUrl(GlobalConfig.getString("CRedis.serviceUrl"));//"http://ws.config.framework.fws.qa.nt.ctripcorp.com/configws/"
      }
 

@@ -1,5 +1,6 @@
 package com.ctrip.infosec.flowtable4j.bwrule;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -16,6 +17,7 @@ public class GTest {
     private Lock lock=new ReentrantLock();
     private boolean stop=false;
     @Test
+    @Ignore
     public void testConcurrentQ() throws InterruptedException, IOException {
         ThreadPoolExecutor executor=new ThreadPoolExecutor(64, 512, 60, TimeUnit.SECONDS, new SynchronousQueue(), new ThreadPoolExecutor.CallerRunsPolicy());
         List<Callable<Object>> tasks = new ArrayList<Callable<Object>>();
