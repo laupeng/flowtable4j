@@ -41,35 +41,37 @@ public class FlowTableRESTfulController {
     public
     @ResponseBody
     PayAdaptResult checkPayAdapt(@RequestBody com.ctrip.infosec.flowtable4j.model.RequestBody checkEntity) {
-        long start= System.nanoTime();
-        PayAdaptFact fact = new PayAdaptFact();
-        Map<String,Object> eventBody = checkEntity.getEventBody();
-        fact.setDid(MapX.getString(eventBody,"did"));
-        fact.setIpAddr(MapX.getString(eventBody,"ipaddr"));
-        fact.setOrderID(Long.parseLong(MapX.getString(eventBody,"orderid")));
-        fact.setOrderType(Integer.parseInt(MapX.getString(eventBody,"ordertype")));
-        fact.setMerchantID(MapX.getString(eventBody,"merchantid"));
-        fact.setUid(MapX.getString(eventBody,"uid"));
-        fact.setCheckType(Integer.parseInt(MapX.getString(eventBody,"checktype","0")));
-        fact.setBlackList(MapX.getMap(eventBody,"blacklist"));
-        fact.setFlowList(MapX.getMap(eventBody,"flowlist"));
-
-        //测试时需要数据落地，正式上线后由.NET合并结果
-        PayAdaptResult result = payAdaptProcessor.handle4PayAdapt(fact,false);
-        long finish = System.nanoTime();
-        logger.debug("CheckPayAdpat total elapse " + (finish-start)/1000000L +" ms");
-        return  result;
+//        long start= System.nanoTime();
+//        PayAdaptFact fact = new PayAdaptFact();
+//        Map<String,Object> eventBody = checkEntity.getEventBody();
+//        fact.setDid(MapX.getString(eventBody,"did"));
+//        fact.setIpAddr(MapX.getString(eventBody,"ipaddr"));
+//        fact.setOrderID(Long.parseLong(MapX.getString(eventBody,"orderid")));
+//        fact.setOrderType(Integer.parseInt(MapX.getString(eventBody,"ordertype")));
+//        fact.setMerchantID(MapX.getString(eventBody,"merchantid"));
+//        fact.setUid(MapX.getString(eventBody,"uid"));
+//        fact.setCheckType(Integer.parseInt(MapX.getString(eventBody,"checktype","0")));
+//        fact.setBlackList(MapX.getMap(eventBody,"blacklist"));
+//        fact.setFlowList(MapX.getMap(eventBody,"flowlist"));
+//
+//        //测试时需要数据落地，正式上线后由.NET合并结果
+//        PayAdaptResult result = payAdaptProcessor.handle4PayAdapt(fact,false);
+//        long finish = System.nanoTime();
+//        logger.debug("CheckPayAdpat total elapse " + (finish-start)/1000000L +" ms");
+//        return  result;
+         return  new PayAdaptResult();
     }
 
     @RequestMapping(value = "/checkPayment")
     public
     @ResponseBody
     RiskResult checkPayment(@RequestBody com.ctrip.infosec.flowtable4j.model.RequestBody checkEntity) {
-        long start= System.nanoTime();
-        RiskResult result = checkPaymentService.checkRisk2(checkEntity);
-        long finish = System.nanoTime();
-        logger.debug("CheckPayment total elapse " + (finish-start)/1000000L +" ms");
-        return  result;
+//        long start= System.nanoTime();
+//        RiskResult result = checkPaymentService.checkRisk2(checkEntity);
+//        long finish = System.nanoTime();
+//        logger.debug("CheckPayment total elapse " + (finish-start)/1000000L +" ms");
+//        return  result;
+        return new RiskResult();
     }
 
     @RequestMapping(value = "/saveData4Offline")

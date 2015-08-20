@@ -12,7 +12,7 @@ public class MasterRequest extends BaseNode {
     private FraudOnlyTxn fraudOnlyTxn;
     private Risk risk;
 
-    public void MasterCard(String userName,String password){
+    public MasterRequest(String userName,String password){
         this.setClient(userName);
         this.setPassword(password);
     }
