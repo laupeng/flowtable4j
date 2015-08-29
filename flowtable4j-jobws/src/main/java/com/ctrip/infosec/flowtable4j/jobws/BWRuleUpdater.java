@@ -65,7 +65,7 @@ public class BWRuleUpdater {
                      currentRule.setEffectDate(sdf.parse(rule.get("SDate").toString()));
                      currentRule.setExpireDate(sdf.parse(rule.get("EDate").toString()));
                      currentRule.setOrderType(Integer.valueOf(Objects.toString(rule.get("OrderType"), "0")));
-                     //currentRule.setRemark(Objects.toString(rule.get("Remark"),""));
+                     currentRule.setRuleIDName(Objects.toString(rule.get("RuleIDName"),""));
                      currentRule.setRiskLevel(Integer.valueOf(Objects.toString(rule.get("RiskLevel"),"0")));
                      currentRule.getRuleTerms().add(term);
                      bwAll.add(currentRule);
@@ -111,7 +111,7 @@ public class BWRuleUpdater {
                     currentRule.setEffectDate(sdf.parse(rule.get("SDate").toString()));
                     currentRule.setExpireDate(sdf.parse(rule.get("EDate").toString()));
                     currentRule.setOrderType(Integer.valueOf(Objects.toString(rule.get("OrderType"), "0")));
-                    //currentRule.setRemark(Objects.toString(rule.get("Remark"), ""));
+                    currentRule.setRuleIDName(Objects.toString(rule.get("RuleIDName"),""));
                     currentRule.setRiskLevel(Integer.valueOf(Objects.toString(rule.get("RiskLevel"), "0")));
                     currentRule.getRuleTerms().add(term);
                     if("T".equals(Objects.toString(rule.get("Active"),""))){
