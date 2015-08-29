@@ -17,7 +17,6 @@ public class GTest {
     private Lock lock=new ReentrantLock();
     private boolean stop=false;
     @Test
-    @Ignore
     public void testConcurrentQ() throws InterruptedException, IOException {
         ThreadPoolExecutor executor=new ThreadPoolExecutor(64, 512, 60, TimeUnit.SECONDS, new SynchronousQueue(), new ThreadPoolExecutor.CallerRunsPolicy());
         List<Callable<Object>> tasks = new ArrayList<Callable<Object>>();
@@ -60,7 +59,7 @@ public class GTest {
                          }
                          allInts.clear();
                      }
-                     Thread.sleep(5);
+                     Thread.sleep(2);
                      if(stop){
                          break;
                      }
@@ -95,7 +94,42 @@ public class GTest {
                         }
                         allInts.clear();
                     }
-                    Thread.sleep(5);
+                    Thread.sleep(3);
+                    if(stop){
+                        break;
+                    }
+                }
+                return null;
+            }
+        });
+
+        tasks.add(new Callable<Object>() {
+            @Override
+            public Object call() throws Exception {
+                List<Integer> allInts=new ArrayList<Integer>();
+                for(;;) {
+                    try {
+                        int i = 0;
+                        lock.lock();
+                        while (i < 50) {
+                            Integer e = concurrentLinkedQueue.poll();
+                            if (e == null) {
+                                break;
+                            } else {
+                                i++;
+                                allInts.add(e);
+                            }
+                        }
+                    } finally {
+                        lock.unlock();
+                    }
+                    if (allInts.size() > 0) {
+                        for (Object s : allInts) {
+                            System.out.println(s.toString() + " ID:" + String.valueOf(Thread.currentThread().getId()));
+                        }
+                        allInts.clear();
+                    }
+                    Thread.sleep(3);
                     if(stop){
                         break;
                     }
@@ -105,7 +139,8 @@ public class GTest {
         });
 
         executor.invokeAll(tasks, 30, TimeUnit.SECONDS);
-
+        Thread.sleep(30000);
+        stop=true;
 
 
 //        int i=0;

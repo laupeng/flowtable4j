@@ -4,6 +4,7 @@ import com.ctrip.infosec.flowtable4j.model.BWFact;
 import com.google.common.base.Strings;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * Created by thyang on 2015/3/13 0013.
@@ -18,15 +19,16 @@ public class RuleTerm {
     private String fieldName;
     private String matchValue;
     private String operator;
+    private String remark;
 
     private ConditionComparer executor;
 
-    public RuleTerm(String fieldName, String ops, String matchValue) {
+    public RuleTerm(String fieldName, String ops, String matchValue,String remark) {
         this.setFieldName(fieldName.toLowerCase());
         //兼容性考虑，用matchValue作为字典的Key，需要不区分大小写
         this.setMatchValue(Strings.nullToEmpty(matchValue).toLowerCase());
         this.operator = Strings.nullToEmpty(ops).toLowerCase();
-
+        this.remark = remark;
         if ("eq".equals(operator)) {
             executor = eqOper;
         } else if ("le".equals(operator)) {
@@ -69,6 +71,14 @@ public class RuleTerm {
 
     public void setMatchValue(String matchValue) {
         this.matchValue = matchValue;
+    }
+
+    public String getRemark() {
+        return remark;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark;
     }
 }
 

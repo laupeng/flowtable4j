@@ -51,7 +51,10 @@ public class BWRuleUpdater {
         while (it.hasNext()){
              Map<String,Object> rule = it.next();
              Integer ruleId = Integer.valueOf(Objects.toString(rule.get("RuleID"), "0"));
-             term =new RuleTerm(Objects.toString(rule.get("CheckName"), ""),Objects.toString(rule.get("CheckType"), ""),Objects.toString(rule.get("CheckValue"),""));
+             term =new RuleTerm(Objects.toString(rule.get("CheckName"), ""),
+                     Objects.toString(rule.get("CheckType"), ""),
+                     Objects.toString(rule.get("CheckValue"),""),
+                     Objects.toString(rule.get("remark"),""));
              if(prevId.equals(ruleId)){
                  currentRule.getRuleTerms().add(term);
              } else{
@@ -62,7 +65,7 @@ public class BWRuleUpdater {
                      currentRule.setEffectDate(sdf.parse(rule.get("SDate").toString()));
                      currentRule.setExpireDate(sdf.parse(rule.get("EDate").toString()));
                      currentRule.setOrderType(Integer.valueOf(Objects.toString(rule.get("OrderType"), "0")));
-                     currentRule.setRemark(Objects.toString(rule.get("Remark"),""));
+                     //currentRule.setRemark(Objects.toString(rule.get("Remark"),""));
                      currentRule.setRiskLevel(Integer.valueOf(Objects.toString(rule.get("RiskLevel"),"0")));
                      currentRule.getRuleTerms().add(term);
                      bwAll.add(currentRule);
@@ -94,7 +97,10 @@ public class BWRuleUpdater {
         while (it.hasNext()){
             Map<String,Object> rule = it.next();
             Integer ruleId = Integer.valueOf(Objects.toString(rule.get("RuleID"), "0"));
-            term =new RuleTerm(Objects.toString(rule.get("CheckName"), ""),Objects.toString(rule.get("CheckType"), ""),Objects.toString(rule.get("CheckValue"), ""));
+            term =new RuleTerm(Objects.toString(rule.get("CheckName"), ""),
+                    Objects.toString(rule.get("CheckType"), ""),
+                    Objects.toString(rule.get("CheckValue"), ""),
+                    Objects.toString(rule.get("remark"),""));
             if(prevId.equals(ruleId)){
                 currentRule.getRuleTerms().add(term);
             } else{
@@ -105,7 +111,7 @@ public class BWRuleUpdater {
                     currentRule.setEffectDate(sdf.parse(rule.get("SDate").toString()));
                     currentRule.setExpireDate(sdf.parse(rule.get("EDate").toString()));
                     currentRule.setOrderType(Integer.valueOf(Objects.toString(rule.get("OrderType"), "0")));
-                    currentRule.setRemark(Objects.toString(rule.get("Remark"), ""));
+                    //currentRule.setRemark(Objects.toString(rule.get("Remark"), ""));
                     currentRule.setRiskLevel(Integer.valueOf(Objects.toString(rule.get("RiskLevel"), "0")));
                     currentRule.getRuleTerms().add(term);
                     if("T".equals(Objects.toString(rule.get("Active"),""))){

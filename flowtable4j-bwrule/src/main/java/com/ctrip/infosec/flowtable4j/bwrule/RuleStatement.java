@@ -4,7 +4,9 @@ import com.ctrip.infosec.flowtable4j.model.BWFact;
 import com.ctrip.infosec.flowtable4j.model.CheckType;
 import com.ctrip.infosec.flowtable4j.model.CheckResultLog;
 import com.ctrip.infosec.flowtable4j.model.RiskResult;
+import com.google.common.base.Strings;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -98,7 +100,6 @@ public class RuleStatement {
     public boolean check(BWFact fact, RiskResult results) {
         Date now = new Date();
         boolean match = false;
-
         if (now.compareTo(effectDate) >= 0 && now.compareTo(expireDate) < 0) {
             if (ruleTerms != null && ruleTerms.size() > 0) {
                 for (RuleTerm term : ruleTerms) {
@@ -112,8 +113,13 @@ public class RuleStatement {
                 CheckResultLog result = new CheckResultLog();
                 result.setRuleID(ruleID);
                 result.setRiskLevel(riskLevel);
-                result.setRuleRemark(remark);
-                result.setRuleName(ruleIDName);
+                StringBuilder sb=new StringBuilder();
+                sb.append("[").append(ruleID).append("]:");
+                for (RuleTerm term:ruleTerms){
+                    sb.append(term.getRemark()).append(" ").append(term.getOperator().toUpperCase()).append(" ").append(term.getMatchValue()).append(";");
+                }
+                result.setRuleRemark(sb.toString());
+                result.setRuleName(Strings.isNullOrEmpty(ruleIDName)? ruleID.toString():ruleIDName);
                 result.setRuleType(CheckType.BW.toString());
                 results.add(result);
             }

@@ -27,7 +27,7 @@ public class RuleUpdaterDAO {
         Date date = new Date(System.currentTimeMillis() - INTERVAL * 60 * 1000 - 1000);
         String sql = "SELECT r.RuleID,ISNULL(r.OrderType,0) OrderType,c.CheckName,c.CheckType," +
                 "cv.CheckValue,ISNULL(r.Sdate,'1900-01-01 00:00:00.000') Sdate," +
-                "ISNULL(r.Edate,'9999-12-31 23:59:59.997') Edate,r.RiskLevel,r.Remark,r.RuleIDName,r.Active " +
+                "ISNULL(r.Edate,'9999-12-31 23:59:59.997') Edate,r.RiskLevel,c.Remark,r.RuleIDName,r.Active " +
                 "FROM CardRisk_BlackListRule r (nolock) " +
                 " INNER JOIN CardRisk_BlackListRuleColumnValue cv (nolock) on r.RuleID= cv.RuleID " +
                 " INNER JOIN CardRisk_BlackListColumn c (nolock) on cv.ProcessType=c.ProcessType " +
@@ -44,7 +44,7 @@ public class RuleUpdaterDAO {
     public List<Map<String, Object>> getAllBWRule() {
         String sql = "SELECT r.RuleID,ISNULL(r.OrderType,0) OrderType,c.CheckName,c.CheckType," +
                 "cv.CheckValue,ISNULL(r.Sdate,'1900-01-01 00:00:00.000') Sdate," +
-                "ISNULL(r.Edate,'9999-12-31 23:59:59.997') Edate,r.RiskLevel,r.Remark,r.RuleIDName " +
+                "ISNULL(r.Edate,'9999-12-31 23:59:59.997') Edate,r.RiskLevel,c.Remark,r.RuleIDName " +
                 "FROM CardRisk_BlackListRule r (nolock) INNER JOIN CardRisk_BlackListRuleColumnValue cv (nolock) on r.RuleID= cv.RuleID " +
                 "  INNER JOIN CardRisk_BlackListColumn c (nolock) on cv.ProcessType=c.ProcessType " +
                 "WHERE  r.Active='T' " +
