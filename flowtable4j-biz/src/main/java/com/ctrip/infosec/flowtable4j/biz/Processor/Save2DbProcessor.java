@@ -1,6 +1,7 @@
 package com.ctrip.infosec.flowtable4j.biz.processor;
 
 import com.ctrip.infosec.flowtable4j.dal.CardRiskDbService;
+import com.ctrip.infosec.flowtable4j.dal.FlowDbService;
 import com.ctrip.infosec.flowtable4j.model.MapX;
 import com.ctrip.infosec.flowtable4j.model.persist.ColumnInfo;
 import com.ctrip.infosec.flowtable4j.model.persist.PO;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.CallableStatementCallback;
 import org.springframework.jdbc.core.CallableStatementCreator;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import java.sql.CallableStatement;
@@ -32,26 +34,32 @@ public class Save2DbProcessor {
     private CardRiskDbService cardRiskDbService;
 
     @Autowired
+    private FlowDbService flowDbService;
+
+    @Autowired
     private TableInfoService tableInfoService;
 
     private Logger logger = LoggerFactory.getLogger(Save2DbProcessor.class);
     protected static JsonMapper mapper = new JsonMapper();
 
     public Long saveDealInfo(Map<String, Object> map) {
-
         Map<String, Long> keys = new HashMap<String, Long>();
         keys.put("reqid", 0L);
-        saveMap(map, PO.getProp2Table().get("dealinfo"), keys);
+        saveMap(cardRiskDbService.jdbcTemplate,map, PO.getProp2Table().get("dealinfo"), keys);
         return keys.get("reqid");
     }
 
     public void save(PO po, Long reqid) {
+        JdbcTemplate jdbcTemplate=cardRiskDbService.jdbcTemplate;
+        if(po.getOrdertype().equals(1)){
+            jdbcTemplate = flowDbService.jdbcTemplate2;
+        }
         //TODO 开启多线程保存
-        save(po.getProductinfo(), reqid);
-        save(po.getPaymentinfo(), reqid);
+        save(jdbcTemplate,po.getProductinfo(), reqid);
+        save(jdbcTemplate,po.getPaymentinfo(), reqid);
     }
 
-    public void save(Map<String, Object> src, long reqId) {
+    public void save(JdbcTemplate jdbcTemplate,Map<String, Object> src, long reqId) {
         if (src != null && src.size() > 0) {
             for (String key : src.keySet()) {
                 Map<String, Long> keys = new HashMap<String, Long>();
@@ -59,42 +67,42 @@ public class Save2DbProcessor {
                 if ("diyresourcexlist".equals(key) || "giftitemlist".equals(key) || "hotelinfolist".equals(key)
                         || "insureinfolist".equals(key) || "invoiceinfolist".equals(key) || "rechargesuborderlist".equals(key)
                         || "vacationproductlist".equals(key) || "hotelgroupinfolist".equals(key)) {
-                    saveList(key, src, reqId);
+                    saveList(jdbcTemplate,key, src, reqId);
                 } else if ("flightinfolist".equals(key)) {
                     keys.put("flightsorderid", 0L);
-                    saveList(key, src, keys, new String[]{"order"}, new String[]{"passengerlist", "segmentlist"});
+                    saveList(jdbcTemplate,key, src, keys, new String[]{"order"}, new String[]{"passengerlist", "segmentlist"});
                 } else if ("fncmalllist".equals(key)) {
                     keys.put("fncmallid", 0L);
-                    saveList(key, src, keys, new String[]{"travelmoneyfncmall"}, new String[]{"suborderitemlist"});
+                    saveList(jdbcTemplate,key, src, keys, new String[]{"travelmoneyfncmall"}, new String[]{"suborderitemlist"});
                 } else if ("goodslist".equals(key)) {
                     keys.put("goodslistinfoid", 0L);
-                    saveList(key, src, keys, new String[]{"goods"}, new String[]{"goodsitemlist"});
+                    saveList(jdbcTemplate,key, src, keys, new String[]{"goods"}, new String[]{"goodsitemlist"});
                 } else if ("jifenorderitemlist".equals(key)) {
                     keys.put("orderitemid", 0L);
                     keys.put("detailitemid", 0L);
-                    saveList(key, src, keys, new String[]{"order", "greetingcard", "prizedetail", "paymentitem"}, null);
+                    saveList(jdbcTemplate,key, src, keys, new String[]{"order", "greetingcard", "prizedetail", "paymentitem"}, null);
                 } else if ("paymentinfolist".equals(key)) {
                     keys.put("paymentinfoid", 0L);
-                    saveList(key, src, keys, new String[]{"payment"}, new String[]{"cardinfolist"});
+                    saveList(jdbcTemplate,key, src, keys, new String[]{"payment"}, new String[]{"cardinfolist"});
                 } else if ("railinfolist".equals(key)) {
                     keys.put("exrailinfoid", 0L);
-                    saveList(key, src, keys, new String[]{"rail","user"},null);
+                    saveList(jdbcTemplate,key, src, keys, new String[]{"rail","user"},null);
                 } else if ("topshopcatalog".equals(key)) {
                     keys.put("cataloginfoid", 0L);
-                    saveList(key, src, keys, new String[]{"cataloginfo"}, new String[]{"itemlist"});
+                    saveList(jdbcTemplate,key, src, keys, new String[]{"cataloginfo"}, new String[]{"itemlist"});
                 } else if ("travelmoneyproductlist".equals(key)) {
-                    saveTopShopOrderList(src, reqId);
+                    saveTopShopOrderList(jdbcTemplate,src, reqId);
                 } else if ("vacationinfolist".equals(key)) {
                     keys.put("vacationinfoid", 0L);
-                    saveList(key, src, keys, new String[]{"order"}, new String[]{"userlist", "optionlist"});
+                    saveList(jdbcTemplate,key, src, keys, new String[]{"order"}, new String[]{"userlist", "optionlist"});
                 } else if (!"dealinfo".equals(key)) {
-                    saveMap(MapX.getMap(src, key), PO.getProp2Table().get(key), ImmutableMap.of("reqid", reqId));
+                    saveMap(jdbcTemplate,MapX.getMap(src, key), PO.getProp2Table().get(key), ImmutableMap.of("reqid", reqId));
                 }
             }
         }
     }
 
-    private void saveTopShopOrderList(Map<String, Object> src, long reqid) {
+    private void saveTopShopOrderList(JdbcTemplate jdbcTemplate,Map<String, Object> src, long reqid) {
         List<Map<String, Object>> list2Save = MapX.getList(src, "topshoporderlist");
         Map<String, Long> keys = ImmutableMap.of("topshoporderid", 0L, "merchantitemid", 0L, "reqid", reqid);
         if (list2Save != null && list2Save.size() > 0) {
@@ -103,16 +111,16 @@ public class Save2DbProcessor {
                 List<Map<String, Object>> productitemlist = MapX.getList(toSave, "productitemlist");
                 List<Map<String, Object>> merchantlist = MapX.getList(toSave, "merchantlist");
                 //greetingcard,prizedetail ref --> order
-                saveMap(order, PO.getProp2Table().get("topshoporderlist~.order"), keys);
+                saveMap(jdbcTemplate,order, PO.getProp2Table().get("topshoporderlist~.order"), keys);
                 for (Map<String, Object> prod : productitemlist) {
-                    saveMap(prod, PO.getProp2Table().get("topshoporderlist~.productitemlist~"), keys);
+                    saveMap(jdbcTemplate,prod, PO.getProp2Table().get("topshoporderlist~.productitemlist~"), keys);
                 }
                 for (Map<String, Object> merchant : merchantlist) {
                     Map<String, Object> item = MapX.getMap(merchant, "merchant");
                     List<Map<String, Object>> productionlist = MapX.getList(merchant, "productionlist");
-                    saveMap(item, PO.getProp2Table().get("topshoporderlist~.merchantlist~.merchant"), keys);
+                    saveMap(jdbcTemplate,item, PO.getProp2Table().get("topshoporderlist~.merchantlist~.merchant"), keys);
                     for (Map<String, Object> prodItem : productionlist) {
-                        saveMap(prodItem, PO.getProp2Table().get("topshoporderlist~.merchantlist~.productionlist~"), keys);
+                        saveMap(jdbcTemplate,prodItem, PO.getProp2Table().get("topshoporderlist~.merchantlist~.productionlist~"), keys);
                     }
                 }
             }
@@ -123,7 +131,7 @@ public class Save2DbProcessor {
         return tableInfoService.getTableInfo(tableName);
     }
 
-    private void saveList(String prefix, Map<String, Object> src, Map<String, Long> keys, String[] singleTables, String[] listTables) {
+    private void saveList(JdbcTemplate jdbcTemplate,String prefix, Map<String, Object> src, Map<String, Long> keys, String[] singleTables, String[] listTables) {
         List<Map<String, Object>> list2Save = MapX.getList(src, prefix);
         if (list2Save != null && list2Save.size() > 0) {
             for (Map<String, Object> toSave : list2Save) {
@@ -132,7 +140,7 @@ public class Save2DbProcessor {
                         String tableName = PO.getProp2Table().get(prefix + "~." + s);
                         if (!Strings.isNullOrEmpty(tableName)) {
                             Map<String, Object> obj = MapX.getMap(toSave, s);
-                            saveMap(obj, tableName, keys);
+                            saveMap(jdbcTemplate,obj, tableName, keys);
                         }
                     }
                 }
@@ -143,7 +151,7 @@ public class Save2DbProcessor {
                             List<Map<String, Object>> objs = MapX.getList(toSave, s);
                             if (objs != null && objs.size() > 0) {
                                 for (Map<String, Object> obj : objs) {
-                                    saveMap(obj, tableName, keys);
+                                    saveMap(jdbcTemplate,obj, tableName, keys);
                                 }
                             }
                         }
@@ -161,13 +169,13 @@ public class Save2DbProcessor {
      * @param src
      * @param reqId
      */
-    private void saveList(String prefix, Map<String, Object> src, long reqId) {
+    private void saveList(JdbcTemplate jdbcTemplate,String prefix, Map<String, Object> src, long reqId) {
         String tableName = PO.getProp2Table().get(prefix + "~");
         if (!Strings.isNullOrEmpty(tableName) && src != null && src.size() > 0) {
             List<Map<String, Object>> list2Save = MapX.getList(src, prefix);
             if (list2Save != null && list2Save.size() > 0) {
                 for (Map<String, Object> obj : list2Save) {
-                    saveMap(obj, tableName, ImmutableMap.of("reqid", reqId));
+                    saveMap(jdbcTemplate,obj, tableName, ImmutableMap.of("reqid", reqId));
                 }
             }
         }
@@ -181,14 +189,14 @@ public class Save2DbProcessor {
      * @param keys      需要传递的参数、或者外传的ID
      * @return
      */
-    public void saveMap(final Map<String, Object> src, final String tableName, final Map<String, Long> keys) {
+    public void saveMap(final JdbcTemplate jdbcTemplate,final Map<String, Object> src, final String tableName, final Map<String, Long> keys) {
         try {
             if (src != null && src.size() > 0 && !Strings.isNullOrEmpty(tableName)) {
                 final List<ColumnInfo> columnInfos = tableInfoService.getTableInfo(tableName);
                 if (columnInfos != null && columnInfos.size() > 0) {
                     final String[] outField = new String[]{""};
                     final Integer[] outFieldIndex = new Integer[]{0};
-                    cardRiskDbService.jdbcTemplate.<Long>execute(
+                    jdbcTemplate.<Long>execute(
                             new CallableStatementCreator() {
                                 @Override
                                 public CallableStatement createCallableStatement(Connection connection) throws SQLException {

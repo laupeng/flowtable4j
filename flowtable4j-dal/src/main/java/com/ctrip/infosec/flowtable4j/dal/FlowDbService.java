@@ -25,11 +25,11 @@ public class FlowDbService {
     protected static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
     @Autowired
     @Qualifier("flowDb1Template")
-    JdbcTemplate jdbcTemplate1 ;
+    public JdbcTemplate jdbcTemplate1 ;
 
     @Autowired
     @Qualifier("flowDb2Template")
-    JdbcTemplate jdbcTemplate2 ;
+    public JdbcTemplate jdbcTemplate2 ;
 
     @Autowired
     @Qualifier("flowDb1NamedTemplate")
