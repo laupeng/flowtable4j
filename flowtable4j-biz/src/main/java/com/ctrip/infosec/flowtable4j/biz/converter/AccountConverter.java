@@ -37,36 +37,6 @@ public class AccountConverter extends ConverterBase {
 
     /**
      * 暂时只考虑 DID、UID、UserIP
-     * @param po
-     * @return
-     */
-    public AccountFact convert(PO po){
-        AccountFact fact=new AccountFact();
-        List<AccountItem> items=new ArrayList<AccountItem>();
-        String uid =getString(po.getProductinfo(),new String[]{"userinfo","uid"});
-        String did =getString(po.getProductinfo(),new String[]{"didinfo","did"});;
-        String ip  =getString(po.getProductinfo(),new String[]{"ipinfo","useripadd"});;
-        if(!Strings.isNullOrEmpty(uid)){
-            for(String s:sceneTypes){
-                items.add(new AccountItem("UID",s,uid));
-            }
-        }
-        if(!Strings.isNullOrEmpty(did)){
-            for(String s:sceneTypes){
-                items.add(new AccountItem("DID",s,did));
-            }
-        }
-        if(!Strings.isNullOrEmpty(ip)){
-            for(String s:sceneTypes){
-                items.add(new AccountItem("IP",s,ip));
-            }
-        }
-        fact.setCheckItems(items);
-        return fact;
-    }
-
-    /**
-     * 暂时只考虑 DID、UID、UserIP
      * @param requestBody
      * @return
      */

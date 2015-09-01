@@ -1,9 +1,6 @@
 package com.ctrip.infosec.flowtable4j.model.persist;
 
-import com.google.common.base.Strings;
-
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * Created by zhangsx on 2015/6/25.

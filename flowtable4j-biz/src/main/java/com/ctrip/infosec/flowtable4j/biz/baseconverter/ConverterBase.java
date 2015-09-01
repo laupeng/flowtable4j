@@ -1,15 +1,9 @@
 package com.ctrip.infosec.flowtable4j.biz.baseconverter;
 
 import com.ctrip.infosec.flowtable4j.biz.processor.Save2DbProcessor;
-import com.ctrip.infosec.flowtable4j.dal.CheckRiskDAO;
-import com.ctrip.infosec.flowtable4j.dal.ESBClient;
-import com.ctrip.infosec.flowtable4j.dal.RiskProfile;
-import com.ctrip.infosec.flowtable4j.dal.SOA2Client;
 import com.ctrip.infosec.flowtable4j.model.MapX;
 import com.ctrip.infosec.flowtable4j.model.persist.ColumnInfo;
-import com.ctrip.infosec.sars.util.mapper.JsonMapper;
 import com.google.common.base.Strings;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.text.SimpleDateFormat;
@@ -25,18 +19,9 @@ import java.util.Map;
 public class ConverterBase {
 
     protected static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-    protected static JsonMapper mapper = new JsonMapper();
-    @Autowired
-    protected CheckRiskDAO checkRiskDAO;
-    @Autowired
-    protected ESBClient esbClient;
+
     @Autowired
     protected Save2DbProcessor dbService;
-    @Autowired
-    protected RiskProfile riskProfile;
-    @Autowired
-    protected SOA2Client soa2Client;
-
     /**
      * 创建新Map
      * @return
@@ -490,26 +475,6 @@ public class ConverterBase {
         return false;
     }
 
-    /**
-     * 获取并设置ACtity、DCity的省、市
-     * @param target
-     * @param acity
-     * @param dcity
-     */
-    protected void fillADCityNameProvince(Map<String, Object> target, String acity, String dcity) {
-        Map<String, Object> map = checkRiskDAO.getCityNameProvince(acity);
-        if (map != null && target!=null) {
-            setValue(target, "acityname", getString(map, "cityname"));
-            setValue(target, "acityprovince", getString(map, "provincename"));
-        }
-        if (!StringUtils.equals(acity, dcity)) {
-            map = checkRiskDAO.getCityNameProvince(dcity);
-        }
-        if (map != null && target!=null) {
-            setValue(target, "dcityname", getString(map, "cityname"));
-            setValue(target, "dcityprovince", getString(map, "provincename"));
-        }
-    }
 
     /**
      * 如果Value不为null则设置

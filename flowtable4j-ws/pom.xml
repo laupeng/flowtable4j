@@ -36,10 +36,6 @@
             <artifactId>flowtable4j-bwrule</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>com.ctrip.infosec.flowtable4j</groupId>
-            <artifactId>flowtable4j-flowrule</artifactId>
-        </dependency>
 
         <dependency>
             <groupId>com.ctrip.infosec.flowtable4j</groupId>
@@ -49,26 +45,7 @@
         <dependency>
             <groupId>org.springframework.amqp</groupId>
             <artifactId>spring-rabbit</artifactId>
-        </dependency>     
-         
-        <!-- servlet -->
-        <!--<dependency>-->
-            <!--<groupId>javax.servlet</groupId>-->
-            <!--<artifactId>javax.servlet-api</artifactId>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>javax.servlet.jsp</groupId>-->
-            <!--<artifactId>javax.servlet.jsp-api</artifactId>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>jstl</groupId>-->
-            <!--<artifactId>jstl</artifactId>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>taglibs</groupId>-->
-            <!--<artifactId>standard</artifactId>-->
-        <!--</dependency>-->
-
+        </dependency>
         <!-- test -->
         <dependency>
             <groupId>com.ctrip.infosec.sars</groupId>

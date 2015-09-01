@@ -23,25 +23,6 @@
                      <value>java:comp/env/jdbc/RiskCtrlPreProc2DB_W${DBDataCenter}</value>
               </property>
        </bean>
-       <bean id="cusratDbDS" class="org.springframework.jndi.JndiObjectFactoryBean">
-              <property name="jndiName">
-                     <value>java:comp/env/jdbc/CUSRATDB_INSERT_1${DBDataCenter}</value>
-              </property>
-       </bean>
-
-       <bean id="paybaseDbDS" class="org.springframework.jndi.JndiObjectFactoryBean">
-              <property name="jndiName">
-                     <value>java:comp/env/jdbc/PayBaseDB_INSERT_1${DBDataCenter}</value>
-              </property>
-       </bean>
-
-       <bean id="fltPubDS" class="org.springframework.jndi.JndiObjectFactoryBean">
-              <property name="jndiName">
-                     <value>java:comp/env/jdbc/FltPubDB_SELECT_1${DBDataCenter}</value>
-              </property>
-       </bean>
-
-
 
        <!-- JDBC模板 -->
        <bean id="cardriskDbTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
@@ -67,18 +48,6 @@
 
        <bean id="flowDb2NamedTemplate" class="org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate">
               <constructor-arg type="javax.sql.DataSource" ref="flowDbDS2"/>
-       </bean>
-
-       <bean id="cusratDbTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
-              <property name="dataSource" ref="cusratDbDS"/>
-       </bean>
-
-       <bean id="paybaseDbTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
-              <property name="dataSource" ref="paybaseDbDS"/>
-       </bean>
-
-       <bean id="fltPubDbTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
-              <property name="dataSource" ref="fltPubDS"/>
        </bean>
 
 </beans>

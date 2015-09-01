@@ -17,16 +17,7 @@ public class UpdaterManager {
     private BWRuleUpdater bwUpdater;
 
     @Autowired
-    private FlowRuleUpdater flowUpdater;
-
-    @Autowired
-    private PayAdaptRuleUpdater payAdaptUpdater;
-
-    @Autowired
     TableInfoUpdater tableInfoUpdater;
-
-    @Autowired
-    TableSaveRuleUpdater tableSaveRuleUpdater;
 
     private static final Logger logger = LoggerFactory.getLogger(UpdaterManager.class);
 
@@ -42,29 +33,6 @@ public class UpdaterManager {
     }
 
     @Scheduled(fixedDelay = 300000)
-    public void executeFlow() {
-        logger.info("start execute update flow rule...");
-        try {
-            flowUpdater.execute();
-        } catch (Throwable ex) {
-            logger.error("flowUpdater error", ex);
-        }
-        logger.info("end execute update flow rule...");
-    }
-
-    @Scheduled(fixedDelay = 300000)
-    public void executePayadapt() {
-        logger.info("start execute update blackWhite rule...");
-        try {
-            payAdaptUpdater.execute();
-        } catch (Throwable ex) {
-            logger.error("payAdaptUpdater error", ex);
-        }
-
-        logger.info("end execute update payAdapt rule...");
-    }
-
-    @Scheduled(fixedDelay = 300000)
     public void executeTableInfo() {
         logger.info("start execute update ColumnInfo...");
         try {
@@ -76,15 +44,4 @@ public class UpdaterManager {
         logger.info("end execute update ColumnInfo...");
     }
 
-    @Scheduled(fixedDelay = 300000)
-    public void executeSaveTableRules() {
-        logger.info("start execute update saveTableRules");
-        try {
-            tableSaveRuleUpdater.execute();
-        }catch (Throwable ex){
-            logger.error("executeSaveTableRules update error",ex);
-        }
-
-        logger.info("end execute update saveTableRules");
-    }
 }

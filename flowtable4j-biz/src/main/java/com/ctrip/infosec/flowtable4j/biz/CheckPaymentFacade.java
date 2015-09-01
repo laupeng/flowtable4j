@@ -1,8 +1,9 @@
 package com.ctrip.infosec.flowtable4j.biz;
 
-import com.ctrip.infosec.flowtable4j.biz.processor.*;
-import com.ctrip.infosec.flowtable4j.biz.converter.*;
-import com.ctrip.infosec.flowtable4j.flowdata.TableSaveRuleManager;
+import com.ctrip.infosec.flowtable4j.biz.converter.AccountConverter;
+import com.ctrip.infosec.flowtable4j.biz.converter.BlackWhiteConverter;
+import com.ctrip.infosec.flowtable4j.biz.processor.FlowtableProcessor;
+import com.ctrip.infosec.flowtable4j.biz.processor.Save2DbProcessor;
 import com.ctrip.infosec.flowtable4j.model.*;
 import com.ctrip.infosec.flowtable4j.model.persist.PO;
 import org.slf4j.Logger;
@@ -15,14 +16,9 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class CheckPaymentFacade {
-    @Autowired
-    POConverter poConverter;
 
     @Autowired
     BlackWhiteConverter blackWhiteConverter;
-
-    @Autowired
-    FlowConverter flowConverter;
 
     @Autowired
     AccountConverter accountConverter;
@@ -33,17 +29,7 @@ public class CheckPaymentFacade {
     @Autowired
     FlowtableProcessor flowtableProcessor;
 
-    @Autowired
-    TableSaveRuleManager tableSaveRuleManager;
-
-    @Autowired
-    RiskLevelDataConverter riskLevelDataConverter;
-
     private static Logger logger = LoggerFactory.getLogger(CheckPaymentFacade.class);
-
-    public CheckType[] getCheckType(PO po){
-        return new CheckType[]{CheckType.ACCOUNT, CheckType.BW, CheckType.FLOWRULE};
-    }
 
     public Long saveData4Offline(final PO po)
     {
@@ -55,117 +41,6 @@ public class CheckPaymentFacade {
         });
         return 0L;
     }
-
-    /**
-     * 快速应用支付适配，
-     * 分落8张表 LastProductInfo/LastPaymentInfo
-     * @param requestBody
-     * @return
-     */
-    public RiskResult checkRisk2(RequestBody requestBody) {
-        //数据准备
-        long start1 = System.nanoTime();
-        final PO po = poConverter.convert(requestBody);
-        logger.info("Construct PO elapse:" + (System.nanoTime() - start1) / 1000000L);
-        SimpleStaticThreadPool.getInstance().submit(new Runnable() {
-            @Override
-            public void run() {
-                poConverter.saveData4Next(po);
-            }
-        });
-        return new RiskResult();
-    }
-
-    /**
-     * 支付适配数据落地与Offline数据落地
-     * 用于比对数据落地正确性
-     * @param requestBody
-     * @return
-     */
-    public RiskResult checkRisk3(RequestBody requestBody) {
-        //数据准备
-        long start1 = System.nanoTime();
-        final PO po = poConverter.convert(requestBody);
-        if(po.getReqid()==0L) { //现阶段，就Coupons已带ReqId
-            po.setReqid(save2DbService.saveDealInfo(MapX.getMap(po.getProductinfo(), "dealinfo")));
-        }
-        else
-        {
-            return new RiskResult();
-        }
-        final Long reqId= po.getReqid();
-        logger.info("Construct PO elapse:" + (System.nanoTime() - start1) / 1000000L);
-        SimpleStaticThreadPool.getInstance().submit(new Runnable() {
-            @Override
-            public void run() {
-                poConverter.saveData4Next(po);
-                save2DbService.save(po, reqId);
-            }
-        });
-        return new RiskResult();
-    }
-
-    public RiskResult checkRisk(RequestBody requestBody) {
-        //数据准备
-        long start1 = System.nanoTime();
-        CheckFact fact = new CheckFact();
-        final PO po = poConverter.convert(requestBody);
-        fact.setAccountFact(accountConverter.convert(po));
-        fact.setBwFact(blackWhiteConverter.convert(po));
-        fact.setFlowFact(flowConverter.convert(po));
-
-        fact.setCheckTypes(getCheckType(po));
-
-        final Long reqId = save2DbService.saveDealInfo(MapX.getMap(po.getProductinfo(), "dealinfo"));
-        po.setReqid(reqId);
-
-        fact.setReqId(reqId);
-        fact.getFlowFact().setReqId(fact.getReqId());
-
-        logger.info("Construct PO elapse:" + (System.nanoTime() - start1) / 1000000L);
-
-        //TODO 最终决定哪些业务需要调用支付适配黑白名单、账户风控黑白名单
-//        SimpleStaticThreadPool.getInstance().submit(new Runnable() {
-//            @Override
-//            public void run() {
-//
-//            }
-//        });
-
-        start1 = System.nanoTime();
-        //流量校验
-        RiskResult result = flowtableProcessor.handle(fact);
-        logger.info("Check Risk elapse:" + (System.nanoTime() - start1) / 1000000L);
-        final FlowFact flowFact = fact.getFlowFact();
-        flowFact.getContent().put("originalrisklevel", result.getOriginRiskLevel());
-
-        //TODO 需要根据不同的订单类型做特殊处理
-        riskLevelDataConverter.convertRiskLevelData(po,result,reqId);
-
-        //TODO 只有TransFlag！=33的才需要抛送金融
-        if(! MapX.getString(po.getProductinfo(),new String[]{"riskleveldata","transflag"},"").equals("33")) {
-            riskLevelDataConverter.postToEasyPay(po);
-        }
-
-      SimpleStaticThreadPool.getInstance().submit(new Runnable() {
-            @Override
-            public void run() {
-                poConverter.saveData4Next(po);
-                save2DbService.save(po, reqId);
-                riskLevelDataConverter.saveLicenseOrder(po.getReqid(),-1,null,po.getRisklevel(),po.getOrdertype());
-            }
-        });
-
-      SimpleStaticThreadPool.getInstance().submit(new Runnable() {
-           @Override
-            public void run() {
-                //分流表数据落地
-                tableSaveRuleManager.checkAndSave(flowFact);
-          }
-        });
-        return result;
-    }
-
 
     public RiskResult checkBWGList(RequestBody checkEntity) {
         //数据准备

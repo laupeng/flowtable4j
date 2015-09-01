@@ -1,11 +1,8 @@
-import com.ctrip.infosec.flowtable4j.dal.ESBClient;
-import com.ctrip.infosec.flowtable4j.dal.SOA2Client;
-import com.google.common.base.Strings;
-//import org.junit.Test;
 import org.junit.Test;
 
 import java.text.SimpleDateFormat;
-import java.util.Map;
+
+//import org.junit.Test;
 //import org.junit.Test;
 
 /**
