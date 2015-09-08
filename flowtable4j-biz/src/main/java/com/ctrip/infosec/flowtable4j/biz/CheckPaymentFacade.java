@@ -11,6 +11,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
 /**
  * Created by thyang on 2015-06-12.
  */
@@ -29,11 +33,17 @@ public class CheckPaymentFacade {
     @Autowired
     FlowtableProcessor flowtableProcessor;
 
+
+    /**
+     * 数据库写入10个线程足以
+     */
+    private ThreadPoolExecutor executor= new ThreadPoolExecutor(20,30,60, TimeUnit.SECONDS,new ArrayBlockingQueue<Runnable>(10));
+
     private static Logger logger = LoggerFactory.getLogger(CheckPaymentFacade.class);
 
     public Long saveData4Offline(final PO po)
     {
-        SimpleStaticThreadPool.getInstance().submit(new Runnable() {
+        executor.submit(new Runnable() {
             @Override
             public void run() {
                 save2DbService.save(po, po.getReqid());

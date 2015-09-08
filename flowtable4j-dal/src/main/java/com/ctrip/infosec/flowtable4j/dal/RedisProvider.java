@@ -23,7 +23,6 @@ import java.util.Set;
 public class RedisProvider {
     private static final String redisCluster = "CounterServer_03";
     private static CacheProvider provider = CacheFactory.GetProvider(redisCluster);
-    private static Logger logger = LoggerFactory.getLogger(RedisProvider.class);
 
     JsonMapper mapper = new JsonMapper();
     public RedisProvider() {
@@ -45,10 +44,7 @@ public class RedisProvider {
         List<T> listOfResult = new ArrayList<T>();
         CacheProvider cache = getCache();
         if (cache != null) {
-            long now= System.nanoTime();
             Set<String> rules = cache.smembers(key);
-            long eps = (System.nanoTime() - now)/1000000L;
-            logger.info("Read redis elapse " + eps);
             if (rules != null) {
                 for (String str : rules) {
                     T item = mapper.fromJson(str, classType);

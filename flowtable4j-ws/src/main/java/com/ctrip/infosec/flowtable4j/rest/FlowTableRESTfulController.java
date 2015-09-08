@@ -26,8 +26,6 @@ public class FlowTableRESTfulController {
     @Autowired
     CheckPaymentFacade checkPaymentService;
 
-    private static Logger logger = LoggerFactory.getLogger(FlowTableRESTfulController.class);
-
     @RequestMapping(value = "/saveData4Offline")
     public
     @ResponseBody

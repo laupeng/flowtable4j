@@ -4,7 +4,6 @@ import com.ctrip.infosec.flowtable4j.dal.RedisProvider;
 import com.ctrip.infosec.flowtable4j.model.AccountFact;
 import com.ctrip.infosec.flowtable4j.model.AccountItem;
 import com.ctrip.infosec.flowtable4j.model.RuleContent;
-import com.ctrip.infosec.flowtable4j.model.SimpleStaticThreadPool;
 import com.ctrip.infosec.sars.monitor.util.Utils;
 import com.google.common.base.Strings;
 import org.apache.commons.lang.time.FastDateFormat;
@@ -14,10 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * 按SceneType、CheckType组装的黑白名单
@@ -35,6 +31,8 @@ public class AccountBWGManager {
     private FastDateFormat format = FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ss");
 
     private Logger logger = LoggerFactory.getLogger(AccountBWGManager.class);
+
+    private ThreadPoolExecutor executor = new ThreadPoolExecutor(30,100,60,TimeUnit.SECONDS,new ArrayBlockingQueue<Runnable>(20));
 
     /**
      * 保存黑白名单到Redis
@@ -64,7 +62,7 @@ public class AccountBWGManager {
             });
         }
         try {
-            List<Future<Object>> futures = SimpleStaticThreadPool.getInstance().invokeAll(tasks, TIMEOUT, TimeUnit.MILLISECONDS);
+            List<Future<Object>> futures = executor.invokeAll(tasks, TIMEOUT, TimeUnit.MILLISECONDS);
             for(Future<Object> future:futures){
                 try {
                     future.get();
@@ -107,7 +105,7 @@ public class AccountBWGManager {
             });
         }
         try {
-            List<Future<Object>> futures = SimpleStaticThreadPool.getInstance().invokeAll(tasks, TIMEOUT, TimeUnit.MILLISECONDS);
+            List<Future<Object>> futures = executor.invokeAll(tasks, TIMEOUT, TimeUnit.MILLISECONDS);
             for(Future<Object> future:futures){
                 try {
                     future.get();
@@ -156,7 +154,7 @@ public class AccountBWGManager {
         }
         //在支付适配场景中，应该只有2~3个Key，可以并发
         try {
-            List<Future<Object>> futures = SimpleStaticThreadPool.getInstance().invokeAll(tasks, TIMEOUT, TimeUnit.MILLISECONDS);
+            List<Future<Object>> futures = executor.invokeAll(tasks, TIMEOUT, TimeUnit.MILLISECONDS);
             for(Future<Object> future:futures){
                 try {
                     future.get();
@@ -210,10 +208,11 @@ public class AccountBWGManager {
      * @param searchKey
      */
     private void getRuleByKey(Map<String, List<RuleStore>> dic_allRules, String currentDate, String searchKey, Set<String> sceneTypes) {
-        long now= System.nanoTime();
-        int count=0;
+        long now= System.currentTimeMillis();
         List<RuleStore> redisStoreItems = redisProvider.mgetBySet(searchKey, RuleStore.class);
-        count = redisStoreItems.size();
+        long eps = System.currentTimeMillis()-now;
+        logger.info("Read redis elapse " +eps + ", total records:"+redisStoreItems.size());
+
         if (redisStoreItems != null && redisStoreItems.size() > 0) {
             for (int i = redisStoreItems.size() - 1; i >= 0; i--) {
                 RuleStore item = redisStoreItems.get(i);
@@ -229,9 +228,5 @@ public class AccountBWGManager {
                 dic_allRules.put(searchKey, redisStoreItems);
             }
         }
-        long eps = (System.nanoTime() - now)/1000000L;
-
-        logger.info("Read redis& merge elapse " + eps+", total records:"+count);
-
     }
 }

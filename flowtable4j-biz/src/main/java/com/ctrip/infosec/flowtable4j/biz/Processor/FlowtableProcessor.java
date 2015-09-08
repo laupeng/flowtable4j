@@ -11,9 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * Created by zhangsx on 2015/5/19.
@@ -29,10 +27,12 @@ public class FlowtableProcessor {
     @Autowired
     private AccountBWGManager accountBWGManager;
 
-    @Autowired
-    private CardRiskDbService cardRiskDbService;
-
     private static final long FLOWTIMEOUT = 10000;
+
+    /**
+     * 黑白名单校验100线程
+     */
+    private ThreadPoolExecutor executor= new ThreadPoolExecutor(80,200,60, TimeUnit.SECONDS,new ArrayBlockingQueue<Runnable>(80));
 
      /**
      * 支付校验
@@ -42,9 +42,8 @@ public class FlowtableProcessor {
      */
     public RiskResult handle(final CheckFact checkEntity) {
 
-        long s = System.nanoTime();
+        long start = System.currentTimeMillis();
         logger.debug(Utils.JSON.toJSONString(checkEntity));
-        logger.debug(String.format("ReqId %d to Json elapsed %d", checkEntity.getReqId(), (System.nanoTime() - s)/1000000L));
 
         final RiskResult listResult_w = new RiskResult();
         final RiskResult listResult = new RiskResult();
@@ -59,8 +58,7 @@ public class FlowtableProcessor {
                     listResult.merge(listResult_w);
                     isWhite = true;
                 }
-                long eps = (System.nanoTime() - s) /1000000L;
-                String info = String.format("ReqId:%d, CheckWhite elapse %d ms", checkEntity.getReqId(), eps);
+                String info = String.format("ReqId:%d, CheckWhite elapse %d ms", checkEntity.getReqId(), System.currentTimeMillis()-start);
                 logger.debug(info);
             }
         }
@@ -82,10 +80,9 @@ public class FlowtableProcessor {
                 tasks.add(new Callable() {
                     @Override
                     public Object call() throws Exception {
-                        long now = System.nanoTime();
+                        long now = System.currentTimeMillis();
                         bwManager.checkBlack(checkEntity.getBwFact(), listResult_b);
-                        long eps = (System.nanoTime() - now)/1000000L;
-                        String info = String.format("ReqId:%d,CheckBlack elapse %d ms", checkEntity.getReqId(), eps);
+                        String info = String.format("ReqId:%d,CheckBlack elapse %d ms", checkEntity.getReqId(), System.currentTimeMillis() - now);
                         logger.debug(info);
                         return null;
                     }
@@ -94,13 +91,12 @@ public class FlowtableProcessor {
                 tasks.add(new Callable() {
                     @Override
                     public Object call() throws Exception {
-                        long now = System.nanoTime();
+                        long now = System.currentTimeMillis();
                         AccountFact item = checkEntity.getAccountFact();
                         if (item != null && item.getCheckItems() != null && item.getCheckItems().size() > 0) {
                             accountBWGManager.checkBWGRule(item, mapAccount);
                         }
-                        long eps = (System.nanoTime() - now) /1000000L;
-                          String info = String.format("ReqId:%d,CheckBWGRule elapse %d ms", checkEntity.getReqId(), eps);
+                        String info = String.format("ReqId:%d,CheckBWGRule elapse %d ms", checkEntity.getReqId(), System.currentTimeMillis()-now);
                         logger.debug(info);
                         return null;
                     }
@@ -108,7 +104,7 @@ public class FlowtableProcessor {
             }
         }
         try {
-            for (Future future : SimpleStaticThreadPool.getInstance().invokeAll(tasks, FLOWTIMEOUT, TimeUnit.MILLISECONDS)) {
+            for (Future future : executor.invokeAll(tasks, FLOWTIMEOUT, TimeUnit.MILLISECONDS)) {
                 if (future.isCancelled()) {
                     listResult.setStatus("TIMEOUT");
                     logger.warn("rule execute timeout [" + FLOWTIMEOUT + "ms]");
