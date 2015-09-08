@@ -1,14 +1,11 @@
 package com.ctrip.infosec.flowtable4j.dal;
 
-import com.ctrip.infosec.flowtable4j.model.persist.PO;
 import com.ctrip.infosec.sars.util.GlobalConfig;
 import com.ctrip.infosec.sars.util.mapper.JsonMapper;
 import com.google.common.base.Strings;
 import credis.java.client.CacheProvider;
 import credis.java.client.setting.RAppSetting;
 import credis.java.client.util.CacheFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -22,8 +19,7 @@ import java.util.Set;
 @Component
 public class RedisProvider {
     private static final String redisCluster = "CounterServer_03";
-    private static CacheProvider provider = CacheFactory.GetProvider(redisCluster);
-
+    private static CacheProvider provider;
     JsonMapper mapper = new JsonMapper();
     public RedisProvider() {
         RAppSetting.setAppID(GlobalConfig.getString("APPID"));
@@ -31,6 +27,7 @@ public class RedisProvider {
         RAppSetting.setLoggingServerPort(GlobalConfig.getString("CLogging.serverPort"));
         RAppSetting.setLogging(false);
         RAppSetting.setCRedisServiceUrl(GlobalConfig.getString("CRedis.serviceUrl"));//"http://ws.config.framework.fws.qa.nt.ctripcorp.com/configws/"
+        provider = CacheFactory.GetProvider(redisCluster);
      }
 
     /**
