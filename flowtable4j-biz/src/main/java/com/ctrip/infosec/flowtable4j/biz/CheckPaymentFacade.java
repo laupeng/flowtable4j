@@ -54,7 +54,7 @@ public class CheckPaymentFacade {
 
     public RiskResult checkBWGList(RequestBody checkEntity) {
         //数据准备
-        long start1 = System.nanoTime();
+        long start = System.currentTimeMillis();
         CheckFact fact = new CheckFact();
         fact.setAccountFact(accountConverter.convert(checkEntity));
         fact.setBwFact(blackWhiteConverter.convert(checkEntity));
@@ -63,7 +63,7 @@ public class CheckPaymentFacade {
         //流量校验
         RiskResult result = flowtableProcessor.handle(fact);
 
-        logger.info("CheckBWGList elapse:" + (System.nanoTime() - start1) / 1000000L);
+        logger.info("CheckBWGList elapse:" + (System.currentTimeMillis() - start));
 
         return result;
     }
