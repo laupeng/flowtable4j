@@ -48,7 +48,10 @@ public class CheckPaymentFacade {
         executor.submit(new Runnable() {
             @Override
             public void run() {
+                long start = System.currentTimeMillis();
+                logger.info("start save offline:"+ po.getReqid());
                 save2DbService.save(po, po.getReqid());
+                logger.info("finish save offline:"+po.getReqid()+",total elapse:" + (System.currentTimeMillis()-start));
             }
         });
         return 0L;
