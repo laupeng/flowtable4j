@@ -96,7 +96,7 @@ public class FlowtableProcessor {
                         if (item != null && item.getCheckItems() != null && item.getCheckItems().size() > 0) {
                             accountBWGManager.checkBWGRule(item, mapAccount);
                         }
-                        String info = String.format("ReqId:%d,CheckBWGRule elapse %d ms", checkEntity.getReqId(), System.currentTimeMillis()-now);
+                        String info = String.format("ReqId:%d,CheckAccountBWGRule elapse %d ms", checkEntity.getReqId(), System.currentTimeMillis()-now);
                         logger.debug(info);
                         return null;
                     }
