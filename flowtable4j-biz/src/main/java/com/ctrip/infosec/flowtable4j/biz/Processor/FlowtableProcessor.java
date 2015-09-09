@@ -43,7 +43,8 @@ public class FlowtableProcessor {
     public RiskResult handle(final CheckFact checkEntity) {
 
         long start = System.currentTimeMillis();
-        logger.debug(Utils.JSON.toJSONString(checkEntity));
+
+        //logger.debug(Utils.JSON.toJSONString(checkEntity));
 
         final RiskResult listResult_w = new RiskResult();
         final RiskResult listResult = new RiskResult();

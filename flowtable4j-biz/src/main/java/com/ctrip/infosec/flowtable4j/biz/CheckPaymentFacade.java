@@ -63,7 +63,7 @@ public class CheckPaymentFacade {
         //流量校验
         RiskResult result = flowtableProcessor.handle(fact);
 
-        logger.info("CheckBWGList elapse:" + (System.currentTimeMillis() - start));
+        logger.info("handle checkBWGList request total elapse:" + (System.currentTimeMillis() - start));
 
         return result;
     }
