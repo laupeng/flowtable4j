@@ -8,6 +8,7 @@ import com.ctrip.infosec.sars.monitor.util.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -32,7 +33,8 @@ public class FlowtableProcessor {
     /**
      * 黑白名单校验100线程
      */
-    private ThreadPoolExecutor executor= new ThreadPoolExecutor(80,200,60, TimeUnit.SECONDS,new ArrayBlockingQueue<Runnable>(80));
+    private ThreadPoolExecutor executor= new ThreadPoolExecutor(80,200,60, TimeUnit.SECONDS,new ArrayBlockingQueue<Runnable>(80),
+            new CustomizableThreadFactory("pool-payment-bwg-"));
 
      /**
      * 支付校验

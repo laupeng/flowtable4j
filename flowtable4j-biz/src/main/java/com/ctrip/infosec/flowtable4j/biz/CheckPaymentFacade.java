@@ -9,6 +9,7 @@ import com.ctrip.infosec.flowtable4j.model.persist.PO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.ArrayBlockingQueue;
@@ -37,7 +38,8 @@ public class CheckPaymentFacade {
     /**
      * 数据库写入10个线程足以
      */
-    private ThreadPoolExecutor executor= new ThreadPoolExecutor(20,30,60, TimeUnit.SECONDS,new ArrayBlockingQueue<Runnable>(10));
+    private ThreadPoolExecutor executor= new ThreadPoolExecutor(20,30,60, TimeUnit.SECONDS,new ArrayBlockingQueue<Runnable>(10),
+            new CustomizableThreadFactory("pool-save-offline-"));
 
     private static Logger logger = LoggerFactory.getLogger(CheckPaymentFacade.class);
 

@@ -10,6 +10,7 @@ import org.apache.commons.lang.time.FastDateFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -32,7 +33,9 @@ public class AccountBWGManager {
 
     private Logger logger = LoggerFactory.getLogger(AccountBWGManager.class);
 
-    private ThreadPoolExecutor executor = new ThreadPoolExecutor(30,100,60,TimeUnit.SECONDS,new ArrayBlockingQueue<Runnable>(20));
+    private ThreadPoolExecutor executor = new ThreadPoolExecutor(30,100,60,TimeUnit.SECONDS,
+            new ArrayBlockingQueue<Runnable>(20),
+            new CustomizableThreadFactory("pool-account-bwg-"));
 
     /**
      * 保存黑白名单到Redis
