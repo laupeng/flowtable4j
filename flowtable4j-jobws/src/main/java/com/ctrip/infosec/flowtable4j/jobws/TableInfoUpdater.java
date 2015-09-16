@@ -18,6 +18,7 @@ import java.util.*;
  */
 @Component
 public class TableInfoUpdater {
+
     @Autowired
     CardRiskDbService cardRiskDbService;
 

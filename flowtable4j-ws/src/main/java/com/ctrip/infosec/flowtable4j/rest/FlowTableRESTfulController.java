@@ -6,6 +6,7 @@
 package com.ctrip.infosec.flowtable4j.rest;
 
 import com.ctrip.infosec.flowtable4j.biz.CheckPaymentFacade;
+import com.ctrip.infosec.flowtable4j.biz.ResultCompare;
 import com.ctrip.infosec.flowtable4j.model.RiskResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +27,9 @@ public class FlowTableRESTfulController {
     @Autowired
     CheckPaymentFacade checkPaymentService;
 
+    @Autowired
+    ResultCompare compare;
+
     @RequestMapping(value = "/saveData4Offline")
     public
     @ResponseBody
@@ -38,5 +42,12 @@ public class FlowTableRESTfulController {
     @ResponseBody
     RiskResult checkBWGList(@RequestBody com.ctrip.infosec.flowtable4j.model.RequestBody checkEntity) {
         return checkPaymentService.checkBWGList(checkEntity);
+    }
+
+    @RequestMapping(value = "/verifyData")
+    public
+    @ResponseBody
+    String verifyData(@RequestBody com.ctrip.infosec.flowtable4j.model.VerifyData checkEntity) {
+        return compare.checkOrderData(checkEntity);
     }
 }

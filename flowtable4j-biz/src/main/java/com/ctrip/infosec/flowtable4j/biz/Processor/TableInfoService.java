@@ -14,14 +14,18 @@ public class TableInfoService {
 
     private Map<String, List<ColumnInfo>> tableInfos;
 
-    public  void  updateTableInfos(Map<String,List<ColumnInfo>> src){
+    public void  updateTableInfos(Map<String,List<ColumnInfo>> src){
         this.tableInfos = src;
     }
 
     public List<ColumnInfo> getTableInfo(String tableName) {
-        if(tableInfos!=null && tableInfos.size()>0) {
-            return tableInfos.get(tableName);
+        if(getTableInfos() !=null && getTableInfos().size()>0) {
+            return getTableInfos().get(tableName);
         }
         return null;
+    }
+
+    public Map<String, List<ColumnInfo>> getTableInfos() {
+        return tableInfos;
     }
 }

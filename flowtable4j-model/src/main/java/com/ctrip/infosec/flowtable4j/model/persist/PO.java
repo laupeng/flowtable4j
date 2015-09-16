@@ -139,7 +139,7 @@ public class PO extends MapX {
         prop2table.put("vacationinfolist~.optionlist~","infosecurity_vacationoptioninfo");
         //vacationotherinfolist
         //w
-        prop2table.put("walletwithdrawal", "infosecurity_walletwithdrawal");
+        prop2table.put("walletwithdrawal", "infosecurity_walletwithdrawals");
 
         //y
         prop2table.put("yongche","infosecurity_yongcheinfo");
