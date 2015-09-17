@@ -132,6 +132,27 @@ public class CounterTest {
         MasterResponse masterResponse = client.requestMaster(request);
         System.out.println(masterResponse.getResponseBody());
 
-
+        /*<?xml version="1.0" encoding="UTF-8"?>
+        <Response>
+        <Risk>
+        <action_response>
+        <screening_response>
+        <additional_messages>
+        <message>Rule/TE002 score 1 0.07ms</message>
+        </additional_messages>
+        <cpi_value></cpi_value>
+        <response_code>02</response_code>
+        <response_message>Transaction marked for Review</response_message>
+        <transaction_id>3100900048192821</transaction_id>
+        </screening_response>
+        </action_response>
+        </Risk>
+        <datacash_reference>3100900048192821</datacash_reference>
+        <merchantreference>DC_Test_111</merchantreference>
+        <mode>LIVE</mode>
+        <reason>SUBMITTED OK</reason>
+        <status>1</status>
+        </Response>"
+        */
     }
 }

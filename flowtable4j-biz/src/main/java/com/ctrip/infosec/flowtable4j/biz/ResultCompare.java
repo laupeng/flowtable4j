@@ -204,7 +204,9 @@ public class ResultCompare {
                     sb.append(" where vacationinfoid in (select vacationinfoid from infosecurity_vacationinfo with(nolock) where reqid=?) order by 1,2");
                 } else if (tableName.equals("infosecurity_vacationuserinfo")) {
                     sb.append(" where vacationinfoid in (select vacationinfoid from infosecurity_vacationinfo with(nolock) where reqid=?) order by 1,2");
-                } else {
+                } else if (tableName.equals("infosecurity_cardinfo")) {
+                    sb.append(" where paymentinfoid in (select paymentinfoid from infosecurity_paymentinfo with(nolock) where reqid=?) order by 1,2");
+                }else {
                     if (columnCount >= 2) {
                         sb.append("where reqid=? order by 1,2");
                     } else {
