@@ -153,7 +153,7 @@ public class ResultCompare {
 //            "infosecurity_suborderitermbyjifen",
 //            "infosecurity_topshopcataloginfo",
 //            "infosecurity_topshopcataloginfoitem",
-//            "infosecurity_topshopmerchantitem", 
+//            "infosecurity_topshopmerchantitem",
 //            "infosecurity_topshopproductioninfo",
 //            "infosecurity_topshopproductitem",
 //            "infosecurity_travelmoneyfncmall",
@@ -254,6 +254,10 @@ public class ResultCompare {
                 String sql = "select top 100 reqId from infosecurity_maininfo with(nolock) where reqid>? and reqid<? and ordertype=? order by reqid";
                 List<Long> reqIds = cardRiskDbService.jdbcTemplate.queryForList(sql, new Object[]{startReqId, lastReqId, data.getOrderType()}, new int[]{
                         Types.BIGINT, Types.BIGINT, Types.INTEGER}, Long.class);
+                //区间内无数据，退出
+                if(reqIds.size()==0){
+                    break;
+                }
                 for(Long reqid:reqIds){
                     writer1.append("REQ:").append(reqid.toString()).append("\n");
                     writer2.append("REQ:").append(reqid.toString()).append("\n");
