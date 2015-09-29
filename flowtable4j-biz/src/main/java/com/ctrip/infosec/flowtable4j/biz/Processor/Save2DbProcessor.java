@@ -51,9 +51,6 @@ public class Save2DbProcessor {
 
     public void save(PO po, Long reqid) {
         JdbcTemplate jdbcTemplate=cardRiskDbService.jdbcTemplate;
-        if(po.getOrdertype().equals(1)){
-            jdbcTemplate = flowDbService.jdbcTemplate2;
-        }
         //TODO 开启多线程保存
         save(jdbcTemplate,po.getProductinfo(), reqid);
         save(jdbcTemplate,po.getPaymentinfo(), reqid);
