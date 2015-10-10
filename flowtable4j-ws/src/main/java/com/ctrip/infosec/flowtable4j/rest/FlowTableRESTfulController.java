@@ -1,10 +1,10 @@
 package com.ctrip.infosec.flowtable4j.rest;
 
-import com.ctrip.infosec.flowtable4j.t3afs.biz.CheckPaymentFacade;
-import com.ctrip.infosec.flowtable4j.t3afs.biz.ResultCompare;
-import com.ctrip.infosec.flowtable4j.t3afs.model.RiskResult;
-import com.ctrip.infosec.flowtable4j.t3afs.model.VerifyData;
-import com.ctrip.infosec.flowtable4j.t3afs.model.persist.PO;
+import com.ctrip.infosec.flowtable4j.biz.CheckPaymentFacade;
+import com.ctrip.infosec.flowtable4j.biz.ResultCompare;
+import com.ctrip.infosec.flowtable4j.model.RiskResult;
+import com.ctrip.infosec.flowtable4j.model.VerifyData;
+import com.ctrip.infosec.flowtable4j.model.persist.PO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -35,7 +35,7 @@ public class FlowTableRESTfulController {
     @RequestMapping(value = "/checkBWGList")
     public
     @ResponseBody
-    RiskResult checkBWGList(@RequestBody com.ctrip.infosec.flowtable4j.t3afs.model.RequestBody checkEntity) {
+    RiskResult checkBWGList(@RequestBody com.ctrip.infosec.flowtable4j.model.RequestBody checkEntity) {
         return checkPaymentService.checkBWGList(checkEntity);
     }
 

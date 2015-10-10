@@ -1,4 +1,4 @@
-import com.ctrip.infosec.flowtable4j.t3afs.model.CheckFact;
+import com.ctrip.infosec.flowtable4j.model.CheckFact;
 import com.ctrip.infosec.sars.monitor.util.Utils;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;

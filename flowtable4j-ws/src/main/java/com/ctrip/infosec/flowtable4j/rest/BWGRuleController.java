@@ -1,9 +1,9 @@
 package com.ctrip.infosec.flowtable4j.rest;
 
-import com.ctrip.infosec.flowtable4j.t3afs.biz.processor.AccountBWGProcessor;
-import com.ctrip.infosec.flowtable4j.t3afs.model.AccountFact;
-import com.ctrip.infosec.flowtable4j.t3afs.model.AccountResult;
-import com.ctrip.infosec.flowtable4j.t3afs.model.BWRequest;
+import com.ctrip.infosec.flowtable4j.biz.processor.AccountBWGProcessor;
+import com.ctrip.infosec.flowtable4j.model.AccountFact;
+import com.ctrip.infosec.flowtable4j.model.AccountResult;
+import com.ctrip.infosec.flowtable4j.model.BWRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;

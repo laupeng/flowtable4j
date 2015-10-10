@@ -1,12 +1,12 @@
 package com.ctrip.infosec.flowtable4j.rest;
 
-import com.ctrip.infosec.flowtable4j.t3afs.dal.CardRiskDbService;
-import com.ctrip.infosec.flowtable4j.t3afs.master.MasterClient;
-import com.ctrip.infosec.flowtable4j.t3afs.master.MasterRequest;
-import com.ctrip.infosec.flowtable4j.t3afs.master.MasterResponse;
-import com.ctrip.infosec.flowtable4j.t3afs.visa.VisaClient;
-import com.ctrip.infosec.flowtable4j.t3afs.visa.VisaRequest;
-import com.ctrip.infosec.flowtable4j.t3afs.visa.VisaResponse;
+import com.ctrip.infosec.flowtable4j.dal.CardRiskDbService;
+import com.ctrip.infosec.flowtable4j.master.MasterClient;
+import com.ctrip.infosec.flowtable4j.master.MasterRequest;
+import com.ctrip.infosec.flowtable4j.master.MasterResponse;
+import com.ctrip.infosec.flowtable4j.visa.VisaClient;
+import com.ctrip.infosec.flowtable4j.visa.VisaRequest;
+import com.ctrip.infosec.flowtable4j.visa.VisaResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
