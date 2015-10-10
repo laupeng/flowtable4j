@@ -1,4 +1,4 @@
-package com.ctrip.infosec.flowtable4j.t3afs.rest;
+package com.ctrip.infosec.flowtable4j.rest;
 
 import com.ctrip.infosec.flowtable4j.t3afs.dal.CardRiskDbService;
 import com.ctrip.infosec.flowtable4j.t3afs.master.MasterClient;

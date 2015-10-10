@@ -9,6 +9,7 @@ import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 import org.xml.sax.InputSource;
 
 import java.io.IOException;
@@ -18,6 +19,7 @@ import java.util.Iterator;
 /**
  * Created by thyang on 2015-08-19.
  */
+@Component
 public class MasterClient {
     private static final Logger logger = LoggerFactory.getLogger(MasterClient.class);
     static final String masterUrl = GlobalConfig.getString("Master.URL");

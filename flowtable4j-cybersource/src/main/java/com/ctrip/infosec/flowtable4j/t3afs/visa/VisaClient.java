@@ -15,54 +15,6 @@ import org.xml.sax.InputSource;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Iterator;
-
-
-/**
- * <?xml version="1.0" encoding="UTF-8"?>
- * <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
- * <soapenv:Header>
- * <wsse:Security soapenv:mustUnderstand="1" xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
- * <wsse:UsernameToken>
- * <wsse:Username>yourMerchantID</wsse:Username>
- * <wsse:Password Type="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText">yourPassword</wsse:Password>
- * </wsse:UsernameToken>
- * </wsse:Security>
- * </soapenv:Header>
- * <soapenv:Body>
- * <requestMessage xmlns="urn:schemas-cybersource-com:transaction-data-N.NN">
- * <merchantID>yourMerchantID</merchantID>
- * <merchantReferenceCode>MRC-123</merchantReferenceCode>
- * <billTo>
- * <firstName>John</firstName>
- * <lastName>Doe</lastName>
- * <street1>1295 Charleston Road</street1>
- * <city>Mountain View</city>
- * <state>CA</state>
- * <postalCode>94043</postalCode>
- * <country>US</country>
- * <email>null@cybersource.com</email>
- * </billTo>
- * <item id="0">
- * <unitPrice>5.00</unitPrice>
- * <quantity>1</quantity>
- * </item>
- * <item id="1">
- * <unitPrice>10.00</unitPrice>
- * <quantity>2</quantity>
- * </item>
- * <purchaseTotals>
- * <currency>USD</currency>
- * </purchaseTotals>
- * <card>
- * <accountNumber>4111111111111111</accountNumber>
- * <expirationMonth>11</expirationMonth>
- * <expirationYear>2020</expirationYear>
- * </card>
- * <ccAuthService run="true"/>
- * </requestMessage>
- * </soapenv:Body>
- * </soapenv:Envelope>
- */
 /*
  Created by lpxie on 15-3-20.
  */
