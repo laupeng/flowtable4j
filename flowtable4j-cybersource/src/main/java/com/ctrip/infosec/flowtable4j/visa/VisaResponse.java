@@ -1,8 +1,6 @@
 package com.ctrip.infosec.flowtable4j.visa;
-
 import java.util.ArrayList;
 import java.util.List;
-
 /**
  * Created by thyang on 2015-07-27.
  */
@@ -13,6 +11,9 @@ public class VisaResponse {
    private String reasonCode;
    private String requestid;
    private String decision;
+   private String responseStr;
+   private String serviceStatus="FAIL";
+   private String serviceError;
 
     public String getRequestToken() {
         return requestToken;
@@ -60,5 +61,29 @@ public class VisaResponse {
 
     public void setAfsReply(AFSReply afsReply) {
         this.afsReply = afsReply;
+    }
+
+    public String getResponseStr() {
+        return responseStr;
+    }
+
+    public void setResponseStr(String responseStr) {
+        this.responseStr = responseStr;
+    }
+
+    public String getServiceStatus() {
+        return serviceStatus;
+    }
+
+    public void setServiceStatus(String serviceStatus) {
+        this.serviceStatus = serviceStatus;
+    }
+
+    public String getServiceError() {
+        return serviceError;
+    }
+
+    public void setServiceError(String serviceError) {
+        this.serviceError = serviceError;
     }
 }

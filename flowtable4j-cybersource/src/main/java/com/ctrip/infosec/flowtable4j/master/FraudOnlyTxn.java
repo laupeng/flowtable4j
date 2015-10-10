@@ -14,7 +14,7 @@ public class FraudOnlyTxn extends BaseNode {
      private String security_code;
      private String amount;
      private String currency;
-     private String tran_type;
+     private String tran_type="AVV";
      private String acquirer;
     @Override
     public String toXML()

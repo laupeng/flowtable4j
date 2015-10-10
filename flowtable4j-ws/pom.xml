@@ -36,6 +36,11 @@
             <artifactId>flowtable4j-bwrule</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.ctrip.infosec.flowtable4j</groupId>
+            <artifactId>flowtable4j-cybersource</artifactId>
+        </dependency>
+
 
         <dependency>
             <groupId>com.ctrip.infosec.flowtable4j</groupId>

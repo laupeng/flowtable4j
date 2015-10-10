@@ -8,6 +8,7 @@
 		<artifactId>flowtable4j-parent</artifactId>
 		<version>1.0.0-SNAPSHOT</version>
 	</parent>
+
 	<groupId>com.ctrip.infosec.flowtable4j</groupId>
 	<artifactId>flowtable4j-dal</artifactId>
 	<version>1.0.0-SNAPSHOT</version>

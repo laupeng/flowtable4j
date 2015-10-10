@@ -7,6 +7,10 @@ import java.util.List;
  * Created by thyang on 2015-07-24.
  */
 public class VisaRequest extends BaseNode {
+    private Long orderID;
+    private Integer orderType;
+    private String eventID;
+    private Long reqID;
     private String merchantID;
     private String merchantReferenceCode;
     private BillTo billTo;
@@ -112,5 +116,37 @@ public class VisaRequest extends BaseNode {
 
     public void setMerchantDefinedData(MerchantDefinedData merchantDefinedData) {
         this.merchantDefinedData = merchantDefinedData;
+    }
+
+    public Long getOrderID() {
+        return orderID;
+    }
+
+    public void setOrderID(Long orderID) {
+        this.orderID = orderID;
+    }
+
+    public Integer getOrderType() {
+        return orderType;
+    }
+
+    public void setOrderType(Integer orderType) {
+        this.orderType = orderType;
+    }
+
+    public Long getReqID() {
+        return reqID;
+    }
+
+    public void setReqID(Long reqID) {
+        this.reqID = reqID;
+    }
+
+    public String getEventID() {
+        return eventID;
+    }
+
+    public void setEventID(String eventID) {
+        this.eventID = eventID;
     }
 }

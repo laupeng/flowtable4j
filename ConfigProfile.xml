@@ -44,6 +44,14 @@
         <CryptoGraphy.cscmUrl>https://cscmws.infosec.fws.qa.nt.ctripcorp.com/cscmws/CertificateWS.asmx</CryptoGraphy.cscmUrl>
         <CryptoGraphy.sslcode>EU00000000000118</CryptoGraphy.sslcode>
         <CryptoGraphy.dependency.env>DEV</CryptoGraphy.dependency.env>
+
+        <!--Third AFS -->
+        <Visa.URL>https://ics2wstest.ic3.com/commerce/1.x/transactionProcessor</Visa.URL>
+        <Visa.MerchantID>cybersource_ctrip</Visa.MerchantID>
+        <Visa.Token>ETVjjpERBSzWLGGYNr3y1i0wpvivM93gv+0bIHMtdvif4HOOvekKOAy8cYcJCjn4SkcWYB62dmSqzi/ho5674mMS1f9oLrKFseCmRgS882SSqjOCDa9vciRifIKXtoBoXsWOf99glMhVIkr22eILyoWH+4MAwugxp38RzVFWHfjudlzQtPhtDxJmn1Md9xEgE3UwBsnCHmArKOhbVztPzfoS/8teRKEQZyuNxOIX/Y/k6zBZTNU7N+QYdKPl7fieYRhYoh1hVKR8XDoyHqQX49BiiF2GBwZQIm1Ftv1vp8kVEC1WAlLcetxHPJt3SEFGBgVfn6BWB336jFNhZJtEXA==</Visa.Token>
+        <Master.URL>https://accreditation.datacash.com/Transaction/cnp_a</Master.URL>
+        <Master.UID>88001177</Master.UID>
+        <Master.PWD>hMXChZVV</Master.PWD>
     </dev>
 
     <fws>
@@ -71,6 +79,14 @@
         <CryptoGraphy.cscmUrl>https://cscmws.infosec.fws.qa.nt.ctripcorp.com/cscmws/CertificateWS.asmx</CryptoGraphy.cscmUrl>
         <CryptoGraphy.sslcode>EU00000000000118</CryptoGraphy.sslcode>
         <CryptoGraphy.dependency.env>DEV</CryptoGraphy.dependency.env>
+
+        <!--Third AFS -->
+        <Visa.URL>https://ics2wstest.ic3.com/commerce/1.x/transactionProcessor</Visa.URL>
+        <Visa.MerchantID>cybersource_ctrip</Visa.MerchantID>
+        <Visa.Token>ETVjjpERBSzWLGGYNr3y1i0wpvivM93gv+0bIHMtdvif4HOOvekKOAy8cYcJCjn4SkcWYB62dmSqzi/ho5674mMS1f9oLrKFseCmRgS882SSqjOCDa9vciRifIKXtoBoXsWOf99glMhVIkr22eILyoWH+4MAwugxp38RzVFWHfjudlzQtPhtDxJmn1Md9xEgE3UwBsnCHmArKOhbVztPzfoS/8teRKEQZyuNxOIX/Y/k6zBZTNU7N+QYdKPl7fieYRhYoh1hVKR8XDoyHqQX49BiiF2GBwZQIm1Ftv1vp8kVEC1WAlLcetxHPJt3SEFGBgVfn6BWB336jFNhZJtEXA==</Visa.Token>
+        <Master.URL>https://accreditation.datacash.com/Transaction/cnp_a</Master.URL>
+        <Master.UID>88001177</Master.UID>
+        <Master.PWD>hMXChZVV</Master.PWD>
     </fws>
 
     <fat>
@@ -98,6 +114,14 @@
         <CryptoGraphy.cscmUrl>https://cscmws.infosec.fws.qa.nt.ctripcorp.com/cscmws/CertificateWS.asmx</CryptoGraphy.cscmUrl>
         <CryptoGraphy.sslcode>EU00000000000118</CryptoGraphy.sslcode>
         <CryptoGraphy.dependency.env>DEV</CryptoGraphy.dependency.env>
+
+        <!--Third AFS -->
+        <Visa.URL>https://ics2wstest.ic3.com/commerce/1.x/transactionProcessor</Visa.URL>
+        <Visa.MerchantID>cybersource_ctrip</Visa.MerchantID>
+        <Visa.Token>ETVjjpERBSzWLGGYNr3y1i0wpvivM93gv+0bIHMtdvif4HOOvekKOAy8cYcJCjn4SkcWYB62dmSqzi/ho5674mMS1f9oLrKFseCmRgS882SSqjOCDa9vciRifIKXtoBoXsWOf99glMhVIkr22eILyoWH+4MAwugxp38RzVFWHfjudlzQtPhtDxJmn1Md9xEgE3UwBsnCHmArKOhbVztPzfoS/8teRKEQZyuNxOIX/Y/k6zBZTNU7N+QYdKPl7fieYRhYoh1hVKR8XDoyHqQX49BiiF2GBwZQIm1Ftv1vp8kVEC1WAlLcetxHPJt3SEFGBgVfn6BWB336jFNhZJtEXA==</Visa.Token>
+        <Master.URL>https://accreditation.datacash.com/Transaction/cnp_a</Master.URL>
+        <Master.UID>88001177</Master.UID>
+        <Master.PWD>hMXChZVV</Master.PWD>
     </fat>
 
     <lpt>
@@ -125,6 +149,14 @@
         <CryptoGraphy.cscmUrl>https://cscmws.infosec.fws.qa.nt.ctripcorp.com/cscmws/CertificateWS.asmx</CryptoGraphy.cscmUrl>
         <CryptoGraphy.sslcode>EU00000000000118</CryptoGraphy.sslcode>
         <CryptoGraphy.dependency.env>DEV</CryptoGraphy.dependency.env>
+
+        <!--Third AFS -->
+        <Visa.URL>https://ics2wstest.ic3.com/commerce/1.x/transactionProcessor</Visa.URL>
+        <Visa.MerchantID>cybersource_ctrip</Visa.MerchantID>
+        <Visa.Token>ETVjjpERBSzWLGGYNr3y1i0wpvivM93gv+0bIHMtdvif4HOOvekKOAy8cYcJCjn4SkcWYB62dmSqzi/ho5674mMS1f9oLrKFseCmRgS882SSqjOCDa9vciRifIKXtoBoXsWOf99glMhVIkr22eILyoWH+4MAwugxp38RzVFWHfjudlzQtPhtDxJmn1Md9xEgE3UwBsnCHmArKOhbVztPzfoS/8teRKEQZyuNxOIX/Y/k6zBZTNU7N+QYdKPl7fieYRhYoh1hVKR8XDoyHqQX49BiiF2GBwZQIm1Ftv1vp8kVEC1WAlLcetxHPJt3SEFGBgVfn6BWB336jFNhZJtEXA==</Visa.Token>
+        <Master.URL>https://accreditation.datacash.com/Transaction/cnp_a</Master.URL>
+        <Master.UID>88001177</Master.UID>
+        <Master.PWD>hMXChZVV</Master.PWD>
     </lpt>
 
     <uat>
@@ -152,6 +184,14 @@
         <CryptoGraphy.cscmUrl>https://cscmws.infosec.uat.qa.nt.ctripcorp.com/cscmws/CertificateWS.asmx</CryptoGraphy.cscmUrl>
         <CryptoGraphy.sslcode>PK00000000000086</CryptoGraphy.sslcode>
         <CryptoGraphy.dependency.env>DEV</CryptoGraphy.dependency.env>
+
+        <!--Third AFS -->
+        <Visa.URL>https://ics2wstest.ic3.com/commerce/1.x/transactionProcessor</Visa.URL>
+        <Visa.MerchantID>cybersource_ctrip</Visa.MerchantID>
+        <Visa.Token>ETVjjpERBSzWLGGYNr3y1i0wpvivM93gv+0bIHMtdvif4HOOvekKOAy8cYcJCjn4SkcWYB62dmSqzi/ho5674mMS1f9oLrKFseCmRgS882SSqjOCDa9vciRifIKXtoBoXsWOf99glMhVIkr22eILyoWH+4MAwugxp38RzVFWHfjudlzQtPhtDxJmn1Md9xEgE3UwBsnCHmArKOhbVztPzfoS/8teRKEQZyuNxOIX/Y/k6zBZTNU7N+QYdKPl7fieYRhYoh1hVKR8XDoyHqQX49BiiF2GBwZQIm1Ftv1vp8kVEC1WAlLcetxHPJt3SEFGBgVfn6BWB336jFNhZJtEXA==</Visa.Token>
+        <Master.URL>https://accreditation.datacash.com/Transaction/cnp_a</Master.URL>
+        <Master.UID>88001177</Master.UID>
+        <Master.PWD>hMXChZVV</Master.PWD>
     </uat>
 
     <uat_nt>
@@ -179,6 +219,14 @@
         <CryptoGraphy.cscmUrl>https://cscmws.infosec.uat.qa.nt.ctripcorp.com/cscmws/CertificateWS.asmx</CryptoGraphy.cscmUrl>
         <CryptoGraphy.sslcode>PK00000000000086</CryptoGraphy.sslcode>
         <CryptoGraphy.dependency.env>DEV</CryptoGraphy.dependency.env>
+
+        <!--Third AFS -->
+        <Visa.URL>https://ics2wstest.ic3.com/commerce/1.x/transactionProcessor</Visa.URL>
+        <Visa.MerchantID>cybersource_ctrip</Visa.MerchantID>
+        <Visa.Token>ETVjjpERBSzWLGGYNr3y1i0wpvivM93gv+0bIHMtdvif4HOOvekKOAy8cYcJCjn4SkcWYB62dmSqzi/ho5674mMS1f9oLrKFseCmRgS882SSqjOCDa9vciRifIKXtoBoXsWOf99glMhVIkr22eILyoWH+4MAwugxp38RzVFWHfjudlzQtPhtDxJmn1Md9xEgE3UwBsnCHmArKOhbVztPzfoS/8teRKEQZyuNxOIX/Y/k6zBZTNU7N+QYdKPl7fieYRhYoh1hVKR8XDoyHqQX49BiiF2GBwZQIm1Ftv1vp8kVEC1WAlLcetxHPJt3SEFGBgVfn6BWB336jFNhZJtEXA==</Visa.Token>
+        <Master.URL>https://accreditation.datacash.com/Transaction/cnp_a</Master.URL>
+        <Master.UID>88001177</Master.UID>
+        <Master.PWD>hMXChZVV</Master.PWD>
     </uat_nt>
 
     <prd>
@@ -206,5 +254,13 @@
         <CryptoGraphy.cscmUrl>https://cscmws.infosec.ctripcorp.com/cscmws/CertificateWS.asmx</CryptoGraphy.cscmUrl>
         <CryptoGraphy.sslcode>UI00000000000131</CryptoGraphy.sslcode>
         <CryptoGraphy.dependency.env>PROD</CryptoGraphy.dependency.env>
+
+        <!--Third AFS -->
+        <Visa.URL>https://ics2ws.ic3.com/commerce/1.x/transactionProcessor</Visa.URL>
+        <Visa.MerchantID>cybersource_ctrip</Visa.MerchantID>
+        <Visa.Token>ETVjjpERBSzWLGGYNr3y1i0wpvivM93gv+0bIHMtdvif4HOOvekKOAy8cYcJCjn4SkcWYB62dmSqzi/ho5674mMS1f9oLrKFseCmRgS882SSqjOCDa9vciRifIKXtoBoXsWOf99glMhVIkr22eILyoWH+4MAwugxp38RzVFWHfjudlzQtPhtDxJmn1Md9xEgE3UwBsnCHmArKOhbVztPzfoS/8teRKEQZyuNxOIX/Y/k6zBZTNU7N+QYdKPl7fieYRhYoh1hVKR8XDoyHqQX49BiiF2GBwZQIm1Ftv1vp8kVEC1WAlLcetxHPJt3SEFGBgVfn6BWB336jFNhZJtEXA==</Visa.Token>
+        <Master.URL>https://accreditation.datacash.com/Transaction/cnp_a</Master.URL>
+        <Master.UID>88001177</Master.UID>
+        <Master.PWD>hMXChZVV</Master.PWD>
     </prd>
 </profile>

@@ -35,7 +35,7 @@ public class CounterTest {
     @Test
     public void testMaster() throws Exception {
         MasterRequest request = new MasterRequest();
-        request.setMerchantreference("DC_Test_03");
+        request.setMerchantreference("DC_Test_390");
 
         FraudOnlyTxn fraudOnlyTxn=new FraudOnlyTxn();
         request.setFraudOnlyTxn(fraudOnlyTxn);
@@ -97,10 +97,11 @@ public class CounterTest {
         riskDetails.setIp_address("207.232.39.2");
         riskDetails.setEmail_address("refer@datacash.com");
 
-        personalDetails.setDate_of_birth("1964-01-01");
+        //personalDetails.setDate_of_birth("1964-01-01");
         personalDetails.setFirst_name("Bob");
         personalDetails.setSurname("Nell");
-
+        personalDetails.setTelephone("17012345678");
+        personalDetails.setNationality("CN");
         journey.setPnr("ABC123");
         journey.setTicket_number("478935793");
 
@@ -130,7 +131,7 @@ public class CounterTest {
 
         MasterClient client= new MasterClient();
         MasterResponse masterResponse = client.requestMaster(request);
-        System.out.println(masterResponse.getResponseBody());
+        System.out.println(mapper.toJson(masterResponse));
 
         /*<?xml version="1.0" encoding="UTF-8"?>
         <Response>

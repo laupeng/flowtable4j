@@ -36,3 +36,11 @@ venus.socket.sendBufferSize=64
 CryptoGraphy.cscmUrl={$CryptoGraphy.cscmUrl}
 CryptoGraphy.sslcode={$CryptoGraphy.sslcode}
 CryptoGraphy.dependency.env={$CryptoGraphy.dependency.env}
+
+# Third AFS
+Visa.URL={$Visa.URL}
+Visa.MerchantID={$Visa.MerchantID}
+Visa.Token={$Visa.Token}
+Master.URL={$Master.URL}
+Master.UID={$Master.UID}
+Master.PWD={$Master.PWD}
