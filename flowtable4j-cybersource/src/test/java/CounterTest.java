@@ -1,6 +1,9 @@
 
-import com.ctrip.infosec.flowtable4j.master.*;
-import com.ctrip.infosec.flowtable4j.visa.*;
+import com.ctrip.infosec.flowtable4j.t3afs.master.*;
+import com.ctrip.infosec.flowtable4j.t3afs.visa.VisaCard;
+import com.ctrip.infosec.flowtable4j.t3afs.visa.VisaClient;
+import com.ctrip.infosec.flowtable4j.t3afs.visa.VisaRequest;
+import com.ctrip.infosec.flowtable4j.t3afs.visa.VisaResponse;
 import com.ctrip.infosec.sars.util.mapper.JsonMapper;
 import org.junit.Test;
 
