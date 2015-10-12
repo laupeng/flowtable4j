@@ -43,9 +43,7 @@ public class VisaClient {
                 " <soapenv:Body>\n" +
                 "<requestMessage xmlns=\"urn:schemas-cybersource-com:transaction-data-1.118\">\n")
                 .append(soapRequestContent)
-                .append(
-                        "<afsService run=\"true\"/>\n" +
-                                "</requestMessage>\n" +
+                .append( "</requestMessage>\n" +
                                 " </soapenv:Body>\n" +
                                 "</soapenv:Envelope>");
 
@@ -146,6 +144,7 @@ public class VisaClient {
         VisaResponse response = new VisaResponse();
         try {
             requestBody.setMerchantReferenceCode(requestBody.getEventID());
+            requestBody.setMerchantID(merchanetId);
             String soapResponseData = requestWithSoap(requestBody.toXml());
             if (soapResponseData != null && !soapResponseData.isEmpty()) {
                 handleResponse(soapResponseData, response);

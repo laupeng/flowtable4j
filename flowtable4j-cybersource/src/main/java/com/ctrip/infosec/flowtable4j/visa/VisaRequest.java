@@ -28,21 +28,26 @@ public class VisaRequest extends BaseNode {
         if(billTo!=null) {
             sb.append(billTo.toXML());
         }
-        if(card!=null) {
-           sb.append(card.toXML());
-        }
-        createNode(sb,"deviceFingerprintID",deviceFingerprintID);
-        if(purchaseTotals!=null) {
-            sb.append(purchaseTotals.toXML());
-        }
         if(items!=null && items.size()>0){
             for(int i=0;i< items.size();i++) {
                 sb.append(items.get(i).toXML(i));
             }
         }
+        if(purchaseTotals!=null) {
+            sb.append(purchaseTotals.toXML());
+        }
+        if(card!=null) {
+            sb.append(card.toXML());
+        }
+
+        if(decisionManager!=null){
+            sb.append(decisionManager.toXML());
+        }
         if(merchantDefinedData!=null) {
             sb.append(merchantDefinedData.toXML());
         }
+        sb.append("<afsService run=\"true\"/>\n");
+        createNode(sb,"deviceFingerprintID",deviceFingerprintID);
         return sb.toString();
     }
 

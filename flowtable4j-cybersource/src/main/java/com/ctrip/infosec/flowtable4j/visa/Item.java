@@ -14,6 +14,7 @@ public class Item extends BaseNode {
     public String toXML(int sequence){
         StringBuilder sb= new StringBuilder();
         sb.append("<item id=\"").append(sequence).append("\">");
+        createNode(sb,"unitPrice", unitPrice.toString());
         createNode(sb,"passengerFirstName",passengerFirstName);
         createNode(sb,"passengerLastName",passengerLastName);
         createNode(sb,"passengerID",passengerID);
@@ -21,7 +22,6 @@ public class Item extends BaseNode {
         createNode(sb,"passengerType",passengerType);
         createNode(sb,"passengerEmail",passengerEmail);
         createNode(sb,"passengerPhone",passengerPhone);
-        createNode(sb,"unitPrice",passengerPhone);
         sb.append("</item>");
         return sb.toString();
     }
@@ -80,5 +80,13 @@ public class Item extends BaseNode {
 
     public void setPassengerPhone(String passengerPhone) {
         this.passengerPhone = passengerPhone;
+    }
+
+    public Double getUnitPrice() {
+        return unitPrice;
+    }
+
+    public void setUnitPrice(Double unitPrice) {
+        this.unitPrice = unitPrice;
     }
 }

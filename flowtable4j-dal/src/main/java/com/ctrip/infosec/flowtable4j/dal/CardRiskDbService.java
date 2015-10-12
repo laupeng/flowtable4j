@@ -73,9 +73,9 @@ public class CardRiskDbService {
                     new CallableStatementCreator() {
                         @Override
                         public CallableStatement createCallableStatement(Connection connection) throws SQLException {
-                            String storedProc = "{call  spA_T3AFS_Result_i{@ReqID=?,@OrderID=? ,@OrderType=?,@ServiceType=?,@ServiceStatus=?,@ServiceError=?,@Decision=?,@DecisionMessage=?,@AFSResult=?,@ReasonCode=?,@AdditionalMessage=?,@ResponseStr=?,@EventID=?}";
+                            String storedProc = "{call spA_T3AFS_Result_i (@ReqID=?,@OrderID=? ,@OrderType=?,@ServiceType=?,@ServiceStatus=?,@ServiceError=?,@Decision=?,@DecisionMessage=?,@AFSResult=?,@ReasonCode=?,@AdditionalMessage=?,@ResponseStr=?,@EventID=?)}";
                             CallableStatement stmt = connection.prepareCall(storedProc);
-                            int i = 0;
+                            int i = 1;
                             stmt.registerOutParameter(i++, Types.BIGINT);
                             stmt.setObject(i++, values.get("orderid"));
                             stmt.setObject(i++, values.get("ordertype"));
@@ -99,7 +99,7 @@ public class CardRiskDbService {
                         }
                     });
         } catch (Exception ex) {
-            //
+            System.out.println(ex.getMessage());
         }
 
     }
