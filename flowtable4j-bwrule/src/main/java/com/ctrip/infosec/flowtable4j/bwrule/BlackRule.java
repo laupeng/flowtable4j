@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class BlackRule extends BaseRule {
     private static Integer THREAD_COUNT = 5;
-    private ThreadPoolExecutor executor= new ThreadPoolExecutor(100,200,60, TimeUnit.SECONDS,new ArrayBlockingQueue<Runnable>(50),
+    private ThreadPoolExecutor executor= new ThreadPoolExecutor(100,200,60, TimeUnit.SECONDS,new ArrayBlockingQueue<Runnable>(500),
              new CustomizableThreadFactory("pool-checkBlackRule-"));
 
     @Override
