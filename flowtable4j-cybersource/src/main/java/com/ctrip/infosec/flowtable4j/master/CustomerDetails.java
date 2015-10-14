@@ -6,8 +6,8 @@ import com.ctrip.infosec.flowtable4j.Common.BaseNode;
  * Created by thyang on 2015-08-19.
  */
 public class CustomerDetails extends BaseNode {
-    private String transaction_type;
-    private String payment_method;
+    private String transaction_type="Auth";
+    private String payment_method="CC";
     private RiskDetails riskDetails;
     private PersonalDetails personalDetails;
     private BillingDetails billingDetails;

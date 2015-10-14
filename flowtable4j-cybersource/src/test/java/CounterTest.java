@@ -105,7 +105,6 @@ public class CounterTest {
         personalDetails.setSurname("Nell");
         personalDetails.setTelephone("17012345678");
         personalDetails.setNationality("CN");
-        journey.setPnr("ABC123");
         journey.setTicket_number("478935793");
 
         Leg leg=new Leg();

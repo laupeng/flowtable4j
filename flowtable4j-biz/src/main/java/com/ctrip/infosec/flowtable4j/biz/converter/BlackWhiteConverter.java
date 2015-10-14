@@ -22,7 +22,9 @@ public class BlackWhiteConverter extends ConverterBase {
         fact.setOrderType(Integer.parseInt(getString(eventBody,"ordertype","0")));
         fact.setOrderTypes(new ArrayList<Integer>());
         fact.getOrderTypes().add(0);
-        fact.getOrderTypes().add(fact.getOrderType());
+        if(!fact.getOrderType().equals(0)) {
+            fact.getOrderTypes().add(fact.getOrderType());
+        }
         Map<String,Object> bwlist=getMap(eventBody,"blacklist");
         if(bwlist!=null && bwlist.size()>0) {
             content.putAll(bwlist);

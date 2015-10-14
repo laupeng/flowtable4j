@@ -10,6 +10,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import java.sql.Types;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.Callable;
 
 /**
  * Created by thyang on 2015/3/18 0018.
@@ -151,5 +152,27 @@ public class BWRuleTest {
         }
 
         System.out.println("Check black rules finished");
+    }
+
+    @Test
+    public void testDivide() {
+        int THREAD_COUNT = 3;
+        int ruleSize = 5;
+        if (ruleSize > 0) {
+            List<Callable<Object>> tasks = new ArrayList<Callable<Object>>();
+            int splitSize = ruleSize / THREAD_COUNT; //每线程应该数目
+            int plus = ruleSize - splitSize * THREAD_COUNT; //按splitSize+1分配的线程数
+            int normal = splitSize == 0 ? 0 : THREAD_COUNT - plus; //按splitSize分配的线程数
+            int startIndex = 0;
+            int lastIndex = 0;
+            for (int i = 0; i < normal; i++,startIndex+=splitSize) {
+                lastIndex = startIndex + splitSize;
+                System.out.println("N{" + startIndex + "," + lastIndex + "}\n");
+            }
+            for (int i = 0; i < plus; i++,startIndex += splitSize + 1) {
+                lastIndex = startIndex + splitSize + 1;
+                System.out.println("P{" + startIndex + "," + lastIndex + "}\n");
+            }
+        }
     }
 }

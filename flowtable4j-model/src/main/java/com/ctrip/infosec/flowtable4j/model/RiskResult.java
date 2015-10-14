@@ -2,6 +2,9 @@ package com.ctrip.infosec.flowtable4j.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Created by thyang on 2015/4/2 0002.
@@ -10,13 +13,18 @@ public class RiskResult {
     private String status="OK";
     private List<CheckResultLog> results=new ArrayList<CheckResultLog>();
     private long reqId;
-
+    private Lock lockObj=new ReentrantLock();
     public void setReqId(long reqId) {
         this.reqId = reqId;
     }
 
     public void add(CheckResultLog log){
-        results.add(log);
+        try {
+            lockObj.lock();
+            results.add(log);
+        } finally {
+            lockObj.unlock();
+        }
     }
 
     public void merge(RiskResult result){
